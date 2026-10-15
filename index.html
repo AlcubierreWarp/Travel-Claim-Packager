@@ -66,10 +66,11 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 /* layout */
 .layout{max-width:1240px;margin:0 auto;padding:22px 16px 140px;display:grid;grid-template-columns:196px minmax(0,1fr);gap:28px;align-items:start}
 .rail{position:sticky;top:16px;display:flex;flex-direction:column;gap:2px}
-.rail button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:2rem minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 8px;border-radius:3px;cursor:pointer;font-size:.87rem}
+.rail button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 8px;border-radius:3px;cursor:pointer;font-size:.87rem}
 .rail button:hover{background:var(--accent-soft)}
 .rail button:focus-visible{outline:2px solid var(--accent)}
-.rail .L{font:600 .74rem/1 var(--f-mono);border:1px solid var(--line-strong);text-align:center;padding:4px 0;border-radius:2px}
+.rail .L{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:2.6rem;height:1.5rem;padding:0 6px;font:600 .72rem/1 var(--f-mono);letter-spacing:.02em;border:1px solid var(--line-strong);border-radius:2px;background:var(--surface)}
+.rail button:hover .L{border-color:var(--accent)}
 .rail .n{font:500 .72rem var(--f-mono);color:var(--muted)}
 .rail .n.warn{color:var(--warn)}
 .rail .n.bad{color:var(--bad)}
@@ -294,6 +295,7 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
   .layout{grid-template-columns:minmax(0,1fr);padding-top:0}
   .rail{top:env(safe-area-inset-top,0px);z-index:6;flex-direction:row;overflow-x:auto;background:var(--bg);margin-inline:-16px;padding:8px 16px;border-bottom:1px solid var(--line);scrollbar-width:none}
   .rail button{grid-template-columns:auto auto auto;white-space:nowrap}
+  .rail .L{min-width:2.1rem}
   .pk-grid{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width: 560px){
@@ -384,7 +386,7 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
     </section>
 
     <section class="sec" id="sec-E">
-      <header class="sec-h"><span class="L">E</span><h2>Lodging</h2><p class="hint">One card for each place you slept: hotel, private accommodation or quarters</p></header>
+      <header class="sec-h"><span class="L">D</span><h2>Lodging</h2><p class="hint">One card for each place you slept: hotel, private accommodation or quarters</p></header>
       <div class="sec-b">
         <div class="sec-tools" style="margin-top:0"><button class="btn" data-act="fill-stays">Add stays from itinerary</button><span class="drophint">One card per place you stayed overnight, with the dates filled in.</span></div>
         <div class="stays" id="rows-stays"></div>
@@ -671,7 +673,7 @@ const COL = {
 const DEFS = {
   transport: { L: 'C', name: 'Transportation', grid: 'tg', cols: [COL.date, COL.loc('e.g. Ottawa airport'), { k: 'desc', l: 'Description', t: 'text', ph: 'e.g. Toll', list: 'dl-transport' }, COL.cost, COL.cur],
     empty: 'No transportation expenses yet. Tolls, parking, fuel, taxis, rentals and airfare go here.' },
-  stays: { L: 'E', name: 'Lodging', cols: [], empty: 'No stays yet. Add one card for each place you slept. A three-night hotel stay is one card.' },
+  stays: { L: 'D', name: 'Lodging', cols: [], empty: 'No stays yet. Add one card for each place you slept. A three-night hotel stay is one card.' },
   general: { L: 'F', name: 'General expenses', grid: 'tg', cols: [COL.date, COL.loc('Where'), { k: 'desc', l: 'Description', t: 'text', ph: 'e.g. Laundry', list: 'dl-general' }, COL.cost, COL.cur],
     empty: 'No general expenses. Laundry, internet, conference fees and similar go here.' },
   exchange: { L: 'G', name: 'Currency exchange', grid: 'xg', cols: [COL.date, COL.loc('Bank or exchange office'), { k: 'soldAmt', l: 'Sold', t: 'money' }, { k: 'soldCur', l: 'Cur', t: 'cur' }, { k: 'boughtAmt', l: 'Bought', t: 'money' }, { k: 'boughtCur', l: 'Cur', t: 'cur' }, { k: 'rate', l: 'Exch. rate', t: 'rate', ph: 'auto' }, { k: 'charge', l: 'Service charge', t: 'money' }, { k: 'chargeCur', l: 'Cur', t: 'cur' }],
@@ -680,7 +682,7 @@ const DEFS = {
     empty: 'No calls to claim.' },
 };
 const LIST_SECS = ['transport', 'stays', 'general', 'exchange', 'calls'];
-const SECNAME = { transport: 'C - Transportation', stays: 'E - Lodging', general: 'F - General expenses', exchange: 'G - Currency exchange', calls: 'H - Calls' };
+const SECNAME = { transport: 'C - Transportation', stays: 'D - Lodging', general: 'F - General expenses', exchange: 'G - Currency exchange', calls: 'H - Calls' };
 
 function refsFor(sec, i, n) {
   if (!n) return [];
@@ -760,10 +762,10 @@ function stayHTML(r, i) {
   const note = r.priv ? 'No receipt is needed for private accommodation.' : r.quarters ? 'No cost or receipt needed. Quarters are billed directly to the unit.' : '';
   return `<article class="stay" data-sec="stays" data-row="${r.id}">
     <div class="stay-head">
-      <span class="rownum">E-${i + 1}</span>
+      <span class="rownum">D-${i + 1}</span>
       <span class="stay-kind${r.priv ? ' priv' : r.quarters ? ' qtr' : ''}">${stayKind(r)}${r.rations ? ' + rations' : ''}</span>
       <span class="nights" id="nights-${r.id}"></span>
-      <button class="icon-btn del" data-act="del" data-sec="stays" data-row="${r.id}" aria-label="Remove stay E-${i + 1}">×</button>
+      <button class="icon-btn del" data-act="del" data-sec="stays" data-row="${r.id}" aria-label="Remove stay D-${i + 1}">×</button>
     </div>
     <div class="stay-opts">${opt('priv', 'Private accommodation')}${opt('quarters', 'Quarters')}${opt('rations', 'Rations')}</div>
     <div class="stay-grid">${fields.join('')}</div>
@@ -841,9 +843,9 @@ function renderMeals() {
   box.innerHTML = `<div class="tablewrap"><table class="meals">
     <thead><tr><th>Date</th><th class="loc">Location</th>${MEALS.map(([k, nm]) => `<th class="c"><label><span class="full">${nm}</span><span class="short" aria-hidden="true">${nm[0]}</span><input type="checkbox" id="meal-all-${k}" data-act="meal-all" data-meal="${k}" aria-label="Claim ${nm.toLowerCase()} every day"></label></th>`).join('')}<th>Remarks</th></tr></thead>
     <tbody>${dates.map(d => { const m = S.meals[d] || {}, ri = rationsStay(d); return `<tr${ri >= 0 ? ' class="rat"' : ''}>
-      <td class="d"><span class="wd">${dow(d)} </span>${fmtDate(d)}${ri >= 0 ? `<span class="rations-tag" title="Rations provided at stay E-${ri + 1}">Rations</span>` : ''}</td><td class="loc">${esc(locFor(d))}</td>
+      <td class="d"><span class="wd">${dow(d)} </span>${fmtDate(d)}${ri >= 0 ? `<span class="rations-tag" title="Rations provided at stay D-${ri + 1}">Rations</span>` : ''}</td><td class="loc">${esc(locFor(d))}</td>
       ${MEALS.map(([k, nm]) => `<td class="c"><input type="checkbox" id="meal-${d}-${k}" data-meal-date="${d}" data-meal="${k}" ${mealVal(d, k) ? 'checked' : ''} aria-label="${nm}, ${fmtLong(d)}"></td>`).join('')}
-      <td class="rem"><input id="meal-${d}-note" data-meal-date="${d}" data-meal="note" value="${esc(m.note)}" placeholder="${ri >= 0 ? `Rations provided (E-${ri + 1})` : 'Optional'}" aria-label="Remarks, ${fmtLong(d)}" autocomplete="off"></td></tr>`; }).join('')}</tbody>
+      <td class="rem"><input id="meal-${d}-note" data-meal-date="${d}" data-meal="note" value="${esc(m.note)}" placeholder="${ri >= 0 ? `Rations provided (D-${ri + 1})` : 'Optional'}" aria-label="Remarks, ${fmtLong(d)}" autocomplete="off"></td></tr>`; }).join('')}</tbody>
     <tfoot><tr><td>Meals claimed</td><td class="loc"></td>${MEALS.map(([k]) => `<td class="c" id="mc-${k}">0</td>`).join('')}<td></td></tr></tfoot>
   </table></div>`;
 }
@@ -856,7 +858,7 @@ function renderBinds() {
     el.value = v ?? '';
   });
 }
-const RAIL = [['A', 'A', 'sec-A', 'Personal info'], ['B', 'B', 'sec-B', 'Itinerary'], ['C', 'C', 'sec-C', 'Transportation'], ['E', 'E', 'sec-E', 'Lodging'], ['EM', 'E', 'sec-EM', 'Meals'], ['F', 'F', 'sec-F', 'General'], ['G', 'G', 'sec-G', 'Exchange'], ['H', 'H', 'sec-H', 'Calls'], ['SD', 'SD', 'sec-SD', 'Stat dec'], ['PDF', 'PDF', 'sec-P', 'Package']];
+const RAIL = [['A', 'A', 'sec-A', 'Personal info'], ['B', 'B', 'sec-B', 'Itinerary'], ['C', 'C', 'sec-C', 'Transportation'], ['D', 'D', 'sec-E', 'Lodging'], ['E', 'E', 'sec-EM', 'Meals'], ['F', 'F', 'sec-F', 'General'], ['G', 'G', 'sec-G', 'Exchange'], ['H', 'H', 'sec-H', 'Calls'], ['SD', 'SD', 'sec-SD', 'Stat dec'], ['PDF', 'PDF', 'sec-P', 'Package']];
 function renderRail() {
   $('#rail').innerHTML = RAIL.map(([key, L, id, nm]) => `<button data-act="goto" data-to="${id}" id="railbtn-${key}"><span class="L">${L}</span><span class="nm">${nm}</span><span class="n" id="rail-${key}"></span></button>`).join('');
   const opts = (blank) => `<option value="">${blank}</option>` + Object.entries(PROVS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
@@ -927,7 +929,7 @@ function autoRate(r) { const s = num(r.soldAmt), b = num(r.boughtAmt); return (s
 function sumBy(arr, k, ck) { const t = {}; arr.forEach(r => { const n = num(r[k]); if (!isNaN(n)) { const c = curOf(r[ck]) || 'CAD'; t[c] = (t[c] || 0) + n; } }); return t; }
 const GROUPS = () => [
   ['C', 'Transportation expenses', S.transport, 'cost', 'cur'],
-  ['E', 'Lodging', S.lodging.stays.filter(isStd), 'cost', 'cur'],
+  ['D', 'Lodging', S.lodging.stays.filter(isStd), 'cost', 'cur'],
   ['F', 'General expenses', S.general, 'cost', 'cur'],
   ['G', 'Currency exchange service charges', S.exchange, 'charge', 'chargeCur'],
   ['H', 'Calls', S.calls, 'cost', 'cur'],
@@ -977,23 +979,23 @@ function checks() {
   });
   const ordered = [];
   S.lodging.stays.forEach((r, i) => {
-    const ref = `E-${i + 1}`, nn = nights(r);
-    if (!r.checkin || !r.checkout) add('bad', 'E', `${ref} needs check-in and check-out dates.`);
-    else if (nn < 1) add('bad', 'E', `${ref}: check-out must be after check-in.`);
+    const ref = `D-${i + 1}`, nn = nights(r);
+    if (!r.checkin || !r.checkout) add('bad', 'D', `${ref} needs check-in and check-out dates.`);
+    else if (nn < 1) add('bad', 'D', `${ref}: check-out must be after check-in.`);
     else ordered.push({ r, ref });
     if (r.priv) {
-      if (!r.street.trim() || !r.city.trim()) add('warn', 'E', `${ref}: add the street address and city of the private accommodation.`);
+      if (!r.street.trim() || !r.city.trim()) add('warn', 'D', `${ref}: add the street address and city of the private accommodation.`);
     } else if (r.quarters) {
-      if (!r.location.trim()) add('warn', 'E', `${ref}: add the base or location of the quarters.`);
+      if (!r.location.trim()) add('warn', 'D', `${ref}: add the base or location of the quarters.`);
     } else {
-      if (!r.hotel.trim()) add('warn', 'E', `${ref} has no hotel name.`);
-      if (!r.location.trim()) add('warn', 'E', `${ref} has no city.`);
-      if (r.cost === '') { if (!r.lost) add('warn', 'E', `${ref} has no cost.`); } else if (isNaN(num(r.cost))) add('bad', 'E', `${ref} cost "${r.cost}" is not a number.`);
-      evidence('stays', r, ref, 'E');
+      if (!r.hotel.trim()) add('warn', 'D', `${ref} has no hotel name.`);
+      if (!r.location.trim()) add('warn', 'D', `${ref} has no city.`);
+      if (r.cost === '') { if (!r.lost) add('warn', 'D', `${ref} has no cost.`); } else if (isNaN(num(r.cost))) add('bad', 'D', `${ref} cost "${r.cost}" is not a number.`);
+      evidence('stays', r, ref, 'D');
     }
   });
   ordered.sort((a, b) => a.r.checkin.localeCompare(b.r.checkin));
-  for (let i = 1; i < ordered.length; i++) if (ordered[i].r.checkin < ordered[i - 1].r.checkout) add('warn', 'E', `${ordered[i - 1].ref} and ${ordered[i].ref} overlap. Check the dates.`);
+  for (let i = 1; i < ordered.length; i++) if (ordered[i].r.checkin < ordered[i - 1].r.checkout) add('warn', 'D', `${ordered[i - 1].ref} and ${ordered[i].ref} overlap. Check the dates.`);
   S.exchange.forEach((r, i) => evidence('exchange', r, `G-${i + 1}`, 'G'));
   S.calls.forEach((r, i) => { if (r.cost !== '' && isNaN(num(r.cost))) add('bad', 'H', `H-${i + 1} cost "${r.cost}" is not a number.`); });
   if (lostItems().length) {
@@ -1039,14 +1041,14 @@ function refresh() {
   const cs = checks(), nBad = cs.filter(c => c.lvl === 'bad').length;
   const bySec = {}; cs.forEach(c => { const b = bySec[c.sec] = bySec[c.sec] || { bad: 0, warn: 0 }; b[c.lvl]++; });
   const totalMeals = mc.c.b + mc.c.l + mc.c.d;
-  const counts = { B: `${S.stops.length}`, C: S.transport.length || '', E: S.lodging.stays.length || '', EM: totalMeals ? `${totalMeals}` : '', F: S.general.length || '', G: S.exchange.length || '', H: S.calls.length || '' };
+  const counts = { B: `${S.stops.length}`, C: S.transport.length || '', D: S.lodging.stays.length || '', E: totalMeals ? `${totalMeals}` : '', F: S.general.length || '', G: S.exchange.length || '', H: S.calls.length || '' };
   RAIL.forEach(([key]) => {
     const el = $('#rail-' + key); if (!el) return; const b = bySec[key];
     if (key === 'PDF') { el.textContent = nBad ? `${nBad} to fix` : cs.length ? `${cs.length} to check` : 'ready'; el.className = 'n ' + (nBad ? 'bad' : cs.length ? 'warn' : 'ok'); return; }
     el.className = 'n' + (b?.bad ? ' bad' : b?.warn ? ' warn' : key === 'A' ? ' ok' : '');
     el.textContent = key === 'A' ? (b?.bad ? 'incomplete' : 'done') : key === 'SD' ? (b?.bad ? 'confirm' : `${ev.lost}`) : (b ? '! ' : '') + counts[key];
   });
-  const secId = { A: 'sec-A', B: 'sec-B', C: 'sec-C', E: 'sec-E', EM: 'sec-EM', F: 'sec-F', G: 'sec-G', H: 'sec-H', SD: 'sec-SD' };
+  const secId = { A: 'sec-A', B: 'sec-B', C: 'sec-C', D: 'sec-E', E: 'sec-EM', F: 'sec-F', G: 'sec-G', H: 'sec-H', SD: 'sec-SD' };
   const sorted = cs.slice().sort((a, b) => (a.lvl === 'bad' ? 0 : 1) - (b.lvl === 'bad' ? 0 : 1)), shown = sorted.slice(0, 16);
   $('#checks').innerHTML = cs.length
     ? shown.map(c => `<li><span class="pill ${c.lvl}">${c.lvl === 'bad' ? 'Fix' : 'Check'}</span><button data-act="goto" data-to="${secId[c.sec]}"><span class="sr">Section ${c.sec}: </span><span>${esc(c.msg)}</span></button></li>`).join('') + (cs.length > shown.length ? `<li><span></span><span class="drophint">and ${cs.length - shown.length} more</span></li>` : '')
@@ -1485,21 +1487,20 @@ function drawWorksheet(P, items, wsPages) {
   const cc = [{ l: 'Date', w: .9 }, { l: 'Location', w: 1.8 }, { l: 'Description', w: 2.4 }, { l: 'Cost', w: .8, a: 'r' }, { l: 'Cur', w: .5, a: 'c' }, { l: 'Rcpt', w: .7, a: 'c' }];
   P.table(cc, [...S.transport.map((r, i) => [fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcp('transport', i, r)]), ...subtotalRows(S.transport, 'cost', 'cur', 6, 2, 3, 4)]);
   // E
-  P.bar('E', 'Lodging and meals', 'Please indicate only meals that you are claiming');
+  P.bar('D', 'Lodging');
   const yn = v => v ? 'Yes' : 'No', stays = S.lodging.stays;
   const nightsOf = list => list.reduce((a, r) => a + Math.max(0, nights(r) || 0), 0);
   P.table([{ l: 'Rations and quarters', w: 1, a: 'c' }, { l: 'Quarters no rations', w: 1, a: 'c' }, { l: 'Commercial nights', w: 1, a: 'c' }, { l: 'Private accommodation nights', w: 1.15, a: 'c' }, { l: 'Quarters nights', w: 1, a: 'c' }],
     [[yn(stays.some(r => r.quarters && r.rations)), yn(stays.some(r => r.quarters && !r.rations)), String(nightsOf(stays.filter(isStd))), String(nightsOf(stays.filter(r => r.priv))), String(nightsOf(stays.filter(r => r.quarters)))]]);
-  P.sub('Lodging');
   const where = r => r.priv ? privAddr(r) : r.quarters ? 'Quarters, billed directly to the unit' : r.hotel;
   const rcell = (r, i) => r.priv ? 'n/a' : r.quarters ? 'Unit billed' : rcp('stays', i, r);
   P.table([{ l: 'Type', w: .95 }, { l: 'Hotel / private address / quarters', w: 2.35 }, { l: 'City or base', w: 1.05 }, { l: 'Check-in', w: .85 }, { l: 'Check-out', w: .85 }, { l: 'Nights', w: .5, a: 'c' }, { l: 'Cost', w: .75, a: 'r' }, { l: 'Cur', w: .45, a: 'c' }, { l: 'Rcpt', w: .75, a: 'c' }],
     [...stays.map((r, i) => [stayKind(r) + (r.rations ? ' + rations' : ''), where(r), r.priv ? r.city : r.location, fmtDate(r.checkin), fmtDate(r.checkout), nights(r) > 0 ? String(nights(r)) : '', isStd(r) ? (money(r.cost) || r.cost) : '', isStd(r) && r.cost !== '' ? curOf(r.cur) : '', rcell(r, i)]),
      ...subtotalRows(stays.filter(isStd), 'cost', 'cur', 9, 1, 6, 7)]);
-  P.sub('Meals claimed');
+  P.bar('E', 'Meals', 'Please indicate only meals that you are claiming');
   const dates = tripDates() || [], mc = mealCounts().c, x = v => v ? 'X' : '';
   P.table([{ l: 'Date', w: 1 }, { l: 'Location', w: 1.6 }, { l: 'B', w: .35, a: 'c' }, { l: 'L', w: .35, a: 'c' }, { l: 'D', w: .35, a: 'c' }, { l: 'Remarks', w: 2.6 }],
-    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [ri >= 0 ? `Rations provided (E-${ri + 1})` : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: ['Meals claimed', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
+    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [ri >= 0 ? `Rations provided (D-${ri + 1})` : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: ['Meals claimed', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
   // F
   P.bar('F', 'General expenses');
   P.table(cc, [...S.general.map((r, i) => [fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcp('general', i, r)]), ...subtotalRows(S.general, 'cost', 'cur', 6, 2, 3, 4)]);

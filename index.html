@@ -564,7 +564,9 @@ const money = v => { const n = num(v); return isNaN(n) ? '' : n.toFixed(2); };
 const curOf = c => String(c || '').trim().toUpperCase();
 const STORE = 'caf-dti-v1';
 const inViewer = !!(window.claude && typeof window.claude.use === 'function');
-const MODES = ['CAL', 'Train', 'PMV', 'PMV Pax', 'Rental Car', 'Shuttle', 'Other'];
+const MODES = ['CAL', 'Train', 'PMV', 'PMV Pax', 'Rental Car', 'Shuttle', 'Other', 'No travel'];
+const NOTRAVEL = 'No travel';
+const modeLabel = m => m === NOTRAVEL ? 'No travel (same location)' : m;
 const MEALS = [['b', 'Breakfast'], ['l', 'Lunch'], ['d', 'Dinner']];
 // CAF ranks; RCN junior ranks use the 2020 Sailor designations (S1, S2, S3)
 const RANKS = [
@@ -845,7 +847,7 @@ function renderItin() {
       <div class="spine"></div>
       <div class="leg-card">
         <label for="stops-${s.id}-mode">Travel by</label>
-        <select id="stops-${s.id}-mode" class="mode" data-sec="stops" data-row="${s.id}" data-k="mode"><option value="">Choose</option>${MODES.map(m => `<option ${m === s.mode ? 'selected' : ''}>${m}</option>`).join('')}</select>
+        <select id="stops-${s.id}-mode" class="mode" data-sec="stops" data-row="${s.id}" data-k="mode"><option value="">Choose</option>${MODES.map(m => `<option value="${m}" ${m === s.mode ? 'selected' : ''}>${modeLabel(m)}</option>`).join('')}</select>
         <input id="stops-${s.id}-modeOther" class="mode-other" data-sec="stops" data-row="${s.id}" data-k="modeOther" value="${esc(s.modeOther)}" placeholder="How did you travel?" aria-label="Other way of travelling" autocomplete="off"${s.mode === 'Other' ? '' : ' hidden'}>
         <span class="dur" id="dur-${s.id}"></span>
         <button class="link-btn" data-act="add-stop" data-i="${i}">+ Add a stop here</button>
@@ -854,7 +856,7 @@ function renderItin() {
   });
   $('#itin').innerHTML = h;
 }
-const modeText = s => s.mode === 'Other' ? (s.modeOther.trim() || 'Other') : s.mode;
+const modeText = s => s.mode === 'Other' ? (s.modeOther.trim() || 'Other') : modeLabel(s.mode);
 
 function tripDates() {
   const a = S.stops[0].depDate, b = S.stops[S.stops.length - 1].arrDate;
@@ -954,6 +956,7 @@ function itinIssues() {
   return { by, list };
 }
 function durText(s, nx) {
+  if (s.mode === NOTRAVEL) return 'Same location, no travel';
   const a = ts(s.depDate, s.depTime), b = ts(nx.arrDate, nx.arrTime);
   if (!a || !b || !a.hasT || !b.hasT || b.ms < a.ms) return '';
   const m = Math.round((b.ms - a.ms) / 60000), h = Math.floor(m / 60), mm = m % 60;
@@ -997,6 +1000,7 @@ function checks() {
     const from = s.city.trim() || (i === 0 ? 'the start' : 'stop ' + i);
     if (!s.mode) add('warn', 'B', `Choose how you travelled from ${from}.`);
     else if (s.mode === 'Other' && !s.modeOther.trim()) add('warn', 'B', `Describe the "Other" way you travelled from ${from}.`);
+    else if (s.mode === NOTRAVEL && S.stops[i + 1] && s.city.trim() && S.stops[i + 1].city.trim() && s.city.trim().toLowerCase() !== S.stops[i + 1].city.trim().toLowerCase()) add('warn', 'B', `"No travel" is selected between ${s.city.trim()} and ${S.stops[i + 1].city.trim()}, which are different places.`);
   });
   itinIssues().list.forEach(msg => add('warn', 'B', msg));
   const evidence = (sec, r, ref, L) => {
@@ -1243,6 +1247,14 @@ function onField(el, final) {
     }
     s[k] = v;
     if (k === 'mode') { const o = $(`#stops-${s.id}-modeOther`); if (o) { o.hidden = v !== 'Other'; if (v === 'Other' && final) o.focus(); } }
+    if (final && (k === 'mode' || k === 'depDate' || k === 'depTime') && (k === 'mode' ? v : s.mode) === NOTRAVEL && S.stops[i + 1]) {
+      const nx = S.stops[i + 1];
+      for (const [from, to] of [['depDate', 'arrDate'], ['depTime', 'arrTime']]) {
+        const val = k === from ? v : s[from];
+        if (val && (!nx[to] || k === from)) { nx[to] = val; const t = $(`#stops-${nx.id}-${to}`); if (t) t.value = val; }
+      }
+      if (k === 'mode' && !nx.city.trim() && s.city.trim()) { nx.city = s.city.trim(); const c = $(`#stops-${nx.id}-city`); if (c) c.value = nx.city; }
+    }
     if (final && k === 'depDate' && v && S.stops[i + 1] && !S.stops[i + 1].arrDate) { S.stops[i + 1].arrDate = v; const t = $(`#stops-${S.stops[i + 1].id}-arrDate`); if (t) t.value = v; }
     if (final && k === 'arrDate' && v && i > 0 && i < S.stops.length - 1 && !s.depDate) { s.depDate = v; const t = $(`#stops-${s.id}-depDate`); if (t) t.value = v; }
     return;

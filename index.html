@@ -803,7 +803,7 @@ function stayHTML(r, i) {
     </div>
     <div class="stay-opts">${opt('priv', 'Private accommodation')}${opt('quarters', 'Quarters')}${opt('rations', 'Rations')}</div>
     <div class="stay-grid">${fields.join('')}</div>
-    ${note ? `<p class="drophint note">${note}${r.rations ? ' Meals on these dates are left unticked in the meals section.' : ''}</p>` : `${r.rations ? '<p class="drophint note">Rations provided: meals on these dates are left unticked in the meals section.</p>' : ''}<div class="rc" id="rc-${r.id}">${rcHTML('stays', r, i)}</div>`}
+    ${note ? `<p class="drophint note">${note}${r.rations ? ' Meals on these dates are left unticked in the meals section.' : ''}</p>` : `${r.rations ? '<p class="drophint note">Rations booked: meals on these dates are left unticked in the meals section.</p>' : ''}<div class="rc" id="rc-${r.id}">${rcHTML('stays', r, i)}</div>`}
   </article>`;
 }
 function renderList(sec) {
@@ -879,9 +879,9 @@ function renderMeals() {
   box.innerHTML = `<div class="tablewrap"><table class="meals">
     <thead><tr><th>Date</th><th class="loc">Location</th>${MEALS.map(([k, nm]) => `<th class="c"><label><span class="full">${nm}</span><span class="short" aria-hidden="true">${nm[0]}</span><input type="checkbox" id="meal-all-${k}" data-act="meal-all" data-meal="${k}" aria-label="Claim ${nm.toLowerCase()} every day"></label></th>`).join('')}<th>Remarks</th></tr></thead>
     <tbody>${dates.map(d => { const m = S.meals[d] || {}, ri = rationsStay(d), lv = LEAVE.has(d); return `<tr${lv ? ' class="lv"' : ri >= 0 ? ' class="rat"' : ''}>
-      <td class="d"><span class="wd">${dow(d)} </span>${fmtDate(d)}${lv ? '<span class="rations-tag leave-tag" title="On leave">Leave</span>' : ri >= 0 ? `<span class="rations-tag" title="Rations provided at stay D-${ri + 1}">Rations</span>` : ''}</td><td class="loc">${esc(locFor(d))}</td>
+      <td class="d"><span class="wd">${dow(d)} </span>${fmtDate(d)}${lv ? '<span class="rations-tag leave-tag" title="On leave">Leave</span>' : ri >= 0 ? `<span class="rations-tag" title="Rations booked at stay D-${ri + 1}">Rations</span>` : ''}</td><td class="loc">${esc(locFor(d))}</td>
       ${MEALS.map(([k, nm]) => `<td class="c"><input type="checkbox" id="meal-${d}-${k}" data-meal-date="${d}" data-meal="${k}" ${mealVal(d, k) ? 'checked' : ''} aria-label="${nm}, ${fmtLong(d)}"></td>`).join('')}
-      <td class="rem"><input id="meal-${d}-note" data-meal-date="${d}" data-meal="note" value="${esc(m.note)}" placeholder="${lv ? 'On leave' : ri >= 0 ? `Rations provided (D-${ri + 1})` : 'Optional'}" aria-label="Remarks, ${fmtLong(d)}" autocomplete="off"></td></tr>`; }).join('')}</tbody>
+      <td class="rem"><input id="meal-${d}-note" data-meal-date="${d}" data-meal="note" value="${esc(m.note)}" placeholder="${lv ? 'On leave' : ri >= 0 ? `Rations booked (D-${ri + 1})` : 'Optional'}" aria-label="Remarks, ${fmtLong(d)}" autocomplete="off"></td></tr>`; }).join('')}</tbody>
     <tfoot><tr><td>Meals claimed</td><td class="loc"></td>${MEALS.map(([k]) => `<td class="c" id="mc-${k}">0</td>`).join('')}<td></td></tr></tfoot>
   </table></div>`;
 }
@@ -1270,7 +1270,7 @@ function onField(el, final) {
     if (k !== 'rations' && !isStd(row)) row.lost = false;
     if (k === 'rations') {
       const n = resetMealsFor(row);
-      if (n) toast(v ? `Rations provided: meals from ${fmtDate(row.checkin)} to ${fmtDate(row.checkout)} are now unticked.` : `Meals from ${fmtDate(row.checkin)} to ${fmtDate(row.checkout)} are ticked again.`);
+      if (n) toast(v ? `Rations booked: meals from ${fmtDate(row.checkin)} to ${fmtDate(row.checkout)} are now unticked.` : `Meals from ${fmtDate(row.checkin)} to ${fmtDate(row.checkout)} are ticked again.`);
     }
     renderList('stays'); renderMeals(); const c = $(`#stays-${row.id}-${k}`); if (c) c.focus();
   }
@@ -1544,7 +1544,7 @@ function drawWorksheet(P, items, wsPages) {
   P.bar('B', 'Travel itinerary / Itineraire de voyage', 'Please include all cities');
   const n = S.stops.length;
   P.table([{ l: 'Arrival date', w: .95 }, { l: 'Arrival time', w: .65, a: 'c' }, { l: 'City', w: 2.2 }, { l: 'Departure date', w: .95 }, { l: 'Departure time', w: .7, a: 'c' }, { l: 'Mode of transportation', w: 1.5 }],
-    S.stops.map((s, i) => { const f = i === 0, l = i === n - 1, sh = { t: '', shade: true }; return [f ? sh : fmtDate(s.arrDate), f ? sh : s.arrTime, s.city + (s.leave && !f && !l ? ' (leave)' : ''), l ? sh : fmtDate(s.depDate), l ? sh : s.depTime, l ? sh : modeText(s)]; }));
+    S.stops.map((s, i) => { const f = i === 0, l = i === n - 1, sh = { t: '', shade: true }; return [f ? sh : fmtDate(s.arrDate), f ? sh : s.arrTime, s.city + (s.leave && !f && !l ? ' (LEAVE)' : ''), l ? sh : fmtDate(s.depDate), l ? sh : s.depTime, l ? sh : modeText(s)]; }));
   const rcp = (sec, i, row) => row.lost ? `${DEFS[sec].L}-${i + 1} SD` : refsFor(sec, i, row.rc.filter(id => R[id]).length).join(', ');
   // C
   P.bar('C', 'Transportation expenses', 'Include rental vehicle info, gas, taxis, bus, train, air, PMV and parking etc.');
@@ -1561,7 +1561,7 @@ function drawWorksheet(P, items, wsPages) {
   P.bar('E', 'Meals', 'Please indicate only meals that you are claiming');
   const dates = tripDates() || [], mc = mealCounts().c, x = v => v ? 'X' : '';
   P.table([{ l: 'Date', w: 1 }, { l: 'Location', w: 1.6 }, { l: 'B', w: .35, a: 'c' }, { l: 'L', w: .35, a: 'c' }, { l: 'D', w: .35, a: 'c' }, { l: 'Remarks', w: 2.6 }],
-    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [LEAVE.has(d) ? 'Leave' : ri >= 0 ? `Rations provided (D-${ri + 1})` : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: ['Meals claimed', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
+    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [LEAVE.has(d) ? 'Leave' : ri >= 0 ? `Rations booked (D-${ri + 1})` : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: ['Meals claimed', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
   // F
   P.bar('F', 'General expenses');
   P.table(cc, [...S.general.map((r, i) => [fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcp('general', i, r)]), ...subtotalRows(S.general, 'cost', 'cur', 6, 2, 3, 4)]);

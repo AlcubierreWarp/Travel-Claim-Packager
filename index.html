@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'">
-<!-- JMC Travel Claim Packager. Runs entirely in the browser. This page cannot make network requests. -->
-<title>JMC Travel Claim Packager</title>
+<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. This page cannot make network requests. -->
+<title>CAF Digital Travel Itinerary</title>
 
 <style>
 /* Layout: section rail on the left, one working column of form sections in worksheet order, totals bar pinned to the bottom */
@@ -217,6 +217,16 @@ fieldset.tg.off input{opacity:.3}
 @container (max-width: 340px){ .stay-grid .w2{grid-column:auto} }
 .stay .rc{padding-left:0;margin-top:10px}
 .stay .note{margin:10px 0 0}
+.trip .sec-b{padding-block:14px}
+.trip label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.trip-in{font-size:1.1rem;font-weight:600;max-width:36rem}
+.trip .sd-help{margin-top:6px}
+.leave-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px}
+.leave-days{font-size:.8rem;color:var(--warn)}
+.stop.is-leave .stop-card{border-style:dashed;border-color:var(--warn);background:color-mix(in srgb,var(--warn-soft) 45%,var(--card))}
+.stop.is-leave .node{border-color:var(--warn)}
+.leave-tag{color:var(--ink);background:var(--off)}
+.meals tr.lv td{background:color-mix(in srgb,var(--off) 60%,transparent)}
 .stay-opts{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:8px 10px;margin-bottom:10px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
 .stay-kind.qtr{background:var(--warn-soft);color:var(--warn)}
 .rations-tag{font:600 .62rem/1 var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:3px 5px;border-radius:2px;margin-left:6px;white-space:nowrap}
@@ -323,7 +333,7 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
     <div class="brand">
       <span class="mark" aria-hidden="true">TD</span>
       <div>
-        <h1>JMC Travel Claim Packager</h1>
+        <h1>CAF Digital Travel Itinerary</h1>
         <p>Temporary duty itinerary worksheet and receipts, compiled into one PDF for the Orderly Room.</p>
       </div>
     </div>
@@ -334,7 +344,7 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
     </div>
   </div>
 </header>
-<div class="localonly"><div class="wrap"><b>LOCAL ONLY</b><span>Everything runs in this browser window. Nothing you type or attach is uploaded or stored on a server. Save a draft file if you need to finish later.</span></div></div>
+<div class="localonly"><div class="wrap"><b>LOCAL ONLY</b><span>Everything runs in this browser window. Nothing you type or attach is uploaded or stored on a server. Save a draft file if you need to finish later. Unofficial tool: check claims against CFTDTI and your Orderly Room.</span></div></div>
 
 <div class="layout">
   <nav class="rail" aria-label="Worksheet sections" id="rail"></nav>
@@ -343,6 +353,14 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
       <span><strong>This is an example claim.</strong> The member, trip and receipts are made up so you can see how the package comes out.</span>
       <button class="btn" data-act="start-blank">Start a blank claim</button>
     </div>
+
+    <section class="sec trip" id="sec-T">
+      <div class="sec-b">
+        <label for="trip-ref">Trip name</label>
+        <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE">
+        <p class="sd-help">Shown at the top of the PDF and used in the file name.</p>
+      </div>
+    </section>
 
     <section class="sec" id="sec-A">
       <header class="sec-h"><span class="L">A</span><h2>Personal information</h2></header>
@@ -475,8 +493,7 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
             <ul class="checks" id="checks"></ul>
           </div>
           <div>
-            <div class="field"><label for="trip-ref">Trip name, used in the file name</label><input id="trip-ref" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course"></div>
-            <p class="fname">File: <code id="fname"></code></p>
+            <p class="fname" style="margin-top:0">File: <code id="fname"></code></p>
             <h3 style="margin-top:18px">What goes in</h3>
             <ul class="contents" id="contents"></ul>
           </div>
@@ -545,7 +562,7 @@ const dow = d => isoOk(d) ? DOW[new Date(d + 'T12:00:00Z').getUTCDay()] : '';
 const num = v => { if (v === '' || v == null) return NaN; return parseFloat(String(v).replace(/[$\s]/g, '').replace(',', '.')); };
 const money = v => { const n = num(v); return isNaN(n) ? '' : n.toFixed(2); };
 const curOf = c => String(c || '').trim().toUpperCase();
-const STORE = 'jmc-tcp-v3';
+const STORE = 'caf-dti-v1';
 const inViewer = !!(window.claude && typeof window.claude.use === 'function');
 const MODES = ['CAL', 'Train', 'PMV', 'PMV Pax', 'Rental Car', 'Shuttle', 'Other'];
 const MEALS = [['b', 'Breakfast'], ['l', 'Lunch'], ['d', 'Dinner']];
@@ -599,7 +616,7 @@ const telStr = o => o.tel ? o.tel + (o.ext ? ' ext ' + o.ext : '') : '';
 
 /* ---------- state ---------- */
 let S, R = {};
-const newStop = (city = '') => ({ id: uid(), city, arrDate: '', arrTime: '', depDate: '', depTime: '', mode: '', modeOther: '' });
+const newStop = (city = '') => ({ id: uid(), city, arrDate: '', arrTime: '', depDate: '', depTime: '', mode: '', modeOther: '', leave: false });
 const LOST = () => ({ lost: false, lostReason: '' });
 const ROWNEW = {
   transport: () => Object.assign({ date: '', location: '', desc: '', cost: '', cur: 'CAD' }, LOST()),
@@ -623,7 +640,22 @@ const sdRank = () => isCiv() ? '' : (RANKFULL[S.member.rank] || S.member.rank.tr
 const isStd = r => !r.priv && !r.quarters; // a commercial stay, which needs a cost and receipt
 const stayKind = r => r.priv ? 'Private' : r.quarters ? 'Quarters' : 'Commercial';
 const rationsStay = d => S.lodging.stays.findIndex(r => r.rations && isoOk(r.checkin) && isoOk(r.checkout) && r.checkin <= d && d <= r.checkout);
-function mealVal(d, k) { const m = S.meals[d]; return (m && typeof m[k] === 'boolean') ? m[k] : rationsStay(d) < 0; }
+function datesBetween(a, b) { const out = []; if (!isoOk(a) || !isoOk(b) || b < a) return out; for (let d = a; d <= b && out.length < 400; d = addDays(d, 1)) out.push(d); return out; }
+// Leave days: dates spent only at stops marked as leave. Days that also include duty or duty travel stay claimable.
+let LEAVE = new Set();
+function leaveDays() {
+  const st = S.stops, n = st.length, duty = new Set(), leave = new Set();
+  st.forEach((s, i) => {
+    const a = i === 0 ? s.depDate : s.arrDate, b = i === n - 1 ? s.arrDate : s.depDate;
+    datesBetween(a || b, b || a).forEach(d => ((s.leave && i > 0 && i < n - 1) ? leave : duty).add(d));
+    if (i < n - 1) datesBetween(s.depDate, st[i + 1].arrDate).forEach(d => duty.add(d));
+  });
+  return new Set([...leave].filter(d => !duty.has(d)));
+}
+function updateLeave() { LEAVE = leaveDays(); }
+const leaveNights = () => { const set = new Set(); S.stops.slice(1, -1).forEach(s => { if (s.leave && isoOk(s.arrDate) && isoOk(s.depDate)) for (let d = s.arrDate; d < s.depDate; d = addDays(d, 1)) set.add(d); }); return set; };
+function mealVal(d, k) { const m = S.meals[d]; return (m && typeof m[k] === 'boolean') ? m[k] : (rationsStay(d) < 0 && !LEAVE.has(d)); }
+function rangeText(list) { if (!list.length) return ''; const a = list[0], b = list[list.length - 1]; return a === b ? fmtDate(a) : `${fmtDate(a)} to ${fmtDate(b)}`; }
 function resetMealsFor(r) {
   if (!isoOk(r.checkin) || !isoOk(r.checkout) || r.checkout < r.checkin) return 0;
   let n = 0; for (let d = r.checkin; d <= r.checkout; d = addDays(d, 1)) { const m = S.meals[d]; if (m) { delete m.b; delete m.l; delete m.d; } n++; }
@@ -792,7 +824,7 @@ function renderItin() {
   S.stops.forEach((s, i) => {
     const first = i === 0, last = i === n - 1;
     const ph = first ? 'Where you leave from, e.g. Residence or unit lines' : last ? 'Where you finish, e.g. Residence' : 'City or base, e.g. Winnipeg';
-    h += `<li class="stop${first ? ' is-first' : ''}${last ? ' is-last' : ''}" data-row="${s.id}">
+    h += `<li class="stop${first ? ' is-first' : ''}${last ? ' is-last' : ''}${s.leave && !first && !last ? ' is-leave' : ''}" data-row="${s.id}">
       <div class="spine"><span class="node"></span></div>
       <div class="stop-card">
         <div class="stop-head">
@@ -805,6 +837,7 @@ function renderItin() {
           ${timeGroup(s, 'arr', 'Arrive', first, 'Trip starts here')}
           ${timeGroup(s, 'dep', 'Depart', last, 'Trip ends here')}
         </div>
+        ${!first && !last ? `<div class="leave-row"><label class="check"><input type="checkbox" id="stops-${s.id}-leave" data-sec="stops" data-row="${s.id}" data-k="leave" ${s.leave ? 'checked' : ''}> On leave at this stop</label><span class="leave-days" id="leave-${s.id}"></span></div>` : ''}
         <p class="warnline" id="warn-${s.id}" hidden></p>
       </div>
     </li>`;
@@ -838,14 +871,15 @@ function locFor(d) {
   return loc;
 }
 function renderMeals() {
+  updateLeave();
   const dates = tripDates(), box = $('#meals');
   if (!dates) { box.innerHTML = '<p class="empty">Add the date you leave at the Start and the date you arrive at the Finish in section B. A row for each travel day appears here.</p>'; return; }
   box.innerHTML = `<div class="tablewrap"><table class="meals">
     <thead><tr><th>Date</th><th class="loc">Location</th>${MEALS.map(([k, nm]) => `<th class="c"><label><span class="full">${nm}</span><span class="short" aria-hidden="true">${nm[0]}</span><input type="checkbox" id="meal-all-${k}" data-act="meal-all" data-meal="${k}" aria-label="Claim ${nm.toLowerCase()} every day"></label></th>`).join('')}<th>Remarks</th></tr></thead>
-    <tbody>${dates.map(d => { const m = S.meals[d] || {}, ri = rationsStay(d); return `<tr${ri >= 0 ? ' class="rat"' : ''}>
-      <td class="d"><span class="wd">${dow(d)} </span>${fmtDate(d)}${ri >= 0 ? `<span class="rations-tag" title="Rations provided at stay D-${ri + 1}">Rations</span>` : ''}</td><td class="loc">${esc(locFor(d))}</td>
+    <tbody>${dates.map(d => { const m = S.meals[d] || {}, ri = rationsStay(d), lv = LEAVE.has(d); return `<tr${lv ? ' class="lv"' : ri >= 0 ? ' class="rat"' : ''}>
+      <td class="d"><span class="wd">${dow(d)} </span>${fmtDate(d)}${lv ? '<span class="rations-tag leave-tag" title="On leave">Leave</span>' : ri >= 0 ? `<span class="rations-tag" title="Rations provided at stay D-${ri + 1}">Rations</span>` : ''}</td><td class="loc">${esc(locFor(d))}</td>
       ${MEALS.map(([k, nm]) => `<td class="c"><input type="checkbox" id="meal-${d}-${k}" data-meal-date="${d}" data-meal="${k}" ${mealVal(d, k) ? 'checked' : ''} aria-label="${nm}, ${fmtLong(d)}"></td>`).join('')}
-      <td class="rem"><input id="meal-${d}-note" data-meal-date="${d}" data-meal="note" value="${esc(m.note)}" placeholder="${ri >= 0 ? `Rations provided (D-${ri + 1})` : 'Optional'}" aria-label="Remarks, ${fmtLong(d)}" autocomplete="off"></td></tr>`; }).join('')}</tbody>
+      <td class="rem"><input id="meal-${d}-note" data-meal-date="${d}" data-meal="note" value="${esc(m.note)}" placeholder="${lv ? 'On leave' : ri >= 0 ? `Rations provided (D-${ri + 1})` : 'Optional'}" aria-label="Remarks, ${fmtLong(d)}" autocomplete="off"></td></tr>`; }).join('')}</tbody>
     <tfoot><tr><td>Meals claimed</td><td class="loc"></td>${MEALS.map(([k]) => `<td class="c" id="mc-${k}">0</td>`).join('')}<td></td></tr></tfoot>
   </table></div>`;
 }
@@ -995,6 +1029,8 @@ function checks() {
     }
   });
   ordered.sort((a, b) => a.r.checkin.localeCompare(b.r.checkin));
+  const ln = leaveNights();
+  S.lodging.stays.forEach((r, i) => { if (!isStd(r) || nights(r) < 1) return; const hit = datesBetween(r.checkin, addDays(r.checkout, -1)).filter(d => ln.has(d)); if (hit.length) add('warn', 'D', `D-${i + 1} includes ${hit.length} night${hit.length > 1 ? 's' : ''} on leave (${rangeText(hit)}). Lodging while on leave is not normally claimable.`); });
   for (let i = 1; i < ordered.length; i++) if (ordered[i].r.checkin < ordered[i - 1].r.checkout) add('warn', 'D', `${ordered[i - 1].ref} and ${ordered[i].ref} overlap. Check the dates.`);
   S.exchange.forEach((r, i) => evidence('exchange', r, `G-${i + 1}`, 'G'));
   S.calls.forEach((r, i) => { if (r.cost !== '' && isNaN(num(r.cost))) add('bad', 'H', `H-${i + 1} cost "${r.cost}" is not a number.`); });
@@ -1011,6 +1047,7 @@ function checks() {
 
 let building = false;
 function refresh() {
+  updateLeave();
   $('#poc').hidden = !S.poc.on;
   $('#example-banner').hidden = !S.example;
   renderSD();
@@ -1026,6 +1063,11 @@ function refresh() {
   S.stops.forEach((s, i) => {
     const w = $('#warn-' + s.id); if (w) { const msg = iss.by[s.id]; w.hidden = !msg; w.textContent = msg ? msg.join(' ') : ''; }
     const du = $('#dur-' + s.id); if (du && S.stops[i + 1]) du.textContent = durText(s, S.stops[i + 1]);
+  });
+  S.stops.forEach((s, i) => {
+    const el = $('#leave-' + s.id); if (!el) return;
+    const days = s.leave ? datesBetween(s.arrDate, s.depDate).filter(d => LEAVE.has(d)) : [];
+    el.textContent = !s.leave ? '' : days.length ? `Leave days ${rangeText(days)}: meals unticked, no lodging needed.` : 'No full leave days yet. Travel days stay claimable.';
   });
   S.lodging.stays.forEach(r => { const el = $('#nights-' + r.id); if (el) { const n = nights(r); el.textContent = n > 0 ? `${n} night${n > 1 ? 's' : ''}` : ''; } });
   $$('[data-lostamt]').forEach(el => { const [sec, id] = el.dataset.lostamt.split(':'); const r = getArr(sec).find(x => x.id === id); if (r) el.textContent = lostAmtText(sec, r); });
@@ -1080,7 +1122,7 @@ function refreshPlaces() {
 }
 function fileBase() {
   const clean = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  return ['JMC_TRAVEL_PACKAGE', S.tripRef, S.member.rank, S.member.surname].map(clean).filter(Boolean).join('_');
+  return ['CAF_TRAVEL_ITINERARY', S.tripRef, S.member.rank, S.member.surname].map(clean).filter(Boolean).join('_');
 }
 
 /* ---------- persistence (this tab only) ---------- */
@@ -1190,6 +1232,15 @@ function onField(el, final) {
   if (sec === 'stops') {
     const i = S.stops.findIndex(s => s.id === rowId), s = S.stops[i]; if (!s) return;
     if (final && /Time$/.test(k)) { v = normTime(v); el.value = v; }
+    if (k === 'leave') {
+      const before = leaveDays(); s.leave = v; const after = leaveDays();
+      const changed = [...new Set([...before, ...after])].filter(d => before.has(d) !== after.has(d)).sort();
+      changed.forEach(d => { const m = S.meals[d]; if (m) { delete m.b; delete m.l; delete m.d; } });
+      const li = el.closest('.stop'); if (li) li.classList.toggle('is-leave', v);
+      renderMeals();
+      if (changed.length) toast(v ? `${rangeText(changed)} marked as leave: meals unticked.` : `${rangeText(changed)} no longer leave: meals ticked again.`);
+      return;
+    }
     s[k] = v;
     if (k === 'mode') { const o = $(`#stops-${s.id}-modeOther`); if (o) { o.hidden = v !== 'Other'; if (v === 'Other' && final) o.focus(); } }
     if (final && k === 'depDate' && v && S.stops[i + 1] && !S.stops[i + 1].arrDate) { S.stops[i + 1].arrDate = v; const t = $(`#stops-${S.stops[i + 1].id}-arrDate`); if (t) t.value = v; }
@@ -1295,7 +1346,7 @@ document.addEventListener('drop', e => {
 function overnightStays() {
   const nights = []; // [{ d, city }]
   S.stops.slice(1, -1).forEach(s => {
-    if (!isoOk(s.arrDate) || !isoOk(s.depDate) || s.depDate <= s.arrDate || !s.city.trim()) return;
+    if (s.leave || !isoOk(s.arrDate) || !isoOk(s.depDate) || s.depDate <= s.arrDate || !s.city.trim()) return;
     for (let d = s.arrDate; d < s.depDate; d = addDays(d, 1)) nights.push({ d, city: s.city.trim() });
   });
   nights.sort((a, b) => a.d.localeCompare(b.d));
@@ -1323,13 +1374,13 @@ function fillStays() {
 
 /* ---------- drafts ---------- */
 function saveDraft() {
-  const payload = JSON.stringify({ app: 'jmc-travel-claim-packager', v: 2, saved: new Date().toISOString(), state: S, receipts: liveReceipts() });
-  offerFile(fileBase().replace('PACKAGE', 'DRAFT') + '.json', payload, 'application/json');
+  const payload = JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, saved: new Date().toISOString(), state: S, receipts: liveReceipts() });
+  offerFile(fileBase() + '_DRAFT.json', payload, 'application/json');
 }
 async function openDraft(f) {
   try {
     const o = JSON.parse(await f.text());
-    if (!o || o.app !== 'jmc-travel-claim-packager' || !o.state) throw new Error('shape');
+    if (!o || !['caf-digital-travel-itinerary', 'jmc-travel-claim-packager'].includes(o.app) || !o.state) throw new Error('shape');
     S = normalize(o.state); R = o.receipts || {};
     LIST_SECS.forEach(s => getArr(s).forEach(r => { r.rc = r.rc.filter(id => R[id]); }));
     renderAll(); toast(`Opened draft${o.saved ? ' saved ' + new Date(o.saved).toLocaleString() : ''}.`);
@@ -1466,11 +1517,12 @@ function subtotalRows(arr, k, ck, colCount, labelIdx, amtIdx, curIdx) {
 }
 const fullName = () => [S.member.rank, S.member.given, S.member.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
 function drawWorksheet(P, items, wsPages) {
+  updateLeave();
   const m = S.member, today = new Date();
   const todayStr = `${String(today.getDate()).padStart(2, '0')} ${MON[today.getMonth()]} ${String(today.getFullYear()).slice(2)}`;
   const nDecl = items.filter(i => i.decl).length, nRc = items.length - nDecl;
   P.newPage();
-  P.title('JMC TRAVEL ITINERARY WORKSHEET', [S.tripRef ? 'Trip: ' + S.tripRef : '', 'Prepared ' + todayStr, `${nRc} receipt${nRc === 1 ? '' : 's'} attached`, nDecl ? `${nDecl} lost receipt declaration${nDecl > 1 ? 's' : ''}` : ''].filter(Boolean).join('   |   '));
+  P.title('CAF DIGITAL TRAVEL ITINERARY', [S.tripRef ? 'Trip: ' + S.tripRef : '', 'Prepared ' + todayStr, `${nRc} receipt${nRc === 1 ? '' : 's'} attached`, nDecl ? `${nDecl} lost receipt declaration${nDecl > 1 ? 's' : ''}` : ''].filter(Boolean).join('   |   '));
   // A
   P.bar('A', 'Personal information / Information personnel');
   P.table([{ l: 'PRI / SN', w: 1.2 }, { l: 'Rank', w: .7 }, { l: 'Surname', w: 1.3 }, { l: 'Given name and initials', w: 1.6 }, { l: 'Section', w: 1.1 }, { l: 'Telephone', w: 1.4 }], [[m.pri, m.rank, m.surname, m.given, m.section, telStr(m)]]);
@@ -1480,7 +1532,7 @@ function drawWorksheet(P, items, wsPages) {
   P.bar('B', 'Travel itinerary / Itineraire de voyage', 'Please include all cities');
   const n = S.stops.length;
   P.table([{ l: 'Arrival date', w: .95 }, { l: 'Arrival time', w: .65, a: 'c' }, { l: 'City', w: 2.2 }, { l: 'Departure date', w: .95 }, { l: 'Departure time', w: .7, a: 'c' }, { l: 'Mode of transportation', w: 1.5 }],
-    S.stops.map((s, i) => { const f = i === 0, l = i === n - 1, sh = { t: '', shade: true }; return [f ? sh : fmtDate(s.arrDate), f ? sh : s.arrTime, s.city, l ? sh : fmtDate(s.depDate), l ? sh : s.depTime, l ? sh : modeText(s)]; }));
+    S.stops.map((s, i) => { const f = i === 0, l = i === n - 1, sh = { t: '', shade: true }; return [f ? sh : fmtDate(s.arrDate), f ? sh : s.arrTime, s.city + (s.leave && !f && !l ? ' (leave)' : ''), l ? sh : fmtDate(s.depDate), l ? sh : s.depTime, l ? sh : modeText(s)]; }));
   const rcp = (sec, i, row) => row.lost ? `${DEFS[sec].L}-${i + 1} SD` : refsFor(sec, i, row.rc.filter(id => R[id]).length).join(', ');
   // C
   P.bar('C', 'Transportation expenses', 'Include rental vehicle info, gas, taxis, bus, train, air, PMV and parking etc.');
@@ -1488,19 +1540,16 @@ function drawWorksheet(P, items, wsPages) {
   P.table(cc, [...S.transport.map((r, i) => [fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcp('transport', i, r)]), ...subtotalRows(S.transport, 'cost', 'cur', 6, 2, 3, 4)]);
   // E
   P.bar('D', 'Lodging');
-  const yn = v => v ? 'Yes' : 'No', stays = S.lodging.stays;
-  const nightsOf = list => list.reduce((a, r) => a + Math.max(0, nights(r) || 0), 0);
-  P.table([{ l: 'Rations and quarters', w: 1, a: 'c' }, { l: 'Quarters no rations', w: 1, a: 'c' }, { l: 'Commercial nights', w: 1, a: 'c' }, { l: 'Private accommodation nights', w: 1.15, a: 'c' }, { l: 'Quarters nights', w: 1, a: 'c' }],
-    [[yn(stays.some(r => r.quarters && r.rations)), yn(stays.some(r => r.quarters && !r.rations)), String(nightsOf(stays.filter(isStd))), String(nightsOf(stays.filter(r => r.priv))), String(nightsOf(stays.filter(r => r.quarters)))]]);
-  const where = r => r.priv ? privAddr(r) : r.quarters ? 'Quarters, billed directly to the unit' : r.hotel;
-  const rcell = (r, i) => r.priv ? 'n/a' : r.quarters ? 'Unit billed' : rcp('stays', i, r);
+  const stays = S.lodging.stays;
+  const where = r => r.priv ? privAddr(r) : r.quarters ? 'Quarters' : r.hotel;
+  const rcell = (r, i) => isStd(r) ? rcp('stays', i, r) : 'N/A';
   P.table([{ l: 'Type', w: .95 }, { l: 'Hotel / private address / quarters', w: 2.35 }, { l: 'City or base', w: 1.05 }, { l: 'Check-in', w: .85 }, { l: 'Check-out', w: .85 }, { l: 'Nights', w: .5, a: 'c' }, { l: 'Cost', w: .75, a: 'r' }, { l: 'Cur', w: .45, a: 'c' }, { l: 'Rcpt', w: .75, a: 'c' }],
     [...stays.map((r, i) => [stayKind(r) + (r.rations ? ' + rations' : ''), where(r), r.priv ? r.city : r.location, fmtDate(r.checkin), fmtDate(r.checkout), nights(r) > 0 ? String(nights(r)) : '', isStd(r) ? (money(r.cost) || r.cost) : '', isStd(r) && r.cost !== '' ? curOf(r.cur) : '', rcell(r, i)]),
      ...subtotalRows(stays.filter(isStd), 'cost', 'cur', 9, 1, 6, 7)]);
   P.bar('E', 'Meals', 'Please indicate only meals that you are claiming');
   const dates = tripDates() || [], mc = mealCounts().c, x = v => v ? 'X' : '';
   P.table([{ l: 'Date', w: 1 }, { l: 'Location', w: 1.6 }, { l: 'B', w: .35, a: 'c' }, { l: 'L', w: .35, a: 'c' }, { l: 'D', w: .35, a: 'c' }, { l: 'Remarks', w: 2.6 }],
-    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [ri >= 0 ? `Rations provided (D-${ri + 1})` : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: ['Meals claimed', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
+    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [LEAVE.has(d) ? 'Leave' : ri >= 0 ? `Rations provided (D-${ri + 1})` : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: ['Meals claimed', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
   // F
   P.bar('F', 'General expenses');
   P.table(cc, [...S.general.map((r, i) => [fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcp('general', i, r)]), ...subtotalRows(S.general, 'cost', 'cur', 6, 2, 3, 4)]);
@@ -1668,11 +1717,11 @@ async function build() {
       }
     }
     const pages = doc.getPages(), total = pages.length, Ff = P.F;
-    const left = P.clean(['JMC Travel Itinerary Worksheet', [S.member.rank, S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+    const left = P.clean(['CAF Digital Travel Itinerary', [S.member.rank, S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
     pages.forEach((p, i) => { p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid }); const r = `Page ${i + 1} of ${total}`; p.drawText(r, { x: P.W - P.M - Ff.widthOfTextAtSize(r, 7), y: 22, size: 7, font: Ff, color: P.C.mid }); });
-    doc.setTitle(['JMC Travel Itinerary Worksheet', S.tripRef].filter(Boolean).join(' - '));
+    doc.setTitle(['CAF Digital Travel Itinerary', S.tripRef].filter(Boolean).join(' - '));
     doc.setAuthor(fullName());
-    doc.setCreator('JMC Travel Claim Packager'); doc.setProducer('pdf-lib, generated in the browser');
+    doc.setCreator('CAF Digital Travel Itinerary'); doc.setProducer('pdf-lib, generated in the browser');
     const bytes = await doc.save();
     lastPdf = { name: fileBase() + '.pdf', bytes, pages: total };
     const kb = bytes.length / 1024, size = kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : Math.round(kb) + ' KB';

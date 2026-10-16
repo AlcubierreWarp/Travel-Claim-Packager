@@ -3,8 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'">
-<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. This page cannot make network requests. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#17201c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CAF Travel">
+<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. The page itself cannot make network requests. -->
 <title>CAF Digital Travel Itinerary</title>
 
 <style>
@@ -58,6 +65,9 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .menu>button{all:unset;box-sizing:border-box;padding:10px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
 .menu>button:hover,.menu>button:focus-visible{background:var(--accent-soft)}
 .menu>button.danger{color:var(--bad)}
+.menu>button.install{font-weight:700;color:var(--accent)}
+.install-steps{margin:6px 0 0;padding-left:1.2rem}
+.install-steps li{margin:2px 0}
 .menu>button.armed{background:var(--bad);color:#fff}
 .menu hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
 .menu-h{font:600 .64rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 10px 2px}
@@ -423,6 +433,8 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
       <div class="menu-wrap">
         <button class="btn" id="menu-btn" data-act="menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu">Menu</button>
         <div class="menu" id="menu" hidden>
+          <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
+          <hr id="install-hr" hidden>
           <button data-act="open-draft">Open draft file</button>
           <button data-act="save-draft">Save draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
@@ -456,6 +468,10 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
       <span><strong>Choose a PIN</strong> of 4 to 12 digits. Your saved claim, receipts and details are encrypted with it. If you forget it, the only option is to forget this device.</span>
       <span class="banner-acts"><input id="pin-1" class="pin-in" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="New PIN"><input id="pin-2" class="pin-in" type="password" inputmode="numeric" autocomplete="off" placeholder="Again" aria-label="Repeat PIN"><button class="btn primary" data-act="pin-save">Set PIN</button><button class="btn" data-act="pin-cancel">Cancel</button></span>
       <span class="err" id="pin-err" hidden></span>
+    </div>
+    <div class="banner device" id="install-banner" hidden>
+      <span id="install-text"></span>
+      <span class="banner-acts"><button class="btn" data-act="install-close">Close</button></span>
     </div>
     <div class="banner" id="example-banner" hidden>
       <span><strong>This is an example claim.</strong> The member, trip and receipts are made up so you can see how the package comes out.</span>
@@ -1536,6 +1552,8 @@ document.addEventListener('click', e => {
     case 'open-draft': setMenu(false); $('#file-draft').click(); break;
     case 'build': build(); break;
     case 'menu': setMenu($('#menu').hidden); break;
+    case 'install': installApp(); break;
+    case 'install-close': $('#install-banner').hidden = true; break;
     case 'review': { SHOWALL = true; refresh(); $('#sec-P').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); break; }
     case 'keep-yes': setKeep(true); break;
     case 'keep-no': DEV.settings.asked = true; saveSettings(); $('#keep-banner').hidden = true; toast('Your work lasts until you close this tab. You can change this in the menu.'); break;
@@ -2067,6 +2085,30 @@ function saveSnap() {
   snapRc = null; return true;
 }
 
+/* ---------- install as an app (PWA) ---------- */
+let deferredInstall = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = () => /android/i.test(navigator.userAgent);
+const pwaReady = () => (location.protocol === 'https:' || location.hostname === 'localhost') && !inViewer && !!document.querySelector('link[rel="manifest"]');
+function syncInstall() { const show = pwaReady() && !isStandalone(); $('#install-btn').hidden = !show; $('#install-hr').hidden = !show; }
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; syncInstall(); });
+window.addEventListener('appinstalled', () => { deferredInstall = null; $('#install-banner').hidden = true; syncInstall(); toast('Installed. Open CAF Travel from your home screen or app list.'); });
+async function installApp() {
+  setMenu(false);
+  if (deferredInstall) {
+    const ev = deferredInstall; deferredInstall = null;
+    try { ev.prompt(); const choice = await ev.userChoice; if (choice && choice.outcome === 'dismissed') toast('Install cancelled. You can install any time from the menu.'); } catch (e) {}
+    syncInstall(); return;
+  }
+  const t = $('#install-text');
+  if (isIOS()) t.innerHTML = '<strong>Install on iPhone or iPad</strong><ol class="install-steps"><li>Tap the <b>Share</b> button (the square with an arrow) in the browser toolbar.</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. CAF Travel appears on your home screen.</li></ol>';
+  else if (isAndroid()) t.innerHTML = '<strong>Install on Android</strong><ol class="install-steps"><li>Open the browser menu (the three dots).</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li><li>Confirm. CAF Travel appears with your other apps.</li></ol>';
+  else t.innerHTML = '<strong>Install on this computer</strong><ol class="install-steps"><li>In Chrome or Edge, click the install icon at the right end of the address bar, or open the browser menu and choose <b>Install</b>.</li><li>Confirm. The app opens in its own window.</li></ol>';
+  $('#install-banner').hidden = false; window.scrollTo(0, 0);
+}
+function registerOffline() { if (!pwaReady() || !('serviceWorker' in navigator)) return; navigator.serviceWorker.register('sw.js').catch(() => {}); }
+
 /* ---------- device storage: IndexedDB in this browser only, never uploaded ---------- */
 const DEV = { db: null, settings: { keep: false, remember: false, pin: false, salt: null, check: null, asked: false }, key: null, locked: false, savedRc: new Set(), lastSaved: 0, failed: false };
 const EXPIRE_DAYS = 30;
@@ -2207,7 +2249,7 @@ async function startBlank(msg) {
 
 /* ---------- boot ---------- */
 async function boot() {
-  renderRail(); renderSnapTypes();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

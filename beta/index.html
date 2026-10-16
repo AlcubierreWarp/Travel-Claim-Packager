@@ -467,7 +467,7 @@ html{touch-action:manipulation}
           <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
           <hr id="install-hr" hidden>
           <button data-act="open-draft">Open draft file</button>
-          <button data-act="save-draft">Save draft file</button>
+          <button data-act="save-draft" id="save-draft">Save draft file</button>
           <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
           <hr>
@@ -666,7 +666,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.5</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1687,7 +1687,7 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Chrome on Android only shares a fixed list of file types and .json is not on it, so the draft
 // falls back to a .txt copy there. Open draft file accepts either.
 // Version: minor increment on every publish; major only when the owner says so.
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
@@ -1750,6 +1750,8 @@ function initExtras() {
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
   ['#help-menu', '#fb-menu'].forEach(id => { const el = $(id); if (el) el.addEventListener('click', () => setTimeout(() => setMenu(false), 0)); });
   const sd = $('#send-draft'); if (sd) sd.hidden = !SEND.draft;
+  // installed iPhone app: saving and sending both go through the share sheet, so show one item
+  if (IOS_PWA && SEND.draft) { sd.textContent = 'Save or send draft file'; const sv = $('#save-draft'); if (sv) sv.hidden = true; }
   const tt = $('#totop'); let on = false;
   const sync = () => { const v = window.scrollY > 600; if (v !== on) { on = v; tt.hidden = !v; } };
   window.addEventListener('scroll', sync, { passive: true }); sync();
@@ -2116,8 +2118,8 @@ async function build() {
     const nDecl = items.filter(i => i.decl).length;
     status.textContent = '';
     const res = $('#result');
-    const iosHint = IOS_PWA ? ' Tap Save PDF, then choose Save to Files.' : '';
-    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}${iosHint}</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${SEND.pdf ? '<button class="btn" data-act="send-pdf">Send PDF</button>' : ''}${inViewer || IOS_PWA ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
+    const iosHint = IOS_PWA ? ' Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.' : '';
+    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}${iosHint}</span></div><div class="acts">${IOS_PWA && SEND.pdf ? '<button class="btn primary" data-act="send-pdf">Save or send PDF</button>' : `<button class="btn primary" data-act="save-pdf">Save PDF</button>${SEND.pdf ? '<button class="btn" data-act="send-pdf">Send PDF</button>' : ''}`}${inViewer || IOS_PWA ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
     res.hidden = false;
     if (!IOS_PWA) offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
     else res.scrollIntoView({ block: 'center' });

@@ -2,6 +2,10 @@
 
 Versioning: the minor number goes up by one with every published version (1.1, 1.2, 1.3...). The major number changes only when the owner decides a release is a major one.
 
+## 1.5 (beta, 16 Oct 2026)
+
+- Installed app on iPhone and iPad: one Save or send PDF button after the build, and one Save or send draft file item in the menu
+
 ## 1.4 (beta, 16 Oct 2026)
 
 - Installed app on iPhone and iPad: Save PDF and Save draft file open the share sheet (choose Save to Files), since iOS opens downloads in a viewer with no way to save

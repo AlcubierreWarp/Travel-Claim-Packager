@@ -18,6 +18,10 @@ Open the published page, or download `index.html` and open it in a browser. The 
 
 Unofficial prototype for testing and feedback. It is not an official DND/CAF application and does not calculate entitlements. Check all claims against current CFTDTI and Orderly Room direction.
 
+## Versions
+
+The version number is shown at the bottom of the page and in help emails. See `CHANGELOG.md`.
+
 ## Third-party code
 
 pdf-lib (MIT License) is bundled inside `index.html`. See `THIRD_PARTY_NOTICES.md`.

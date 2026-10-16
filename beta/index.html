@@ -664,7 +664,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.1</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a>
     </footer>
   </main>
@@ -1667,12 +1667,14 @@ function fillStays() {
 }
 
 /* ---------- drafts ---------- */
-function draftPayload() { return JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, saved: new Date().toISOString(), state: S, receipts: liveReceipts() }); }
+function draftPayload() { return JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, ver: APP_VERSION, saved: new Date().toISOString(), state: S, receipts: liveReceipts() }); }
 function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'application/json'); }
 // Send a copy to yourself (OneDrive, Teams, Mail...) through the phone's share sheet. Phones only:
 // on a desktop the share panel rarely offers a useful target, so Save draft file covers that case.
 // Chrome on Android only shares a fixed list of file types and .json is not on it, so the draft
 // falls back to a .txt copy there. Open draft file accepts either.
+// Version: minor increment on every publish; major only when the owner says so.
+const APP_VERSION = '1.1';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -1710,16 +1712,17 @@ function helpHref() {
   const os = /iPhone/.test(ua) ? 'iPhone' : /iPad|Macintosh/.test(ua) && navigator.maxTouchPoints > 1 ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'Mac' : /Linux|CrOS/.test(ua) ? 'Linux or ChromeOS' : 'Other';
   const br = /Edg\//.test(ua) ? 'Edge' : /Firefox|FxiOS/.test(ua) ? 'Firefox' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : 'Other';
   let standalone = false; try { standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
-  const where = inViewer ? 'Claude artifact' : location.protocol === 'file:' ? 'Single-file copy' : /\/beta\//.test(location.pathname) ? 'Website (beta)' : 'Website';
+  const where = inViewer ? 'Claude artifact' : location.protocol === 'file:' ? 'single-file copy' : /\/beta\//.test(location.pathname) ? 'website, beta' : 'website';
   const body = ['Hello,', '', 'I need help with the CAF Digital Travel Itinerary.', '',
     'What I was trying to do:', '', '', 'What happened instead:', '', '', 'Steps to make it happen again (if known):', '', '',
     'Rank and name:', 'Unit:', 'Best way to reach me:', '',
-    `Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${where}`, '',
+    `Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${APP_VERSION} (${where})`, '',
     'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.'].join('\n');
   return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent('CAF Digital Travel Itinerary - Help Request') + '&body=' + encodeURIComponent(body);
 }
 function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
 function initExtras() {
+  const av = $('#app-ver'); if (av) av.textContent = 'Version ' + APP_VERSION + (/\/beta\//.test(location.pathname) ? ' beta' : '');
   const href = helpHref(); ['#help-foot', '#help-menu'].forEach(id => { const el = $(id); if (el) el.href = href; });
   const hm = $('#help-menu'); if (hm) hm.addEventListener('click', () => setTimeout(() => setMenu(false), 0));
   const sd = $('#send-draft'); if (sd) sd.hidden = !SEND.draft;
@@ -2081,7 +2084,7 @@ async function build() {
     pages.forEach((p, i) => { p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid }); const r = `Page ${i + 1} of ${total}`; p.drawText(r, { x: P.W - P.M - Ff.widthOfTextAtSize(r, 7), y: 22, size: 7, font: Ff, color: P.C.mid }); });
     doc.setTitle(['CAF Digital Travel Itinerary', S.tripRef].filter(Boolean).join(' - '));
     doc.setAuthor(fullName());
-    doc.setCreator('CAF Digital Travel Itinerary'); doc.setProducer('pdf-lib, generated in the browser');
+    doc.setCreator('CAF Digital Travel Itinerary ' + APP_VERSION); doc.setProducer('pdf-lib, generated in the browser');
     const bytes = await doc.save();
     lastPdf = { name: fileBase() + '.pdf', bytes, pages: total };
     if (DEV.db && DEV.settings.keep && !DEV.locked) { try { const meta = (await idbGet('meta')) || {}; meta.builtAt = Date.now(); await idbPut('meta', meta); } catch (e) {} }

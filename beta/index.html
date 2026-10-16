@@ -294,6 +294,8 @@ fieldset.tg.off input{opacity:.3}
 .trip label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
 .trip-in{font-size:1.1rem;font-weight:600;max-width:36rem}
 .trip .sd-help{margin-top:6px}
+.pki-opt{font-weight:600}
+#pki-help{margin:4px 0 12px}
 .leave-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px}
 .leave-days{font-size:.8rem;color:var(--warn)}
 .stop.is-leave .stop-card{border-style:dashed;border-color:var(--warn);background:color-mix(in srgb,var(--warn-soft) 45%,var(--card))}
@@ -588,7 +590,7 @@ html{touch-action:manipulation}
         <div class="sd-block">
           <h3>Declarations to be generated</h3>
           <ul class="sd-items" id="sd-items"></ul>
-          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. Both of you can sign with a PKI certificate.</p>
+          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or by hand (set under Build the package).</p>
         </div>
         <div class="sd-block">
           <h3>Declarant</h3>
@@ -634,7 +636,9 @@ html{touch-action:manipulation}
             <ul class="checks" id="checks"></ul>
           </div>
           <div>
-            <p class="fname" style="margin-top:0">File: <code id="fname"></code></p>
+            <label class="check pki-opt"><input type="checkbox" id="opt-pkisig" data-bind="pki"> Sign with PKI (digital signature)</label>
+            <p class="sd-help" id="pki-help"></p>
+            <p class="fname">File: <code id="fname"></code></p>
             <h3 style="margin-top:18px">What goes in</h3>
             <ul class="contents" id="contents"></ul>
           </div>
@@ -796,7 +800,7 @@ function blank() {
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
     transport: [], lodging: { stays: [] }, meals: {},
-    general: [], exchange: [], calls: [], sd: blankSD(), touched: {} };
+    general: [], exchange: [], calls: [], sd: blankSD(), touched: {}, pki: true };
 }
 const blankSD = () => ({ name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
 const sdName = () => S.sd.name.trim() || [String(S.member.given || '').replace(/\(.*?\)/g, ''), S.member.surname].map(x => x.trim()).filter(Boolean).join(' ');
@@ -847,6 +851,7 @@ function normalize(s) {
   o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays : [] };
   o.sd = Object.assign(blankSD(), o.sd || {});
   o.touched = (o.touched && typeof o.touched === 'object') ? o.touched : {};
+  o.pki = o.pki !== false;
   o.meals = (o.meals && typeof o.meals === 'object') ? o.meals : {};
   if (Array.isArray(oldL.rows)) { // drafts from the first version: one row per day
     oldL.rows.forEach(r => {
@@ -1319,7 +1324,8 @@ function refresh() {
     ['Summary of amounts claimed', curs.length ? curs.map(c => `${t[c].toFixed(2)} ${c}`).join(', ') : 'nil'],
     ['Receipts, labelled', `${ev.n}`]];
   if (ev.lost) rows.push(['Missing receipt declarations', `${ev.lost}`]);
-  rows.push(['PKI signature fields', `${1 + ev.lost * 2}`]);
+  rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Signature lines, to sign by hand', `${1 + ev.lost * 2}`]);
+  $('#pki-help').textContent = S.pki ? 'The PDF gets digital signature fields to sign in Adobe with a PKI certificate. The signature records the date, so no date line is added.' : 'The PDF gets lines to sign by hand, with a date line beside your signature. Print it, sign it, and scan it if your Orderly Room wants it electronically.';
   $('#contents').innerHTML = rows.map(([a, b]) => `<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join('');
   persist();
 }
@@ -1771,6 +1777,11 @@ function painter(doc, F, B, I) {
     form.acroForm.addField(ref);
     if (caption) P.text(caption, x, y - 10, { size: 7.2, color: C.mid });
   };
+  // Line to sign by hand, with a caption underneath
+  P.sigLine = (x, y, w, caption) => {
+    P.page.drawLine({ start: { x, y }, end: { x: x + w, y }, thickness: .75, color: C.ink });
+    if (caption) P.text(caption, x, y - 10, { size: 7.2, color: C.mid });
+  };
   P.textField = (name, x, y, w, h) => {
     const tf = doc.getForm().createTextField(name);
     tf.addToPage(P.page, { x, y, width: w, height: h, borderWidth: 0, backgroundColor: C.sig, font: F });
@@ -1843,9 +1854,13 @@ function drawWorksheet(P, items, wsPages) {
   P.ensure(70); P.y -= 12;
   P.text('I certify that the information on this worksheet is correct and complete.', P.M, P.y - 9, { size: 8.2, color: P.C.mid });
   P.y -= 18;
-  P.sigField('Claimant_Signature', P.M, P.y - 36, 260, 36, 'Signature of Claimant (PKI digital signature)');
-  P.text('Date', P.M + 300, P.y - 30, { size: 8.5 });
-  P.textField('Claimant_Date', P.M + 324, P.y - 34, P.W - 2 * P.M - 324, 15);
+  if (S.pki) {
+    P.sigField('Claimant_Signature', P.M, P.y - 36, 260, 36, 'Signature of Claimant (PKI digital signature)');
+  } else {
+    P.sigLine(P.M, P.y - 32, 260, 'Signature of Claimant');
+    P.text('Date', P.M + 300, P.y - 30, { size: 8.5 });
+    P.sigLine(P.M + 324, P.y - 32, P.W - 2 * P.M - 324, null);
+  }
   P.y -= 56;
 }
 function receiptHeader(P, title, meta) {
@@ -1914,7 +1929,7 @@ function drawDeclaration(P, it) {
   P.text('A.D. 20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 204, ly - 3, 22, 14); P.text('.', M + 227, ly, { size: 9.5 });
   ly -= 14;
   const sigTop = ly;
-  P.sigField(`SD_${key}_Officer`, M, sigTop - 40, colW, 40, null);
+  if (S.pki) P.sigField(`SD_${key}_Officer`, M, sigTop - 40, colW, 40, null); else P.sigLine(M, sigTop - 36, colW, null);
   ly -= 52;
   const offLine = (val, name, ph) => { if (val.trim()) P.text(val.trim(), M, ly, { size: 9.5, font: B }); else P.textField(`SD_${key}_${name}`, M, ly - 3, colW, 14); P.text(`(${ph})`, M, ly - 11, { size: 6.6, color: C.mid }); ly -= 25; };
   offLine(sd.offName, 'OfficerName', 'name, in full');
@@ -1924,7 +1939,7 @@ function drawDeclaration(P, it) {
   if (j === 'AB') ly = P.para(sd.abroad ? 'A Commissioner for Oaths outside Alberta.' : 'A Commissioner for Oaths.', M, ly, colW, { size: 8.4 });
   P.para(JURATS[j].law, M, ly, colW, { size: 8.4, color: C.mid });
   // declarant
-  P.sigField(`SD_${key}_Declarant`, rx, sigTop - 40, colW, 40, null);
+  if (S.pki) P.sigField(`SD_${key}_Declarant`, rx, sigTop - 40, colW, 40, null); else P.sigLine(rx, sigTop - 36, colW, null);
   P.text(sdName(), rx, sigTop - 40 - 12, { size: 9.5, font: B });
   P.text('(declarant)', rx, sigTop - 40 - 25, { size: 8.4, color: C.mid });
 }
@@ -1997,7 +2012,7 @@ async function build() {
     const nDecl = items.filter(i => i.decl).length;
     status.textContent = '';
     const res = $('#result');
-    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${inViewer ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
+    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${inViewer ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
     res.hidden = false;
     offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
   } catch (e) {

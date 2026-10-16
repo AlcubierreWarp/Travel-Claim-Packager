@@ -93,6 +93,7 @@ main{display:flex;flex-direction:column;gap:22px;min-width:0}
 .field.wide{grid-column:1/-1}
 .field>label,.leg-card>label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px}
 input,select,textarea{width:100%;min-width:0;font:inherit;font-size:.92rem;padding:.44rem .55rem;border:1px solid var(--line-strong);border-radius:3px;background:var(--field);color:var(--ink)}
+input:not([type=checkbox]):not([type=file]),select{height:2.4rem;line-height:1.2}
 input::placeholder,textarea::placeholder{color:var(--muted);opacity:.75}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:2px solid color-mix(in srgb,var(--accent) 35%,transparent);outline-offset:0}
 textarea{resize:vertical}
@@ -233,7 +234,7 @@ fieldset.tg.off input{opacity:.3}
 .meals tr.rat td{background:color-mix(in srgb,var(--warn-soft) 55%,transparent)}
 
 /* statutory declaration */
-.sd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:12px}
+.sd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:12px;align-items:end}
 .sd-block{margin-top:18px}
 .sd-block:first-child{margin-top:0}
 .sd-help{margin:6px 0 0;font-size:.82rem;color:var(--muted);max-width:70ch}
@@ -442,12 +443,12 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
     </section>
 
     <section class="sec" id="sec-SD" hidden>
-      <header class="sec-h"><span class="L">SD</span><h2>Statutory declaration</h2><p class="hint">For receipts marked lost. Format per DAOD 7000-1.</p></header>
+      <header class="sec-h"><span class="L">SD</span><h2>Statutory declaration</h2><p class="hint">For receipts marked missing. Format per DAOD 7000-1.</p></header>
       <div class="sec-b">
         <div class="sd-block">
           <h3>Declarations to be generated</h3>
           <ul class="sd-items" id="sd-items"></ul>
-          <p class="sd-help">Each lost receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. Both of you can sign with a PKI certificate.</p>
+          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. Both of you can sign with a PKI certificate.</p>
         </div>
         <div class="sd-block">
           <h3>Declarant</h3>
@@ -753,9 +754,9 @@ function lostAmtText(sec, r) {
 function rcHTML(sec, row, i) {
   if (row.lost) {
     const id = `${sec}-${row.id}-lostReason`;
-    return `<div class="lost"><span class="pill warn">Receipt lost</span>
+    return `<div class="lost"><span class="pill warn">Receipt missing</span>
       <span class="lost-txt">A statutory declaration for <b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b> replaces the receipt in the package. You sign it with your PKI certificate.</span>
-      <div class="lost-why"><label for="${id}">What happened</label><input id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="lostReason" value="${esc(row.lostReason)}" placeholder="e.g. The taxi's card machine did not print a receipt" autocomplete="off"></div>
+      <div class="lost-why"><label for="${id}">Unavailable because</label><input id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="lostReason" value="${esc(row.lostReason)}" placeholder="e.g. the taxi's card machine did not print one" autocomplete="off"></div>
       <button class="link-btn" data-act="unlose" data-sec="${sec}" data-row="${row.id}">I have the receipt</button></div>`;
   }
   const refs = refsFor(sec, i, row.rc.length);
@@ -767,7 +768,7 @@ function rcHTML(sec, row, i) {
     return `<span class="chip">${vis}<span class="ref">${refs[j]}</span><span class="fn" title="${esc(r.name)}">${esc(r.name)}${r.pages > 1 ? ` (${r.pages} pp)` : ''}</span><button class="x" data-act="rmrc" data-sec="${sec}" data-row="${row.id}" data-rid="${rid}" aria-label="Remove receipt ${refs[j]}">×</button></span>`;
   }).join('');
   return `${chips}<button class="attach" data-act="attach" data-sec="${sec}" data-row="${row.id}">+ Attach receipt</button>`
-    + (row.rc.length ? '' : `<span class="drophint">or drop a photo or PDF here.</span><button class="link-btn lose" data-act="lose" data-sec="${sec}" data-row="${row.id}">Receipt lost?</button>`);
+    + (row.rc.length ? '' : `<span class="drophint">or drop a photo or PDF here.</span><button class="link-btn lose" data-act="lose" data-sec="${sec}" data-row="${row.id}">Missing receipt?</button>`);
 }
 function rowHTML(sec, row, i) {
   const d = DEFS[sec];
@@ -911,10 +912,10 @@ function lostItems() {
 }
 const inMatter = (sec, r) => {
   const t = s => String(s || '').trim().replace(/\b\w/g, c => c.toUpperCase());
-  if (sec === 'stays') return 'Lost Lodging Receipt';
-  if (sec === 'exchange') return 'Lost Currency Exchange Receipt';
-  if (sec === 'calls') return 'Lost Telephone Call Receipt';
-  return `Lost ${t(String(r.desc || '').split(/[,;(]/)[0]) || 'Expense'} Receipt`;
+  if (sec === 'stays') return 'Missing Lodging Receipt';
+  if (sec === 'exchange') return 'Missing Currency Exchange Receipt';
+  if (sec === 'calls') return 'Missing Telephone Call Receipt';
+  return `Missing ${t(String(r.desc || '').split(/[,;(]/)[0]) || 'Expense'} Receipt`;
 };
 function juratPlaceText() { const sd = S.sd; return `${sd.place.trim() ? 'the ' + sd.place.trim().replace(/^the\s+/i, '') : 'the ____________________'} in the ${sd.juris === 'NT' || sd.juris === 'NU' || sd.juris === 'YT' ? '' : 'Province of '}${PROVS[sd.juris] || '________'}`; }
 function renderSD() {
@@ -1005,9 +1006,9 @@ function checks() {
   itinIssues().list.forEach(msg => add('warn', 'B', msg));
   const evidence = (sec, r, ref, L) => {
     if (r.lost) {
-      if (sec !== 'exchange' && (r.cost === '' || isNaN(num(r.cost)))) add('bad', L, `${ref}: add the amount so the lost-receipt declaration can state it.`);
-      if (!r.lostReason.trim()) add('warn', L, `${ref}: say what happened to the lost receipt.`);
-    } else if (!r.rc.length) add('bad', L, `${ref} has no receipt. Attach it, or mark it as lost.`);
+      if (sec !== 'exchange' && (r.cost === '' || isNaN(num(r.cost)))) add('bad', L, `${ref}: add the amount so the missing-receipt declaration can state it.`);
+      if (!r.lostReason.trim()) add('bad', L, `${ref}: say why the receipt is unavailable. The declaration needs it.`);
+    } else if (!r.rc.length) add('bad', L, `${ref} has no receipt. Attach it, or mark it as missing.`);
   };
   for (const sec of ['transport', 'general']) getArr(sec).forEach((r, i) => {
     const L = DEFS[sec].L, ref = `${L}-${i + 1}`;
@@ -1082,7 +1083,7 @@ function refresh() {
   const t = grandTotals(), curs = Object.keys(t).sort((a, b) => a === 'CAD' ? -1 : b === 'CAD' ? 1 : a.localeCompare(b));
   const ev = evidenceCount();
   $('#tots').innerHTML = (curs.length ? curs.map(c => `<span class="tot"><small>Total ${esc(c)}</small>${t[c].toFixed(2)}</span>`).join('') : `<span class="tot"><small>Total</small>0.00</span>`)
-    + `<span class="tot"><small>Receipts</small>${ev.n}</span>` + (ev.lost ? `<span class="tot"><small>Lost, declared</small>${ev.lost}</span>` : '');
+    + `<span class="tot"><small>Receipts</small>${ev.n}</span>` + (ev.lost ? `<span class="tot"><small>Missing, declared</small>${ev.lost}</span>` : '');
   // checks
   const cs = checks(), nBad = cs.filter(c => c.lvl === 'bad').length;
   const bySec = {}; cs.forEach(c => { const b = bySec[c.sec] = bySec[c.sec] || { bad: 0, warn: 0 }; b[c.lvl]++; });
@@ -1098,7 +1099,7 @@ function refresh() {
   const sorted = cs.slice().sort((a, b) => (a.lvl === 'bad' ? 0 : 1) - (b.lvl === 'bad' ? 0 : 1)), shown = sorted.slice(0, 16);
   $('#checks').innerHTML = cs.length
     ? shown.map(c => `<li><span class="pill ${c.lvl}">${c.lvl === 'bad' ? 'Fix' : 'Check'}</span><button data-act="goto" data-to="${secId[c.sec]}"><span class="sr">Section ${c.sec}: </span><span>${esc(c.msg)}</span></button></li>`).join('') + (cs.length > shown.length ? `<li><span></span><span class="drophint">and ${cs.length - shown.length} more</span></li>` : '')
-    : `<li><span class="pill ok">Ready</span><span>Everything required is filled in, and every expense has a receipt or a lost-receipt declaration.</span></li>`;
+    : `<li><span class="pill ok">Ready</span><span>Everything required is filled in, and every expense has a receipt or a missing-receipt declaration.</span></li>`;
   // build gate
   const btn = $('#build-btn'), st = $('#build-status');
   if (!building) {
@@ -1113,7 +1114,7 @@ function refresh() {
     ['Expense lines', `${S.transport.length + S.general.length + S.exchange.length + S.calls.length}`],
     ['Summary of amounts claimed', curs.length ? curs.map(c => `${t[c].toFixed(2)} ${c}`).join(', ') : 'nil'],
     ['Receipts, labelled', `${ev.n}`]];
-  if (ev.lost) rows.push(['Lost receipt declarations', `${ev.lost}`]);
+  if (ev.lost) rows.push(['Missing receipt declarations', `${ev.lost}`]);
   rows.push(['PKI signature fields', `${1 + ev.lost * 2}`]);
   $('#contents').innerHTML = rows.map(([a, b]) => `<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join('');
   persist();
@@ -1534,7 +1535,7 @@ function drawWorksheet(P, items, wsPages) {
   const todayStr = `${String(today.getDate()).padStart(2, '0')} ${MON[today.getMonth()]} ${String(today.getFullYear()).slice(2)}`;
   const nDecl = items.filter(i => i.decl).length, nRc = items.length - nDecl;
   P.newPage();
-  P.title('CAF DIGITAL TRAVEL ITINERARY', [S.tripRef ? 'Trip: ' + S.tripRef : '', 'Prepared ' + todayStr, `${nRc} receipt${nRc === 1 ? '' : 's'} attached`, nDecl ? `${nDecl} lost receipt declaration${nDecl > 1 ? 's' : ''}` : ''].filter(Boolean).join('   |   '));
+  P.title('CAF DIGITAL TRAVEL ITINERARY', [S.tripRef ? 'Trip: ' + S.tripRef : '', 'Prepared ' + todayStr, `${nRc} receipt${nRc === 1 ? '' : 's'} attached`, nDecl ? `${nDecl} missing receipt declaration${nDecl > 1 ? 's' : ''}` : ''].filter(Boolean).join('   |   '));
   // A
   P.bar('A', 'Personal information / Information personnel');
   P.table([{ l: 'PRI / SN', w: 1.2 }, { l: 'Rank', w: .7 }, { l: 'Surname', w: 1.3 }, { l: 'Given name and initials', w: 1.6 }, { l: 'Section', w: 1.1 }, { l: 'Telephone', w: 1.4 }], [[m.pri, m.rank, m.surname, m.given, m.section, telStr(m)]]);
@@ -1580,10 +1581,10 @@ function drawWorksheet(P, items, wsPages) {
   const gt = grandTotals(); Object.keys(gt).sort().forEach(c => srows.push({ cells: ['Total', c, gt[c].toFixed(2)], bold: true, fill: true }));
   P.table([{ l: 'Section', w: 4 }, { l: 'Currency', w: .8, a: 'c' }, { l: 'Amount', w: 1.1, a: 'r' }], srows);
   // Receipt index
-  P.bar('', 'Receipt index', 'SD = statutory declaration for a lost receipt, signed by the member');
+  P.bar('', 'Receipt index', 'SD = statutory declaration for a missing receipt, signed by the member');
   let pg = (wsPages || 0) + 1;
   P.table([{ l: 'Ref', w: .7, a: 'c' }, { l: 'Section', w: 1.4 }, { l: 'Date', w: .85 }, { l: 'Description', w: 2.6 }, { l: 'Amount', w: 1.1, a: 'r' }, { l: 'Page', w: .6, a: 'c' }],
-    items.map(it => { const p = wsPages ? (it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : `${pg}`) : '00-00'; pg += it.pages; return [it.decl ? it.ref + ' SD' : it.ref, SECNAME[it.sec], fmtDate(rowDate(it.sec, it.row)), (it.decl ? 'Lost receipt declaration: ' : '') + [rowLoc(it.sec, it.row), rowDesc(it.sec, it.row)].filter(Boolean).join(', '), rowAmt(it.sec, it.row), p]; }), 'No receipts attached');
+    items.map(it => { const p = wsPages ? (it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : `${pg}`) : '00-00'; pg += it.pages; return [it.decl ? it.ref + ' SD' : it.ref, SECNAME[it.sec], fmtDate(rowDate(it.sec, it.row)), (it.decl ? 'Missing receipt declaration: ' : '') + [rowLoc(it.sec, it.row), rowDesc(it.sec, it.row)].filter(Boolean).join(', '), rowAmt(it.sec, it.row), p]; }), 'No receipts attached');
   // Signature
   P.ensure(70); P.y -= 12;
   P.text('I certify that the information on this worksheet is correct and complete.', P.M, P.y - 9, { size: 8.2, color: P.C.mid });
@@ -1614,7 +1615,7 @@ function sdParagraphs(it) {
   else if (sec === 'exchange') p.push(`During this duty, I exchanged ${amtFull(r.soldAmt, r.soldCur) || 'Canadian funds'} for ${amtFull(r.boughtAmt, r.boughtCur) || 'foreign currency'}${loc ? ' at ' + loc : ''}${money(r.charge) ? ` and paid a service charge of ${amtFull(r.charge, r.chargeCur)}` : ''}.`);
   else if (sec === 'calls') p.push(`During this duty, I paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for a ${r.kind.toLowerCase()} telephone call${r.person.trim() ? ' to ' + r.person.trim() : ''}${r.number.trim() ? ' at ' + r.number.trim() : ''}.`);
   else p.push(`During this duty, I paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for the following expense: ${cap(r.desc) || 'an expense.'}`);
-  p.push(`The original receipt for this expense has been lost.${r.lostReason.trim() ? ' ' + cap(r.lostReason) : ''}`);
+  p.push(`The original receipt for this expense is unavailable because: ${r.lostReason.trim() ? r.lostReason.trim().replace(/[.\s]+$/, '') + '.' : '____________________________________________.'}`);
   p.push('I have not been reimbursed for this expense by any other means, and I will not claim it again.');
   p.push('And I make this solemn declaration conscientiously believing it to be true, and knowing that it is of the same force and effect as if made under oath, and by virtue of the Canada Evidence Act.');
   return p;
@@ -1623,7 +1624,7 @@ function drawDeclaration(P, it) {
   const { M, W, F, B, C } = P, key = it.ref.replace(/[^A-Za-z0-9]/g, ''), sd = S.sd, m = S.member;
   const j = sd.juris, prov = PROVS[j] || '', terr = ['NT', 'NU', 'YT'].includes(j);
   P.newPage();
-  let y = receiptHeader(P, `RECEIPT ${it.ref}  |  LOST RECEIPT`, itemMeta(it)) - 24;
+  let y = receiptHeader(P, `RECEIPT ${it.ref}  |  MISSING RECEIPT`, itemMeta(it)) - 24;
   P.center('STATUTORY DECLARATION', y, { size: 13, font: B }); y -= 30;
   // heading block (DAOD 7000-1, s. 6)
   const half = (W - 2 * M) / 2, rx = M + half + 12;
@@ -1658,7 +1659,8 @@ function drawDeclaration(P, it) {
   P.text('day of', M + 58, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, M + 88, ly - 3, 78, 14);
   P.text('A.D. 20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 204, ly - 3, 22, 14); P.text('.', M + 227, ly, { size: 9.5 });
   ly -= 14;
-  P.sigField(`SD_${key}_Officer`, M, ly - 40, colW, 40, null);
+  const sigTop = ly;
+  P.sigField(`SD_${key}_Officer`, M, sigTop - 40, colW, 40, null);
   ly -= 52;
   const offLine = (val, name, ph) => { if (val.trim()) P.text(val.trim(), M, ly, { size: 9.5, font: B }); else P.textField(`SD_${key}_${name}`, M, ly - 3, colW, 14); P.text(`(${ph})`, M, ly - 11, { size: 6.6, color: C.mid }); ly -= 25; };
   offLine(sd.offName, 'OfficerName', 'name, in full');
@@ -1668,9 +1670,9 @@ function drawDeclaration(P, it) {
   if (j === 'AB') ly = P.para(sd.abroad ? 'A Commissioner for Oaths outside Alberta.' : 'A Commissioner for Oaths.', M, ly, colW, { size: 8.4 });
   P.para(JURATS[j].law, M, ly, colW, { size: 8.4, color: C.mid });
   // declarant
-  P.sigField(`SD_${key}_Declarant`, rx, top - 40 - 32, colW, 40, null);
-  P.text(sdName(), rx, top - 40 - 32 - 14, { size: 9.5, font: B });
-  P.text('(declarant)', rx, top - 40 - 32 - 27, { size: 8.4, color: C.mid });
+  P.sigField(`SD_${key}_Declarant`, rx, sigTop - 40, colW, 40, null);
+  P.text(sdName(), rx, sigTop - 40 - 12, { size: 9.5, font: B });
+  P.text('(declarant)', rx, sigTop - 40 - 25, { size: 8.4, color: C.mid });
 }
 function fitBox(P, w, h, top) {
   const bw = P.W - 2 * P.M, bh = top - P.BOT - 4, s = Math.min(bw / w, bh / h);

@@ -2,6 +2,12 @@
 
 Versioning: the minor number goes up by one with every published version (1.1, 1.2, 1.3...). The major number changes only when the owner decides a release is a major one.
 
+## 1.4 (beta, 16 Oct 2026)
+
+- Installed app on iPhone and iPad: Save PDF and Save draft file open the share sheet (choose Save to Files), since iOS opens downloads in a viewer with no way to save
+- No automatic save after building in the installed iPhone app; the result box asks you to tap Save PDF
+- Open in new tab hidden in the installed iPhone app
+
 ## 1.3 (beta, 16 Oct 2026)
 
 - Help and feedback emails keep their line breaks in Gmail and other apps (standard CRLF line breaks)

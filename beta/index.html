@@ -666,7 +666,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.3</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1389,7 +1389,18 @@ function toast(msg, action) {
   if (action) t.querySelector('button').onclick = () => { action.fn(); t.hidden = true; };
   t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, action ? 8000 : 4500);
 }
+// Installed web apps on iPhone and iPad ignore download links and open the file in a viewer with no
+// way to save it. There, saving goes through the share sheet, which offers Save to Files.
+const IOS_PWA = navigator.standalone === true;
 async function offerFile(filename, data, mime) {
+  if (IOS_PWA && !inViewer && shareable(filename, mime)) {
+    const file = new File([data], filename, { type: mime });
+    try { await navigator.share({ files: [file] }); return true; }
+    catch (e) {
+      if (e && e.name === 'AbortError') return false;
+      toast('Could not open the save options. Use Send to save the file to Files.'); return false;
+    }
+  }
   if (inViewer) {
     let dl = null; try { dl = await window.claude.use('downloads'); } catch (e) {}
     if (!dl) { toast('Saving files is not available in this view. Use the standalone copy of this tool.'); return false; }
@@ -1676,7 +1687,7 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Chrome on Android only shares a fixed list of file types and .json is not on it, so the draft
 // falls back to a .txt copy there. Open draft file accepts either.
 // Version: minor increment on every publish; major only when the owner says so.
-const APP_VERSION = '1.3';
+const APP_VERSION = '1.4';
 const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
@@ -2105,9 +2116,11 @@ async function build() {
     const nDecl = items.filter(i => i.decl).length;
     status.textContent = '';
     const res = $('#result');
-    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${SEND.pdf ? '<button class="btn" data-act="send-pdf">Send PDF</button>' : ''}${inViewer ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
+    const iosHint = IOS_PWA ? ' Tap Save PDF, then choose Save to Files.' : '';
+    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}${iosHint}</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${SEND.pdf ? '<button class="btn" data-act="send-pdf">Send PDF</button>' : ''}${inViewer || IOS_PWA ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
     res.hidden = false;
-    offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
+    if (!IOS_PWA) offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
+    else res.scrollIntoView({ block: 'center' });
   } catch (e) {
     console.error(e); status.textContent = 'Something went wrong building the PDF: ' + (e && e.message ? e.message : e);
   } finally { building = false; btn.classList.remove('busy'); refresh(); }

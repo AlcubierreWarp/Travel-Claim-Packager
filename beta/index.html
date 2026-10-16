@@ -666,7 +666,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.5</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.1</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1686,8 +1686,9 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // on a desktop the share panel rarely offers a useful target, so Save draft file covers that case.
 // Chrome on Android only shares a fixed list of file types and .json is not on it, so the draft
 // falls back to a .txt copy there. Open draft file accepts either.
-// Version: minor increment on every publish; major only when the owner says so.
-const APP_VERSION = '1.5';
+// Version: the minor number goes up only when beta is promoted to production; major only when the owner says so.
+// Beta builds carry the number the next production release will have, plus the build date.
+const APP_VERSION = '1.1';
 const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {

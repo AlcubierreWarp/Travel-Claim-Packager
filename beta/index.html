@@ -415,6 +415,13 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
   .meals .rem{min-width:7rem}
   .meals td,.meals th{padding-inline:5px}
 }
+/* Touch screens: 16px text in fields stops iPhone from zooming in when a field is tapped;
+   touch-action removes double-tap zoom but keeps pinch-to-zoom for accessibility */
+html{touch-action:manipulation}
+@media (pointer: coarse){
+  input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important}
+  .dshow{font-size:15px}
+}
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
 </style>
 </head>

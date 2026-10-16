@@ -2,7 +2,7 @@
 // Keeps a copy of this app's own files so the installed app opens without a connection.
 // It only ever handles requests to this same site, and it never sees or sends claim data,
 // which stays in the page's own device storage.
-const CACHE = 'caf-dti-4eed1aac36';
+const CACHE = 'caf-dti-7ad98e3d44';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico', './favicon-32x32.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

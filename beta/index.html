@@ -376,6 +376,16 @@ dialog#lb img{display:block;max-width:100%;max-height:84vh;border-radius:3px;bac
 dialog#lb .lb-bar{display:flex;justify-content:space-between;gap:12px;color:#fff;font-size:.85rem;padding:0 0 8px;align-items:center}
 dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6px 12px;font-weight:600;cursor:pointer}
 
+/* page footer, help, back to top */
+.sitefoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:14px 2px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem}
+.sitefoot p{margin:0}
+.sitefoot .btn{text-decoration:none}
+.menu>a.menu-link{display:block;padding:9px 10px;border-radius:3px;color:var(--ink);text-decoration:none;font-size:.9rem}
+.menu>a.menu-link:hover,.menu>a.menu-link:focus-visible{background:var(--accent-soft)}
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:15;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:0;transition:opacity .2s,transform .2s}
+.totop[hidden]{display:grid;opacity:0;pointer-events:none;transform:translateY(8px)}
+.totop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.totop:hover{border-color:var(--accent)}
 @media (max-width: 880px){
   .layout{grid-template-columns:minmax(0,1fr);padding-top:0}
   .rail{top:env(safe-area-inset-top,0px);z-index:6;flex-direction:row;overflow-x:auto;background:var(--bg);margin-inline:-16px;padding:8px 16px;border-bottom:1px solid var(--line);scrollbar-width:none}
@@ -400,6 +410,7 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
   .bar-acts .sm{display:inline}
   .bar-acts .btn{padding:.58rem .7rem}
   #toast{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  .totop{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   dialog#snap{margin:auto auto 0;width:100%;max-width:100%;border-radius:10px 10px 0 0;max-height:92vh}
   .snap-body{max-height:calc(92vh - 130px)}
   .snap-foot .btn{flex:1 1 auto}
@@ -456,7 +467,7 @@ html{touch-action:manipulation}
           <hr id="install-hr" hidden>
           <button data-act="open-draft">Open draft file</button>
           <button data-act="save-draft">Save draft file</button>
-          <button data-act="email-draft">Email draft file</button>
+          <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -464,6 +475,7 @@ html{touch-action:manipulation}
           <label class="menu-check"><input type="checkbox" id="opt-remember"> Remember my details</label>
           <label class="menu-check"><input type="checkbox" id="opt-pin"> Protect with a PIN</label>
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
+          <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -651,8 +663,13 @@ html{touch-action:manipulation}
         <div class="result" id="result" hidden></div>
       </div>
     </section>
+    <footer class="sitefoot">
+      <p>&copy; 2026 Thomas Huet. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a>
+    </footer>
   </main>
 </div>
+<button class="totop" id="totop" data-act="totop" aria-label="Back to top" title="Back to top" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14.5l6-6 6 6"/></svg></button>
 
 <footer class="totalbar">
   <div class="wrap">
@@ -665,7 +682,7 @@ html{touch-action:manipulation}
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <dialog id="lb"><div class="lb-bar"><span id="lb-cap"></span><button data-act="lb-close">Close</button></div><img id="lb-img" alt=""></dialog>
 <input type="file" id="file-rc" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple hidden>
-<input type="file" id="file-draft" accept=".json,application/json" hidden>
+<input type="file" id="file-draft" accept=".json,.txt,application/json,text/plain" hidden>
 <input type="file" id="file-snap" accept="image/*,application/pdf,.pdf" capture="environment" hidden>
 <dialog id="snap" aria-labelledby="snap-h">
   <div class="snap-head"><h3 id="snap-h">Add a receipt</h3><button type="button" class="icon-btn" data-act="snap-cancel" aria-label="Close">×</button></div>
@@ -1573,7 +1590,9 @@ document.addEventListener('click', e => {
       break;
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
-    case 'email-draft': setMenu(false); emailDraft(); break;
+    case 'send-draft': setMenu(false); sendDraft(); break;
+    case 'send-pdf': if (lastPdf) sendPdf(); break;
+    case 'totop': toTop(); break;
     case 'open-draft': setMenu(false); $('#file-draft').click(); break;
     case 'build': build(); break;
     case 'menu': setMenu($('#menu').hidden); break;
@@ -1650,40 +1669,63 @@ function fillStays() {
 /* ---------- drafts ---------- */
 function draftPayload() { return JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, saved: new Date().toISOString(), state: S, receipts: liveReceipts() }); }
 function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'application/json'); }
-// Email a copy of the draft to yourself. Browsers cannot attach files to a mailto: link, so where the
-// device supports sharing files (phones, most desktop Chrome, Edge and Safari) the share sheet hands the
-// file to the mail app as a real attachment. Elsewhere the file is saved and a new email is opened for
-// the member to attach it. Nothing is sent by this page: the member's own mail app does the sending.
-function emailSubject() {
-  const d = tripDates(); const dates = d && d.length ? rangeText(d) : 'Dates TBD';
-  return `${dates} - ${(S.tripRef || '').trim() || 'Trip'} - Digital Itinerary File`;
+// Send a copy to yourself (OneDrive, Teams, Mail...) through the phone's share sheet. Phones only:
+// on a desktop the share panel rarely offers a useful target, so Save draft file covers that case.
+// Chrome on Android only shares a fixed list of file types and .json is not on it, so the draft
+// falls back to a .txt copy there. Open draft file accepts either.
+const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
+function shareable(name, type) {
+  try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
 }
-async function emailDraft() {
-  const name = fileBase() + '_DRAFT.json', payload = draftPayload(), subject = emailSubject();
-  const howTo = 'To continue this claim on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select the attached file.';
-  const mb = payload.length / 1048576;
-  const big = mb > 20 ? ` The file is ${mb.toFixed(0)} MB, which may be too large for some mail services.` : '';
-  let file = null; try { file = new File([payload], name, { type: 'application/json' }); } catch (e) {}
-  if (file && navigator.canShare && navigator.share) {
-    let ok = false; try { ok = navigator.canShare({ files: [file] }); } catch (e) {}
-    if (ok) {
-      try {
-        await navigator.share({ files: [file], title: subject, text: subject + '\n\n' + howTo });
-        if (big) toast(big.trim());
-        return;
-      } catch (e) {
-        if (e && e.name === 'AbortError') { toast('Email cancelled.'); return; }
-        // NotAllowedError and others: fall through to save and open a new email
-      }
-    }
+const SEND = {
+  draft: MOBILE && (shareable('t.json', 'application/json') ? 'json' : shareable('t.txt', 'text/plain') ? 'txt' : ''),
+  pdf: MOBILE && shareable('t.pdf', 'application/pdf')
+};
+function sendTitle(kind) {
+  const d = tripDates(); const dates = d && d.length ? rangeText(d) : 'Dates TBD';
+  return `${dates} - ${(S.tripRef || '').trim() || 'Trip'} - ${kind}`;
+}
+async function shareFile(file, title, text, fallback) {
+  try { await navigator.share({ files: [file], title, text }); return; }
+  catch (e) {
+    if (e && e.name === 'AbortError') return;
+    toast('Sending is not available right now. Saving the file instead.'); fallback();
   }
-  const saved = await offerFile(name, payload, 'application/json');
-  if (!saved) return;
-  const body = `Attach the file ${name} (just saved to your downloads) to this email before sending.\n\n${howTo}`;
-  const a = document.createElement('a');
-  a.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
-  toast(`Draft saved. Attach ${name} to the new email.` + big);
+}
+function sendDraft() {
+  const payload = draftPayload(), base = fileBase() + '_DRAFT';
+  const file = SEND.draft === 'txt' ? new File([payload], base + '.txt', { type: 'text/plain' }) : new File([payload], base + '.json', { type: 'application/json' });
+  const title = sendTitle('Digital Itinerary File');
+  const mb = payload.length / 1048576;
+  if (mb > 20) toast(`This draft is ${mb.toFixed(0)} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.`);
+  shareFile(file, title, title + '\n\nTo continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.', () => offerFile(base + '.json', payload, 'application/json'));
+}
+function sendPdf() {
+  const file = new File([lastPdf.bytes], lastPdf.name, { type: 'application/pdf' });
+  shareFile(file, sendTitle('Travel Claim Package'), sendTitle('Travel Claim Package'), () => offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'));
+}
+// Help email: prefilled so a request arrives with what is needed to answer it.
+function helpHref() {
+  const ua = navigator.userAgent;
+  const os = /iPhone/.test(ua) ? 'iPhone' : /iPad|Macintosh/.test(ua) && navigator.maxTouchPoints > 1 ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'Mac' : /Linux|CrOS/.test(ua) ? 'Linux or ChromeOS' : 'Other';
+  const br = /Edg\//.test(ua) ? 'Edge' : /Firefox|FxiOS/.test(ua) ? 'Firefox' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : 'Other';
+  let standalone = false; try { standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
+  const where = inViewer ? 'Claude artifact' : location.protocol === 'file:' ? 'Single-file copy' : /\/beta\//.test(location.pathname) ? 'Website (beta)' : 'Website';
+  const body = ['Hello,', '', 'I need help with the CAF Digital Travel Itinerary.', '',
+    'What I was trying to do:', '', '', 'What happened instead:', '', '', 'Steps to make it happen again (if known):', '', '',
+    'Rank and name:', 'Unit:', 'Best way to reach me:', '',
+    `Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${where}`, '',
+    'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.'].join('\n');
+  return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent('CAF Digital Travel Itinerary - Help Request') + '&body=' + encodeURIComponent(body);
+}
+function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
+function initExtras() {
+  const href = helpHref(); ['#help-foot', '#help-menu'].forEach(id => { const el = $(id); if (el) el.href = href; });
+  const hm = $('#help-menu'); if (hm) hm.addEventListener('click', () => setTimeout(() => setMenu(false), 0));
+  const sd = $('#send-draft'); if (sd) sd.hidden = !SEND.draft;
+  const tt = $('#totop'); let on = false;
+  const sync = () => { const v = window.scrollY > 600; if (v !== on) { on = v; tt.hidden = !v; } };
+  window.addEventListener('scroll', sync, { passive: true }); sync();
 }
 async function openDraft(f) {
   try {
@@ -2047,7 +2089,7 @@ async function build() {
     const nDecl = items.filter(i => i.decl).length;
     status.textContent = '';
     const res = $('#result');
-    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${inViewer ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
+    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${SEND.pdf ? '<button class="btn" data-act="send-pdf">Send PDF</button>' : ''}${inViewer ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
     res.hidden = false;
     offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
   } catch (e) {
@@ -2316,7 +2358,7 @@ async function startBlank(msg) {
 
 /* ---------- boot ---------- */
 async function boot() {
-  renderRail(); renderSnapTypes(); syncInstall(); registerOffline();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

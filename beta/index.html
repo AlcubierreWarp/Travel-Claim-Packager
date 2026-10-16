@@ -456,6 +456,7 @@ html{touch-action:manipulation}
           <hr id="install-hr" hidden>
           <button data-act="open-draft">Open draft file</button>
           <button data-act="save-draft">Save draft file</button>
+          <button data-act="email-draft">Email draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -1572,6 +1573,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
+    case 'email-draft': setMenu(false); emailDraft(); break;
     case 'open-draft': setMenu(false); $('#file-draft').click(); break;
     case 'build': build(); break;
     case 'menu': setMenu($('#menu').hidden); break;
@@ -1646,9 +1648,42 @@ function fillStays() {
 }
 
 /* ---------- drafts ---------- */
-function saveDraft() {
-  const payload = JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, saved: new Date().toISOString(), state: S, receipts: liveReceipts() });
-  offerFile(fileBase() + '_DRAFT.json', payload, 'application/json');
+function draftPayload() { return JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, saved: new Date().toISOString(), state: S, receipts: liveReceipts() }); }
+function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'application/json'); }
+// Email a copy of the draft to yourself. Browsers cannot attach files to a mailto: link, so where the
+// device supports sharing files (phones, most desktop Chrome, Edge and Safari) the share sheet hands the
+// file to the mail app as a real attachment. Elsewhere the file is saved and a new email is opened for
+// the member to attach it. Nothing is sent by this page: the member's own mail app does the sending.
+function emailSubject() {
+  const d = tripDates(); const dates = d && d.length ? rangeText(d) : 'Dates TBD';
+  return `${dates} - ${(S.tripRef || '').trim() || 'Trip'} - Digital Itinerary File`;
+}
+async function emailDraft() {
+  const name = fileBase() + '_DRAFT.json', payload = draftPayload(), subject = emailSubject();
+  const howTo = 'To continue this claim on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select the attached file.';
+  const mb = payload.length / 1048576;
+  const big = mb > 20 ? ` The file is ${mb.toFixed(0)} MB, which may be too large for some mail services.` : '';
+  let file = null; try { file = new File([payload], name, { type: 'application/json' }); } catch (e) {}
+  if (file && navigator.canShare && navigator.share) {
+    let ok = false; try { ok = navigator.canShare({ files: [file] }); } catch (e) {}
+    if (ok) {
+      try {
+        await navigator.share({ files: [file], title: subject, text: subject + '\n\n' + howTo });
+        if (big) toast(big.trim());
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') { toast('Email cancelled.'); return; }
+        // NotAllowedError and others: fall through to save and open a new email
+      }
+    }
+  }
+  const saved = await offerFile(name, payload, 'application/json');
+  if (!saved) return;
+  const body = `Attach the file ${name} (just saved to your downloads) to this email before sending.\n\n${howTo}`;
+  const a = document.createElement('a');
+  a.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  toast(`Draft saved. Attach ${name} to the new email.` + big);
 }
 async function openDraft(f) {
   try {

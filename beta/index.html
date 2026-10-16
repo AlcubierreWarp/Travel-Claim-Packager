@@ -11,8 +11,8 @@
 <meta name="theme-color" content="#052748">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="CAF Travel">
-<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. The page itself cannot make network requests. -->
+<meta name="apple-mobile-web-app-title" content="CAF Travel Beta">
+<!-- CAF Digital Travel Itinerary (beta). Runs entirely in the browser. The page itself cannot make network requests. -->
 <title>CAF Digital Travel Itinerary</title>
 
 <style>
@@ -666,7 +666,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.1</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.2</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1688,7 +1688,7 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // falls back to a .txt copy there. Open draft file accepts either.
 // Version: the minor number goes up only when beta is promoted to production; major only when the owner says so.
 // Beta builds carry the number the next production release will have, plus the build date.
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2'; // stamped by build.py from VERSION (beta gets the next minor)
 const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
@@ -2253,7 +2253,8 @@ function registerOffline() { if (!pwaReady() || !('serviceWorker' in navigator))
 /* ---------- device storage: IndexedDB in this browser only, never uploaded ---------- */
 const DEV = { db: null, settings: { keep: false, remember: false, pin: false, salt: null, check: null, asked: false }, key: null, locked: false, savedRc: new Set(), lastSaved: 0, failed: false };
 const EXPIRE_DAYS = 30;
-function idbOpen() { return new Promise(res => { try { const r = indexedDB.open('caf-dti', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); } catch (e) { res(null); } }); }
+const IS_BETA = /\/beta\//.test(location.pathname);
+function idbOpen() { return new Promise(res => { try { const r = indexedDB.open(IS_BETA ? 'caf-dti' : 'caf-dti-main', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); } catch (e) { res(null); } }); }
 function idb(mode, fn) { return new Promise((res, rej) => { if (!DEV.db) return res(undefined); try { const tx = DEV.db.transaction('kv', mode); const req = fn(tx.objectStore('kv')); tx.oncomplete = () => res(req ? req.result : undefined); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); } catch (e) { rej(e); } }); }
 const idbGet = k => idb('readonly', st => st.get(k));
 const idbPut = (k, v) => idb('readwrite', st => st.put(v, k));

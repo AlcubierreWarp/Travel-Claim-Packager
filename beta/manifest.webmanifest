@@ -1,6 +1,6 @@
 {
-  "name": "CAF Digital Travel Itinerary",
-  "short_name": "CAF Travel",
+  "name": "CAF Digital Travel Itinerary (Beta)",
+  "short_name": "CAF Travel Beta",
   "description": "Temporary duty itinerary worksheet and receipts, compiled into one PDF for the Orderly Room. Runs entirely on your device.",
   "start_url": "./",
   "scope": "./",

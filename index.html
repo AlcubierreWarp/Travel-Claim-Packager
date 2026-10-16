@@ -3,8 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'">
-<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. This page cannot make network requests. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#052748">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CAF Travel">
+<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. The page itself cannot make network requests. -->
 <title>CAF Digital Travel Itinerary</title>
 
 <style>
@@ -49,7 +57,71 @@ button{font:inherit;color:inherit}
 .mark{font:600 .8rem/1 var(--f-mono);letter-spacing:.06em;background:var(--bar);color:var(--bar-ink);padding:9px 8px;border-radius:2px;flex:none}
 h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacing:.005em;text-wrap:balance}
 .brand p{margin:3px 0 0;color:var(--muted);font-size:.86rem}
-.top-actions{display:flex;flex-wrap:wrap;gap:8px}
+.top-actions{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.savechip{font:500 .72rem/1.2 var(--f-mono);color:var(--muted);white-space:nowrap}
+.savechip.on{color:var(--ok)}
+.savechip.off{color:var(--warn)}
+.menu-wrap{position:relative}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:18rem;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line-strong);border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column}
+.menu>button{all:unset;box-sizing:border-box;padding:10px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
+.menu>button:hover,.menu>button:focus-visible{background:var(--accent-soft)}
+.menu>button.danger{color:var(--bad)}
+.menu>button.install{font-weight:700;color:var(--accent)}
+.install-steps{margin:6px 0 0;padding-left:1.2rem}
+.install-steps li{margin:2px 0}
+.menu>button.armed{background:var(--bad);color:#fff}
+.menu hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
+.menu-h{font:600 .64rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 10px 2px}
+.menu-check{display:flex;gap:10px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
+.menu-check:hover{background:var(--accent-soft)}
+.menu-check input:disabled+*{opacity:.5}
+.menu-note{font-size:.76rem;line-height:1.4;color:var(--muted);margin:6px 10px 4px}
+.banner.device{background:var(--accent-soft);border-color:var(--accent)}
+.banner-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pin-in{width:7rem;font-family:var(--f-mono);letter-spacing:.2em}
+.banner .err{flex-basis:100%;margin:0}
+.lo-more summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.82rem}
+.lo-more[open]{flex-basis:100%}
+.lo-more p{margin:6px 0 2px;max-width:80ch}
+/* dates shown as Mon 02 Nov 26 whatever the browser locale */
+.dwrap{position:relative;display:block;min-width:0}
+.dwrap input[type=date]{color:transparent}
+.dwrap input[type=date]:focus{color:var(--ink)}
+.dwrap input[type=date]:focus+.dshow{display:none}
+.dshow{position:absolute;left:.6rem;right:1.9rem;top:50%;transform:translateY(-50%);pointer-events:none;font:500 .88rem/1 var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.dshow.empty{color:var(--muted);font-family:var(--f-body);opacity:.85}
+fieldset.tg.off .dshow{display:none}
+.n.muted{color:var(--muted);opacity:.75}
+/* bottom bar status */
+.barstatus{font:600 .7rem/1 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;padding:5px 7px;border-radius:2px;background:rgba(255,255,255,.12);white-space:nowrap}
+.barstatus.bad{background:var(--bad);color:#fff}
+.barstatus.warn{background:var(--warn-soft);color:var(--warn)}
+.barstatus.ok{background:var(--ok-soft);color:var(--ok)}
+.bar-acts{display:flex;gap:8px;margin-left:auto}
+.bar-acts .sm{display:none}
+.totalbar .btn.bar-snap{background:transparent;color:var(--bar-ink);border-color:var(--bar-ink)}
+/* snap dialog */
+dialog#snap{border:0;border-radius:6px;padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+dialog#snap::backdrop{background:rgba(5,8,7,.6)}
+.snap-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bar);color:var(--bar-ink)}
+.snap-head h3{margin:0;color:inherit}
+.snap-head .icon-btn{color:var(--bar-ink)}
+.snap-body{padding:14px;overflow:auto;max-height:calc(100vh - 170px)}
+.snap-prev{display:flex;justify-content:center;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:8px;margin-bottom:12px}
+.snap-prev img{max-height:170px;max-width:100%;object-fit:contain;background:#fff}
+.snap-prev .pdfbadge{width:auto;height:auto;padding:16px 20px;font-size:.8rem}
+.snap-types{border:0;margin:0 0 12px;padding:0;min-width:0}
+.snap-types legend{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;padding:0}
+#snap-types{display:flex;flex-wrap:wrap;gap:6px}
+.chip-r{position:relative;display:inline-flex}
+.chip-r input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0;width:100%;height:100%}
+.chip-r span{display:inline-block;padding:8px 11px;border:1px solid var(--line-strong);border-radius:3px;font-size:.86rem;background:var(--field)}
+.chip-r input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.chip-r input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.sd-grid.snap-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.sd-grid.snap-grid .field:nth-child(n+3){grid-column:1/-1}
+@media (min-width: 561px){ .sd-grid.snap-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,1.6fr)} .sd-grid.snap-grid .field:nth-child(n+3){grid-column:auto} .sd-grid.snap-grid .field.wide{grid-column:1/-1} }
+.snap-foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--line)}
 .localonly{border-bottom:1px solid var(--line);background:var(--accent-soft)}
 .localonly .wrap{display:flex;gap:10px;align-items:baseline;padding-block:7px;font-size:.84rem;flex-wrap:wrap}
 .localonly b{font:600 .7rem/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);border:1px solid var(--accent);padding:3px 5px;border-radius:2px}
@@ -222,6 +294,8 @@ fieldset.tg.off input{opacity:.3}
 .trip label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
 .trip-in{font-size:1.1rem;font-weight:600;max-width:36rem}
 .trip .sd-help{margin-top:6px}
+.pki-opt{font-weight:600}
+#pki-help{margin:4px 0 12px}
 .leave-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px}
 .leave-days{font-size:.8rem;color:var(--warn)}
 .stop.is-leave .stop-card{border-style:dashed;border-color:var(--warn);background:color-mix(in srgb,var(--warn-soft) 45%,var(--card))}
@@ -302,6 +376,17 @@ dialog#lb img{display:block;max-width:100%;max-height:84vh;border-radius:3px;bac
 dialog#lb .lb-bar{display:flex;justify-content:space-between;gap:12px;color:#fff;font-size:.85rem;padding:0 0 8px;align-items:center}
 dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6px 12px;font-weight:600;cursor:pointer}
 
+/* page footer, help, back to top */
+.sitefoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:14px 2px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem}
+.sitefoot p{margin:0}
+.sitefoot .btn{text-decoration:none}
+.foot-acts{display:flex;gap:8px;flex-wrap:wrap}
+.menu>a.menu-link{display:block;padding:9px 10px;border-radius:3px;color:var(--ink);text-decoration:none;font-size:.9rem}
+.menu>a.menu-link:hover,.menu>a.menu-link:focus-visible{background:var(--accent-soft)}
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:15;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:0;transition:opacity .2s,transform .2s}
+.totop[hidden]{display:grid;opacity:0;pointer-events:none;transform:translateY(8px)}
+.totop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.totop:hover{border-color:var(--accent)}
 @media (max-width: 880px){
   .layout{grid-template-columns:minmax(0,1fr);padding-top:0}
   .rail{top:env(safe-area-inset-top,0px);z-index:6;flex-direction:row;overflow-x:auto;background:var(--bg);margin-inline:-16px;padding:8px 16px;border-bottom:1px solid var(--line);scrollbar-width:none}
@@ -310,6 +395,26 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
   .pk-grid{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width: 560px){
+  .brand p{display:none}
+  h1{font-size:1.2rem}
+  .mark{display:none}
+  .top .wrap{padding-block:10px;flex-wrap:nowrap}
+  .savechip{display:none}
+  .localonly .wrap{padding-block:6px;font-size:.8rem}
+  .layout{padding-bottom:90px}
+  .totalbar{padding:7px 0 calc(7px + env(safe-area-inset-bottom,0px))}
+  .totalbar .wrap{flex-wrap:nowrap;gap:8px}
+  .tots{flex-wrap:nowrap}
+  .tots .tot:not(:first-child){display:none}
+  .tot small{display:none}
+  .bar-acts .lg{display:none}
+  .bar-acts .sm{display:inline}
+  .bar-acts .btn{padding:.58rem .7rem}
+  #toast{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  .totop{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  dialog#snap{margin:auto auto 0;width:100%;max-width:100%;border-radius:10px 10px 0 0;max-height:92vh}
+  .snap-body{max-height:calc(92vh - 130px)}
+  .snap-foot .btn{flex:1 1 auto}
   .times{grid-template-columns:minmax(0,1fr)}
   .stop-tag{width:auto}
   .stop-head{flex-wrap:wrap}
@@ -323,6 +428,22 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
   .meals .short{display:inline}
   .meals .rem{min-width:7rem}
   .meals td,.meals th{padding-inline:5px}
+}
+/* iPhone and iPad Safari draw date fields with their own size and ignore width and height,
+   so they spill into the time box beside them. Draw them as plain boxes there; tapping still opens the date wheel. */
+@supports (-webkit-touch-callout: none) {
+  input[type=date]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;height:2.4rem;margin:0;padding-block:0;line-height:2.4rem}
+  input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0;min-height:0}
+  .dshow{right:.6rem}
+}
+.tg-in{align-items:center}
+.tg-in>*{min-width:0}
+/* Touch screens: 16px text in fields stops iPhone from zooming in when a field is tapped;
+   touch-action removes double-tap zoom but keeps pinch-to-zoom for accessibility */
+html{touch-action:manipulation}
+@media (pointer: coarse){
+  input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important}
+  .dshow{font-size:15px}
 }
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
 </style>
@@ -339,17 +460,53 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
       </div>
     </div>
     <div class="top-actions">
-      <button class="btn" data-act="open-draft">Open draft</button>
-      <button class="btn" data-act="save-draft">Save draft</button>
-      <button class="btn" data-act="clear" id="clear-btn">Clear form</button>
+      <span class="savechip" id="savechip" role="status"></span>
+      <div class="menu-wrap">
+        <button class="btn" id="menu-btn" data-act="menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu">Menu</button>
+        <div class="menu" id="menu" hidden>
+          <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
+          <hr id="install-hr" hidden>
+          <button data-act="open-draft">Open draft file</button>
+          <button data-act="save-draft" id="save-draft">Save draft file</button>
+          <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
+          <button data-act="clear" id="clear-btn">Clear form</button>
+          <hr>
+          <p class="menu-h">This device</p>
+          <label class="menu-check"><input type="checkbox" id="opt-keep"> Keep my work on this device</label>
+          <label class="menu-check"><input type="checkbox" id="opt-remember"> Remember my details</label>
+          <label class="menu-check"><input type="checkbox" id="opt-pin"> Protect with a PIN</label>
+          <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
+          <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
+          <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
+          <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
+        </div>
+      </div>
     </div>
   </div>
 </header>
-<div class="localonly"><div class="wrap"><b>LOCAL ONLY</b><span>Everything runs in this browser window. Nothing you type or attach is uploaded or stored on a server. Save a draft file if you need to finish later. Unofficial tool: check claims against CFTDTI and your Orderly Room.</span></div></div>
+<div class="localonly"><div class="wrap"><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div>
 
 <div class="layout">
   <nav class="rail" aria-label="Worksheet sections" id="rail"></nav>
   <main>
+    <div class="banner device" id="keep-banner" hidden>
+      <span><strong>Keep your work on this device?</strong> Phones close browser tabs often. Your claim and receipt photos are saved in this browser only, never uploaded. You can change this in the menu.</span>
+      <span class="banner-acts"><button class="btn primary" data-act="keep-yes">Keep on this device</button><button class="btn" data-act="keep-no">Not now</button></span>
+    </div>
+    <div class="banner device" id="unlock-banner" hidden>
+      <span><strong>Your saved claim is protected with a PIN.</strong> Enter it to continue where you left off.</span>
+      <span class="banner-acts"><input id="unlock-pin" class="pin-in" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN"><button class="btn primary" data-act="unlock">Unlock</button><button class="btn" data-act="forget">Forget instead</button></span>
+      <span class="err" id="unlock-err" hidden></span>
+    </div>
+    <div class="banner device" id="pin-banner" hidden>
+      <span><strong>Choose a PIN</strong> of 4 to 12 digits. Your saved claim, receipts and details are encrypted with it. If you forget it, the only option is to forget this device.</span>
+      <span class="banner-acts"><input id="pin-1" class="pin-in" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="New PIN"><input id="pin-2" class="pin-in" type="password" inputmode="numeric" autocomplete="off" placeholder="Again" aria-label="Repeat PIN"><button class="btn primary" data-act="pin-save">Set PIN</button><button class="btn" data-act="pin-cancel">Cancel</button></span>
+      <span class="err" id="pin-err" hidden></span>
+    </div>
+    <div class="banner device" id="install-banner" hidden>
+      <span id="install-text"></span>
+      <span class="banner-acts"><button class="btn" data-act="install-close">Close</button></span>
+    </div>
     <div class="banner" id="example-banner" hidden>
       <span><strong>This is an example claim.</strong> The member, trip and receipts are made up so you can see how the package comes out.</span>
       <button class="btn" data-act="start-blank">Start a blank claim</button>
@@ -448,7 +605,7 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
         <div class="sd-block">
           <h3>Declarations to be generated</h3>
           <ul class="sd-items" id="sd-items"></ul>
-          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. Both of you can sign with a PKI certificate.</p>
+          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or by hand (set under Build the package).</p>
         </div>
         <div class="sd-block">
           <h3>Declarant</h3>
@@ -494,7 +651,9 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
             <ul class="checks" id="checks"></ul>
           </div>
           <div>
-            <p class="fname" style="margin-top:0">File: <code id="fname"></code></p>
+            <label class="check pki-opt"><input type="checkbox" id="opt-pkisig" data-bind="pki"> Sign with PKI (digital signature)</label>
+            <p class="sd-help" id="pki-help"></p>
+            <p class="fname">File: <code id="fname"></code></p>
             <h3 style="margin-top:18px">What goes in</h3>
             <ul class="contents" id="contents"></ul>
           </div>
@@ -506,20 +665,43 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
         <div class="result" id="result" hidden></div>
       </div>
     </section>
+    <footer class="sitefoot">
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.1</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
+    </footer>
   </main>
 </div>
+<button class="totop" id="totop" data-act="totop" aria-label="Back to top" title="Back to top" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14.5l6-6 6 6"/></svg></button>
 
 <footer class="totalbar">
   <div class="wrap">
     <div class="tots" id="tots"></div>
-    <button class="btn" data-act="goto" data-to="sec-P">Review and build</button>
+    <span class="barstatus" id="barstatus"></span>
+    <div class="bar-acts"><button class="btn bar-snap" data-act="snap"><span class="lg">Snap a receipt</span><span class="sm">+ Receipt</span></button><button class="btn" data-act="review"><span class="lg">Review and build</span><span class="sm">Build</span></button></div>
   </div>
 </footer>
 
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <dialog id="lb"><div class="lb-bar"><span id="lb-cap"></span><button data-act="lb-close">Close</button></div><img id="lb-img" alt=""></dialog>
 <input type="file" id="file-rc" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple hidden>
-<input type="file" id="file-draft" accept=".json,application/json" hidden>
+<input type="file" id="file-draft" accept=".json,.txt,application/json,text/plain" hidden>
+<input type="file" id="file-snap" accept="image/*,application/pdf,.pdf" capture="environment" hidden>
+<dialog id="snap" aria-labelledby="snap-h">
+  <div class="snap-head"><h3 id="snap-h">Add a receipt</h3><button type="button" class="icon-btn" data-act="snap-cancel" aria-label="Close">×</button></div>
+  <div class="snap-body">
+    <div class="snap-prev" id="snap-prev"></div>
+    <fieldset class="snap-types"><legend>What is it?</legend><div id="snap-types"></div></fieldset>
+    <div class="sd-grid snap-grid">
+      <div class="field"><label for="snap-amt" id="snap-amt-l">Amount</label><input id="snap-amt" class="num" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>
+      <div class="field"><label for="snap-cur">Cur</label><input id="snap-cur" class="cur" maxlength="3" list="dl-cur" autocomplete="off" value="CAD"></div>
+      <div class="field"><label for="snap-date">Date</label><span class="dwrap"><input id="snap-date" type="date"><span class="dshow empty" aria-hidden="true">Pick a date</span></span></div>
+      <div class="field"><label for="snap-loc">Location</label><input id="snap-loc" list="dl-places" autocomplete="off"></div>
+      <div class="field wide"><label for="snap-desc" id="snap-desc-l">Description (optional)</label><input id="snap-desc" autocomplete="off"></div>
+    </div>
+    <span class="err" id="snap-err" hidden></span>
+  </div>
+  <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and snap another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
+</dialog>
 
 <datalist id="dl-cur"><option>CAD</option><option>USD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>JPY</option><option>CHF</option><option>NOK</option><option>QAR</option><option>AED</option><option>KWD</option></datalist>
 <datalist id="dl-transport"><option>Toll</option><option>Parking</option><option>Gas</option><option>Rental vehicle</option><option>Taxi</option><option>Rideshare</option><option>Bus</option><option>Train</option><option>Airfare</option><option>Baggage fee</option><option>Ferry</option><option>PMV kilometres</option></datalist>
@@ -560,6 +742,10 @@ const isoOk = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
 const fmtDate = d => { if (!isoOk(d)) return d || ''; const [y, m, dd] = d.split('-'); return `${dd} ${MON[+m - 1]} ${y.slice(2)}`; };
 const fmtLong = d => { if (!isoOk(d)) return d || ''; const [y, m, dd] = d.split('-'); return `${+dd} ${MONTHS[+m - 1]} ${y}`; };
 const dow = d => isoOk(d) ? DOW[new Date(d + 'T12:00:00Z').getUTCDay()] : '';
+// Date boxes show "Mon 02 Nov 26" whatever the browser's regional format
+const dShow = v => isoOk(v) ? `${dow(v)} ${fmtDate(v)}` : 'Pick a date';
+const dateWrap = (html, v) => `<span class="dwrap">${html}<span class="dshow${isoOk(v) ? '' : ' empty'}" aria-hidden="true">${dShow(v)}</span></span>`;
+function syncDate(el) { const sh = el && el.nextElementSibling; if (!sh || !sh.classList.contains('dshow')) return; sh.textContent = dShow(el.value); sh.classList.toggle('empty', !isoOk(el.value)); }
 const num = v => { if (v === '' || v == null) return NaN; return parseFloat(String(v).replace(/[$\s]/g, '').replace(',', '.')); };
 const money = v => { const n = num(v); return isNaN(n) ? '' : n.toFixed(2); };
 const curOf = c => String(c || '').trim().toUpperCase();
@@ -634,7 +820,7 @@ function blank() {
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
     transport: [], lodging: { stays: [] }, meals: {},
-    general: [], exchange: [], calls: [], sd: blankSD() };
+    general: [], exchange: [], calls: [], sd: blankSD(), touched: {}, pki: true };
 }
 const blankSD = () => ({ name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
 const sdName = () => S.sd.name.trim() || [String(S.member.given || '').replace(/\(.*?\)/g, ''), S.member.surname].map(x => x.trim()).filter(Boolean).join(' ');
@@ -684,6 +870,8 @@ function normalize(s) {
   const oldL = o.lodging || {};
   o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays : [] };
   o.sd = Object.assign(blankSD(), o.sd || {});
+  o.touched = (o.touched && typeof o.touched === 'object') ? o.touched : {};
+  o.pki = o.pki !== false;
   o.meals = (o.meals && typeof o.meals === 'object') ? o.meals : {};
   if (Array.isArray(oldL.rows)) { // drafts from the first version: one row per day
     oldL.rows.forEach(r => {
@@ -737,7 +925,7 @@ function cellHTML(sec, row, c) {
   const common = `id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="${c.k}"`;
   let inp, cls = c.t;
   switch (c.t) {
-    case 'date': inp = `<input type="date" ${common} value="${esc(v)}">`; break;
+    case 'date': inp = dateWrap(`<input type="date" ${common} value="${esc(v)}">`, v); break;
     case 'money': inp = `<input type="text" inputmode="decimal" class="num${v !== '' && isNaN(num(v)) ? ' bad' : ''}" ${common} value="${esc(v)}" placeholder="0.00" autocomplete="off">`; break;
     case 'cur': inp = `<input type="text" class="cur" maxlength="3" list="dl-cur" ${common} value="${esc(v)}" autocomplete="off">`; break;
     case 'select': inp = `<select ${common}>${c.opts.map(o => `<option ${o === v ? 'selected' : ''}>${o}</option>`).join('')}</select>`; break;
@@ -783,7 +971,8 @@ function stayField(r, k, label, o = {}) {
   const id = `stays-${r.id}-${k}`;
   const t = o.t === 'date' ? 'date' : 'text';
   const cls = o.t === 'money' ? ` class="num${r[k] !== '' && isNaN(num(r[k])) ? ' bad' : ''}" inputmode="decimal"` : o.t === 'cur' ? ' class="cur" maxlength="3" list="dl-cur"' : '';
-  return `<div class="field ${o.w || ''}"><label for="${id}">${label}</label><input type="${t}" id="${id}" data-sec="stays" data-row="${r.id}" data-k="${k}" value="${esc(r[k])}"${cls}${o.ph ? ` placeholder="${esc(o.ph)}"` : ''}${o.list ? ` list="${o.list}"` : ''} autocomplete="off"></div>`;
+  const input = `<input type="${t}" id="${id}" data-sec="stays" data-row="${r.id}" data-k="${k}" value="${esc(r[k])}"${cls}${o.ph ? ` placeholder="${esc(o.ph)}"` : ''}${o.list ? ` list="${o.list}"` : ''} autocomplete="off">`;
+  return `<div class="field ${o.w || ''}"><label for="${id}">${label}</label>${o.t === 'date' ? dateWrap(input, r[k]) : input}</div>`;
 }
 function stayHTML(r, i) {
   const fields = r.priv
@@ -818,7 +1007,7 @@ function timeGroup(s, p, label, off, offText) {
   const id = `stops-${s.id}-${p}`;
   return `<fieldset class="tg${off ? ' off' : ''}"${off ? ' disabled' : ''}><legend>${label}</legend>
     <div class="tg-in">
-      <input type="date" id="${id}Date" data-sec="stops" data-row="${s.id}" data-k="${p}Date" value="${off ? '' : esc(s[p + 'Date'])}" aria-label="${label} date">
+      ${dateWrap(`<input type="date" id="${id}Date" data-sec="stops" data-row="${s.id}" data-k="${p}Date" value="${off ? '' : esc(s[p + 'Date'])}" aria-label="${label} date">`, off ? '' : s[p + 'Date'])}
       <input type="text" class="hhmm" inputmode="numeric" maxlength="5" id="${id}Time" data-sec="stops" data-row="${s.id}" data-k="${p}Time" value="${off ? '' : esc(s[p + 'Time'])}" placeholder="HHMM" aria-label="${label} time, 24 hour" autocomplete="off">
     </div>${off ? `<span class="off-note">${offText}</span>` : ''}</fieldset>`;
 }
@@ -1039,6 +1228,12 @@ function checks() {
   for (let i = 1; i < ordered.length; i++) if (ordered[i].r.checkin < ordered[i - 1].r.checkout) add('warn', 'D', `${ordered[i - 1].ref} and ${ordered[i].ref} overlap. Check the dates.`);
   S.exchange.forEach((r, i) => evidence('exchange', r, `G-${i + 1}`, 'G'));
   S.calls.forEach((r, i) => { if (r.cost !== '' && isNaN(num(r.cost))) add('bad', 'H', `H-${i + 1} cost "${r.cost}" is not a number.`); });
+  const td = tripDates();
+  if (td) {
+    const a = td[0], z = td[td.length - 1], span = rangeText([a, z]);
+    for (const sec of ['transport', 'general', 'exchange', 'calls']) getArr(sec).forEach((r, i) => { if (isoOk(r.date) && (r.date < a || r.date > z)) add('warn', DEFS[sec].L, `${DEFS[sec].L}-${i + 1} is dated ${fmtDate(r.date)}, outside the trip (${span}).`); });
+    S.lodging.stays.forEach((r, i) => { if ((isoOk(r.checkin) && r.checkin < a) || (isoOk(r.checkout) && r.checkout > z)) add('warn', 'D', `D-${i + 1} dates fall outside the trip (${span}).`); });
+  }
   if (lostItems().length) {
     const sd = S.sd;
     if (!sd.juris) add('bad', 'SD', 'Choose and confirm the province or territory for the statutory declaration jurat.');
@@ -1051,6 +1246,30 @@ function checks() {
 }
 
 let building = false;
+// Gentle checks: a section's issues show once it has been started, or everywhere once the member tries to build
+let SHOWALL = false;
+const visited = new Set();
+const SECCODE = { 'sec-A': 'A', 'sec-B': 'B', 'sec-C': 'C', 'sec-E': 'D', 'sec-EM': 'E', 'sec-F': 'F', 'sec-G': 'G', 'sec-H': 'H', 'sec-SD': 'SD', 'sec-T': 'T' };
+function hasData(code) {
+  const m = S.member;
+  switch (code) {
+    case 'A': return ['pri', 'rank', 'surname', 'given', 'section', 'tel'].some(k => String(m[k] || '').trim());
+    case 'B': return S.stops.some(st => st.city.trim() || st.arrDate || st.depDate);
+    case 'C': return S.transport.length > 0; case 'D': return S.lodging.stays.length > 0;
+    case 'F': return S.general.length > 0; case 'G': return S.exchange.length > 0; case 'H': return S.calls.length > 0;
+    default: return false;
+  }
+}
+const started = code => SHOWALL || !!S.touched[code] || hasData(code);
+function touch(el) { const sec = el && el.closest && el.closest('section.sec'); const c = sec && SECCODE[sec.id]; if (c && !S.touched[c]) S.touched[c] = true; }
+function requiredFields() {
+  const st = S.stops, f = st[0], l = st[st.length - 1];
+  return [['m-pri', S.member.pri], ['m-rank', S.member.rank], ['m-sur', S.member.surname], ['m-given', S.member.given],
+    [`stops-${f.id}-city`, f.city], [`stops-${l.id}-city`, l.city], [`stops-${f.id}-depDate`, f.depDate], [`stops-${l.id}-arrDate`, l.arrDate]];
+}
+function markRequired() {
+  requiredFields().forEach(([id, v]) => { const el = document.getElementById(id); if (!el) return; const bad = !String(v || '').trim() && (SHOWALL || visited.has(id)); el.classList.toggle('bad', bad); if (bad) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid'); });
+}
 function refresh() {
   updateLeave();
   $('#poc').hidden = !S.poc.on;
@@ -1085,28 +1304,38 @@ function refresh() {
   $('#tots').innerHTML = (curs.length ? curs.map(c => `<span class="tot"><small>Total ${esc(c)}</small>${t[c].toFixed(2)}</span>`).join('') : `<span class="tot"><small>Total</small>0.00</span>`)
     + `<span class="tot"><small>Receipts</small>${ev.n}</span>` + (ev.lost ? `<span class="tot"><small>Missing, declared</small>${ev.lost}</span>` : '');
   // checks
-  const cs = checks(), nBad = cs.filter(c => c.lvl === 'bad').length;
+  const all = checks(), cs = all.filter(c => started(c.sec));
+  const nBadAll = all.filter(c => c.lvl === 'bad').length, nBad = cs.filter(c => c.lvl === 'bad').length, hidden = all.length - cs.length;
+  const anyStarted = ['A', 'B', 'C', 'D', 'F', 'G', 'H'].some(started);
   const bySec = {}; cs.forEach(c => { const b = bySec[c.sec] = bySec[c.sec] || { bad: 0, warn: 0 }; b[c.lvl]++; });
   const totalMeals = mc.c.b + mc.c.l + mc.c.d;
   const counts = { B: `${S.stops.length}`, C: S.transport.length || '', D: S.lodging.stays.length || '', E: totalMeals ? `${totalMeals}` : '', F: S.general.length || '', G: S.exchange.length || '', H: S.calls.length || '' };
+  const status = !anyStarted && !SHOWALL ? ['', 'Not started'] : nBad ? ['bad', `${nBad} to fix`] : hidden && all.some(c => c.lvl === 'bad') ? ['', 'In progress'] : cs.length ? ['warn', `${cs.length} to check`] : ['ok', 'Ready'];
   RAIL.forEach(([key]) => {
     const el = $('#rail-' + key); if (!el) return; const b = bySec[key];
-    if (key === 'PDF') { el.textContent = nBad ? `${nBad} to fix` : cs.length ? `${cs.length} to check` : 'ready'; el.className = 'n ' + (nBad ? 'bad' : cs.length ? 'warn' : 'ok'); return; }
+    if (key === 'PDF') { el.textContent = status[1].toLowerCase(); el.className = 'n ' + (status[0] || 'muted'); return; }
+    if (key !== 'E' && key !== 'SD' && !started(key)) { el.textContent = (key === 'A' || key === 'B') ? 'not started' : ''; el.className = 'n muted'; return; }
     el.className = 'n' + (b?.bad ? ' bad' : b?.warn ? ' warn' : key === 'A' ? ' ok' : '');
     el.textContent = key === 'A' ? (b?.bad ? 'incomplete' : 'done') : key === 'SD' ? (b?.bad ? 'confirm' : `${ev.lost}`) : (b ? '! ' : '') + counts[key];
   });
+  const bs = $('#barstatus'); bs.textContent = status[1]; bs.className = 'barstatus' + (status[0] ? ' ' + status[0] : '');
   const secId = { A: 'sec-A', B: 'sec-B', C: 'sec-C', D: 'sec-E', E: 'sec-EM', F: 'sec-F', G: 'sec-G', H: 'sec-H', SD: 'sec-SD' };
   const sorted = cs.slice().sort((a, b) => (a.lvl === 'bad' ? 0 : 1) - (b.lvl === 'bad' ? 0 : 1)), shown = sorted.slice(0, 16);
-  $('#checks').innerHTML = cs.length
+  const notStarted = RAIL.filter(([k]) => !['E', 'SD', 'PDF'].includes(k) && !started(k) && all.some(c => c.sec === k)).map(([, L, , nm]) => `${L} ${nm}`);
+  $('#checks').innerHTML = (cs.length
     ? shown.map(c => `<li><span class="pill ${c.lvl}">${c.lvl === 'bad' ? 'Fix' : 'Check'}</span><button data-act="goto" data-to="${secId[c.sec]}"><span class="sr">Section ${c.sec}: </span><span>${esc(c.msg)}</span></button></li>`).join('') + (cs.length > shown.length ? `<li><span></span><span class="drophint">and ${cs.length - shown.length} more</span></li>` : '')
-    : `<li><span class="pill ok">Ready</span><span>Everything required is filled in, and every expense has a receipt or a missing-receipt declaration.</span></li>`;
-  // build gate
+    : hidden ? '' : `<li><span class="pill ok">Ready</span><span>Everything required is filled in, and every expense has a receipt or a missing-receipt declaration.</span></li>`)
+    + (notStarted.length ? `<li><span class="pill">To do</span><span>Not started yet: ${esc(notStarted.join(', '))}. These are checked when you fill them in or build the package.</span></li>` : '');
+  // build gate: the button always works; pressing it with open items reveals them
   const btn = $('#build-btn'), st = $('#build-status');
   if (!building) {
-    btn.disabled = nBad > 0;
-    st.classList.toggle('blocked', nBad > 0);
-    st.textContent = nBad ? `Fix the ${nBad} item${nBad > 1 ? 's' : ''} marked Fix before building. You can save a draft in the meantime.` : '';
+    btn.disabled = false;
+    st.classList.toggle('blocked', SHOWALL && nBadAll > 0);
+    st.textContent = SHOWALL && nBadAll ? `Fix the ${nBadAll} item${nBadAll > 1 ? 's' : ''} marked Fix to build the package. You can save a draft in the meantime.` : '';
   }
+  markRequired();
+  $$('.dwrap input[type=date]').forEach(syncDate);
+  saveChip();
   // contents
   $('#fname').textContent = fileBase() + '.pdf';
   const rows = [['Worksheet, sections A to H', 'in form order'], ['Itinerary', `${S.stops.length} locations`],
@@ -1115,7 +1344,8 @@ function refresh() {
     ['Summary of amounts claimed', curs.length ? curs.map(c => `${t[c].toFixed(2)} ${c}`).join(', ') : 'nil'],
     ['Receipts, labelled', `${ev.n}`]];
   if (ev.lost) rows.push(['Missing receipt declarations', `${ev.lost}`]);
-  rows.push(['PKI signature fields', `${1 + ev.lost * 2}`]);
+  rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Signature lines, to sign by hand', `${1 + ev.lost * 2}`]);
+  $('#pki-help').textContent = S.pki ? 'The PDF gets digital signature fields to sign in Adobe with a PKI certificate. The signature records the date, so no date line is added.' : 'The PDF gets lines to sign by hand, with a date line beside your signature. Print it, sign it, and scan it if your Orderly Room wants it electronically.';
   $('#contents').innerHTML = rows.map(([a, b]) => `<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join('');
   persist();
 }
@@ -1138,6 +1368,7 @@ function persist() {
     try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: liveReceipts() })); }
     catch (e) { try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: {}, noR: true })); } catch (_) {} }
   }, 500);
+  devSchedule(); profileSchedule();
 }
 function liveReceipts() { const keep = {}; LIST_SECS.forEach(s => getArr(s).forEach(r => r.rc.forEach(id => { if (R[id]) keep[id] = R[id]; }))); return keep; }
 function restore() {
@@ -1158,7 +1389,18 @@ function toast(msg, action) {
   if (action) t.querySelector('button').onclick = () => { action.fn(); t.hidden = true; };
   t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, action ? 8000 : 4500);
 }
+// Installed web apps on iPhone and iPad ignore download links and open the file in a viewer with no
+// way to save it. There, saving goes through the share sheet, which offers Save to Files.
+const IOS_PWA = navigator.standalone === true;
 async function offerFile(filename, data, mime) {
+  if (IOS_PWA && !inViewer && shareable(filename, mime)) {
+    const file = new File([data], filename, { type: mime });
+    try { await navigator.share({ files: [file] }); return true; }
+    catch (e) {
+      if (e && e.name === 'AbortError') return false;
+      toast('Could not open the save options. Use Send to save the file to Files.'); return false;
+    }
+  }
   if (inViewer) {
     let dl = null; try { dl = await window.claude.use('downloads'); } catch (e) {}
     if (!dl) { toast('Saving files is not available in this view. Use the standalone copy of this tool.'); return false; }
@@ -1188,6 +1430,13 @@ function toJpeg(file) {
     img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('decode')); };
     img.src = url;
   });
+}
+async function fileToReceipt(f) {
+  const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+  const isImg = f.type.startsWith('image/') || /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i.test(f.name);
+  if (isPdf) { const buf = await f.arrayBuffer(); let pages = 1; try { const d = await PDFLib.PDFDocument.load(buf.slice(0), { ignoreEncryption: true }); pages = d.getPageCount(); } catch (e) {} return { name: f.name, kind: 'pdf', dataUrl: 'data:application/pdf;base64,' + bufToB64(buf), pages }; }
+  if (isImg) { const j = await toJpeg(f); return { name: f.name || 'photo.jpg', kind: 'img', dataUrl: j.dataUrl, w: j.w, h: j.h, pages: 1 }; }
+  return null;
 }
 async function ingest(files, sec, rowId) {
   const row = getArr(sec).find(r => r.id === rowId); if (!row) return;
@@ -1279,13 +1528,23 @@ function onField(el, final) {
 }
 const liveKind = el => el.type === 'checkbox' || el.tagName === 'SELECT';
 document.addEventListener('input', e => {
-  const el = e.target; if (liveKind(el)) return; // checkboxes and selects are handled on change
+  const el = e.target;
+  if (el.type === 'date') syncDate(el);
+  if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
+  if (liveKind(el)) return; // checkboxes and selects are handled on change
   if (el.dataset.bind) { onBind(el, false); refresh(); return; }
   if (el.dataset.mealDate) { const m = S.meals[el.dataset.mealDate] = S.meals[el.dataset.mealDate] || {}; m[el.dataset.meal] = el.value; persist(); return; }
   if (el.dataset.sec) { onField(el, el.type === 'date'); refresh(); }
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.type === 'date') syncDate(el);
+  if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
+  if (el.id === 'opt-keep') { setKeep(el.checked); return; }
+  if (el.id === 'opt-remember') { setRemember(el.checked); return; }
+  if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast('PIN removed. Your saved work is no longer encrypted.'); }); return; }
+  if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
+  if (el.id === 'file-snap') { const f = el.files[0]; el.value = ''; if (f) openSnap(f); return; }
   if (el.dataset.bind) { onBind(el, true); refresh(); return; }
   if (el.dataset.mealDate) { const m = S.meals[el.dataset.mealDate] = S.meals[el.dataset.mealDate] || {}; m[el.dataset.meal] = el.type === 'checkbox' ? el.checked : el.value; refresh(); return; }
   if (el.dataset.sec) {
@@ -1296,7 +1555,14 @@ document.addEventListener('change', e => {
   if (el.id === 'file-rc' && pendingAttach) { const files = [...el.files]; el.value = ''; ingest(files, pendingAttach.sec, pendingAttach.row); }
   if (el.id === 'file-draft') { const f = el.files[0]; el.value = ''; if (f) openDraft(f); }
 });
+document.addEventListener('focusout', e => { const id = e.target && e.target.id; if (id && requiredFields().some(([rid]) => rid === id)) { visited.add(id); markRequired(); } });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#menu').hidden) { setMenu(false); $('#menu-btn').focus(); }
+  if (e.key === 'Enter' && e.target.id === 'unlock-pin') { e.preventDefault(); $('[data-act="unlock"]').click(); }
+  if (e.key === 'Enter' && (e.target.id === 'pin-1' || e.target.id === 'pin-2')) { e.preventDefault(); $('[data-act="pin-save"]').click(); }
+});
 document.addEventListener('click', e => {
+  if (!$('#menu').hidden && !e.target.closest('.menu-wrap')) setMenu(false);
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act, sec = b.dataset.sec, rowId = b.dataset.row;
   const rowOf = () => getArr(sec).find(r => r.id === rowId);
@@ -1330,15 +1596,43 @@ document.addEventListener('click', e => {
     }
     case 'del-stop': { if (S.stops.length <= 2) break; S.stops = S.stops.filter(s => s.id !== rowId); renderItin(); renderMeals(); refresh(); refreshPlaces(); break; }
     case 'fill-stays': fillStays(); break;
-    case 'start-blank': S = blank(); R = {}; renderAll(); window.scrollTo(0, 0); toast('Blank claim ready. Start with section A.'); break;
+    case 'start-blank': startBlank('Blank claim ready. Start with the trip name and section A.'); break;
     case 'clear': {
-      if (clearArmed && Date.now() - clearArmed < 4000) { clearArmed = 0; b.classList.remove('armed'); b.textContent = 'Clear form'; S = blank(); R = {}; renderAll(); toast('Form cleared.'); }
+      if (clearArmed && Date.now() - clearArmed < 4000) { clearArmed = 0; b.classList.remove('armed'); b.textContent = 'Clear form'; setMenu(false); startBlank('Form cleared.'); }
       else { clearArmed = Date.now(); b.classList.add('armed'); b.textContent = 'Click again to clear'; setTimeout(() => { if (clearArmed && Date.now() - clearArmed >= 3900) { clearArmed = 0; b.classList.remove('armed'); b.textContent = 'Clear form'; } }, 4100); }
       break;
     }
-    case 'save-draft': saveDraft(); break;
-    case 'open-draft': $('#file-draft').click(); break;
+    case 'save-draft': setMenu(false); saveDraft(); break;
+    case 'send-draft': setMenu(false); sendDraft(); break;
+    case 'send-pdf': if (lastPdf) sendPdf(); break;
+    case 'totop': toTop(); break;
+    case 'open-draft': setMenu(false); $('#file-draft').click(); break;
     case 'build': build(); break;
+    case 'menu': setMenu($('#menu').hidden); break;
+    case 'install': installApp(); break;
+    case 'install-close': $('#install-banner').hidden = true; break;
+    case 'review': { SHOWALL = true; refresh(); $('#sec-P').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); break; }
+    case 'keep-yes': setKeep(true); break;
+    case 'keep-no': DEV.settings.asked = true; saveSettings(); $('#keep-banner').hidden = true; toast('Your work lasts until you close this tab. You can change this in the menu.'); break;
+    case 'unlock': { const v = $('#unlock-pin').value; unlock(v).then(ok => { if (ok) { $('#unlock-banner').hidden = true; $('#unlock-pin').value = ''; syncMenu(); toast('Unlocked.'); } else { const er = $('#unlock-err'); er.textContent = 'That PIN is not right. Try again, or forget this device to start over.'; er.hidden = false; } }); break; }
+    case 'pin-save': {
+      const a = $('#pin-1').value, c = $('#pin-2').value, er = $('#pin-err');
+      if (!/^\d{4,12}$/.test(a)) { er.textContent = 'Use 4 to 12 digits.'; er.hidden = false; break; }
+      if (a !== c) { er.textContent = 'The two PINs do not match.'; er.hidden = false; break; }
+      er.hidden = true; b.disabled = true;
+      setPin(a).then(() => { $('#pin-banner').hidden = true; $('#pin-1').value = $('#pin-2').value = ''; syncMenu(); toast('PIN set. Your saved work is now encrypted.'); }).finally(() => { b.disabled = false; });
+      break;
+    }
+    case 'pin-cancel': $('#pin-banner').hidden = true; $('#pin-1').value = $('#pin-2').value = ''; $('#pin-err').hidden = true; break;
+    case 'forget': {
+      if (forgetArmed && Date.now() - forgetArmed < 4000) { forgetArmed = 0; b.classList.remove('armed'); b.textContent = b.id === 'forget-btn' ? 'Forget this device' : 'Forget instead'; setMenu(false); forgetDevice(); }
+      else { forgetArmed = Date.now(); const orig = b.textContent; b.classList.add('armed'); b.textContent = 'Click again to delete everything'; setTimeout(() => { if (forgetArmed && Date.now() - forgetArmed >= 3900) { forgetArmed = 0; b.classList.remove('armed'); b.textContent = orig; } }, 4100); }
+      break;
+    }
+    case 'snap': $('#file-snap').click(); break;
+    case 'snap-cancel': closeSnap(); break;
+    case 'snap-save': if (saveSnap()) closeSnap(); break;
+    case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
     case 'save-pdf': if (lastPdf) offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'); break;
     case 'open-pdf': if (lastPdf) { const u = URL.createObjectURL(new Blob([lastPdf.bytes], { type: 'application/pdf' })); window.open(u, '_blank'); setTimeout(() => URL.revokeObjectURL(u), 120000); } break;
   }
@@ -1386,9 +1680,82 @@ function fillStays() {
 }
 
 /* ---------- drafts ---------- */
-function saveDraft() {
-  const payload = JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, saved: new Date().toISOString(), state: S, receipts: liveReceipts() });
-  offerFile(fileBase() + '_DRAFT.json', payload, 'application/json');
+function draftPayload() { return JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, ver: APP_VERSION, saved: new Date().toISOString(), state: S, receipts: liveReceipts() }); }
+function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'application/json'); }
+// Send a copy to yourself (OneDrive, Teams, Mail...) through the phone's share sheet. Phones only:
+// on a desktop the share panel rarely offers a useful target, so Save draft file covers that case.
+// Chrome on Android only shares a fixed list of file types and .json is not on it, so the draft
+// falls back to a .txt copy there. Open draft file accepts either.
+// Version: the minor number goes up only when beta is promoted to production; major only when the owner says so.
+// Beta builds carry the number the next production release will have, plus the build date.
+const APP_VERSION = '1.1'; // stamped by build.py from VERSION (beta gets the next minor)
+const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
+const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
+function shareable(name, type) {
+  try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
+}
+const SEND = {
+  draft: MOBILE && (shareable('t.json', 'application/json') ? 'json' : shareable('t.txt', 'text/plain') ? 'txt' : ''),
+  pdf: MOBILE && shareable('t.pdf', 'application/pdf')
+};
+function sendTitle(kind) {
+  const d = tripDates(); const dates = d && d.length ? rangeText(d) : 'Dates TBD';
+  return `${dates} - ${(S.tripRef || '').trim() || 'Trip'} - ${kind}`;
+}
+async function shareFile(file, title, text, fallback) {
+  try { await navigator.share({ files: [file], title, text }); return; }
+  catch (e) {
+    if (e && e.name === 'AbortError') return;
+    toast('Sending is not available right now. Saving the file instead.'); fallback();
+  }
+}
+function sendDraft() {
+  const payload = draftPayload(), base = fileBase() + '_DRAFT';
+  const file = SEND.draft === 'txt' ? new File([payload], base + '.txt', { type: 'text/plain' }) : new File([payload], base + '.json', { type: 'application/json' });
+  const title = sendTitle('Digital Itinerary File');
+  const mb = payload.length / 1048576;
+  if (mb > 20) toast(`This draft is ${mb.toFixed(0)} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.`);
+  shareFile(file, title, title + '\n\nTo continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.', () => offerFile(base + '.json', payload, 'application/json'));
+}
+function sendPdf() {
+  const file = new File([lastPdf.bytes], lastPdf.name, { type: 'application/pdf' });
+  shareFile(file, sendTitle('Travel Claim Package'), sendTitle('Travel Claim Package'), () => offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'));
+}
+// Help email: prefilled so a request arrives with what is needed to answer it.
+function deviceLines() {
+  const ua = navigator.userAgent;
+  const os = /iPhone/.test(ua) ? 'iPhone' : /iPad|Macintosh/.test(ua) && navigator.maxTouchPoints > 1 ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'Mac' : /Linux|CrOS/.test(ua) ? 'Linux or ChromeOS' : 'Other';
+  const br = /Edg\//.test(ua) ? 'Edge' : /Firefox|FxiOS/.test(ua) ? 'Firefox' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : 'Other';
+  let standalone = false; try { standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
+  const where = inViewer ? 'Claude artifact' : location.protocol === 'file:' ? 'single-file copy' : /\/beta\//.test(location.pathname) ? 'website, beta' : 'website';
+  return [`Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${APP_VERSION}, updated ${APP_UPDATED} (${where})`];
+}
+const NO_PI = 'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.';
+function mailHref(subject, lines) { return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent('CAF Digital Travel Itinerary - ' + subject) + '&body=' + encodeURIComponent(lines.join('\r\n')); }
+function helpHref() {
+  return mailHref('Help Request', ['Hello,', '', 'I need help with the CAF Digital Travel Itinerary.', '',
+    '1. What I was trying to do:', '', '', '2. What happened instead:', '', '', '3. Steps to make it happen again (if known):', '', '',
+    '4. Rank and name:', '', '5. Unit:', '', '6. Best way to reach me:', '', '', '-----', ...deviceLines(), NO_PI]);
+}
+function feedbackHref() {
+  return mailHref('Feedback', ['Hello,', '', 'Here is my feedback on the CAF Digital Travel Itinerary.', '',
+    '1. Overall, how useful was it? (1 = not useful, 5 = very useful):', '', '',
+    '2. What worked well:', '', '', '3. What was confusing or slowed me down:', '', '', '4. What I would add or change:', '', '',
+    '5. How I used it (phone, desktop, installed app):', '', '',
+    '6. Rank and name (optional):', '', '7. Unit (optional):', '', '', '-----', ...deviceLines(), NO_PI]);
+}
+function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
+function initExtras() {
+  const av = $('#app-ver'); if (av) av.textContent = 'Version ' + APP_VERSION + (/\/beta\//.test(location.pathname) ? ' beta' : '') + ', updated ' + APP_UPDATED;
+  const hh = helpHref(), fh = feedbackHref();
+  [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
+  ['#help-menu', '#fb-menu'].forEach(id => { const el = $(id); if (el) el.addEventListener('click', () => setTimeout(() => setMenu(false), 0)); });
+  const sd = $('#send-draft'); if (sd) sd.hidden = !SEND.draft;
+  // installed iPhone app: saving and sending both go through the share sheet, so show one item
+  if (IOS_PWA && SEND.draft) { sd.textContent = 'Save or send draft file'; const sv = $('#save-draft'); if (sv) sv.hidden = true; }
+  const tt = $('#totop'); let on = false;
+  const sync = () => { const v = window.scrollY > 600; if (v !== on) { on = v; tt.hidden = !v; } };
+  window.addEventListener('scroll', sync, { passive: true }); sync();
 }
 async function openDraft(f) {
   try {
@@ -1396,7 +1763,7 @@ async function openDraft(f) {
     if (!o || !['caf-digital-travel-itinerary', 'jmc-travel-claim-packager'].includes(o.app) || !o.state) throw new Error('shape');
     S = normalize(o.state); R = o.receipts || {};
     LIST_SECS.forEach(s => getArr(s).forEach(r => { r.rc = r.rc.filter(id => R[id]); }));
-    renderAll(); toast(`Opened draft${o.saved ? ' saved ' + new Date(o.saved).toLocaleString() : ''}.`);
+    markSeen(); newClaimState(); renderAll(); toast(`Opened draft${o.saved ? ' saved ' + new Date(o.saved).toLocaleString() : ''}.`);
   } catch (e) { toast('That file is not a draft from this tool.'); }
 }
 
@@ -1517,6 +1884,11 @@ function painter(doc, F, B, I) {
     form.acroForm.addField(ref);
     if (caption) P.text(caption, x, y - 10, { size: 7.2, color: C.mid });
   };
+  // Line to sign by hand, with a caption underneath
+  P.sigLine = (x, y, w, caption) => {
+    P.page.drawLine({ start: { x, y }, end: { x: x + w, y }, thickness: .75, color: C.ink });
+    if (caption) P.text(caption, x, y - 10, { size: 7.2, color: C.mid });
+  };
   P.textField = (name, x, y, w, h) => {
     const tf = doc.getForm().createTextField(name);
     tf.addToPage(P.page, { x, y, width: w, height: h, borderWidth: 0, backgroundColor: C.sig, font: F });
@@ -1589,9 +1961,13 @@ function drawWorksheet(P, items, wsPages) {
   P.ensure(70); P.y -= 12;
   P.text('I certify that the information on this worksheet is correct and complete.', P.M, P.y - 9, { size: 8.2, color: P.C.mid });
   P.y -= 18;
-  P.sigField('Claimant_Signature', P.M, P.y - 36, 260, 36, 'Signature of Claimant (PKI digital signature)');
-  P.text('Date', P.M + 300, P.y - 30, { size: 8.5 });
-  P.textField('Claimant_Date', P.M + 324, P.y - 34, P.W - 2 * P.M - 324, 15);
+  if (S.pki) {
+    P.sigField('Claimant_Signature', P.M, P.y - 36, 260, 36, 'Signature of Claimant (PKI digital signature)');
+  } else {
+    P.sigLine(P.M, P.y - 32, 260, 'Signature of Claimant');
+    P.text('Date', P.M + 300, P.y - 30, { size: 8.5 });
+    P.sigLine(P.M + 324, P.y - 32, P.W - 2 * P.M - 324, null);
+  }
   P.y -= 56;
 }
 function receiptHeader(P, title, meta) {
@@ -1660,7 +2036,7 @@ function drawDeclaration(P, it) {
   P.text('A.D. 20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 204, ly - 3, 22, 14); P.text('.', M + 227, ly, { size: 9.5 });
   ly -= 14;
   const sigTop = ly;
-  P.sigField(`SD_${key}_Officer`, M, sigTop - 40, colW, 40, null);
+  if (S.pki) P.sigField(`SD_${key}_Officer`, M, sigTop - 40, colW, 40, null); else P.sigLine(M, sigTop - 36, colW, null);
   ly -= 52;
   const offLine = (val, name, ph) => { if (val.trim()) P.text(val.trim(), M, ly, { size: 9.5, font: B }); else P.textField(`SD_${key}_${name}`, M, ly - 3, colW, 14); P.text(`(${ph})`, M, ly - 11, { size: 6.6, color: C.mid }); ly -= 25; };
   offLine(sd.offName, 'OfficerName', 'name, in full');
@@ -1670,7 +2046,7 @@ function drawDeclaration(P, it) {
   if (j === 'AB') ly = P.para(sd.abroad ? 'A Commissioner for Oaths outside Alberta.' : 'A Commissioner for Oaths.', M, ly, colW, { size: 8.4 });
   P.para(JURATS[j].law, M, ly, colW, { size: 8.4, color: C.mid });
   // declarant
-  P.sigField(`SD_${key}_Declarant`, rx, sigTop - 40, colW, 40, null);
+  if (S.pki) P.sigField(`SD_${key}_Declarant`, rx, sigTop - 40, colW, 40, null); else P.sigLine(rx, sigTop - 36, colW, null);
   P.text(sdName(), rx, sigTop - 40 - 12, { size: 9.5, font: B });
   P.text('(declarant)', rx, sigTop - 40 - 25, { size: 8.4, color: C.mid });
 }
@@ -1682,7 +2058,7 @@ async function build() {
   const btn = $('#build-btn'), status = $('#build-status');
   if (typeof PDFLib === 'undefined') { status.textContent = 'The PDF engine did not load. Reload the page and try again.'; return; }
   const nBad = checks().filter(c => c.lvl === 'bad').length;
-  if (nBad) { refresh(); return; }
+  if (nBad) { SHOWALL = true; refresh(); const c = $('#checks'); if (c) c.scrollIntoView({ block: 'center' }); return; }
   building = true; btn.disabled = true; btn.classList.add('busy'); status.classList.remove('blocked'); status.textContent = 'Building the package...'; $('#result').hidden = true;
   try {
     const { PDFDocument, StandardFonts } = PDFLib;
@@ -1735,16 +2111,19 @@ async function build() {
     pages.forEach((p, i) => { p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid }); const r = `Page ${i + 1} of ${total}`; p.drawText(r, { x: P.W - P.M - Ff.widthOfTextAtSize(r, 7), y: 22, size: 7, font: Ff, color: P.C.mid }); });
     doc.setTitle(['CAF Digital Travel Itinerary', S.tripRef].filter(Boolean).join(' - '));
     doc.setAuthor(fullName());
-    doc.setCreator('CAF Digital Travel Itinerary'); doc.setProducer('pdf-lib, generated in the browser');
+    doc.setCreator('CAF Digital Travel Itinerary ' + APP_VERSION); doc.setProducer('pdf-lib, generated in the browser');
     const bytes = await doc.save();
     lastPdf = { name: fileBase() + '.pdf', bytes, pages: total };
+    if (DEV.db && DEV.settings.keep && !DEV.locked) { try { const meta = (await idbGet('meta')) || {}; meta.builtAt = Date.now(); await idbPut('meta', meta); } catch (e) {} }
     const kb = bytes.length / 1024, size = kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : Math.round(kb) + ' KB';
     const nDecl = items.filter(i => i.decl).length;
     status.textContent = '';
     const res = $('#result');
-    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.</span></div><div class="acts"><button class="btn primary" data-act="save-pdf">Save PDF</button>${inViewer ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
+    const iosHint = IOS_PWA ? ' Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.' : '';
+    res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${total} page${total > 1 ? 's' : ''}, ${size}. ${S.pki ? `Open it in Adobe and sign the claimant field on page ${wsPages}${nDecl ? ` and the ${nDecl} declaration${nDecl > 1 ? 's' : ''}` : ''} with your PKI certificate.` : `Print it, then sign and date page ${wsPages}${nDecl ? ` and sign the ${nDecl} declaration${nDecl > 1 ? 's' : ''} in front of the officer` : ''}.`}${iosHint}</span></div><div class="acts">${IOS_PWA && SEND.pdf ? '<button class="btn primary" data-act="send-pdf">Save or send PDF</button>' : `<button class="btn primary" data-act="save-pdf">Save PDF</button>${SEND.pdf ? '<button class="btn" data-act="send-pdf">Send PDF</button>' : ''}`}${inViewer || IOS_PWA ? '' : '<button class="btn" data-act="open-pdf">Open in new tab</button>'}</div>`;
     res.hidden = false;
-    offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
+    if (!IOS_PWA) offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
+    else res.scrollIntoView({ block: 'center' });
   } catch (e) {
     console.error(e); status.textContent = 'Something went wrong building the PDF: ' + (e && e.message ? e.message : e);
   } finally { building = false; btn.classList.remove('busy'); refresh(); }
@@ -1791,9 +2170,245 @@ function loadExample() {
   S = s; renderAll();
 }
 
+
+
+/* ---------- snap a receipt ---------- */
+const SNAP = [
+  ['taxi', 'Taxi', 'transport', 'Taxi'], ['ride', 'Rideshare', 'transport', 'Rideshare'], ['park', 'Parking', 'transport', 'Parking'], ['fuel', 'Fuel', 'transport', 'Gas'],
+  ['toll', 'Toll', 'transport', 'Toll'], ['air', 'Airfare', 'transport', 'Airfare'], ['train', 'Train', 'transport', 'Train'], ['bus', 'Bus', 'transport', 'Bus'],
+  ['rental', 'Rental vehicle', 'transport', 'Rental vehicle'], ['hotel', 'Hotel', 'stays', ''], ['laundry', 'Laundry', 'general', 'Laundry'], ['other', 'Other expense', 'general', ''],
+  ['fx', 'Currency exchange', 'exchange', ''], ['call', 'Phone call', 'calls', ''],
+];
+let snapRc = null;
+function renderSnapTypes() { $('#snap-types').innerHTML = SNAP.map(([k, l]) => `<label class="chip-r"><input type="radio" name="snap-type" value="${k}"><span>${l}</span></label>`).join(''); }
+const snapType = () => { const r = $('input[name="snap-type"]:checked'); return r ? SNAP.find(x => x[0] === r.value) : null; };
+function snapLabels() {
+  const t = snapType(), k = t && t[0];
+  $('#snap-amt-l').textContent = k === 'fx' ? 'Service charge' : k === 'hotel' ? 'Total cost' : 'Amount';
+  $('#snap-desc-l').textContent = k === 'hotel' ? 'Hotel name' : k === 'call' ? 'Person or section called' : k === 'other' ? 'Description' : 'Description (optional)';
+  $('#snap-desc').placeholder = t && t[3] ? t[3] : '';
+}
+function snapDefaultDate() {
+  const td = tripDates(), today = new Date(), iso = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  if (!td) return iso; return iso >= td[0] && iso <= td[td.length - 1] ? iso : td[0];
+}
+async function openSnap(file) {
+  const err = $('#snap-err'); err.hidden = true;
+  try { snapRc = await fileToReceipt(file); } catch (e) { toast(/\.(heic|heif)$/i.test(file.name) ? 'This browser cannot read iPhone HEIC photos. Set the camera to "Most Compatible".' : `${file.name} could not be read.`); return; }
+  if (!snapRc) { toast(`${file.name}: attach a photo or a PDF.`); return; }
+  $('#snap-prev').innerHTML = snapRc.kind === 'img' ? `<img src="${snapRc.dataUrl}" alt="Receipt photo">` : `<span class="pdfbadge">PDF: ${esc(snapRc.name)}</span>`;
+  $$('input[name="snap-type"]').forEach(r => { r.checked = false; });
+  const d = snapDefaultDate(); $('#snap-date').value = d; syncDate($('#snap-date'));
+  $('#snap-amt').value = ''; $('#snap-cur').value = 'CAD'; $('#snap-desc').value = ''; $('#snap-loc').value = tripDates() ? locFor(d) : '';
+  snapLabels();
+  const dlg = $('#snap'); try { dlg.showModal(); } catch (_) { dlg.setAttribute('open', ''); }
+}
+function closeSnap() { const d = $('#snap'); try { d.close(); } catch (_) { d.removeAttribute('open'); } snapRc = null; }
+function saveSnap() {
+  const t = snapType(), err = $('#snap-err');
+  if (!t) { err.textContent = 'Choose what the receipt is for.'; err.hidden = false; return false; }
+  const amt = $('#snap-amt').value.trim(), cur = curOf($('#snap-cur').value) || 'CAD', date = $('#snap-date').value, loc = $('#snap-loc').value.trim(), desc = $('#snap-desc').value.trim();
+  if (amt && isNaN(num(amt))) { err.textContent = `"${amt}" is not an amount.`; err.hidden = false; return false; }
+  if (t[0] === 'other' && !desc) { err.textContent = 'Add a short description.'; err.hidden = false; return false; }
+  const id = uid(); R[id] = Object.assign({ id }, snapRc);
+  const [, label, sec, dflt] = t; let ref, rowId;
+  const push = o => { const r = Object.assign({ id: uid(), rc: [id] }, ROWNEW[sec](), o); getArr(sec).push(r); rowId = r.id; ref = `${DEFS[sec].L}-${getArr(sec).length}`; };
+  if (sec === 'stays') {
+    const i = S.lodging.stays.findIndex(r => isStd(r) && isoOk(r.checkin) && isoOk(r.checkout) && r.checkin <= date && date < r.checkout);
+    if (i >= 0) { const r = S.lodging.stays[i]; r.rc.push(id); r.lost = false; if (!r.cost && amt) { r.cost = amt; r.cur = cur; } if (!r.hotel && desc) r.hotel = desc; rowId = r.id; ref = `D-${i + 1}`; }
+    else push({ hotel: desc, location: loc, checkin: date, checkout: isoOk(date) ? addDays(date, 1) : '', cost: amt, cur });
+  } else if (sec === 'exchange') push({ date, location: loc, charge: amt, chargeCur: cur });
+  else if (sec === 'calls') push({ date, location: loc, person: desc, cost: amt, cur });
+  else push({ date, location: loc, desc: desc || dflt, cost: amt, cur });
+  S.touched[DEFS[sec].L] = true;
+  renderList(sec); renderMeals(); refresh(); refreshPlaces();
+  toast(`${label} receipt added as ${ref}.`, { label: 'Show', fn: () => { const el = document.querySelector(`[data-row="${rowId}"]`); if (el) el.scrollIntoView({ block: 'center' }); } });
+  snapRc = null; return true;
+}
+
+/* ---------- install as an app (PWA) ---------- */
+let deferredInstall = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = () => /android/i.test(navigator.userAgent);
+const pwaReady = () => (location.protocol === 'https:' || location.hostname === 'localhost') && !inViewer && !!document.querySelector('link[rel="manifest"]');
+function syncInstall() { const show = pwaReady() && !isStandalone(); $('#install-btn').hidden = !show; $('#install-hr').hidden = !show; }
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; syncInstall(); });
+window.addEventListener('appinstalled', () => { deferredInstall = null; $('#install-banner').hidden = true; syncInstall(); toast('Installed. Open CAF Travel from your home screen or app list.'); });
+async function installApp() {
+  setMenu(false);
+  if (deferredInstall) {
+    const ev = deferredInstall; deferredInstall = null;
+    try { ev.prompt(); const choice = await ev.userChoice; if (choice && choice.outcome === 'dismissed') toast('Install cancelled. You can install any time from the menu.'); } catch (e) {}
+    syncInstall(); return;
+  }
+  const t = $('#install-text');
+  if (isIOS()) t.innerHTML = '<strong>Install on iPhone or iPad</strong><ol class="install-steps"><li>Tap the <b>Share</b> button (the square with an arrow) in the browser toolbar.</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. CAF Travel appears on your home screen.</li></ol>';
+  else if (isAndroid()) t.innerHTML = '<strong>Install on Android</strong><ol class="install-steps"><li>Open the browser menu (the three dots).</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li><li>Confirm. CAF Travel appears with your other apps.</li></ol>';
+  else t.innerHTML = '<strong>Install on this computer</strong><ol class="install-steps"><li>In Chrome or Edge, click the install icon at the right end of the address bar, or open the browser menu and choose <b>Install</b>.</li><li>Confirm. The app opens in its own window.</li></ol>';
+  $('#install-banner').hidden = false; window.scrollTo(0, 0);
+}
+function registerOffline() { if (!pwaReady() || !('serviceWorker' in navigator)) return; navigator.serviceWorker.register('sw.js').catch(() => {}); }
+
+/* ---------- device storage: IndexedDB in this browser only, never uploaded ---------- */
+const DEV = { db: null, settings: { keep: false, remember: false, pin: false, salt: null, check: null, asked: false }, key: null, locked: false, savedRc: new Set(), lastSaved: 0, failed: false };
+const EXPIRE_DAYS = 30;
+const IS_BETA = /\/beta\//.test(location.pathname);
+function idbOpen() { return new Promise(res => { try { const r = indexedDB.open(IS_BETA ? 'caf-dti' : 'caf-dti-main', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); } catch (e) { res(null); } }); }
+function idb(mode, fn) { return new Promise((res, rej) => { if (!DEV.db) return res(undefined); try { const tx = DEV.db.transaction('kv', mode); const req = fn(tx.objectStore('kv')); tx.oncomplete = () => res(req ? req.result : undefined); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); } catch (e) { rej(e); } }); }
+const idbGet = k => idb('readonly', st => st.get(k));
+const idbPut = (k, v) => idb('readwrite', st => st.put(v, k));
+const idbDel = k => idb('readwrite', st => st.delete(k));
+const idbKeys = () => idb('readonly', st => st.getAllKeys());
+const idbClear = () => idb('readwrite', st => st.clear());
+const TE = new TextEncoder(), TD = new TextDecoder();
+function b64d(str) { const b = atob(str); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+async function deriveKey(pin, salt) {
+  const base = await crypto.subtle.importKey('raw', TE.encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function seal(obj) {
+  const txt = JSON.stringify(obj);
+  if (!DEV.settings.pin) return { plain: txt };
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, DEV.key, TE.encode(txt));
+  return { iv: bufToB64(iv), ct: bufToB64(ct) };
+}
+async function unseal(rec) {
+  if (!rec) return null;
+  if (rec.plain != null) return JSON.parse(rec.plain);
+  if (!DEV.key) throw new Error('locked');
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(rec.iv) }, DEV.key, b64d(rec.ct));
+  return JSON.parse(TD.decode(pt));
+}
+const saveSettings = () => idbPut('settings', DEV.settings).catch(() => {});
+let dT, profT;
+function devSchedule() { if (!DEV.db || !DEV.settings.keep || DEV.locked) return; clearTimeout(dT); dT = setTimeout(devSave, 900); }
+async function devSave() {
+  if (!DEV.db || !DEV.settings.keep || DEV.locked) return;
+  try {
+    const live = liveReceipts(), ids = Object.keys(live);
+    for (const id of ids) if (!DEV.savedRc.has(id)) { await idbPut('rc:' + id, await seal(live[id])); DEV.savedRc.add(id); }
+    for (const id of [...DEV.savedRc]) if (!live[id]) { await idbDel('rc:' + id); DEV.savedRc.delete(id); }
+    await idbPut('claim', await seal({ S, rcIds: ids }));
+    const meta = (await idbGet('meta')) || {}; meta.savedAt = Date.now(); await idbPut('meta', meta);
+    DEV.lastSaved = Date.now(); DEV.failed = false;
+  } catch (e) { DEV.failed = true; }
+  saveChip();
+}
+const profileOf = () => { const m = S.member, sd = S.sd; return { member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
+function profileSchedule() { if (!DEV.db || !DEV.settings.remember || DEV.locked || S.example) return; clearTimeout(profT); profT = setTimeout(async () => { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }, 900); }
+async function loadProfile() { if (!DEV.db || !DEV.settings.remember) return null; try { return await unseal(await idbGet('profile')); } catch (e) { return null; } }
+function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); }
+async function wipeClaim() { try { const keys = (await idbKeys()) || []; for (const k of keys) if (k === 'claim' || k === 'meta' || String(k).startsWith('rc:')) await idbDel(k); } catch (e) {} DEV.savedRc.clear(); DEV.lastSaved = 0; }
+async function restoreDevice() {
+  if (!DEV.db || !DEV.settings.keep) return false;
+  try {
+    const c = await unseal(await idbGet('claim')); if (!c || !c.S) return false;
+    const rcs = {};
+    for (const id of c.rcIds || []) { const r = await unseal(await idbGet('rc:' + id)); if (r) { rcs[id] = r; DEV.savedRc.add(id); } }
+    S = normalize(c.S); R = rcs;
+    LIST_SECS.forEach(sec => getArr(sec).forEach(r => { r.rc = r.rc.filter(id => R[id]); }));
+    const meta = (await idbGet('meta')) || {}; DEV.lastSaved = meta.savedAt || 0;
+    return true;
+  } catch (e) { return false; }
+}
+async function reSealAll(profile) {
+  try { const keys = (await idbKeys()) || []; for (const k of keys) if (String(k).startsWith('rc:')) await idbDel(k); } catch (e) {}
+  DEV.savedRc.clear();
+  if (DEV.settings.keep) await devSave(); else await wipeClaim();
+  if (DEV.settings.remember && profile) { try { await idbPut('profile', await seal(profile)); } catch (e) {} }
+}
+async function setPin(pin) {
+  const prof = (await loadProfile()) || (S.example ? null : profileOf());
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  DEV.key = await deriveKey(pin, salt);
+  DEV.settings.pin = true; DEV.settings.salt = bufToB64(salt); DEV.settings.check = await seal('ok');
+  await saveSettings(); await reSealAll(prof);
+}
+async function clearPin() {
+  const prof = await loadProfile();
+  DEV.settings.pin = false; DEV.settings.salt = null; DEV.settings.check = null; DEV.key = null;
+  await saveSettings(); await reSealAll(prof);
+}
+async function unlock(pin) {
+  try { DEV.key = await deriveKey(pin, b64d(DEV.settings.salt)); if ((await unseal(DEV.settings.check)) !== 'ok') throw new Error('bad'); }
+  catch (e) { DEV.key = null; return false; }
+  DEV.locked = false;
+  if (!(await restoreDevice())) { const p = await loadProfile(); S = blank(); R = {}; applyProfile(p); }
+  newClaimState(); renderAll(); return true;
+}
+let forgetArmed = 0;
+async function forgetDevice() {
+  try { await idbClear(); } catch (e) {}
+  DEV.settings = { keep: false, remember: false, pin: false, salt: null, check: null, asked: true };
+  DEV.key = null; DEV.locked = false; DEV.savedRc.clear(); DEV.lastSaved = 0;
+  try { sessionStorage.removeItem(STORE); localStorage.removeItem(SEEN); } catch (e) {}
+  await saveSettings();
+  ['#unlock-banner', '#pin-banner', '#keep-banner'].forEach(id => { $(id).hidden = true; });
+  S = blank(); R = {}; newClaimState(); renderAll(); syncMenu();
+  toast('Everything saved in this browser has been deleted.');
+}
+function saveChip() {
+  const c = $('#savechip'); if (!c) return;
+  let txt, cls, tip;
+  if (DEV.locked) { txt = 'Locked'; cls = 'off'; tip = 'Enter your PIN to open your saved claim.'; }
+  else if (DEV.db && DEV.settings.keep) {
+    txt = DEV.failed ? 'Not saved' : DEV.lastSaved ? `Saved ${new Date(DEV.lastSaved).toTimeString().slice(0, 5)}` : 'Saving';
+    cls = DEV.failed ? 'off' : 'on'; tip = DEV.failed ? 'This browser refused to save. Save a draft file to be safe.' : 'Kept on this device, in this browser only.' + (DEV.settings.pin ? ' Protected with your PIN.' : '');
+  } else { txt = 'Tab only'; cls = ''; tip = 'Your work lasts until you close this tab. Turn on "Keep my work on this device" in the menu.'; }
+  c.textContent = txt; c.className = 'savechip ' + cls; c.title = tip;
+}
+function syncMenu() {
+  const ok = !!DEV.db;
+  [['#opt-keep', 'keep'], ['#opt-remember', 'remember'], ['#opt-pin', 'pin']].forEach(([id, k]) => { const el = $(id); el.checked = !!DEV.settings[k]; el.disabled = !ok || DEV.locked; });
+  $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
+  $('#forget-btn').disabled = !ok;
+  $('#menu-note').textContent = ok ? 'Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.' : 'This browser view does not allow saving on the device. Use Save draft file instead.';
+  saveChip();
+}
+function setMenu(open) { const m = $('#menu'), b = $('#menu-btn'); m.hidden = !open; b.setAttribute('aria-expanded', String(open)); }
+async function setKeep(on) {
+  DEV.settings.keep = on; DEV.settings.asked = true; await saveSettings();
+  $('#keep-banner').hidden = true;
+  if (on) { DEV.savedRc.clear(); await devSave(); toast('Your work is now kept on this device.'); }
+  else { await wipeClaim(); if (DEV.settings.pin && !DEV.settings.remember) await clearPin(); toast('Saved claim removed from this device. Your work now lasts until you close the tab.'); }
+  syncMenu();
+}
+async function setRemember(on) {
+  DEV.settings.remember = on; await saveSettings();
+  if (on) { if (!S.example) { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} } toast('Your details will be filled in on your next claim.'); }
+  else { try { await idbDel('profile'); } catch (e) {} if (DEV.settings.pin && !DEV.settings.keep) await clearPin(); toast('Your remembered details were removed.'); }
+  syncMenu();
+}
+const SEEN = 'caf-dti-seen';
+function markSeen() { try { localStorage.setItem(SEEN, '1'); } catch (e) {} }
+function newClaimState() { SHOWALL = false; visited.clear(); lastPdf = null; const r = $('#result'); if (r) r.hidden = true; }
+async function startBlank(msg) {
+  markSeen(); S = blank(); R = {}; applyProfile(await loadProfile()); newClaimState(); renderAll(); window.scrollTo(0, 0);
+  if (msg) toast(msg);
+}
+
 /* ---------- boot ---------- */
-renderRail();
-if (!restore()) loadExample(); else renderAll();
+async function boot() {
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras();
+  let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
+  DEV.db = await idbOpen();
+  if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }
+  if (DEV.db && DEV.settings.keep) {
+    try { const meta = await idbGet('meta'); if (meta && meta.builtAt && Date.now() - meta.builtAt > EXPIRE_DAYS * 864e5) { await wipeClaim(); setTimeout(() => toast(`Your saved claim was deleted automatically, ${EXPIRE_DAYS} days after its PDF was built.`), 600); } } catch (e) {}
+  }
+  if (DEV.db && DEV.settings.pin) {
+    DEV.locked = true; S = blank(); R = {}; renderAll(); $('#unlock-banner').hidden = false; syncMenu(); return;
+  }
+  if (await restoreDevice()) renderAll();
+  else if (restore()) renderAll();
+  else if (seen) { S = blank(); R = {}; applyProfile(await loadProfile()); renderAll(); }
+  else loadExample();
+  if (DEV.db && !DEV.settings.keep && !DEV.settings.asked) $('#keep-banner').hidden = false;
+  syncMenu();
+}
+boot();
 })();
 </script>
 

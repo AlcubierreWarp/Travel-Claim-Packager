@@ -2,7 +2,11 @@
 
 Versioning: the minor number goes up by one only when the beta is promoted to production (1.1, 1.2, 1.3...). Beta builds show the number the next production release will have, with "beta" and the build date. The major number changes only when the owner decides a release is a major one.
 
-## 1.1 (beta, in progress)
+## 1.2 (beta, in progress)
+
+- No changes yet
+
+## 1.1 (16 Oct 2026)
 
 - Keep work on this device (optional, with PIN encryption), remember member details, auto-delete 30 days after the PDF is built
 - Installable as an app on phones and desktops, works offline
@@ -14,6 +18,8 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 - Installed app on iPhone and iPad: one Save or send button that opens the share sheet (Save to Files), since iOS opens downloads in a viewer with no way to save
 - Page footer with copyright, version and last updated date; Help and Send feedback emails with numbered questions and standard line breaks
 - Back-to-top button
+- Production and beta keep separate saved claims and offline copies; the beta installs as CAF Travel Beta
+- Single-file copy (CAF_Digital_Travel_Itinerary.html) for offline use
 
 ## 1.0
 

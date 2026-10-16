@@ -8,11 +8,20 @@ Leave taken during a trip can be recorded in the itinerary. Leave days stay on t
 
 ## Privacy
 
-Everything runs in the browser. The page has no server component, makes no network requests (a Content Security Policy in the page blocks them), and stores nothing outside the open browser tab. Use **Save draft** to keep work in progress as a file on your own device.
+Everything runs in the browser. The page has no server component and makes no network requests (a Content Security Policy in the page blocks them). Nothing you type or attach is uploaded.
+
+By default a claim lasts only as long as the browser tab. In the menu you can choose **Keep my work on this device**, which stores the claim in this browser only, optionally encrypted with a PIN, and deletes it 30 days after the PDF is built. Use **Save draft file** to move a claim to another device.
 
 ## Use
 
-Open the published page, or download `index.html` and open it in a browser. The page opens with a fictional example claim; choose **Start a blank claim** to begin your own.
+- **Website:** open the published page. On a phone, use **Install app** in the menu (or Add to Home Screen on iPhone) to use it like an app, including offline.
+- **Single file:** download `CAF_Digital_Travel_Itinerary.html` and open it in any browser. It works with no internet connection and cannot make network requests at all.
+
+The page opens with a fictional example claim; choose **Start a blank claim** to begin your own.
+
+## Beta
+
+The next version is tested at `/beta/`. It keeps its own saved claims and offline copy, separate from the main site, and installs as **CAF Travel Beta**.
 
 ## Status
 
@@ -24,4 +33,4 @@ The version number is shown at the bottom of the page and in help emails. See `C
 
 ## Third-party code
 
-pdf-lib (MIT License) is bundled inside `index.html`. See `THIRD_PARTY_NOTICES.md`.
+pdf-lib (MIT License) is bundled inside `index.html` and `CAF_Digital_Travel_Itinerary.html`. See `THIRD_PARTY_NOTICES.md`.

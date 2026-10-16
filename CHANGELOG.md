@@ -2,6 +2,11 @@
 
 Versioning: the minor number goes up by one with every published version (1.1, 1.2, 1.3...). The major number changes only when the owner decides a release is a major one.
 
+## 1.3 (beta, 16 Oct 2026)
+
+- Help and feedback emails keep their line breaks in Gmail and other apps (standard CRLF line breaks)
+- Numbered questions so the emails stay readable in any mail app
+
 ## 1.2 (beta, 16 Oct 2026)
 
 - Send feedback button in the page footer and menu, opening a prefilled feedback email

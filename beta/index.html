@@ -666,7 +666,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.2</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.3</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1676,7 +1676,7 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Chrome on Android only shares a fixed list of file types and .json is not on it, so the draft
 // falls back to a .txt copy there. Open draft file accepts either.
 // Version: minor increment on every publish; major only when the owner says so.
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.3';
 const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
@@ -1719,18 +1719,18 @@ function deviceLines() {
   return [`Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${APP_VERSION}, updated ${APP_UPDATED} (${where})`];
 }
 const NO_PI = 'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.';
-function mailHref(subject, lines) { return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent('CAF Digital Travel Itinerary - ' + subject) + '&body=' + encodeURIComponent(lines.join('\n')); }
+function mailHref(subject, lines) { return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent('CAF Digital Travel Itinerary - ' + subject) + '&body=' + encodeURIComponent(lines.join('\r\n')); }
 function helpHref() {
   return mailHref('Help Request', ['Hello,', '', 'I need help with the CAF Digital Travel Itinerary.', '',
-    'What I was trying to do:', '', '', 'What happened instead:', '', '', 'Steps to make it happen again (if known):', '', '',
-    'Rank and name:', 'Unit:', 'Best way to reach me:', '', ...deviceLines(), '', NO_PI]);
+    '1. What I was trying to do:', '', '', '2. What happened instead:', '', '', '3. Steps to make it happen again (if known):', '', '',
+    '4. Rank and name:', '', '5. Unit:', '', '6. Best way to reach me:', '', '', '-----', ...deviceLines(), NO_PI]);
 }
 function feedbackHref() {
   return mailHref('Feedback', ['Hello,', '', 'Here is my feedback on the CAF Digital Travel Itinerary.', '',
-    'Overall, how useful was it? (1 = not useful, 5 = very useful):', '',
-    'What worked well:', '', '', 'What was confusing or slowed me down:', '', '', 'What I would add or change:', '', '',
-    'How I used it (phone, desktop, installed app):', '',
-    'Rank and name (optional):', 'Unit (optional):', '', ...deviceLines(), '', NO_PI]);
+    '1. Overall, how useful was it? (1 = not useful, 5 = very useful):', '', '',
+    '2. What worked well:', '', '', '3. What was confusing or slowed me down:', '', '', '4. What I would add or change:', '', '',
+    '5. How I used it (phone, desktop, installed app):', '', '',
+    '6. Rank and name (optional):', '', '7. Unit (optional):', '', '', '-----', ...deviceLines(), NO_PI]);
 }
 function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
 function initExtras() {

@@ -2,6 +2,11 @@
 
 Versioning: the minor number goes up by one with every published version (1.1, 1.2, 1.3...). The major number changes only when the owner decides a release is a major one.
 
+## 1.2 (beta, 16 Oct 2026)
+
+- Send feedback button in the page footer and menu, opening a prefilled feedback email
+- Last updated date shown beside the version in the footer and in help and feedback emails
+
 ## 1.1 (beta)
 
 - Keep work on this device (optional, with PIN encryption), remember member details, auto-delete 30 days after the PDF is built

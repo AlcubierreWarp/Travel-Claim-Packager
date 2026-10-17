@@ -4,6 +4,8 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.5 (beta, in progress)
 
+- Open windows (Import itinerary, Add a receipt, receipt preview) hold the screen: the form behind no longer scrolls on iPhone, and closing returns to the same place
+
 ## 1.4 (17 Oct 2026)
 
 - File names follow Date_FileNo_Marking_Details for the PDF package and the draft file, e.g. 20261102_7209-1_PA_TD-Claim_Winnipeg-Course_Capt-Sample.pdf

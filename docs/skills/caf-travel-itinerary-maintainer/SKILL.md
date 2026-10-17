@@ -62,7 +62,7 @@ If the Claude account or workspace is gone, follow `REBUILD.md` on the `source` 
 - Production and beta share an origin.
   - IndexedDB: `caf-dti-main` for production, `caf-dti` for beta.
   - Caches are named per scope.
-  - localStorage is shared, which is harmless for the notice preference.
+  - localStorage is shared, so the beta suffixes its preference keys with `-beta` (`CH` in app.html: first-run seen, notice hidden, language, which falls back to production's). Reset the beta clears only those. Any new localStorage key must use `+ CH`.
 - The installed iOS app keeps its home screen icon and storage. Reinstalling deletes kept claims, so tell Tom to save a draft file first.
 - `test_beta.py` reads the production IndexedDB name (`caf-dti-main`).
 - Do not pkill patterns that match your own shell. Kill test servers by PID.

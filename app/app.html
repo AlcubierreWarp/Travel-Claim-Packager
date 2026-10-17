@@ -907,8 +907,11 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 // English text up in FR (app/fr.js). Stored data stays language-neutral (codes, not labels).
 /*I18N_FR*/
 /*ITIN*/
+// Production and beta share one origin, so the beta keeps its own copy of each browser preference
+// (CH is '' in production). Reset the beta clears the beta copies only.
+const CH = '__APP_CHANNEL__' === 'beta' ? '-beta' : '';
 const LANG_KEY = 'caf-dti-lang';
-let LANG = (() => { try { const v = localStorage.getItem(LANG_KEY); if (v === 'en' || v === 'fr') return v; } catch (e) {} return /^fr\b/i.test(navigator.language || '') ? 'fr' : 'en'; })();
+let LANG = (() => { try { const v = localStorage.getItem(LANG_KEY + CH) || localStorage.getItem(LANG_KEY); if (v === 'en' || v === 'fr') return v; } catch (e) {} return /^fr\b/i.test(navigator.language || '') ? 'fr' : 'en'; })();
 const fr = () => LANG === 'fr';
 const MISSING = new Set(); window.__i18nMissing = MISSING; // untranslated strings, for testing
 function T(en, ...a) {
@@ -2358,7 +2361,7 @@ function initRailFollow() {
 }
 // Local-only notice: can be hidden once read (X, or swipe on touch screens) and restored from the menu.
 // Remembered in this browser only, as a display preference.
-const LO_KEY = 'caf-dti-notice-hidden';
+const LO_KEY = 'caf-dti-notice-hidden' + CH;
 function noticeHidden() { try { return localStorage.getItem(LO_KEY) === '1'; } catch (e) { return false; } }
 function setNotice(show) {
   const el = $('#localonly'); if (el) { el.hidden = !show; el.classList.remove('swipe-l', 'swipe-r', 'armed', 'dragging'); el.querySelector('.lo-slide').style.transform = ''; }
@@ -2476,7 +2479,7 @@ function applyStatic() {
   });
 }
 function setLang(l) {
-  LANG = l; try { localStorage.setItem(LANG_KEY, l); } catch (e) {}
+  LANG = l; try { localStorage.setItem(LANG_KEY + CH, l); } catch (e) {}
   const wasExample = S && S.example;
   applyStatic(); renderRail(); renderSnapTypes(); relabel();
   if (wasExample && !DEV.locked) loadExample(); else renderAll();
@@ -3119,6 +3122,7 @@ async function betaReset(b) {
   try { if (DEV.db) DEV.db.close(); } catch (e) {} DEV.db = null;
   await new Promise(res => { try { const r = indexedDB.deleteDatabase(IS_BETA ? 'caf-dti' : 'caf-dti-main'); r.onsuccess = r.onerror = r.onblocked = () => res(); setTimeout(res, 3000); } catch (e) { res(); } });
   try { sessionStorage.removeItem(STORE); sessionStorage.removeItem(PTR_KEY); } catch (e) {}
+  try { [SEEN, LO_KEY, LANG_KEY + CH].forEach(k => localStorage.removeItem(k)); } catch (e) {}
   try { if (window.caches) { const scope = new URL('./', location.href).pathname; for (const k of await caches.keys()) if (k.includes(scope)) await caches.delete(k); } } catch (e) {}
   try { if (navigator.serviceWorker) for (const r of await navigator.serviceWorker.getRegistrations()) if (new URL(r.scope).pathname === new URL('./', location.href).pathname) await r.unregister(); } catch (e) {}
   try { sessionStorage.setItem('caf-dti-beta-reset', '1'); } catch (e) {}
@@ -3381,7 +3385,7 @@ async function setRemember(on) {
   else { try { await idbDel('profile'); } catch (e) {} if (DEV.settings.pin && !DEV.settings.keep) await clearPin(); toast(T('Your remembered details were removed.')); }
   syncMenu();
 }
-const SEEN = 'caf-dti-seen';
+const SEEN = 'caf-dti-seen' + CH;
 function markSeen() { try { localStorage.setItem(SEEN, '1'); } catch (e) {} }
 function newClaimState() { SHOWALL = false; visited.clear(); lastPdf = null; const r = $('#result'); if (r) r.hidden = true; }
 async function startBlank(msg) {

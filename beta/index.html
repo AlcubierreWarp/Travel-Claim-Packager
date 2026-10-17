@@ -144,6 +144,16 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .imp-opts .sub{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
 .imp-warn{margin:12px 0 0;padding:8px 10px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-size:.86rem}
 .imp-busy{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
+.imp-more{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:10px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:4px;background:var(--card)}
+.imp-more.dragover{border-color:var(--accent);background:var(--field)}
+.imp-more .drophint{flex:1 1 220px}
+.imp-paste{flex:1 1 100%;font-size:.84rem}
+.imp-paste summary{cursor:pointer;color:var(--accent);font-weight:600}
+.imp-paste textarea{display:block;width:100%;box-sizing:border-box;margin:6px 0;font:inherit;font-size:.85rem;padding:8px;border:1px solid var(--line-strong);border-radius:3px;background:var(--field);color:var(--ink)}
+.imp-list li.new{background:var(--accent-soft);border-radius:3px;padding:1px 4px;margin-left:-4px}
+.imp-list .tag{display:inline-block;margin-left:6px;padding:0 5px;border-radius:999px;border:1px solid currentColor;font:700 .6rem/1.5 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.imp-added{margin:8px 0 0;font-size:.84rem;font-weight:600;color:var(--accent)}
+.imp-added.none{color:var(--muted);font-weight:400}
 #sec-B.dragover{outline:2px dashed var(--accent);outline-offset:4px}
 dialog#imp[open]{display:flex;flex-direction:column}
 dialog#imp .snap-body{max-height:none;flex:1 1 auto;min-height:0}
@@ -610,7 +620,7 @@ html{touch-action:manipulation}
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 7, built 17 Oct 2026 13:31 (production is 1.5)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 8, built 17 Oct 2026 13:39 (production is 1.5)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -814,7 +824,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 7, built 17 Oct 2026 13:31 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 8, built 17 Oct 2026 13:39 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -869,6 +879,15 @@ html{touch-action:manipulation}
       <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>Compare this with your itinerary before you fill section B.</span></p>
       <h4 class="imp-sub">Found</h4>
       <ul class="imp-list" id="imp-list"></ul>
+      <p class="imp-added" id="imp-added" role="status" hidden></p>
+      <div class="imp-more" id="imp-more">
+        <button type="button" class="btn" data-act="imp-choose">Add another email or file</button>
+        <span class="drophint">Itinerary split over several emails? Add the others here or drop them on this window. New legs join the list; legs already listed are skipped.</span>
+        <details class="imp-paste"><summary>Paste another email</summary>
+          <textarea id="imp-text2" rows="3" autocomplete="off" spellcheck="false" aria-label="Pasted email text"></textarea>
+          <button type="button" class="btn" data-act="imp-read-text2">Add pasted text</button>
+        </details>
+      </div>
       <div class="imp-opts" id="imp-opts"></div>
       <h4 class="imp-sub">Section B will list</h4>
       <ol class="imp-plan" id="imp-plan"></ol>
@@ -1004,9 +1023,11 @@ const FR = {
 "Add a short description.": "Ajoutez une courte description.",
 "Add a stay": "Ajouter un séjour",
 "Add a telephone number.": "Ajoutez un numéro de téléphone.",
+"Add another email or file": "Ajouter un autre courriel ou fichier",
 "Add call": "Ajouter un appel",
 "Add currency exchange": "Ajouter une opération de change",
 "Add general expense": "Ajouter des frais généraux",
+"Add pasted text": "Ajouter le texte collé",
 "Add stays from itinerary": "Ajouter les séjours d'après l'itinéraire",
 "Add the date you arrive at {0}.": "Ajoutez la date d'arrivée à {0}.",
 "Add the date you leave at the Start and the date you arrive at the Finish in section B. A row for each travel day appears here.": "Inscrivez la date de départ au Départ et la date d'arrivée à l'Arrivée dans la section B. Une ligne pour chaque jour de voyage s'affiche ici.",
@@ -1019,6 +1040,8 @@ const FR = {
 "Add transportation expense": "Ajouter des frais de transport",
 "Add your full name for the statutory declaration.": "Ajoutez votre nom au complet pour la déclaration solennelle.",
 "Add your home address for the statutory declaration (street, city, province).": "Ajoutez l'adresse de votre domicile pour la déclaration solennelle (rue, ville, province).",
+"Added {0} item from {1}. It is highlighted in the list.": "{0} élément ajouté à partir de {1}. Il est mis en évidence dans la liste.",
+"Added {0} items from {1}. They are highlighted in the list.": "{0} éléments ajoutés à partir de {1}. Ils sont mis en évidence dans la liste.",
 "Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.": "{0} séjour ajouté, un par endroit de nuitée. Ajoutez le nom de l'hôtel, le coût total et la facture, ou cochez Quartiers ou Logement privé.",
 "Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.": "{0} séjours ajoutés, un par endroit de nuitée. Ajoutez le nom de l'hôtel, le coût total et la facture, ou cochez Quartiers ou Logement privé.",
 "Adding declaration {0}...": "Ajout de la déclaration {0}...",
@@ -1205,6 +1228,7 @@ const FR = {
 "Internet": "Internet",
 "Itinerary": "Itinéraire",
 "Itinerary imported: {0} locations.": "Itinéraire importé : {0} endroits.",
+"Itinerary split over several emails? Add the others here or drop them on this window. New legs join the list; legs already listed are skipped.": "Itinéraire réparti sur plusieurs courriels? Ajoutez les autres ici ou déposez-les sur cette fenêtre. Les nouveaux trajets s'ajoutent à la liste; ceux qui y figurent déjà sont ignorés.",
 "Jurat": "Constat d'assermentation",
 "Keep my work on this device": "Conserver mon travail sur cet appareil",
 "Keep on this device": "Conserver sur cet appareil",
@@ -1245,6 +1269,7 @@ const FR = {
 "Name, in full": "Nom, au complet",
 "Names on a statutory declaration must be in full, without initials in brackets.": "Les noms dans une déclaration solennelle doivent être au complet, sans initiales entre parenthèses.",
 "Navy": "Marine",
+"New": "Nouveau",
 "New PIN": "Nouveau NIP",
 "New blank claim ready.": "Nouvelle réclamation vierge prête.",
 "New claim": "Nouvelle réclamation",
@@ -1253,6 +1278,7 @@ const FR = {
 "No cost or receipt needed. Quarters are billed directly to the unit.": "Aucun coût ni reçu requis. Les quartiers sont facturés directement à l'unité.",
 "No currency exchanges. Add one for each exchange receipt you have.": "Aucune opération de change. Ajoutez-en une pour chaque reçu de change que vous avez.",
 "No file number": "Aucun numéro de dossier",
+"No flights, trains, buses or rental cars were found in {0}.": "Aucun vol, train, autobus ou voiture de location n'a été trouvé dans {0}.",
 "No flights, trains, buses or rental cars were found. This reader knows the Amex GBT itinerary layout. For anything else, enter the stops by hand.": "Aucun vol, train, autobus ou voiture de location n'a été trouvé. Cet outil reconnaît la présentation des itinéraires d'Amex GBT. Pour tout autre document, entrez les arrêts à la main.",
 "No full leave days yet. Travel days stay claimable.": "Aucune journée complète de congé pour l'instant. Les jours de déplacement restent remboursables.",
 "No general expenses. Laundry, internet, conference fees and similar go here.": "Aucuns frais généraux. La blanchisserie, Internet, les frais de conférence et autres frais semblables vont ici.",
@@ -1269,6 +1295,7 @@ const FR = {
 "Not saved": "Non enregistré",
 "Not started": "Non commencé",
 "Not started yet: {0}. These are checked when you fill them in or build the package.": "Pas encore commencé : {0}. Ces sections sont vérifiées quand vous les remplissez ou créez la trousse.",
+"Nothing new in {0}: everything in it is already listed.": "Rien de nouveau dans {0} : tout y figure déjà.",
 "Nothing you type or attach leaves this browser.": "Rien de ce que vous saisissez ou joignez ne quitte ce navigateur.",
 "Notice hidden. You can show it again from the menu.": "Avis masqué. Vous pouvez l'afficher de nouveau à partir du menu.",
 "Now: {0}. Your saved details change too if Remember my details is on.": "Actuellement : {0}. Vos renseignements enregistrés changent aussi si l'option Mémoriser mes renseignements est activée.",
@@ -1317,7 +1344,9 @@ const FR = {
 "Page": "Page",
 "Page {0} of {1}": "Page {0} de {1}",
 "Parking": "Stationnement",
+"Paste another email": "Coller un autre courriel",
 "Paste the itinerary text first.": "Collez d'abord le texte de l'itinéraire.",
+"Pasted email text": "Texte du courriel collé",
 "Pasted text": "Texte collé",
 "Person / section": "Personne / section",
 "Person or section called": "Personne ou section appelée",
@@ -2975,6 +3004,7 @@ document.addEventListener('click', e => {
     case 'imp-cancel': impClose(); break;
     case 'imp-back': impOpen(); break;
     case 'imp-apply': impApply(); break;
+    case 'imp-read-text2': { const t = $('#imp-text2').value; if (!t.trim()) break; $('#imp-text2').value = ''; $('.imp-paste').open = false; impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
     case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
     case 'snap-save': if (saveSnap()) closeSnap(); break;
     case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
@@ -2983,7 +3013,7 @@ document.addEventListener('click', e => {
   }
 });
 // drag and drop onto expense rows and stay cards
-const dropTarget = el => el.closest('.row[data-sec], .stay, #imp-drop, #sec-B');
+const dropTarget = el => el.closest('.row[data-sec], .stay, #imp-drop, #imp-more, #sec-B');
 document.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); const t = dropTarget(e.target); $$('.dragover').forEach(r => r !== t && r.classList.remove('dragover')); if (t) t.classList.add('dragover'); } });
 document.addEventListener('dragleave', e => { const t = dropTarget(e.target); if (t && !t.contains(e.relatedTarget)) t.classList.remove('dragover'); });
 document.addEventListener('drop', e => {
@@ -3130,15 +3160,17 @@ function impStopName(s) {
 }
 const impWhere = p => p ? (p.code ? `${p.city} (${p.code})` : p.city || p.name) : '';
 function impOpen() {
-  IMP = null; $('#imp-pick').hidden = false; $('#imp-review').hidden = true; $('#imp-err').hidden = true; $('#imp-busy').hidden = true;
+  IMP = null; $('#imp-pick').hidden = false; $('#imp-review').hidden = true; $('#imp-added').hidden = true; $('#imp-text2').value = ''; $('.imp-paste').open = false; $('#imp-err').hidden = true; $('#imp-busy').hidden = true;
   $('#imp-apply').hidden = true; $('#imp-back').hidden = true; $('#imp-text').value = '';
   const d = $('#imp'); if (!d.open) { try { d.showModal(); } catch (_) { d.setAttribute('open', ''); } }
 }
 function impClose() { const d = $('#imp'); try { d.close(); } catch (_) { d.removeAttribute('open'); } IMP = null; }
 async function impFiles(files) {
   if (!$('#imp').open) impOpen();
+  const adding = !!(IMP && !$('#imp-review').hidden); // more emails for the trip already in review
   const err = $('#imp-err'); err.hidden = true; $('#imp-busy').hidden = false;
   let r; try { r = await readItinFiles(files); } finally { $('#imp-busy').hidden = true; }
+  if (adding) return impAdd(r);
   const f = r.found;
   if (!f.segs.length && !f.hotels.length) {
     err.textContent = [...r.errs, T('No flights, trains, buses or rental cars were found. This reader knows the Amex GBT itinerary layout. For anything else, enter the stops by hand.')].join(' ');
@@ -3147,6 +3179,29 @@ async function impFiles(files) {
   IMP = Object.assign(r, { res: true, fare: false, hotels: true });
   const nm = impName(); IMP.name = !!(nm && nm.empty); // an existing name is replaced only if the member asks
   impRender();
+}
+// Add the legs of more emails to the itinerary in review. Legs, hotels and attached PDFs that are
+// already listed are skipped, so adding the same email twice changes nothing (fares included).
+function impAdd(r) {
+  const note = $('#imp-added'), cur = IMP.found, names = r.names.join(', ') || T('Pasted text');
+  const known = new Set(cur.segs.map(s => s.k));
+  const freshS = r.found.segs.filter(s => !known.has(s.k));
+  const freshH = r.found.hotels.filter(h => !cur.hotels.some(x => x.in === h.in && ITIN.fold(x.name) === ITIN.fold(h.name)));
+  note.hidden = false;
+  if (!freshS.length && !freshH.length) {
+    note.className = 'imp-added none';
+    note.textContent = [...r.errs, r.found.segs.length || r.found.hotels.length ? T('Nothing new in {0}: everything in it is already listed.', names) : T('No flights, trains, buses or rental cars were found in {0}.', names)].join(' ');
+    return;
+  }
+  IMP.found = ITIN.merge([cur, r.found]);
+  r.pdfs.forEach(p => { if (!IMP.pdfs.some(x => x.name === p.name && x.bytes.length === p.bytes.length)) IMP.pdfs.push(p); });
+  IMP.names.push(...r.names); IMP.errs.push(...r.errs);
+  IMP.fresh = new Set(freshS.map(s => s.k));
+  if (!IMP.name) { const nm = impName(); IMP.name = !!(nm && nm.empty); }
+  note.className = 'imp-added';
+  note.textContent = [nPl(freshS.length + freshH.length, 'Added {0} item from {1}. It is highlighted in the list.', 'Added {0} items from {1}. They are highlighted in the list.', names), ...r.errs].join(' ');
+  impRender();
+  const first = $('#imp-list li.new'); if (first) first.scrollIntoView({ block: 'nearest' });
 }
 // The traveller's name, if the itinerary has one that differs from section A
 function impName() {
@@ -3165,7 +3220,8 @@ function impRender() {
   $('#imp-list').innerHTML = f.segs.map(s => {
     const what = T(IMP_KIND[s.kind] || 'Travel') + (s.num ? ' ' + s.num : '') + (s.carrier && s.kind !== 'rail' && s.kind !== 'bus' ? `, ${s.carrier}` : '');
     const arrD = s.arr.date && s.arr.date !== s.dep.date ? ` (${fmtDate(s.arr.date)})` : '';
-    return `<li><b>${esc(fmtDate(s.dep.date))}</b> ${esc(T('{0}: {1}', what, `${impWhere(s.from)} ${hm(s.dep.time)} → ${impWhere(s.to)} ${hm(s.arr.time)}${arrD}`))}</li>`;
+    const isNew = IMP.fresh && IMP.fresh.has(s.k);
+    return `<li${isNew ? ' class="new"' : ''}><b>${esc(fmtDate(s.dep.date))}</b> ${esc(T('{0}: {1}', what, `${impWhere(s.from)} ${hm(s.dep.time)} → ${impWhere(s.to)} ${hm(s.arr.time)}${arrD}`))}${isNew ? `<span class="tag">${esc(T('New'))}</span>` : ''}</li>`;
   }).concat(f.hotels.map(h => `<li><b>${esc(fmtDate(h.in))}</b> ${esc(T('{0}: {1}', T('Hotel'), [h.name, h.city, T('{0} to {1}', fmtDate(h.in), fmtDate(h.out))].filter(Boolean).join(', ')))}</li>`)).join('');
   const opt = (id, on, label, sub) => `<label class="check"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span>${esc(label)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</span></label>`;
   const money = f.fare + f.fee, nm = impName();
@@ -3252,9 +3308,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.6-beta.7';
+const APP_VERSION = '1.6-beta.8';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.6 beta 7, built 17 Oct 2026 13:31 (production is 1.5)';
+const APP_LABEL = 'Version 1.6 beta 8, built 17 Oct 2026 13:39 (production is 1.5)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }

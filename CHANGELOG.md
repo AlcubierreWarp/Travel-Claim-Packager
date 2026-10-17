@@ -4,6 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.6 (beta, in progress)
 
+- Import itinerary: when an itinerary arrives in several emails, add the others in the review step (Add another email or file, Paste another email, or drop them on the window). New legs are added and highlighted; legs, hotels, fares and attachments already listed are skipped, so adding the same email twice changes nothing
 - Import itinerary reads Outlook .msg emails (saved or dragged from desktop Outlook): the PDF itinerary attached to the email when there is one, otherwise the message text. Pasting the whole email (select all, copy, paste) also works. Arrivals with a terminal after the airport code ("Toronto, Canada (YYZ), Terminal 1") are now read correctly
 - File number defaults to 7209-1 (Transportation and Travelling Expenses) in every file name until the member changes it. A number cleared on purpose stays cleared; claim files and remembered details from before this change get the default
 - Menu regrouped under This claim, This tool, This device and Help, with standard wording: New claim (was Clear form), Import claim file (was Open draft file), Export claim file (was Save draft file), Send claim file, and Export offline app. The two Export items each say in one line what the file contains

@@ -43,7 +43,7 @@ If the Claude account or workspace is gone, follow `REBUILD.md` on the `source` 
 6. Tell Tom what is in the release. Installed apps update on their next online open.
 
 ## Current beta-specific differences (keep unless Tom says otherwise)
-- Greyscale icons and favicon.
+- Greyscale icons, favicon and header logo (build.py inlines the logo; production's is in colour on a navy and blue theme).
 - Grey launch and theme colour (#2b2b2b).
 - "CAF Travel Beta" app name.
 - Beta build label.

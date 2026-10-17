@@ -19,6 +19,15 @@ _now = datetime.datetime.now(zoneinfo.ZoneInfo("America/Moncton"))
 PROD_LABEL = f"Version {VERSION}, updated {_now.strftime('%d %b %Y')}"
 BETA_LABEL = f"Version {BETA_VERSION} beta {BETA_BUILD}, built {_now.strftime('%d %b %Y %H:%M')} (production is {VERSION})"
 src_beta = src.replace("__APP_VERSION__", f"{BETA_VERSION}-beta.{BETA_BUILD}").replace("__APP_LABEL__", BETA_LABEL).replace("__APP_CHANNEL__", "beta")
+# Header logo: the app icon, inlined (the page may not load files). Greyscale in the beta, like its icons.
+import base64, io
+from PIL import Image as _Img
+def _logo(grey):
+    im = _Img.open(base / "pwa/icons/icon-192.png").convert("RGBA").resize((96, 96), _Img.LANCZOS)
+    if grey: im = _Img.merge("RGBA", (*[im.convert("L")] * 3, im.split()[3]))
+    b = io.BytesIO(); im.save(b, format="PNG", optimize=True); return "data:image/png;base64," + base64.b64encode(b.getvalue()).decode()
+src_beta = src_beta.replace("__LOGO__", _logo(True))
+src = src.replace("__LOGO__", _logo(False))
 src = src.replace("__APP_VERSION__", VERSION).replace("__APP_LABEL__", PROD_LABEL).replace("__APP_CHANNEL__", "production")
 pdflib = (base / "npm/node_modules/pdf-lib/dist/pdf-lib.min.js").read_text().replace("\ufffd", "\\ufffd")
 assert "</script" not in pdflib.lower()

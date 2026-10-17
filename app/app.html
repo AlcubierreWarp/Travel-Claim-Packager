@@ -3,27 +3,27 @@
 <style>
 /* Layout: section rail on the left, one working column of form sections in worksheet order, totals bar pinned to the bottom */
 :root{
-  --bg:#eaede8; --surface:#f9faf7; --card:#ffffff; --field:#ffffff;
-  --ink:#17201c; --muted:#56615b; --line:#cfd5ce; --line-strong:#9aa39c;
-  --accent:#2b5a4a; --accent-ink:#ffffff; --accent-soft:#dbe7df;
-  --bar:#17201c; --bar-ink:#f1f4f0; --off:#dde1db;
+  --bg:#e9edf2; --surface:#f8fafc; --card:#ffffff; --field:#ffffff;
+  --ink:#14202e; --muted:#536071; --line:#cdd5df; --line-strong:#95a1b0;
+  --accent:#0b4f8c; --accent-ink:#ffffff; --accent-soft:#dbe6f2;
+  --bar:#052748; --bar-ink:#eef3f8; --off:#dbe0e7;
   --warn:#875000; --warn-soft:#f5e7cc; --bad:#a1302a; --bad-soft:#f7dfdb; --swipe-red:#e5392f; --swipe-red-strong:#d0261c; --ok:#2a6a3d; --ok-soft:#dcefe0;
   --f-display:"Archivo","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
   --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#111614; --surface:#171d1a; --card:#1c2320; --field:#131916;
-  --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
-  --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
-  --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
+  --bg:#0e141b; --surface:#141b24; --card:#19212c; --field:#111820;
+  --ink:#e3e9f0; --muted:#97a3b2; --line:#2a3441; --line-strong:#4a5666;
+  --accent:#7fb2e8; --accent-ink:#0a1420; --accent-soft:#1b2b3f;
+  --bar:#071a30; --bar-ink:#e3e9f0; --off:#212a35;
   --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#111614; --surface:#171d1a; --card:#1c2320; --field:#131916;
-  --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
-  --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
-  --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
+  --bg:#0e141b; --surface:#141b24; --card:#19212c; --field:#111820;
+  --ink:#e3e9f0; --muted:#97a3b2; --line:#2a3441; --line-strong:#4a5666;
+  --accent:#7fb2e8; --accent-ink:#0a1420; --accent-soft:#1b2b3f;
+  --bar:#071a30; --bar-ink:#e3e9f0; --off:#212a35;
   --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }
 *{box-sizing:border-box}
@@ -39,7 +39,7 @@ button{font:inherit;color:inherit}
 .wrap{max-width:1240px;margin:0 auto;padding-inline:16px}
 .top .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding-block:14px}
 .brand{display:flex;gap:12px;align-items:center;min-width:0}
-.mark{font:600 .8rem/1 var(--f-mono);letter-spacing:.06em;background:var(--bar);color:var(--bar-ink);padding:9px 8px;border-radius:2px;flex:none}
+.mark{display:block;width:44px;height:44px;border-radius:10px;flex:none}
 h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacing:.005em;text-wrap:balance}
 .brand p{margin:3px 0 0;color:var(--muted);font-size:.86rem}
 .top-actions{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
@@ -130,6 +130,14 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .imp-opts .sub{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
 .imp-warn{margin:12px 0 0;padding:8px 10px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-size:.86rem}
 .imp-busy{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
+.pk-out{border:0;padding:0;margin:0 0 14px;display:grid;gap:8px;min-width:0}
+.pk-out legend{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px;padding:0}
+.pk-out .check{align-items:flex-start}
+.pk-out .sub{display:block;font-size:.8rem;color:var(--muted);margin-top:1px}
+.part-list{margin:10px 0;padding:0;list-style:none;display:grid;gap:8px}
+.part-list li{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--card)}
+.part-list li > div:first-child{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 260px}
+.part-list .pf-name{font:500 .72rem/1.3 var(--f-mono);color:var(--muted);word-break:break-all}
 .imp-more{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:10px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:4px;background:var(--card)}
 .imp-more.dragover{border-color:var(--accent);background:var(--field)}
 .imp-more .drophint{flex:1 1 220px}
@@ -378,7 +386,13 @@ select.bad{border-color:var(--bad);background:var(--bad-soft)}
 .jurat .who{display:block;margin-top:6px;color:var(--muted);font-size:.8rem}
 .jurat b{font-weight:700}
 .sd-items{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:.86rem}
-.sd-items li{display:flex;gap:10px;align-items:baseline}
+.sd-items li{display:block}
+.sd-it-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.sd-it-h .tag{padding:0 5px;border-radius:999px;border:1px solid currentColor;font:700 .6rem/1.5 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.sd-edit{margin:4px 0 8px 0}
+.sd-edit summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.82rem}
+.sd-edit textarea{display:block;width:100%;box-sizing:border-box;margin:6px 0;font:inherit;font-size:.86rem;line-height:1.45;padding:8px;border:1px solid var(--line-strong);border-radius:3px;background:var(--field);color:var(--ink);resize:vertical}
+.sd-edit-acts{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
 .sd-items .ref{font:600 .76rem var(--f-mono);min-width:3.4rem}
 
 /* meals */
@@ -422,6 +436,9 @@ table.meals{width:100%;border-collapse:collapse;font-size:.88rem}
 .result span{font-size:.82rem;color:var(--muted)}
 .result>div:first-child{min-width:0}
 .result .acts{display:flex;gap:8px;flex-wrap:wrap}
+.result.split{flex-direction:column;align-items:stretch}
+.result.split .part-list{margin:0}
+.result.split>.acts{justify-content:flex-end}
 h3{font:700 .95rem/1.2 var(--f-display);font-stretch:90%;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px}
 
 /* totals bar */
@@ -472,7 +489,7 @@ dialog,dialog .snap-body{overscroll-behavior:contain}
 @media (max-width: 560px){
   .brand p{display:none}
   h1{font-size:1.2rem}
-  .mark{display:none}
+  .mark{width:34px;height:34px;border-radius:8px}
   .top .wrap{padding-block:10px;flex-wrap:nowrap}
   .savechip,.save-btn{display:none}
   .top-actions{flex-wrap:nowrap;gap:6px}
@@ -530,7 +547,7 @@ html{touch-action:manipulation}
 <header class="top">
   <div class="wrap">
     <div class="brand">
-      <span class="mark" aria-hidden="true">TD</span>
+      <img class="mark" src="__LOGO__" alt="" width="44" height="44" aria-hidden="true">
       <div>
         <h1>CAF Digital Travel Itinerary</h1>
         <p>Temporary duty itinerary worksheet and receipts, compiled into one PDF for the Orderly Room.</p>
@@ -724,8 +741,10 @@ html{touch-action:manipulation}
           <div class="sd-grid">
             <div class="field"><label for="sd-juris">Province or territory where declared</label><select id="sd-juris" data-bind="sd.juris"></select></div>
             <div class="field"><label for="sd-place">Place, in full (optional)</label><input id="sd-place" data-bind="sd.place" autocomplete="off" placeholder="e.g. City of Ottawa"></div>
+            <div class="field"><label for="sd-date">Date declared</label><span class="dwrap"><input id="sd-date" type="date"><span class="dshow empty" aria-hidden="true">Pick a date</span></span></div>
             <div class="field" id="sd-env-f" hidden><label for="sd-env">Officer's service</label><select id="sd-env" data-bind="sd.env"><option value="naval">Navy</option><option value="military">Army</option><option value="air">Air Force</option></select></div>
           </div>
+          <p class="sd-help" id="sd-date-help">The date declared is today's date unless you change it. Clear it to leave the date for the officer to fill in.</p>
           <label class="check toggle"><input type="checkbox" id="sd-abroad" data-bind="sd.abroad"> Declared outside Canada</label>
           <div class="field" id="sd-abroad-f" hidden style="margin-top:10px;max-width:28rem"><label for="sd-abroadPlace">Place where taken</label><input id="sd-abroadPlace" data-bind="sd.abroadPlace" autocomplete="off" placeholder="e.g. Camp Example, Kuwait"></div>
           <div class="jurat" id="sd-jurat"></div>
@@ -762,6 +781,10 @@ html{touch-action:manipulation}
             <ul class="contents" id="contents"></ul>
           </div>
         </div>
+        <fieldset class="pk-out"><legend>Output</legend>
+          <label class="check"><input type="radio" name="pk-split" value="one" id="pk-one"> <span><b>One PDF</b><span class="sub">Worksheet, receipts and declarations in one file, in order.</span></span></label>
+          <label class="check"><input type="radio" name="pk-split" value="split" id="pk-split"> <span><b>Separate PDFs</b><span class="sub">The worksheet, the receipts, and each statutory declaration as its own file, named for what it is, to sign and send one at a time.</span></span></label>
+        </fieldset>
         <div class="build-row">
           <button class="btn primary big" data-act="build" id="build-btn">Build PDF package</button>
           <span id="build-status" role="status" aria-live="polite"></span>
@@ -995,7 +1018,7 @@ const telStr = o => o.tel ? o.tel + (o.ext ? ' ext ' + o.ext : '') : '';
 /* ---------- state ---------- */
 let S, R = {};
 const newStop = (city = '') => ({ id: uid(), city, arrDate: '', arrTime: '', depDate: '', depTime: '', mode: '', modeOther: '', leave: false });
-const LOST = () => ({ lost: false, lostReason: '' });
+const LOST = () => ({ lost: false, lostReason: '', sdFacts: '' });
 const ROWNEW = {
   transport: () => Object.assign({ date: '', location: '', desc: '', cost: '', cur: 'CAD' }, LOST()),
   general:   () => Object.assign({ date: '', location: '', desc: '', cost: '', cur: 'CAD' }, LOST()),
@@ -1007,14 +1030,14 @@ const ROWNEW = {
 // fileNoSet records that they did, so a number they cleared on purpose stays cleared.
 const FILENO_DEFAULT = '7209-1';
 function blank() {
-  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: FILENO_DEFAULT, fileNoSet: false, marking: 'PA',
+  return { v: 3, example: false, split: false, tripRef: '', tan: '', locator: '', fileNo: FILENO_DEFAULT, fileNoSet: false, marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
     transport: [], lodging: { stays: [] }, meals: {},
     general: [], exchange: [], calls: [], sd: blankSD(), touched: {}, pki: true };
 }
-const blankSD = () => ({ name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
+const blankSD = () => ({ declDate: '', declDateSet: false, name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
 const sdName = () => S.sd.name.trim() || [String(S.member.given || '').replace(/\(.*?\)/g, ''), S.member.surname].map(x => x.trim()).filter(Boolean).join(' ');
 const isCiv = () => S.member.rank === 'Civ';
 const sdRank = () => isCiv() ? '' : rankFull(S.member.rank.trim());
@@ -1092,7 +1115,7 @@ const DEFS = {
   stays: { L: 'D', name: 'Lodging', cols: [], empty: 'No stays yet. Add one card for each place you slept. A three-night hotel stay is one card.' },
   general: { L: 'F', name: 'General expenses', grid: 'tg', cols: [COL.date, COL.loc('Where'), { k: 'desc', l: 'Description', t: 'text', ph: 'e.g. Laundry', list: 'dl-general' }, COL.cost, COL.cur],
     empty: 'No general expenses. Laundry, internet, conference fees and similar go here.' },
-  exchange: { L: 'G', name: 'Currency exchange', grid: 'xg', cols: [COL.date, COL.loc('Bank or exchange office'), { k: 'soldAmt', l: 'Sold', t: 'money' }, { k: 'soldCur', l: 'Cur', t: 'cur' }, { k: 'boughtAmt', l: 'Bought', t: 'money' }, { k: 'boughtCur', l: 'Cur', t: 'cur' }, { k: 'rate', l: 'Exch. rate', t: 'rate', ph: 'auto' }, { k: 'charge', l: 'Service charge', t: 'money' }, { k: 'chargeCur', l: 'Cur', t: 'cur' }],
+  exchange: { L: 'G', name: 'Currency exchange', grid: 'xg', cols: [COL.date, { k: 'location', l: 'Where exchanged', t: 'text', ph: 'Bank or exchange office, city', list: 'dl-places' }, { k: 'soldAmt', l: 'Sold', t: 'money' }, { k: 'soldCur', l: 'Cur', t: 'cur' }, { k: 'boughtAmt', l: 'Bought', t: 'money' }, { k: 'boughtCur', l: 'Cur', t: 'cur' }, { k: 'rate', l: 'Exch. rate', t: 'rate', ph: 'auto' }, { k: 'charge', l: 'Service charge', t: 'money' }, { k: 'chargeCur', l: 'Cur', t: 'cur' }],
     empty: 'No currency exchanges. Add one for each exchange receipt you have.' },
   calls: { L: 'H', name: 'Calls', grid: 'cg', cols: [COL.date, COL.loc('Where you called from'), { k: 'timeDur', l: 'Time & duration', t: 'short', ph: '1415, 12 min' }, { k: 'number', l: 'Number called', t: 'tel' }, { k: 'person', l: 'Person / section', t: 'text' }, { k: 'kind', l: 'Type', t: 'select', opts: ['Business', 'Personal'] }, COL.cost, COL.cur],
     empty: 'No calls to claim.' },
@@ -1270,7 +1293,13 @@ function renderMeals() {
   </table></div>`;
 }
 function mealCounts() { const dates = tripDates() || [], c = { b: 0, l: 0, d: 0 }; dates.forEach(d => { MEALS.forEach(([k]) => { if (mealVal(d, k)) c[k]++; }); }); return { c, n: dates.length }; }
+function syncOut() {
+  const one = $('#pk-one'), sp = $('#pk-split'); if (!one) return;
+  one.checked = !S.split; sp.checked = !!S.split;
+  const b = $('#build-btn'); if (b && !b.classList.contains('busy')) b.textContent = S.split ? T('Build PDF files') : T('Build PDF package');
+}
 function renderBinds() {
+  syncOut();
   const refs = $('#trip-refs'); if (refs) refs.hidden = !(String(S.tan || '').trim() || String(S.locator || '').trim());
   $$('[data-bind]').forEach(el => {
     const v = getPath(el.dataset.bind);
@@ -1302,6 +1331,21 @@ const inMatter = (sec, r) => {
   const what = String(r.desc || '').split(/[,;(]/)[0].trim();
   return fr() ? `Reçu manquant (${what || 'dépense'})` : `Missing ${t(what) || 'Expense'} Receipt`;
 };
+// Jurat date: today unless the member changed it; cleared on purpose = blank lines for the officer
+const today = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; };
+const juratDate = () => S.sd.declDateSet ? S.sd.declDate : today();
+function juratDay(iso) { // { day, month, yy } in the jurat's words: "17th", "October", "26" / "17", "d'octobre", "26"
+  if (!isoOk(iso)) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  if (fr()) { const mo = MONTHS_FR[m - 1]; return { day: d === 1 ? '1er' : String(d), month: (/^[aeiouh]/.test(mo) ? "d'" : 'de ') + mo, yy: String(y).slice(2), y }; }
+  const th = (d % 100 >= 11 && d % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[d % 10] || 'th');
+  return { day: d + th, month: MONTHS[m - 1], yy: String(y).slice(2), y };
+}
+function juratDateText() {
+  const j = juratDay(juratDate());
+  if (fr()) return j ? `ce ${j.day} jour ${j.month} ${j.y}` : 'ce ____ jour de __________ 20__';
+  return j ? `this ${j.day} day of ${j.month} A.D. ${j.y}` : 'this ____ day of __________ A.D. 20__';
+}
 function juratPlaceText() {
   const sd = S.sd, place = sd.place.trim().replace(/^(the|la|le|les)\s+/i, '');
   if (fr()) return `${place || '____________________'}, ${PROV_IN_FR[sd.juris] || '________'}`;
@@ -1311,14 +1355,28 @@ function renderSD() {
   const items = lostItems(), sec = $('#sec-SD');
   sec.hidden = !items.length; $('#railbtn-SD').hidden = !items.length;
   if (!items.length) return;
-  $('#sd-items').innerHTML = items.map(it => `<li><span class="ref">${it.ref} ${T('SD')}</span><span>${esc(T('{0}: {1}', inMatter(it.sec, it.row), lostAmtText(it.sec, it.row)))}</span></li>`).join('');
+  const box = $('#sd-items');
+  if (!box.contains(document.activeElement) || document.activeElement === document.body) { // never redraw under the member's typing
+    const open = new Set($$('details[open]', box).map(d => d.dataset.row));
+    box.innerHTML = items.map(it => {
+      const own = String(it.row.sdFacts || '').trim(), built = sdBuilt(it).slice(0, 2).join('\n\n');
+      return `<li><div class="sd-it-h"><span class="ref">${it.ref} ${T('SD')}</span><span>${esc(T('{0}: {1}', inMatter(it.sec, it.row), lostAmtText(it.sec, it.row)))}</span>${own ? `<span class="tag">${esc(T('Edited'))}</span>` : ''}</div>
+        <details class="sd-edit" data-row="${it.row.id}"${open.has(it.row.id) ? ' open' : ''}><summary>${esc(T('See or edit the wording'))}</summary>
+          <p class="sd-help">${esc(T('Paragraphs 1 and 2 state the facts. Change them if they do not describe what happened; leave a blank line between paragraphs. Paragraph 3 (why the receipt is missing) comes from the expense, and the closing paragraphs stay as they are.'))}</p>
+          <textarea class="sd-facts" rows="6" data-sdrow="${it.row.id}" data-sdsec="${it.sec}" aria-label="${esc(T('Wording of {0}', it.ref + ' ' + T('SD')))}" spellcheck="true">${esc(own || built)}</textarea>
+          <div class="sd-edit-acts"><button type="button" class="btn" data-act="sd-reset" data-sdrow="${it.row.id}" data-sdsec="${it.sec}"${own ? '' : ' disabled'}>${esc(T('Use the wording built from the claim'))}</button>
+          <span class="drophint">${esc(own ? T('Edited wording is printed as typed and does not change when you edit the expense.') : T('Built from the claim. It updates when you edit the expense.'))}</span></div>
+        </details></li>`;
+    }).join('');
+  }
   const sd = S.sd;
   $('#sd-name').placeholder = sdName() || T('e.g. Jordan Lee Sample');
+  const dd = $('#sd-date'); if (dd && document.activeElement !== dd) { dd.value = juratDate() || ''; syncDate(dd); }
   $('#sd-env-f').hidden = !(sd.juris === 'BC' || sd.juris === 'SK');
   $('#sd-abroad-f').hidden = !sd.abroad;
   $('#sd-juris').classList.toggle('bad', !sd.juris);
   $('#sd-jurat').innerHTML = sd.juris
-    ? (fr() ? `<b>DÉCLARÉ</b> devant moi à ${esc(juratPlaceText())}, ce ____ jour de __________ 20__.` : `<b>DECLARED</b> before me at ${esc(juratPlaceText())}, this ____ day of __________ A.D. 20__.`) + `<span class="who">${esc(juratWho(sd.juris, sd.env))} ${esc(jur(sd.juris).law)}<br>${esc(jur(sd.juris).note)}</span>`
+    ? (fr() ? `<b>DÉCLARÉ</b> devant moi à ${esc(juratPlaceText())}, ${esc(juratDateText())}.` : `<b>DECLARED</b> before me at ${esc(juratPlaceText())}, ${esc(juratDateText())}.`) + `<span class="who">${esc(juratWho(sd.juris, sd.env))} ${esc(jur(sd.juris).law)}<br>${esc(jur(sd.juris).note)}</span>`
     : T('Choose the province or territory where you will make the declaration. The jurat wording, and who may take it, depend on it.');
 }
 function renderAll() {
@@ -1736,8 +1794,17 @@ function onField(el, final) {
   if (sec === 'stays' && final && (k === 'checkin' || k === 'checkout') && row.rations) renderMeals();
 }
 const liveKind = el => el.type === 'checkbox' || el.tagName === 'SELECT';
+// the member's own wording for a statutory declaration (stored with the expense; blank = built wording)
+function sdSetFacts(el) {
+  const row = getArr(el.dataset.sdsec).find(r => r.id === el.dataset.sdrow); if (!row) return;
+  const it = lostItems().find(x => x.row === row); if (!it) return;
+  const built = sdBuilt(it).slice(0, 2).join('\n\n'), v = el.value;
+  row.sdFacts = v.trim() === built.trim() || !v.trim() ? '' : v; persist();
+}
 document.addEventListener('input', e => {
   const el = e.target;
+  if (el.classList && el.classList.contains('sd-facts')) { sdSetFacts(el); return; }
+  if (el.id === 'sd-date') { S.sd.declDate = el.value; S.sd.declDateSet = true; syncDate(el); persist(); refresh(); return; }
   if (el.type === 'date') syncDate(el);
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
   if (liveKind(el)) return; // checkboxes and selects are handled on change
@@ -1747,12 +1814,14 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.classList && el.classList.contains('sd-facts')) { sdSetFacts(el); el.blur(); refresh(); return; }
   if (el.type === 'date') syncDate(el);
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
   if (el.id === 'opt-keep') { setKeep(el.checked); return; }
   if (el.id === 'opt-remember') { setRemember(el.checked); return; }
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
+  if (el.name === 'pk-split') { S.split = el.value === 'split'; touch(el); persist(); syncOut(); return; }
   if (el.id === 'file-itin') { const fs = [...el.files]; el.value = ''; if (fs.length) impFiles(fs); return; }
   if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels', 'imp-name': 'name' }[el.id]] = el.checked; impRender(); return; }
   if (el.id === 'file-snap') { const f = el.files[0]; el.value = ''; if (f) openSnap(f); return; }
@@ -1816,6 +1885,7 @@ document.addEventListener('click', e => {
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
     case 'save-now': setMenu(false); saveNow(); break;
+    case 'sd-reset': { const row = getArr(b.dataset.sdsec).find(r => r.id === b.dataset.sdrow); if (row) { row.sdFacts = ''; b.blur(); refresh(); persist(); toast(T('Back to the wording built from the claim.')); } break; }
     case 'switch-channel': setMenu(false); switchChannel(); break;
     case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
@@ -1858,6 +1928,9 @@ document.addEventListener('click', e => {
     case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
     case 'snap-save': if (saveSnap()) closeSnap(); break;
     case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
+    case 'save-part': { const x = lastParts && lastParts[+b.dataset.i]; if (x) { if (IOS_PWA && SEND.pdf) shareFile(new File([x.bytes], x.name, { type: 'application/pdf' }), sendTitle('Travel Claim Package'), '', () => offerFile(x.name, new Blob([x.bytes], { type: 'application/pdf' }), 'application/pdf')); else offerFile(x.name, new Blob([x.bytes], { type: 'application/pdf' }), 'application/pdf'); } break; }
+    case 'open-part': { const x = lastParts && lastParts[+b.dataset.i]; if (x) { const u = URL.createObjectURL(new Blob([x.bytes], { type: 'application/pdf' })); window.open(u, '_blank'); setTimeout(() => URL.revokeObjectURL(u), 120000); } break; }
+    case 'save-all': case 'send-all': if (lastParts) saveAllParts(act === 'send-all'); break;
     case 'save-pdf': if (lastPdf) offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'); break;
     case 'open-pdf': if (lastPdf) { const u = URL.createObjectURL(new Blob([lastPdf.bytes], { type: 'application/pdf' })); window.open(u, '_blank'); setTimeout(() => URL.revokeObjectURL(u), 120000); } break;
   }
@@ -2190,6 +2263,15 @@ function sendDraft() {
   if (mb > 20) toast(T('This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.', mb.toFixed(0)));
   shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
 }
+// All the separate files: one share sheet on phones (Save to Files takes them all), one download each on a computer
+async function saveAllParts(send) {
+  const files = lastParts.map(x => new File([x.bytes], x.name, { type: 'application/pdf' }));
+  if ((IOS_PWA || send) && navigator.canShare && navigator.share) {
+    try { if (navigator.canShare({ files })) { await navigator.share({ files }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  for (const x of lastParts) { await offerFile(x.name, new Blob([x.bytes], { type: 'application/pdf' }), 'application/pdf'); await new Promise(r => setTimeout(r, 450)); }
+  toast(nPl(lastParts.length, 'Saved {0} file.', 'Saved {0} files. If the browser asked, allow it to download several files.'));
+}
 function sendPdf() {
   const file = new File([lastPdf.bytes], lastPdf.name, { type: 'application/pdf' });
   shareFile(file, sendTitle('Travel Claim Package'), sendTitle('Travel Claim Package'), () => offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'));
@@ -2406,7 +2488,7 @@ async function openDraft(f) {
 }
 
 /* ---------- PDF ---------- */
-let lastPdf = null;
+let lastPdf = null, lastParts = null; // the last build: one PDF, or the separate files
 const meals = m => MEALS.filter(([k]) => m && m[k]).map(([k]) => k.toUpperCase()).join(' ');
 const amt = (v, c) => { const m = money(v); return m ? `${m} ${curOf(c)}`.trim() : ''; };
 function rowDesc(sec, r) {
@@ -2528,8 +2610,9 @@ function painter(doc, F, B, I) {
     P.page.drawLine({ start: { x, y }, end: { x: x + w, y }, thickness: .75, color: C.ink });
     if (caption) P.text(caption, x, y - 10, { size: 7.2, color: C.mid });
   };
-  P.textField = (name, x, y, w, h) => {
+  P.textField = (name, x, y, w, h, value) => {
     const tf = doc.getForm().createTextField(name);
+    if (value) tf.setText(P.clean(value));
     tf.addToPage(P.page, { x, y, width: w, height: h, borderWidth: 0, backgroundColor: C.sig, font: F });
     tf.setFontSize(9);
     P.page.drawLine({ start: { x, y }, end: { x: x + w, y }, thickness: .6, color: C.ink });
@@ -2540,7 +2623,7 @@ function subtotalRows(arr, k, ck, colCount, labelIdx, amtIdx, curIdx) {
   const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => { const cells = Array(colCount).fill(''); cells[labelIdx] = T('Subtotal {0}', c); cells[amtIdx] = fmtN(t[c]); if (curIdx != null) cells[curIdx] = c; return { cells, bold: true, fill: true }; });
 }
 const fullName = () => [rankAbbr(S.member.rank), S.member.given, S.member.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
-function drawWorksheet(P, items, wsPages) {
+function drawWorksheet(P, items, wsPages, inFile) {
   updateLeave();
   const m = S.member, today = new Date();
   const todayStr = fmtDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
@@ -2595,8 +2678,8 @@ function drawWorksheet(P, items, wsPages) {
   // Receipt index
   P.bar('', 'Receipt index', 'SD = statutory declaration for a missing receipt, signed by the member');
   let pg = (wsPages || 0) + 1;
-  P.table([{ l: 'Ref', w: .7, a: 'c' }, { l: 'Section', w: 1.4 }, { l: 'Date', w: .85 }, { l: 'Description', w: 2.6 }, { l: 'Amount', w: 1.1, a: 'r' }, { l: 'Page', w: .6, a: 'c' }],
-    items.map(it => { const p = wsPages ? (it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : `${pg}`) : '00-00'; pg += it.pages; return [it.decl ? it.ref + ' ' + T('SD') : it.ref, T(SECNAME[it.sec]), fmtDate(rowDate(it.sec, it.row)), (it.decl ? T('Missing receipt declaration: ') : '') + [rowLoc(it.sec, it.row), rowDesc(it.sec, it.row)].filter(Boolean).join(', '), rowAmt(it.sec, it.row), p]; }), T('No receipts attached'));
+  P.table([{ l: 'Ref', w: .7, a: 'c' }, { l: 'Section', w: 1.4 }, { l: 'Date', w: .85 }, { l: 'Description', w: inFile ? 2.2 : 2.6 }, { l: 'Amount', w: 1.1, a: 'r' }, inFile ? { l: 'In file', w: 1, a: 'c' } : { l: 'Page', w: .6, a: 'c' }],
+    items.map(it => { const p = inFile ? inFile.get(it) : wsPages ? (it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : `${pg}`) : '00-00'; pg += it.pages; return [it.decl ? it.ref + ' ' + T('SD') : it.ref, T(SECNAME[it.sec]), fmtDate(rowDate(it.sec, it.row)), (it.decl ? T('Missing receipt declaration: ') : '') + [rowLoc(it.sec, it.row), rowDesc(it.sec, it.row)].filter(Boolean).join(', '), rowAmt(it.sec, it.row), p]; }), T('No receipts attached'));
   // Signature
   P.ensure(70); P.y -= 12;
   P.text(T('I certify that the information on this worksheet is correct and complete.'), P.M, P.y - 9, { size: 8.2, color: P.C.mid });
@@ -2623,14 +2706,54 @@ const CURNAME = { CAD: 'Canadian dollars', USD: 'United States dollars', EUR: 'e
 const CURNAME_FR = { CAD: 'dollars canadiens', USD: 'dollars américains', EUR: 'euros', GBP: 'livres sterling', AUD: 'dollars australiens', NZD: 'dollars néo-zélandais', JPY: 'yens japonais', CHF: 'francs suisses' };
 const amtFull = (v, c) => { const m = money(v); if (!m) return ''; const cc = curOf(c) || 'CAD'; return fr() ? `${m} ${CURNAME_FR[cc] || cc}` : `${cc === 'CAD' ? '$' : ''}${m} ${CURNAME[cc] || cc}`; };
 const cap = t => { t = String(t || '').trim().replace(/[.\s]+$/, ''); return t ? t[0].toUpperCase() + t.slice(1) + '.' : ''; };
+// When an exchange happened relative to the trip, and the trip's main destination (longest stay)
+function tripWhen(d) {
+  const a = S.stops[0].depDate, b = S.stops[S.stops.length - 1].arrDate;
+  if (!isoOk(d)) return 'during';
+  if (isoOk(a) && d < a) return 'before';
+  if (isoOk(b) && d > b) return 'after';
+  return 'during';
+}
+function tripDest() {
+  let best = '', most = -1;
+  S.stops.slice(1, -1).forEach(s => { const n = isoOk(s.arrDate) && isoOk(s.depDate) ? (Date.parse(s.depDate) - Date.parse(s.arrDate)) / 864e5 : 0; if (s.city.trim() && !s.leave && n > most) { most = n; best = s.city.trim(); } });
+  return best || S.stops[S.stops.length - 1].city.trim();
+}
+function sdExchangeFr(r, date, purpose) {
+  const when = tripWhen(r.date), dest = tripDest(), where = String(r.location || '').trim();
+  const pur = purpose ? ' pour ' + purpose : '', to = dest ? ' à ' + dest : '';
+  const deal = `${amtFull(r.soldAmt, r.soldCur) || 'des fonds canadiens'} contre ${amtFull(r.boughtAmt, r.boughtCur) || 'des devises étrangères'}${where ? ' auprès de ' + where : ''}${money(r.charge) ? ` et j'ai payé des frais de service de ${amtFull(r.charge, r.chargeCur)}` : ''}`;
+  if (when === 'before') return [`Le ${date || "jour de l'échange"}, avant de partir en service temporaire${to}${pur}, j'ai échangé des devises pour les besoins de ce service.`, `J'ai échangé ${deal}.`];
+  if (when === 'after') return [`Le ${date || "jour de l'échange"}, après mon retour de service temporaire${to}${pur}, j'ai échangé les devises qui me restaient de ce service.`, `J'ai échangé ${deal}.`];
+  const td = locFor(r.date);
+  return [`Le ${date || "jour de l'échange"}, j'étais en service temporaire${td ? ' à ' + td : ''}${pur}.`, `Pendant ce service, j'ai échangé ${deal}.`];
+}
+function sdExchange(r, date, purpose) {
+  const when = tripWhen(r.date), dest = tripDest(), where = String(r.location || '').trim();
+  const pur = purpose ? ' to ' + purpose : '', to = dest ? ' to ' + dest : '';
+  const deal = `${amtFull(r.soldAmt, r.soldCur) || 'Canadian funds'} for ${amtFull(r.boughtAmt, r.boughtCur) || 'foreign currency'}${where ? ' at ' + where : ''}${money(r.charge) ? ` and paid a service charge of ${amtFull(r.charge, r.chargeCur)}` : ''}`;
+  if (when === 'before') return [`On ${date || 'the date of the exchange'}, before leaving on temporary duty${to}${pur}, I exchanged currency for use during that duty.`, `I exchanged ${deal}.`];
+  if (when === 'after') return [`On ${date || 'the date of the exchange'}, after returning from temporary duty${to}${pur}, I exchanged the currency left over from that duty.`, `I exchanged ${deal}.`];
+  const td = locFor(r.date);
+  return [`On ${date || 'the date of the exchange'}, I was on temporary duty${td ? ' in ' + td : ''}${pur}.`, `During this duty, I exchanged ${deal}.`];
+}
+// The declaration as printed: the member's own wording for the facts (paragraphs 1 and 2) when they
+// edited it, otherwise the wording built from the claim. Why the receipt is missing, the
+// non-reimbursement paragraph and the closing always follow.
+const sdBuilt = it => fr() ? sdParagraphsFr(it) : sdParagraphs(it);
+function sdFinal(it) {
+  const built = sdBuilt(it), own = String(it.row.sdFacts || '').trim();
+  if (!own) return built;
+  return own.split(/\n\s*\n/).map(x => x.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean).concat(built.slice(2));
+}
 function sdParagraphsFr(it) {
   const r = it.row, sec = it.sec, sd = S.sd, n = nights(r);
   const date = fmtLong(rowDate(sec, r)), loc = String(rowLoc(sec, r) || '').trim();
   const purpose = sd.purpose.trim().replace(/[.\s]+$/, '').replace(/^pour\s+/i, '');
   const ny = n > 0 ? ` (${n} nuit${n > 1 ? 's' : ''})` : '';
-  const p = [`Le ${date || 'jour de la dépense'}, j'étais en service temporaire${loc && sec !== 'stays' ? ' à ' + loc : ''}${purpose ? ' pour ' + purpose : ''}.`];
-  if (sec === 'stays') p.push(`Pendant ce service, j'ai séjourné à ${r.hotel.trim() || 'un hôtel'}${loc ? ', ' + loc : ''}, du ${fmtLong(r.checkin)} au ${fmtLong(r.checkout)}${ny}, et j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour l'hébergement.`);
-  else if (sec === 'exchange') p.push(`Pendant ce service, j'ai échangé ${amtFull(r.soldAmt, r.soldCur) || 'des fonds canadiens'} contre ${amtFull(r.boughtAmt, r.boughtCur) || 'des devises étrangères'}${loc ? ' à ' + loc : ''}${money(r.charge) ? ` et j'ai payé des frais de service de ${amtFull(r.charge, r.chargeCur)}` : ''}.`);
+  const p = sec === 'exchange' ? sdExchangeFr(r, date, purpose) : [`Le ${date || 'jour de la dépense'}, j'étais en service temporaire${loc && sec !== 'stays' ? ' à ' + loc : ''}${purpose ? ' pour ' + purpose : ''}.`];
+  if (sec === 'exchange') { /* both paragraphs above */ }
+  else if (sec === 'stays') p.push(`Pendant ce service, j'ai séjourné à ${r.hotel.trim() || 'un hôtel'}${loc ? ', ' + loc : ''}, du ${fmtLong(r.checkin)} au ${fmtLong(r.checkout)}${ny}, et j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour l'hébergement.`);
   else if (sec === 'calls') p.push(`Pendant ce service, j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour un appel téléphonique ${r.kind === 'Personal' ? 'personnel' : "d'affaires"}${r.person.trim() ? ' à ' + r.person.trim() : ''}${r.number.trim() ? ' au ' + r.number.trim() : ''}.`);
   else p.push(`Pendant ce service, j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour la dépense suivante : ${cap(r.desc) || 'une dépense.'}`);
   p.push(`Le reçu original de cette dépense n'est pas disponible pour la raison suivante : ${r.lostReason.trim() ? r.lostReason.trim().replace(/[.\s]+$/, '') + '.' : '____________________________________________.'}`);
@@ -2640,13 +2763,12 @@ function sdParagraphsFr(it) {
   return p;
 }
 function sdParagraphs(it) {
-  if (fr()) return sdParagraphsFr(it);
   const r = it.row, sec = it.sec, sd = S.sd, n = nights(r);
   const date = fmtLong(rowDate(sec, r)), loc = String(rowLoc(sec, r) || '').trim();
   const purpose = sd.purpose.trim().replace(/[.\s]+$/, '').replace(/^to\s+/i, '');
-  const p = [`On ${date || 'the date of the expense'}, I was on temporary duty${loc && sec !== 'stays' ? ' in ' + loc : ''}${purpose ? ' to ' + purpose : ''}.`];
-  if (sec === 'stays') p.push(`During this duty, I stayed at ${r.hotel.trim() || 'a hotel'}${loc ? ', ' + loc : ''}, from ${fmtLong(r.checkin)} to ${fmtLong(r.checkout)}${n > 0 ? ` (${n} night${n > 1 ? 's' : ''})` : ''}, and paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for lodging.`);
-  else if (sec === 'exchange') p.push(`During this duty, I exchanged ${amtFull(r.soldAmt, r.soldCur) || 'Canadian funds'} for ${amtFull(r.boughtAmt, r.boughtCur) || 'foreign currency'}${loc ? ' at ' + loc : ''}${money(r.charge) ? ` and paid a service charge of ${amtFull(r.charge, r.chargeCur)}` : ''}.`);
+  const p = sec === 'exchange' ? sdExchange(r, date, purpose) : [`On ${date || 'the date of the expense'}, I was on temporary duty${loc && sec !== 'stays' ? ' in ' + loc : ''}${purpose ? ' to ' + purpose : ''}.`];
+  if (sec === 'exchange') { /* both paragraphs above */ }
+  else if (sec === 'stays') p.push(`During this duty, I stayed at ${r.hotel.trim() || 'a hotel'}${loc ? ', ' + loc : ''}, from ${fmtLong(r.checkin)} to ${fmtLong(r.checkout)}${n > 0 ? ` (${n} night${n > 1 ? 's' : ''})` : ''}, and paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for lodging.`);
   else if (sec === 'calls') p.push(`During this duty, I paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for a ${r.kind.toLowerCase()} telephone call${r.person.trim() ? ' to ' + r.person.trim() : ''}${r.number.trim() ? ' at ' + r.number.trim() : ''}.`);
   else p.push(`During this duty, I paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for the following expense: ${cap(r.desc) || 'an expense.'}`);
   p.push(`The original receipt for this expense is unavailable because: ${r.lostReason.trim() ? r.lostReason.trim().replace(/[.\s]+$/, '') + '.' : '____________________________________________.'}`);
@@ -2680,7 +2802,7 @@ function drawDeclaration(P, it) {
     ? `Je soussigné(e), ${who}, demeurant au ${addr || '____________________'}, ${isCiv() ? 'employé(e) civil(e) du ministère de la Défense nationale' : 'membre des Forces armées canadiennes'},`
     : `I, ${who}, of ${addr || '____________________'}, ${isCiv() ? 'a civilian employee of the Department of National Defence' : 'a member of the Canadian Armed Forces'},`, M, y, W - 2 * M) - 8;
   P.text(T('DO SOLEMNLY DECLARE THAT:'), M, y, { size: 9.5, font: B }); y -= 20;
-  sdParagraphs(it).forEach((t, i) => { P.text(`${i + 1}.`, M + 6, y, { size: 9.5 }); y = P.para(t, M + 24, y, W - 2 * M - 24) - 7; });
+  sdFinal(it).forEach((t, i) => { P.text(`${i + 1}.`, M + 6, y, { size: 9.5 }); y = P.para(t, M + 24, y, W - 2 * M - 24) - 7; });
   y -= 18;
   // jurat (left) and declarant (right)
   const colW = half - 12, top = y;
@@ -2693,15 +2815,16 @@ function drawDeclaration(P, it) {
   else P.textField(`SD_${key}_Place`, px, ly - 3, M + colW - px, 14);
   ly -= 16;
   if (!sd.abroad) { P.text(fr() ? `${PROV_IN_FR[j] || ''},` : `in the ${terr ? '' : 'Province of '}${prov},`, M, ly, { size: 9.5 }); ly -= 16; }
+  const jd = juratDay(juratDate()); // filled in (today by default), still editable in the PDF
   if (fr()) {
-    // "ce ___ jour de ______ 20__." (no A.D. in French)
-    P.text('ce', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 16, ly - 3, 34, 14);
-    P.text('jour de', M + 54, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, M + 88, ly - 3, 78, 14);
-    P.text('20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 182, ly - 3, 22, 14); P.text('.', M + 205, ly, { size: 9.5 });
+    // "ce ___ jour de ______ 20__." (no A.D. in French); "de" moves into the month field when filled ("d'octobre")
+    P.text('ce', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 16, ly - 3, 34, 14, jd && jd.day);
+    P.text(jd ? 'jour' : 'jour de', M + 54, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, jd ? M + 78 : M + 88, ly - 3, jd ? 88 : 78, 14, jd && jd.month);
+    P.text('20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 182, ly - 3, 22, 14, jd && jd.yy); P.text('.', M + 205, ly, { size: 9.5 });
   } else {
-    P.text('this', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 20, ly - 3, 34, 14);
-    P.text('day of', M + 58, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, M + 88, ly - 3, 78, 14);
-    P.text('A.D. 20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 204, ly - 3, 22, 14); P.text('.', M + 227, ly, { size: 9.5 });
+    P.text('this', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 20, ly - 3, 34, 14, jd && jd.day);
+    P.text('day of', M + 58, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, M + 88, ly - 3, 78, 14, jd && jd.month);
+    P.text('A.D. 20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 204, ly - 3, 22, 14, jd && jd.yy); P.text('.', M + 227, ly, { size: 9.5 });
   }
   ly -= 14;
   const sigTop = ly;
@@ -2743,18 +2866,17 @@ async function build() {
       if (it.r && it.r.kind === 'pdf') { try { it.src = await PDFDocument.load(dataUrlToBytes(it.r.dataUrl), { ignoreEncryption: true }); it.pages = it.src.getPageCount() || 1; } catch (e) { it.err = true; } }
     }
     const mk = async () => { const doc = await PDFDocument.create(); const P = painter(doc, await doc.embedFont(StandardFonts.Helvetica), await doc.embedFont(StandardFonts.HelveticaBold), await doc.embedFont(StandardFonts.HelveticaOblique)); return { doc, P }; };
-    const probe = await mk(); drawWorksheet(probe.P, items, null); const wsPages = probe.doc.getPageCount();
-    const { doc, P } = await mk(); drawWorksheet(P, items, wsPages);
-    for (const it of items) {
+    // one receipt or declaration onto the document being built
+    const drawItem = async (doc, P, it) => {
       status.textContent = it.decl ? T('Adding declaration {0}...', it.ref) : T('Adding receipt {0}...', it.ref);
-      if (it.decl) { drawDeclaration(P, it); continue; }
+      if (it.decl) { drawDeclaration(P, it); return; }
       const title = T('RECEIPT {0}', it.ref), meta = itemMeta(it);
       if (it.r.kind === 'img') {
         P.newPage(); const top = receiptHeader(P, title, meta);
         const img = await doc.embedJpg(dataUrlToBytes(it.r.dataUrl));
         const box = fitBox(P, img.width, img.height, top); P.page.drawImage(img, box);
         P.page.drawRectangle(Object.assign({}, box, { borderColor: P.C.line, borderWidth: .5 }));
-        continue;
+        return;
       }
       let ok = false;
       if (!it.err) {
@@ -2774,39 +2896,63 @@ async function build() {
           if (k === 0) P.wrap(T('This PDF could not be added to the package. It may be password-protected or damaged. Submit "{0}" separately with this claim.', it.r.name), P.F, 10, P.W - 2 * P.M).forEach((l, j) => P.text(l, P.M, top - 20 - j * 14, { size: 10 }));
         }
       }
-    }
-    const pages = doc.getPages(), total = pages.length, Ff = P.F;
-    // The app version on every page (and in the file properties), so a package can be traced to the build that made it
-    const ver = 'v' + APP_VERSION.replace('-beta.', fr() ? ' bêta ' : ' beta ');
-    const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+    };
+    // Every page: security marking top and bottom right, page number of this file, and the app version.
     // Security marking, per DND guidance (marked at the top and bottom of each sensitive document) and the
     // GC rule that loose documents are marked on every sheet, in letters larger than the body text.
-    // Top right and bottom right of every page, receipts included, on a white backing so it stays legible.
-    const mark = markText(S.marking), MS = 12;
-    const stamp = (p, x, y) => { const w = P.B.widthOfTextAtSize(mark, MS); p.drawRectangle({ x: x - 3, y: y - 3, width: w + 6, height: MS + 4, color: P.C.white }); p.drawText(mark, { x, y, size: MS, font: P.B, color: P.C.ink }); };
-    pages.forEach((p, i) => {
-      const { width: pw, height: ph } = p.getSize();
-      const r = T('Page {0} of {1}', i + 1, total), rw = Ff.widthOfTextAtSize(r, 7);
-      if (mark) {
-        const mw = P.B.widthOfTextAtSize(mark, MS);
-        stamp(p, pw - P.M - mw, ph - 26); stamp(p, pw - P.M - mw, 16);
-        p.drawText(r, { x: (pw - rw) / 2, y: 20, size: 7, font: Ff, color: P.C.mid });
-        p.drawText(P.fit(left, Ff, 7, pw / 2 - P.M - rw / 2 - 12), { x: P.M, y: 20, size: 7, font: Ff, color: P.C.mid });
-      } else {
-        p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid });
-        p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
-      }
-    });
-    if (mark) doc.setSubject(mark);
-    doc.setKeywords([mark, T('CAF Digital Travel Itinerary'), ver, APP_LABEL].filter(Boolean));
-    doc.setTitle([T('CAF Digital Travel Itinerary'), S.tripRef].filter(Boolean).join(' - '));
-    doc.setLanguage(fr() ? 'fr-CA' : 'en-CA');
-    doc.setAuthor(fullName());
-    doc.setCreator('CAF Digital Travel Itinerary ' + APP_VERSION); doc.setProducer('pdf-lib, generated in the browser');
-    const bytes = await doc.save();
-    lastPdf = { name: fileBase() + '.pdf', bytes, pages: total };
+    const ver = 'v' + APP_VERSION.replace('-beta.', fr() ? ' bêta ' : ' beta ');
+    const finish = async (doc, P, part) => {
+      const pages = doc.getPages(), total = pages.length, Ff = P.F;
+      // the app version on every page (and in the file properties), so a package can be traced to the build that made it
+      const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, part, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+      const mark = markText(S.marking), MS = 12;
+      const stamp = (p, x, y) => { const w = P.B.widthOfTextAtSize(mark, MS); p.drawRectangle({ x: x - 3, y: y - 3, width: w + 6, height: MS + 4, color: P.C.white }); p.drawText(mark, { x, y, size: MS, font: P.B, color: P.C.ink }); };
+      pages.forEach((p, i) => {
+        const { width: pw, height: ph } = p.getSize();
+        const r = T('Page {0} of {1}', i + 1, total), rw = Ff.widthOfTextAtSize(r, 7);
+        if (mark) {
+          const mw = P.B.widthOfTextAtSize(mark, MS);
+          stamp(p, pw - P.M - mw, ph - 26); stamp(p, pw - P.M - mw, 16);
+          p.drawText(r, { x: (pw - rw) / 2, y: 20, size: 7, font: Ff, color: P.C.mid });
+          p.drawText(P.fit(left, Ff, 7, pw / 2 - P.M - rw / 2 - 12), { x: P.M, y: 20, size: 7, font: Ff, color: P.C.mid });
+        } else {
+          p.drawText(P.fit(left, Ff, 7, pw - 2 * P.M - rw - 16), { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid });
+          p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
+        }
+      });
+      if (mark) doc.setSubject(mark);
+      doc.setKeywords([mark, T('CAF Digital Travel Itinerary'), ver, APP_LABEL].filter(Boolean));
+      doc.setTitle([T('CAF Digital Travel Itinerary'), S.tripRef, part].filter(Boolean).join(' - '));
+      doc.setLanguage(fr() ? 'fr-CA' : 'en-CA');
+      doc.setAuthor(fullName());
+      doc.setCreator('CAF Digital Travel Itinerary ' + APP_VERSION); doc.setProducer('pdf-lib, generated in the browser');
+      return { bytes: await doc.save(), pages: total };
+    };
+    const split = !!S.split && items.length > 0;
+    const rcItems = items.filter(i => !i.decl), sdItems = items.filter(i => i.decl);
+    // where each item sits: a page of this PDF, or (separate files) a page of the receipts file or its own file
+    let where = null;
+    if (split) { let pg = 1; where = new Map(items.map(it => { if (it.decl) return [it, T('Own file')]; const w = T('Receipts p. {0}', it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : pg); pg += it.pages; return [it, w]; })); }
+    const probe = await mk(); drawWorksheet(probe.P, items, null, where); const wsPages = probe.doc.getPageCount();
+    const base = fileBase(), part = k => base + '_' + k, parts = [];
+    let total;
+    if (!split) {
+      const { doc, P } = await mk(); drawWorksheet(P, items, wsPages);
+      for (const it of items) await drawItem(doc, P, it);
+      const out = await finish(doc, P, '');
+      total = out.pages; lastPdf = { name: base + '.pdf', bytes: out.bytes, pages: total }; lastParts = null;
+    } else {
+      const fn = k => String(k).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      { const { doc, P } = await mk(); drawWorksheet(P, items, wsPages, where); const o = await finish(doc, P, T('Worksheet')); parts.push({ name: part('1-' + fn(T('Worksheet'))) + '.pdf', label: T('Worksheet'), what: T('Sections A to H, totals and receipt index. You sign it.'), ...o }); }
+      if (rcItems.length) { const { doc, P } = await mk(); for (const it of rcItems) await drawItem(doc, P, it); const o = await finish(doc, P, T('Receipts')); parts.push({ name: part('2-' + fn(T('Receipts'))) + '.pdf', label: T('Receipts'), what: nPl(rcItems.length, '{0} receipt, labelled with its reference.', '{0} receipts, each labelled with its reference.'), ...o }); }
+      for (const it of sdItems) { const { doc, P } = await mk(); await drawItem(doc, P, it); const lbl = `${T('SD')} ${it.ref}`; const o = await finish(doc, P, lbl); parts.push({ name: part('3-' + fn(T('SD')) + '-' + fn(it.ref)) + '.pdf', label: T('Statutory declaration {0}', it.ref), what: T('Signed by you and the officer, in person.'), ...o }); }
+      total = parts.reduce((t, x) => t + x.pages, 0); lastParts = parts;
+      lastPdf = parts[0];
+    }
+    const bytes = split ? null : lastPdf.bytes;
     if (DEV.db && DEV.settings.keep && !DEV.locked) { try { const meta = (await idbGet('meta')) || {}; meta.builtAt = Date.now(); await idbPut('meta', meta); } catch (e) {} }
-    const kb = bytes.length / 1024, size = kb > 1024 ? (kb / 1024).toFixed(1).replace('.', fr() ? ',' : '.') + (fr() ? ' Mo' : ' MB') : Math.round(kb) + (fr() ? ' Ko' : ' KB');
+    const sizeOf = n => { const kb = n / 1024; return kb > 1024 ? (kb / 1024).toFixed(1).replace('.', fr() ? ',' : '.') + (fr() ? ' Mo' : ' MB') : Math.round(kb) + (fr() ? ' Ko' : ' KB'); };
+    const size = split ? sizeOf(lastParts.reduce((t, x) => t + x.bytes.length, 0)) : sizeOf(bytes.length);
     const nDecl = items.filter(i => i.decl).length;
     status.textContent = '';
     const res = $('#result');
@@ -2814,6 +2960,15 @@ async function build() {
     const howTo = S.pki
       ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the claimant field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the claimant field on page {1} and the {0} declarations with your PKI certificate.', wsPages) : T('Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.', wsPages))
       : (nDecl ? nPl(nDecl, 'Print it, then sign and date page {1} and sign the {0} declaration in front of the officer.', 'Print it, then sign and date page {1} and sign the {0} declarations in front of the officer.', wsPages) : T('Print it, then sign and date page {0}.', wsPages));
+    if (split) {
+      const one = (x, i) => `<li><div><strong>${esc(x.label)}</strong><span class="pf-name">${esc(x.name)}</span><span>${esc(x.what)} ${esc(nPl(x.pages, '{0} page', '{0} pages'))}, ${esc(sizeOf(x.bytes.length))}.</span></div><div class="acts"><button class="btn" data-act="save-part" data-i="${i}">${esc(IOS_PWA && SEND.pdf ? T('Save or send') : T('Save'))}</button>${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-part" data-i="${i}">${esc(T('Open'))}</button>`}</div></li>`;
+      res.innerHTML = `<div><strong>${esc(nPl(lastParts.length, '{0} file ready', '{0} files ready'))}</strong><span>${esc(T('Separate PDFs, {0} in all. Sign each where it asks: the worksheet, and each declaration in front of the officer.', size))}${iosHint ? ' ' + esc(T('Save or send all of them at once, then choose Save to Files, OneDrive, Teams or Mail.')) : ''}</span></div>
+        <ol class="part-list">${lastParts.map(one).join('')}</ol>
+        <div class="acts"><button class="btn primary" data-act="save-all">${esc(IOS_PWA && SEND.pdf ? T('Save or send all') : T('Save all'))}</button>${SEND.pdf && !IOS_PWA ? `<button class="btn" data-act="send-all">${esc(T('Send all'))}</button>` : ''}</div>`;
+      res.classList.add('split'); res.hidden = false; res.scrollIntoView({ block: 'center' });
+      return;
+    }
+    res.classList.remove('split');
     res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${nPl(total, '{0} page', '{0} pages')}, ${size}. ${howTo}${iosHint}</span></div><div class="acts">${IOS_PWA && SEND.pdf ? `<button class="btn primary" data-act="send-pdf">${T('Save or send PDF')}</button>` : `<button class="btn primary" data-act="save-pdf">${T('Save PDF')}</button>${SEND.pdf ? `<button class="btn" data-act="send-pdf">${T('Send PDF')}</button>` : ''}`}${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-pdf">${T('Open in new tab')}</button>`}</div>`;
     res.hidden = false;
     if (!IOS_PWA) offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');

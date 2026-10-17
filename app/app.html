@@ -328,11 +328,12 @@ fieldset.tg.off input{opacity:.3}
 .trip .sec-b{padding-block:14px}
 .trip label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
 .trip-in{font-size:1.1rem;font-weight:600;max-width:36rem}
-.trip-grid{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1fr);gap:12px 14px;align-items:end}
-.trip-grid .field{min-width:0}
-.trip-grid .trip-help{grid-column:1/-1;margin-top:0}
-.trip-grid input{width:100%;box-sizing:border-box}
-@media (max-width: 640px){ .trip-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .trip-grid .trip-name{grid-column:1/-1} }
+.trip-refs{display:grid;grid-template-columns:repeat(2,minmax(0,11rem));gap:6px 12px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.trip-refs[hidden]{display:none}
+.trip-refs .field{min-width:0}
+.trip .trip-refs label{font-size:.62rem;margin-bottom:3px}
+.trip-refs input{width:100%;box-sizing:border-box;font-size:.85rem;padding-block:5px}
+.trip-refs .sd-help{grid-column:1/-1;margin-top:0;font-size:.72rem}
 .imp-hero{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
 .imp-hero-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
 .imp-hero-t strong{font-size:.95rem}
@@ -579,15 +580,18 @@ html{touch-action:manipulation}
 
     <section class="sec trip" id="sec-T">
       <div class="imp-hero" id="imp-hero">
-        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.</span></div>
+        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times.</span></div>
         <button class="btn primary" data-act="imp-open">Import itinerary</button>
       </div>
-      <div class="sec-b trip-grid">
-        <div class="field trip-name"><label for="trip-ref">Trip name</label>
-          <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE"></div>
-        <div class="field"><label for="trip-tan">TAN</label><input id="trip-tan" data-bind="tan" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
-        <div class="field"><label for="trip-loc">Trip locator</label><input id="trip-loc" data-bind="locator" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
-        <p class="sd-help trip-help">The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.</p>
+      <div class="sec-b">
+        <label for="trip-ref">Trip name</label>
+        <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE">
+        <p class="sd-help">Shown at the top of the PDF and used in the file name.</p>
+        <div class="trip-refs" id="trip-refs" hidden>
+          <div class="field"><label for="trip-tan">TAN</label><input id="trip-tan" data-bind="tan" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+          <div class="field"><label for="trip-loc">Trip locator</label><input id="trip-loc" data-bind="locator" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+          <p class="sd-help">From the imported itinerary. Printed under the title of the package.</p>
+        </div>
       </div>
     </section>
 
@@ -1226,6 +1230,7 @@ function renderMeals() {
 }
 function mealCounts() { const dates = tripDates() || [], c = { b: 0, l: 0, d: 0 }; dates.forEach(d => { MEALS.forEach(([k]) => { if (mealVal(d, k)) c[k]++; }); }); return { c, n: dates.length }; }
 function renderBinds() {
+  const refs = $('#trip-refs'); if (refs) refs.hidden = !(String(S.tan || '').trim() || String(S.locator || '').trim());
   $$('[data-bind]').forEach(el => {
     const v = getPath(el.dataset.bind);
     if (el.type === 'checkbox') { el.checked = !!v; return; }

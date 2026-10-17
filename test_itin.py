@@ -66,6 +66,7 @@ async def main():
             if not res: await q.uncheck("#imp-res")
             if fare: await q.check("#imp-fare")
             return await q.inner_text("#imp-review")
+        check("TAN and trip locator hidden before an import", await q.is_hidden("#trip-refs"), True)
         # A: PDF with a connection, a rental car and a hotel in another city
         prev = await imp(["trip_a.pdf"], fare=True); print(prev)
         await q.locator("#imp").screenshot(path=str(shots / "imp-preview.png"))
@@ -76,6 +77,7 @@ async def main():
         name0 = [await q.input_value(x) for x in ("#m-sur", "#m-given", "#sd-name")]
         await q.click("#imp-apply"); await q.wait_for_timeout(300)
         check("A: name left alone", [await q.input_value(x) for x in ("#m-sur", "#m-given", "#sd-name")], name0)
+        check("A: TAN and trip locator shown after import", await q.is_visible("#trip-refs"), True)
         check("A: TAN and trip locator filled", [await q.input_value("#trip-tan"), await q.input_value("#trip-loc")], ["TST12345", "QA7TST"])
         check("A: section B from PDF", await q.evaluate(STOPS), [list(x) for x in EXPECT_A])
         check("A: fare row added with the PDF as receipt", (await q.eval_on_selector_all("#rows-transport .row", "e => e.length")) - n_tr, 1)
@@ -87,6 +89,7 @@ async def main():
         check("A: undo restores section B", await q.evaluate(STOPS), before)
         check("A: undo removes fare row", await q.eval_on_selector_all("#rows-transport .row", "e => e.length"), n_tr)
         check("A: undo clears TAN", await q.input_value("#trip-tan"), "")
+        check("A: undo hides TAN and trip locator", await q.is_hidden("#trip-refs"), True)
         # A2: replacing the name only when asked
         await imp(["trip_a.pdf"]); await q.check("#imp-name"); await q.uncheck("#imp-hotels"); await q.click("#imp-apply"); await q.wait_for_timeout(300)
         # the package shows the TAN and trip locator under the title

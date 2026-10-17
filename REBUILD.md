@@ -22,6 +22,7 @@ On the `source` branch:
 | `npm/node_modules/...` | Pinned copies of pdf-lib 1.17.1 (MIT) and pdf.js 3.11.174 (Apache-2.0), with their licences. |
 | `build.py` | Builds production, beta, the offline single file and the claude.ai copy into `out/`. |
 | `release.py` | Publishes a beta build, promotes beta to production, saves the source branch. |
+| `msgfile.py` | Writes small fictional Outlook .msg files for `test_itin.py`. |
 | `serve_cached.py` | Local web server that sends GitHub's caching header, for the service worker tests. |
 | `test*.py` | Playwright tests. |
 | `VERSION`, `BETA_BUILD` | Current production version and beta build number. |

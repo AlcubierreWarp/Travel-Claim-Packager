@@ -46,7 +46,7 @@ def pushed(branch, cwd):
     remote = sh("git", "ls-remote", "origin", f"refs/heads/{branch}", cwd=cwd).split()[:1]
     if r.returncode or remote != [head]: print(f"WARNING: push of {branch} did not reach GitHub. {r.stderr.strip()}")
 SRC = pathlib.Path(os.environ.get("TCP_SOURCE", "/home/claude/tcp-source"))
-KEEP = ["app/app.html", "app/fr.js", "app/itin.js", "build.py", "release.py", "serve_cached.py", "VERSION", "BETA_BUILD", "pwa", "docs", "SOURCE.md", "REBUILD.md",
+KEEP = ["app/app.html", "app/fr.js", "app/itin.js", "build.py", "release.py", "serve_cached.py", "msgfile.py", "VERSION", "BETA_BUILD", "pwa", "docs", "SOURCE.md", "REBUILD.md",
         "npm/node_modules/pdf-lib/dist/pdf-lib.min.js", "npm/node_modules/pdf-lib/LICENSE.md",
         "npm/node_modules/pdfjs-dist/build/pdf.min.js", "npm/node_modules/pdfjs-dist/build/pdf.worker.min.js", "npm/node_modules/pdfjs-dist/LICENSE"] + sorted(p.name for p in S.glob("test*.py"))
 def save_source():

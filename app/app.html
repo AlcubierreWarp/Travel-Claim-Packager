@@ -794,15 +794,15 @@ html{touch-action:manipulation}
   <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and add another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
 </dialog>
 
-<input type="file" id="file-itin" accept=".pdf,.eml,.txt,.htm,.html,application/pdf,message/rfc822,text/plain,text/html" multiple hidden>
+<input type="file" id="file-itin" accept=".pdf,.msg,.eml,.txt,.htm,.html,application/pdf,application/vnd.ms-outlook,message/rfc822,text/plain,text/html" multiple hidden>
 <dialog id="imp" aria-labelledby="imp-h">
   <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
       <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.</p>
       <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.</span></p>
-      <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.</span></div>
-      <label for="imp-text" class="imp-or">Or paste the itinerary text from the email</label>
+      <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.</span></div>
+      <label for="imp-text" class="imp-or">Or open the email, select all, copy, and paste it here</label>
       <textarea id="imp-text" rows="4" autocomplete="off" spellcheck="false"></textarea>
       <div class="sec-tools"><button type="button" class="btn" data-act="imp-read-text">Read pasted text</button></div>
     </div>
@@ -1826,7 +1826,7 @@ document.addEventListener('click', e => {
     case 'imp-cancel': impClose(); break;
     case 'imp-back': impOpen(); break;
     case 'imp-apply': impApply(); break;
-    case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text') + '.txt', { type: 'text/plain' })]); break; }
+    case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
     case 'snap-save': if (saveSnap()) closeSnap(); break;
     case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
     case 'save-pdf': if (lastPdf) offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'); break;
@@ -1942,21 +1942,24 @@ async function readItinFiles(files) {
   for (const file of files) {
     const nm = file.name || T('Pasted text');
     try {
-      if (/\.msg$/i.test(nm)) { errs.push(T('{0}: Outlook .msg files cannot be read. Drag the PDF attachment instead, or paste the email text.', nm)); continue; }
       const buf = new Uint8Array(await file.arrayBuffer());
       const head = binStr(buf.subarray(0, 5));
       if (head === '%PDF-' || /\.pdf$/i.test(nm)) { found.push(await fromPdf(nm, buf)); names.push(nm); continue; }
-      const raw = binStr(buf);
-      if (/\.eml$/i.test(nm) || /^(?:[\w-]+:.*\r?\n)+/.test(raw.slice(0, 2000)) && /^(?:content-type|mime-version|received|from|subject):/im.test(raw.slice(0, 4000))) {
-        const parts = ITIN.mime(raw), got = [];
-        for (const p of parts.filter(ITIN.isPdf)) got.push(await fromPdf(p.name || nm.replace(/\.eml$/i, '.pdf'), p.bytes));
+      // An email: the PDF itinerary attached to it if there is one, otherwise the message text
+      const fromParts = async (parts, ext) => {
+        const got = [];
+        for (const p of parts.filter(ITIN.isPdf)) { try { got.push(await fromPdf(p.name || nm.replace(ext, '.pdf'), p.bytes)); } catch (e) {} }
         if (!got.some(f => f.segs.length || f.hotels.length)) {
           const h = parts.find(p => p.type === 'text/html'), t = parts.find(p => p.type === 'text/plain');
           if (h) got.push(ITIN.parse(htmlLines(ITIN.text(h))));
           if (t && !got.some(f => f.segs.length)) got.push(ITIN.parse(ITIN.text(t).split(/\r?\n/)));
         }
-        found.push(...got); names.push(nm); continue;
-      }
+        found.push(...got); names.push(nm);
+      };
+      if (ITIN.isMsg(buf)) { const parts = ITIN.msg(buf); if (parts.length) await fromParts(parts, /\.msg$/i); else errs.push(T('{0} could not be read.', nm)); continue; } // Outlook (desktop) message
+      if (/\.msg$/i.test(nm)) { errs.push(T('{0} could not be read.', nm)); continue; }
+      const raw = binStr(buf);
+      if (/\.eml$/i.test(nm) || /^(?:[\w-]+:.*\r?\n)+/.test(raw.slice(0, 2000)) && /^(?:content-type|mime-version|received|from|subject):/im.test(raw.slice(0, 4000))) { await fromParts(ITIN.mime(raw), /\.eml$/i); continue; }
       const txt = new TextDecoder().decode(buf);
       found.push(ITIN.parse(/<\/(td|tr|div|p|table)>/i.test(txt) ? htmlLines(txt) : txt.split(/\r?\n/))); names.push(nm);
     } catch (e) { errs.push(T('{0} could not be read.', nm)); }

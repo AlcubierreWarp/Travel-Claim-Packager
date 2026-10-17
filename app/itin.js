@@ -33,8 +33,9 @@ const ITIN = (() => {
   // "Winnipeg James Armstrong Richardson Intl Airport, Winnipeg, Canada (YWG)" -> name, city, code
   function place(v) {
     let s = String(v || '').replace(/\s+/g, ' ').trim(), code = '';
-    const m = s.match(/\(([A-Z]{3,4})\)\s*$/); if (m) { code = m[1]; s = s.slice(0, m.index).trim(); }
-    const parts = s.split(',').map(x => x.trim()).filter(Boolean);
+    // the code can be followed by a terminal: "Toronto, Canada (YYZ), Terminal 1"
+    const m = [...s.matchAll(/\(([A-Z]{3,4})\)/g)].pop(); if (m) { code = m[1]; s = (s.slice(0, m.index) + s.slice(m.index + m[0].length)).trim(); }
+    const parts = s.split(',').map(x => x.trim()).filter(x => x && !/^(?:terminal|a[ée]rogare|term\.?)\b/i.test(x));
     while (parts.length > 1 && NOTCITY.test(fold(parts[parts.length - 1]))) parts.pop();
     let city = parts.length > 1 ? parts[parts.length - 1] : (AIRPORTS[code] || parts[0] || code);
     if (AIRPORTS[code] && fold(AIRPORTS[code]) === fold(city)) city = AIRPORTS[code]; // keep the accents
@@ -292,5 +293,54 @@ const ITIN = (() => {
   const text = p => { try { return new TextDecoder(p.charset || 'utf-8').decode(p.bytes); } catch (e) { return new TextDecoder('utf-8').decode(p.bytes); } };
   const isPdf = p => p.type === 'application/pdf' || /\.pdf$/i.test(p.name) || (p.bytes.length > 4 && p.bytes[0] === 37 && p.bytes[1] === 80 && p.bytes[2] === 68 && p.bytes[3] === 70);
 
-  return { when, place, parse, merge, plan, roundTrip, mime, text, isPdf, fold, AIRPORTS };
+  /* ---------- Outlook message (.msg) ---------- */
+  // A .msg file is a Compound File (the old Office container): a small FAT file system in one file.
+  // This reads its directory and streams, then picks out the message body and the attachments.
+  // Returns leaf parts shaped like mime() so both go through the same steps.
+  function cfb(u) {
+    const dv = new DataView(u.buffer, u.byteOffset, u.byteLength), r32 = o => dv.getUint32(o, true), r16 = o => dv.getUint16(o, true);
+    if (u.length < 512 || r32(0) !== 0xE011CFD0 || r32(4) !== 0xE11AB1A1) return null;
+    const ss = 1 << r16(30), ms = 1 << r16(32), cutoff = r32(56), END = 0xFFFFFFFE, per = ss / 4;
+    const at = n => 512 + n * ss; // sector n (the header occupies the first 512 bytes)
+    const fatSecs = [];
+    for (let i = 0; i < 109; i++) { const n = r32(76 + i * 4); if (n < END) fatSecs.push(n); }
+    for (let d = r32(68), guard = 0; d < END && guard++ < 10000;) { for (let i = 0; i < per - 1; i++) { const n = r32(at(d) + i * 4); if (n < END) fatSecs.push(n); } d = r32(at(d) + (per - 1) * 4); }
+    const fat = []; fatSecs.forEach(n => { for (let i = 0; i < per; i++) fat.push(r32(at(n) + i * 4)); });
+    const chain = (start, next) => { const out = []; for (let n = start, g = 0; n < END && g++ < 1e6; n = next[n]) { if (n === undefined) break; out.push(n); } return out; };
+    const read = (start, size) => { const out = new Uint8Array(size); let o = 0; for (const n of chain(start, fat)) { const b = at(n); const k = Math.min(ss, size - o); if (k <= 0 || b + k > u.length) break; out.set(u.subarray(b, b + k), o); o += k; } return out; };
+    const dir = read(r32(48), chain(r32(48), fat).length * ss), ents = [];
+    for (let o = 0; o + 128 <= dir.length; o += 128) {
+      const e = new DataView(dir.buffer, o, 128), nl = e.getUint16(64, true);
+      let name = ''; for (let i = 0; i + 1 < Math.min(nl, 64) - 2 + 1; i += 2) { const c = e.getUint16(i, true); if (!c) break; name += String.fromCharCode(c); }
+      ents.push({ name, type: e.getUint8(66), left: e.getUint32(68, true), right: e.getUint32(72, true), child: e.getUint32(76, true), start: e.getUint32(116, true), size: e.getUint32(120, true) });
+    }
+    const root = ents[0]; if (!root || root.type !== 5) return null;
+    const mini = read(root.start, root.size), mfat = [];
+    chain(r32(60), fat).forEach(n => { for (let i = 0; i < per; i++) mfat.push(r32(at(n) + i * 4)); });
+    const data = e => {
+      if (e.size >= cutoff) return read(e.start, e.size);
+      const out = new Uint8Array(e.size); let o = 0;
+      for (const n of chain(e.start, mfat)) { const k = Math.min(ms, e.size - o); if (k <= 0) break; out.set(mini.subarray(n * ms, n * ms + k), o); o += k; }
+      return out;
+    };
+    const kids = (e, seen = new Set()) => { const out = []; const walk = i => { if (i >= ents.length || seen.has(i)) return; seen.add(i); const x = ents[i]; walk(x.left); out.push(x); walk(x.right); }; walk(e.child); return out; };
+    return { root, kids, data };
+  }
+  function msg(u) {
+    const c = cfb(u); if (!c) return [];
+    const u16 = b => { let s = ''; for (let i = 0; i + 1 < b.length; i += 2) s += String.fromCharCode(b[i] | b[i + 1] << 8); return s.replace(/\0+$/, ''); };
+    const props = e => { const m = {}; c.kids(e).forEach(k => { const t = /^__substg1\.0_([0-9A-F]{8})$/i.exec(k.name); if (t && k.type === 2) m[t[1].toUpperCase()] = k; }); return m; };
+    const str = (p, tag) => p[tag + '001F'] ? u16(c.data(p[tag + '001F'])) : p[tag + '001E'] ? new TextDecoder('windows-1252').decode(c.data(p[tag + '001E'])).replace(/\0+$/, '') : '';
+    const top = props(c.root), out = [];
+    c.kids(c.root).filter(k => k.type === 1 && /^__attach_version1\.0_/i.test(k.name)).forEach(a => {
+      const p = props(a); if (!p['37010102']) return; // embedded messages and links are skipped
+      out.push({ type: (str(p, '370E') || 'application/octet-stream').toLowerCase(), name: str(p, '3707') || str(p, '3704') || str(p, '3001'), bytes: c.data(p['37010102']), charset: '' });
+    });
+    if (top['10130102']) out.push({ type: 'text/html', name: '', bytes: c.data(top['10130102']), charset: 'utf-8' });
+    const body = str(top, '1000'); if (body) out.push({ type: 'text/plain', name: '', bytes: new TextEncoder().encode(body), charset: 'utf-8' });
+    return out;
+  }
+  const isMsg = u => u.length > 8 && u[0] === 0xD0 && u[1] === 0xCF && u[2] === 0x11 && u[3] === 0xE0;
+
+  return { when, place, parse, merge, plan, roundTrip, mime, msg, isMsg, text, isPdf, fold, AIRPORTS };
 })();

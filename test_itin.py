@@ -1,6 +1,7 @@
 # Itinerary import: fictional Amex GBT style itineraries (no real traveller data).
 # Builds a PDF, two .eml files and pasted text, imports each, and checks section B.
 import sys, pathlib, asyncio, base64, quopri, json
+sys.path.insert(0, str(pathlib.Path(__file__).parent)); import msgfile  # writes test .msg files
 from playwright.async_api import async_playwright
 base = pathlib.Path(sys.argv[1]); url = (base / "out/CAF_Digital_Travel_Itinerary.html").resolve().as_uri()
 fx = base / "fixtures"; fx.mkdir(exist_ok=True); shots = base / "shots"; shots.mkdir(exist_ok=True)
@@ -33,6 +34,15 @@ EXPECT_A = [("Residence", "", "", "2026-12-02", "", ""), ("Winnipeg airport (YWG
   ("Ottawa airport (YOW)", "2026-12-06", "1500", "2026-12-06", "1730", "CAL"), ("Winnipeg airport (YWG)", "2026-12-06", "1940", "2026-12-06", "", ""), ("Residence", "2026-12-06", "", "", "", None)]
 EXPECT_B = [("Residence", "", "", "2026-12-10", "", ""), ("Ottawa train station", "2026-12-10", "", "2026-12-10", "0925", "Train"), ("Montreal", "2026-12-10", "1120", "2026-12-12", "1600", "Other"),
   ("Ottawa bus station", "2026-12-12", "1830", "2026-12-12", "", ""), ("Residence", "2026-12-12", "", "", "", None)]
+# What Outlook gives as the message text, and what select all, copy and paste gives: tab-separated
+# labels, summary rows split over two lines, an arrival with a terminal after the airport code.
+OUTLOOK_TXT = """ <https://example.com/logo.jpg> \t\t\r\n\r\nE-ticket itinerary receipt and Invoice\r\n\r\n ITINERARY DETAILS\r\nTrip locator: \tQB8TST\r\nTraveller: \tMs ALEX JORDAN SAMPLE\r\n\t ACCOUNT REFERENCES\r\nTraveller Category : \tPublic Servants\r\nTAN : \tTST67890\r\n
+ ITINERARY SUMMARY\r\nTraffic\tDate\tFrom-to/location\tSupplier\tTimes\tClass/room\tStatus\r\n \r\n09 Dec 2026\tYOW - YYZ \r\nAC1111\t12:00-13:07\tEconomy\tBooked\r\n \r\n09 Dec 2026\tYYZ - YWG \r\nAC2222\t14:50-16:27\tEconomy\tBooked\r\n
+ E-TICKET 1\r\nTraveller name: \tMs ALEX JORDAN SAMPLE\r\nTicket number: \t0140000000002\r\nTicket amount: \t368.22 CAD\t \r\n
+ \r\nAir Canada\r\nOperated By: Air Canada Rouge\r\nFlight # AC1111\t  \t\r\n\r\nBooking reference: TSTAC2 \r\nStatus: Booked \t\r\nDeparting: \tOttawa Macdonald–Cartier Intl Airport, Ottawa, Canada (YOW)\t \r\nDate/time: \t09 December 2026, 12:00\t \r\nArriving: \tToronto Pearson Intl Airport, Toronto, Canada (YYZ), Terminal 1\t \r\nDate/time: \t09 December 2026, 13:07\t \r\nBaggage allowance: \t0PC\t Add to calendar <https://example.com/cal?x=1>\r\n
+ \r\nAir Canada\r\nOperated By: Air Canada Rouge\r\nFlight # AC2222\t  \t\r\n\r\nBooking reference: TSTAC2 \r\nDeparting: \tToronto Pearson Intl Airport, Toronto, Canada (YYZ), Terminal 1\t \r\nDate/time: \t09 December 2026, 14:50\t \r\nArriving: \tWinnipeg James Armstrong Richardson Intl Airport, Winnipeg, Canada (YWG)\t \r\nDate/time: \t09 December 2026, 16:27\t \r\n
+ SERVICE FEES\t\t\r\nFee 1 Base:\t58.16 CAD\r\nFee 1 Total:\t65.72 CAD\r\n"""
+EXPECT_O = [("Residence", "", "", "2026-12-09", "", ""), ("Ottawa airport (YOW)", "2026-12-09", "", "2026-12-09", "1200", "CAL"), ("Toronto airport (YYZ)", "2026-12-09", "1307", "2026-12-09", "1450", "CAL"), ("Winnipeg", "2026-12-09", "1627", "", "", None)]
 EXPECT_D = [("Winnipeg airport (YWG)", "", "", "2026-12-02", "0745", "CAL"), ("Ottawa", "2026-12-02", "1105", "2026-12-06", "1730", "CAL"), ("Winnipeg airport (YWG)", "2026-12-06", "1940", "", "", None)]
 fails = []
 def check(name, got, want):
@@ -52,7 +62,9 @@ async def main():
             (['Content-Type: application/pdf; name="QA7TST.pdf"', "Content-Transfer-Encoding: base64", 'Content-Disposition: attachment; filename="QA7TST.pdf"'], pdf_b)]))
         body = quopri.encodestring(html(TRIP_A, "<img src='https://example.com/track.gif'>").encode("utf-8")).decode()
         (fx / "trip_a_html.eml").write_text(eml([(["Content-Type: text/html; charset=utf-8", "Content-Transfer-Encoding: quoted-printable"], body)]))
-        (fx / "outlook.msg").write_bytes(b"\xd0\xcf\x11\xe0 not really")
+        (fx / "broken.msg").write_bytes(b"\xd0\xcf\x11\xe0 not really")
+        msgfile.write(fx / "trip_a.msg", "Your itinerary is attached.", [("QA7TST.pdf", "application/octet-stream", (fx / "trip_a.pdf").read_bytes())])
+        msgfile.write(fx / "outlook_body.msg", OUTLOOK_TXT)
         await mk.close()
         c = await b.new_context(viewport={"width": 1320, "height": 900}); q = await c.new_page()
         q.on("pageerror", lambda e: errs.append(str(e)))
@@ -117,9 +129,21 @@ async def main():
         txt = "ITINERARY SUMMARY\n02 Dec 2026 YWG - YOW AC1234 07:45-11:05 Economy Booked\n06 Dec 2026 YOW - YWG AC1789 17:30-19:40 Economy Booked"
         await imp(text=txt, res=False); await q.click("#imp-apply"); await q.wait_for_timeout(300)
         check("D: pasted summary rows", await q.evaluate(STOPS), [list(x) for x in EXPECT_D])
-        # E: Outlook .msg is refused with a clear message
-        await q.click("[data-act=imp-open]"); await q.set_input_files("#file-itin", str(fx / "outlook.msg")); await q.wait_for_selector("#imp-err:not([hidden])")
-        e = await q.inner_text("#imp-err"); check("E: .msg explained", ".msg" in e, True); await q.click("#imp .snap-foot [data-act=imp-cancel]")
+        # E: a damaged .msg is reported
+        await q.click("[data-act=imp-open]"); await q.set_input_files("#file-itin", str(fx / "broken.msg")); await q.wait_for_selector("#imp-err:not([hidden])")
+        e = await q.inner_text("#imp-err"); check("E: damaged .msg reported", "broken.msg" in e, True); await q.click("#imp .snap-foot [data-act=imp-cancel]")
+        # G: Outlook .msg with the PDF itinerary attached
+        await imp(["trip_a.msg"], fare=True); await q.click("#imp-apply"); await q.wait_for_timeout(300)
+        check("G: section B from .msg attachment", await q.evaluate(STOPS), [list(x) for x in EXPECT_A])
+        check("G: attached PDF kept as the receipt", "QA7TST.pdf" in await q.inner_text("#rows-transport .row:last-child"), True)
+        # H: Outlook .msg with only the message text (terminal after the airport code, split summary rows)
+        prev = await imp(["outlook_body.msg"]); await q.click("#imp-apply"); await q.wait_for_timeout(300)
+        check("H: section B from .msg text", await q.evaluate(STOPS), [list(x) for x in EXPECT_O])
+        check("H: TAN, locator and fees read", ("TST67890" in prev) and ("QB8TST" in prev) and ("434.94" in prev or "433.94" in prev), True)
+        # I: the same text pasted (select all, copy, paste)
+        await imp(text=OUTLOOK_TXT.replace("\r\n", "\n")); await q.click("#imp-apply"); await q.wait_for_timeout(300)
+        check("I: section B from pasted email", await q.evaluate(STOPS), [list(x) for x in EXPECT_O])
+        check("I: name read from pasted email", "Alex Jordan Sample" in prev, True)
         # F: French
         await q.click("#lang-btn"); await q.wait_for_timeout(300)
         prev = await imp(["trip_a.pdf"]); print(prev)

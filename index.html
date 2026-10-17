@@ -22,7 +22,7 @@
   --ink:#17201c; --muted:#56615b; --line:#cfd5ce; --line-strong:#9aa39c;
   --accent:#2b5a4a; --accent-ink:#ffffff; --accent-soft:#dbe7df;
   --bar:#17201c; --bar-ink:#f1f4f0; --off:#dde1db;
-  --warn:#875000; --warn-soft:#f5e7cc; --bad:#a1302a; --bad-soft:#f7dfdb; --ok:#2a6a3d; --ok-soft:#dcefe0;
+  --warn:#875000; --warn-soft:#f5e7cc; --bad:#a1302a; --bad-soft:#f7dfdb; --swipe-red:#e5392f; --swipe-red-strong:#d0261c; --ok:#2a6a3d; --ok-soft:#dcefe0;
   --f-display:"Archivo","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
   --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
@@ -32,14 +32,14 @@
   --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
   --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
   --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
-  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --ok:#86c99a; --ok-soft:#1b2f22;
+  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#111614; --surface:#171d1a; --card:#1c2320; --field:#131916;
   --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
   --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
   --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
-  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --ok:#86c99a; --ok-soft:#1b2f22;
+  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -75,6 +75,8 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .menu-check{display:flex;gap:10px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
 .menu-check:hover{background:var(--accent-soft)}
 .menu-check input:disabled+*{opacity:.5}
+
+.menu-ver{font-family:var(--f-mono);font-size:.7rem!important;color:var(--muted)}
 .menu-note{font-size:.76rem;line-height:1.4;color:var(--muted);margin:6px 10px 4px}
 .banner.device{background:var(--accent-soft);border-color:var(--accent)}
 .banner-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -122,7 +124,26 @@ dialog#snap::backdrop{background:rgba(5,8,7,.6)}
 .sd-grid.snap-grid .field:nth-child(n+3){grid-column:1/-1}
 @media (min-width: 561px){ .sd-grid.snap-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,1.6fr)} .sd-grid.snap-grid .field:nth-child(n+3){grid-column:auto} .sd-grid.snap-grid .field.wide{grid-column:1/-1} }
 .snap-foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--line)}
-.localonly{border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.localonly{position:relative;border-bottom:1px solid var(--line);background:var(--accent-soft);touch-action:pan-y;overflow:hidden}
+.localonly[hidden]{display:none}
+.localonly .wrap{position:relative;padding-right:52px}
+/* swipe to hide: the green notice slides over a red action layer, like a list row on iPhone */
+.lo-slide{position:relative;z-index:1;background:var(--accent-soft);transition:transform .22s ease,box-shadow .22s ease;will-change:transform}
+.localonly.dragging .lo-slide{transition:none}
+.localonly.swipe-l .lo-slide{box-shadow:6px 0 10px -4px rgba(0,0,0,.35),1px 0 0 rgba(0,0,0,.12)}
+.localonly.swipe-r .lo-slide{box-shadow:-6px 0 10px -4px rgba(0,0,0,.35),-1px 0 0 rgba(0,0,0,.12)}
+.lo-swipe{position:absolute;inset:0;display:none;align-items:center;background:var(--swipe-red);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.28),inset 0 -1px 2px rgba(0,0,0,.18);padding:0 22px}
+.localonly.swipe-l .lo-swipe{display:flex;justify-content:flex-end}
+.localonly.swipe-r .lo-swipe{display:flex;justify-content:flex-start}
+.lo-act{display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .15s ease}
+.lo-act svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lo-act small{font:600 .68rem/1 var(--f-body);letter-spacing:.02em}
+.localonly.armed .lo-swipe{background:var(--swipe-red-strong)}
+.localonly.armed .lo-act{transform:scale(1.15)}
+.lo-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--accent);cursor:pointer;padding:0}
+.lo-close:hover{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.lo-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.lo-more[open]~.lo-close,.localonly:has(.lo-more[open]) .lo-close{top:6px;transform:none}
 .localonly .wrap{display:flex;gap:10px;align-items:baseline;padding-block:7px;font-size:.84rem;flex-wrap:wrap}
 .localonly b{font:600 .7rem/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);border:1px solid var(--accent);padding:3px 5px;border-radius:2px}
 
@@ -144,6 +165,8 @@ dialog#snap::backdrop{background:rgba(5,8,7,.6)}
 .rail .L{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:2.6rem;height:1.5rem;padding:0 6px;font:600 .72rem/1 var(--f-mono);letter-spacing:.02em;border:1px solid var(--line-strong);border-radius:2px;background:var(--surface)}
 .rail button:hover .L{border-color:var(--accent)}
 .rail .n{font:500 .72rem var(--f-mono);color:var(--muted)}
+.rail button.here{background:var(--accent-soft)}
+.rail button.here .L{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
 .rail .n.warn{color:var(--warn)}
 .rail .n.bad{color:var(--bad)}
 .rail .n.ok{color:var(--ok)}
@@ -383,6 +406,13 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
 .foot-acts{display:flex;gap:8px;flex-wrap:wrap}
 .menu>a.menu-link{display:block;padding:9px 10px;border-radius:3px;color:var(--ink);text-decoration:none;font-size:.9rem}
 .menu>a.menu-link:hover,.menu>a.menu-link:focus-visible{background:var(--accent-soft)}
+.ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);z-index:30;width:40px;height:40px;margin-left:-20px;border-radius:50%;background:var(--card);border:1px solid var(--line-strong);box-shadow:0 4px 14px rgba(0,0,0,.22);display:grid;place-items:center;color:var(--accent);opacity:0;transform:translateY(-60px);pointer-events:none}
+.ptr.back{transition:transform .25s ease,opacity .25s ease}
+.ptr svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s ease}
+.ptr.ready svg{transform:rotate(180deg)}
+.ptr.spin svg{animation:ptrspin .8s linear infinite}
+@keyframes ptrspin{to{transform:rotate(360deg)}}
+html.standalone{overscroll-behavior-y:none}
 .totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:15;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:0;transition:opacity .2s,transform .2s}
 .totop[hidden]{display:grid;opacity:0;pointer-events:none;transform:translateY(8px)}
 .totop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
@@ -470,6 +500,7 @@ html{touch-action:manipulation}
           <button data-act="save-draft" id="save-draft">Save draft file</button>
           <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
+          <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
           <label class="menu-check"><input type="checkbox" id="opt-keep"> Keep my work on this device</label>
@@ -478,13 +509,14 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
+          <p class="menu-note menu-ver">Version 1.3, updated 17 Oct 2026</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
     </div>
   </div>
 </header>
-<div class="localonly"><div class="wrap"><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div>
+<div class="localonly" id="localonly"><div class="lo-swipe" aria-hidden="true"><span class="lo-act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1zM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg><small>Hide</small></span></div><div class="lo-slide"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div></div>
 
 <div class="layout">
   <nav class="rail" aria-label="Worksheet sections" id="rail"></nav>
@@ -666,18 +698,19 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.2</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.3, updated 17 Oct 2026</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
 </div>
+<div class="ptr" id="ptr" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg></div>
 <button class="totop" id="totop" data-act="totop" aria-label="Back to top" title="Back to top" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14.5l6-6 6 6"/></svg></button>
 
 <footer class="totalbar">
   <div class="wrap">
     <div class="tots" id="tots"></div>
     <span class="barstatus" id="barstatus"></span>
-    <div class="bar-acts"><button class="btn bar-snap" data-act="snap"><span class="lg">Snap a receipt</span><span class="sm">+ Receipt</span></button><button class="btn" data-act="review"><span class="lg">Review and build</span><span class="sm">Build</span></button></div>
+    <div class="bar-acts"><button class="btn bar-snap" data-act="snap"><span class="lg">Add a receipt</span><span class="sm">+ Receipt</span></button><button class="btn" data-act="review"><span class="lg">Review and build</span><span class="sm">Build</span></button></div>
   </div>
 </footer>
 
@@ -685,7 +718,7 @@ html{touch-action:manipulation}
 <dialog id="lb"><div class="lb-bar"><span id="lb-cap"></span><button data-act="lb-close">Close</button></div><img id="lb-img" alt=""></dialog>
 <input type="file" id="file-rc" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple hidden>
 <input type="file" id="file-draft" accept=".json,.txt,application/json,text/plain" hidden>
-<input type="file" id="file-snap" accept="image/*,application/pdf,.pdf" capture="environment" hidden>
+<input type="file" id="file-snap" accept="image/*,application/pdf,.pdf,.heic,.heif" hidden>
 <dialog id="snap" aria-labelledby="snap-h">
   <div class="snap-head"><h3 id="snap-h">Add a receipt</h3><button type="button" class="icon-btn" data-act="snap-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
@@ -700,7 +733,7 @@ html{touch-action:manipulation}
     </div>
     <span class="err" id="snap-err" hidden></span>
   </div>
-  <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and snap another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
+  <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and add another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
 </dialog>
 
 <datalist id="dl-cur"><option>CAD</option><option>USD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>JPY</option><option>CHF</option><option>NOK</option><option>QAR</option><option>AED</option><option>KWD</option></datalist>
@@ -1606,6 +1639,8 @@ document.addEventListener('click', e => {
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
     case 'totop': toTop(); break;
+    case 'hide-notice': hideNotice(); break;
+    case 'show-notice': setMenu(false); showNotice(true); break;
     case 'open-draft': setMenu(false); $('#file-draft').click(); break;
     case 'build': build(); break;
     case 'menu': setMenu($('#menu').hidden); break;
@@ -1688,8 +1723,10 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // falls back to a .txt copy there. Open draft file accepts either.
 // Version: the minor number goes up only when beta is promoted to production; major only when the owner says so.
 // Beta builds carry the number the next production release will have, plus the build date.
-const APP_VERSION = '1.2'; // stamped by build.py from VERSION (beta gets the next minor)
-const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
+// Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
+// with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
+const APP_VERSION = '1.3';
+const APP_LABEL = 'Version 1.3, updated 17 Oct 2026';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -1730,7 +1767,7 @@ function deviceLines() {
   const br = /Edg\//.test(ua) ? 'Edge' : /Firefox|FxiOS/.test(ua) ? 'Firefox' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : 'Other';
   let standalone = false; try { standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
   const where = inViewer ? 'Claude artifact' : location.protocol === 'file:' ? 'single-file copy' : /\/beta\//.test(location.pathname) ? 'website, beta' : 'website';
-  return [`Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${APP_VERSION}, updated ${APP_UPDATED} (${where})`];
+  return [`Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${APP_LABEL.replace(/^Version /, '')} (${where})`];
 }
 const NO_PI = 'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.';
 function mailHref(subject, lines) { return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent('CAF Digital Travel Itinerary - ' + subject) + '&body=' + encodeURIComponent(lines.join('\r\n')); }
@@ -1746,9 +1783,129 @@ function feedbackHref() {
     '5. How I used it (phone, desktop, installed app):', '', '',
     '6. Rank and name (optional):', '', '7. Unit (optional):', '', '', '-----', ...deviceLines(), NO_PI]);
 }
+// Section rail follows the page: highlights the section you are in and, on phones, slides the
+// horizontal rail along at the same pace as the page so the current section stays in view.
+function initRailFollow() {
+  const rail = $('#rail'); if (!rail) return;
+  const narrow = matchMedia('(max-width: 880px)');
+  let busy = false, userUntil = 0, here = null;
+  const hold = () => { userUntil = Date.now() + 1500; };
+  ['touchstart', 'pointerdown', 'wheel'].forEach(ev => rail.addEventListener(ev, hold, { passive: true }));
+  const update = () => {
+    busy = false;
+    const items = $$('#rail button').map(b => ({ b, sec: document.getElementById(b.dataset.to) })).filter(x => x.sec && x.sec.offsetParent !== null);
+    if (!items.length) return;
+    const line = (narrow.matches ? rail.getBoundingClientRect().bottom : 0) + window.innerHeight * 0.25;
+    const tops = items.map(x => x.sec.getBoundingClientRect().top);
+    let i = 0; while (i < items.length - 1 && tops[i + 1] <= line) i++;
+    const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    if (atEnd) i = items.length - 1;
+    if (here !== items[i].b) { if (here) { here.classList.remove('here'); here.removeAttribute('aria-current'); } here = items[i].b; here.classList.add('here'); here.setAttribute('aria-current', 'true'); }
+    if (!narrow.matches || Date.now() < userUntil) return;
+    // fraction of the way from this section to the next, so the rail glides instead of jumping
+    let frac = 0;
+    if (!atEnd && i < items.length - 1) { const span = tops[i + 1] - tops[i]; if (span > 0) frac = Math.min(1, Math.max(0, (line - tops[i]) / span)); }
+    // keep the current chip about a third of the way across, so the one before it stays visible
+    const x = k => items[k].b.offsetLeft + items[k].b.offsetWidth / 2 - rail.clientWidth / 3;
+    const target = i < items.length - 1 ? x(i) + frac * (x(i + 1) - x(i)) : x(i);
+    rail.scrollLeft = Math.max(0, Math.min(target, rail.scrollWidth - rail.clientWidth));
+  };
+  const queue = () => { if (!busy) { busy = true; requestAnimationFrame(update); } };
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  queue();
+}
+// Local-only notice: can be hidden once read (X, or swipe on touch screens) and restored from the menu.
+// Remembered in this browser only, as a display preference.
+const LO_KEY = 'caf-dti-notice-hidden';
+function noticeHidden() { try { return localStorage.getItem(LO_KEY) === '1'; } catch (e) { return false; } }
+function setNotice(show) {
+  const el = $('#localonly'); if (el) { el.hidden = !show; el.classList.remove('swipe-l', 'swipe-r', 'armed', 'dragging'); el.querySelector('.lo-slide').style.transform = ''; }
+  try { show ? localStorage.removeItem(LO_KEY) : localStorage.setItem(LO_KEY, '1'); } catch (e) {}
+  const m = $('#show-notice'); if (m) m.hidden = show;
+}
+function hideNotice() { setNotice(false); toast('Notice hidden. You can show it again from the menu.', { label: 'Undo', fn: () => setNotice(true) }); }
+function showNotice(scroll) { setNotice(true); if (scroll) window.scrollTo({ top: 0 }); }
+function initNotice() {
+  const el = $('#localonly'); if (!el) return;
+  if (noticeHidden()) setNotice(false); else { const m = $('#show-notice'); if (m) m.hidden = true; }
+  const w = el.querySelector('.lo-slide'); let x0 = 0, y0 = 0, dx = 0, mode = '', id = null, t0 = 0;
+  const reach = () => el.clientWidth * 0.3;
+  const reset = () => { el.classList.remove('dragging', 'armed'); w.style.transform = ''; setTimeout(() => { if (!el.classList.contains('dragging')) el.classList.remove('swipe-l', 'swipe-r'); }, 230); };
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || e.target.closest('button, summary, a')) return;
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; mode = ''; t0 = Date.now();
+  });
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== id) return;
+    const mx = e.clientX - x0, my = e.clientY - y0;
+    if (!mode) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.5) { mode = 'x'; el.classList.add('dragging'); try { el.setPointerCapture(id); } catch (err) {} } else if (Math.abs(my) > 10) { mode = 'y'; } }
+    if (mode !== 'x') return;
+    dx = mx;
+    el.classList.toggle('swipe-l', dx < 0); el.classList.toggle('swipe-r', dx > 0);
+    el.classList.toggle('armed', Math.abs(dx) > reach());
+    w.style.transform = `translateX(${dx}px)`;
+  });
+  const end = e => {
+    if (e.pointerId !== id) return; id = null;
+    if (mode !== 'x') { el.classList.remove('dragging'); return; }
+    el.classList.remove('dragging');
+    const fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > 0.6 && Math.abs(dx) > 40;
+    if (Math.abs(dx) > reach() || fast) {
+      el.classList.add('armed');
+      w.style.transform = `translateX(${dx < 0 ? -el.clientWidth : el.clientWidth}px)`;
+      setTimeout(hideNotice, 230);
+    } else reset();
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+}
+// Pull to refresh in the installed app (no browser bar there, so no built-in reload). Pull down from
+// the top of the page and let go past the line: the claim is saved, the page reloads with the newest
+// version, and a message says whether it changed.
+const PTR_KEY = 'caf-dti-ptr-label';
+async function flushSave() {
+  clearTimeout(pT);
+  try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: liveReceipts() })); } catch (e) { try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: {}, noR: true })); } catch (_) {} }
+  try { await devSave(); } catch (e) {}
+}
+function initPullRefresh() {
+  let standalone = false; try { standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
+  try { const before = sessionStorage.getItem(PTR_KEY); if (before) { sessionStorage.removeItem(PTR_KEY); setTimeout(() => toast((before === APP_LABEL ? 'Already up to date: version ' : 'Updated to version ') + APP_VERSION.replace('-beta.', ' beta ') + '.'), 400); } } catch (e) {}
+  if (!standalone || !MOBILE) return;
+  document.documentElement.classList.add('standalone');
+  const ind = $('#ptr'), LIMIT = 70;
+  let y0 = null, x0 = 0, pull = 0, on = false;
+  const blocked = t => t.closest('input, textarea, select, dialog, .menu') || !$('#menu').hidden || document.querySelector('dialog[open]');
+  const draw = () => { const d = Math.min(pull, 110); ind.style.transform = `translateY(${d - 50}px) rotate(${d * 2.4}deg)`; ind.style.opacity = String(Math.min(1, d / 40)); ind.classList.toggle('ready', pull >= LIMIT); };
+  window.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1 || window.scrollY > 0 || blocked(e.target)) { y0 = null; return; }
+    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; pull = 0; on = false; ind.classList.remove('back');
+  }, { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    const dy = e.touches[0].clientY - y0, dx = e.touches[0].clientX - x0;
+    if (!on) { if (dy > 8 && dy > Math.abs(dx) * 1.5 && window.scrollY <= 0) on = true; else if (Math.abs(dx) > 8 || dy < 0) { y0 = null; return; } else return; }
+    pull = Math.max(0, dy * 0.55); draw();
+  }, { passive: true });
+  window.addEventListener('touchend', async () => {
+    if (y0 === null || !on) { y0 = null; return; }
+    y0 = null; on = false;
+    if (pull >= LIMIT) {
+      ind.classList.add('back', 'spin'); ind.classList.remove('ready'); ind.style.transform = 'translateY(14px)'; ind.style.opacity = '1';
+      // save (capped at 1.5 s), then reload straight away; the offline helper fetches the newest page
+      await Promise.race([flushSave(), new Promise(r => setTimeout(r, 1500))]);
+      try { sessionStorage.setItem(PTR_KEY, APP_LABEL); } catch (e) {}
+      location.reload();
+      setTimeout(() => {
+        ind.classList.remove('spin'); ind.style.transform = ''; ind.style.opacity = '0';
+        try { sessionStorage.removeItem(PTR_KEY); } catch (e) {}
+        toast('Could not refresh. Check your connection and try again.');
+      }, 12000);
+    } else { ind.classList.add('back'); ind.style.transform = ''; ind.style.opacity = '0'; }
+  });
+}
 function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
 function initExtras() {
-  const av = $('#app-ver'); if (av) av.textContent = 'Version ' + APP_VERSION + (/\/beta\//.test(location.pathname) ? ' beta' : '') + ', updated ' + APP_UPDATED;
   const hh = helpHref(), fh = feedbackHref();
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
   ['#help-menu', '#fb-menu'].forEach(id => { const el = $(id); if (el) el.addEventListener('click', () => setTimeout(() => setMenu(false), 0)); });
@@ -2393,7 +2550,7 @@ async function startBlank(msg) {
 
 /* ---------- boot ---------- */
 async function boot() {
-  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice(); initPullRefresh();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

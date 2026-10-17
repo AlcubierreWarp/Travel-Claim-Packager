@@ -5,7 +5,7 @@
 // Production and beta live on the same site, so each keeps its own cache, named after its folder.
 const SCOPE = new URL(self.registration.scope).pathname;
 const PREFIX = 'caf-dti-' + SCOPE + '-';
-const CACHE = PREFIX + 'a08ec8dc0e';
+const CACHE = PREFIX + '5c9a76640c';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico', './favicon-32x32.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
@@ -17,10 +17,13 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
   // Network first, so updates arrive as soon as you are online; fall back to the saved copy offline.
+  // The page itself is always checked with the server (no-cache), so a stale browser copy is never shown.
+  const nav = e.request.mode === 'navigate';
+  const page = new URL('./index.html', self.registration.scope).href;
   e.respondWith(
-    fetch(e.request).then(res => {
-      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
+    (nav ? fetch(url.origin + url.pathname, { cache: 'no-cache', credentials: 'same-origin' }) : fetch(e.request)).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(nav ? page : e.request, copy)); }
       return res;
-    }).catch(() => caches.match(e.request, { ignoreSearch: true }).then(r => r || caches.match('./index.html')))
+    }).catch(() => caches.match(nav ? page : e.request, { ignoreSearch: true }).then(r => r || caches.match(page)))
   );
 });

@@ -2,7 +2,11 @@
 
 Versioning: the minor number goes up by one only when the beta is promoted to production (1.1, 1.2, 1.3...). The beta shows the number the next production release will have plus its own build number, which goes up with every beta publish and starts again at 1 after a promotion, for example "Version 1.3 beta 3, built 17 Oct 2026 10:42 (production is 1.2)". The major number changes only when the owner decides a release is a major one.
 
-## 1.3 (beta, in progress)
+## 1.4 (beta, in progress)
+
+- No changes yet
+
+## 1.3 (17 Oct 2026)
 
 - Section rail follows the page: on phones the horizontal rail slides along as you scroll so the current section stays in view; the current section is highlighted on all screens
 - Local-only notice can be hidden with its X, or by swiping it sideways on touch screens (iPhone-style red Hide action with a bin icon underneath), with Undo; Show local-only notice in the menu brings it back

@@ -24,13 +24,13 @@ def check():
     single = (S / "out/CAF_Digital_Travel_Itinerary.html").read_text(); art = (S / "out/travel-claim-packager.html").read_text()
     for name, doc in (("production", prod), ("single file", single), ("artifact", art)):
         import re
-        bad = [m for m in ('data-channel="beta"', 'id="beta-only"', "CAF Travel Beta", "APP_CHANNEL = 'beta'") if m in doc]
+        bad = [m for m in ('data-channel="beta"', 'id="beta-only"', "CAF Travel Beta", "APP_CHANNEL = 'beta'", "BETA-ONLY", "beta-reset", "loadTestData") if m in doc]
         if re.search(r"APP_VERSION = '[^']*beta", doc) or re.search(r"Version [0-9.]+ beta", doc): bad.append("beta version label")
         assert not bad, f"beta-only content in {name}: {bad}"
     assert "Beta" not in (S / "out/web/manifest.webmanifest").read_text(), "beta name in production manifest"
     im = Image.open(S / "out/web/icon-192.png").convert("RGB").resize((24, 24))
     assert max(max(p) - min(p) for p in zip(*[iter(im.tobytes())] * 3)) > 40, "production icon is not in colour"
-    for m in ('data-channel="beta"', 'id="beta-only"', "APP_CHANNEL = 'beta'"):
+    for m in ('data-channel="beta"', 'id="beta-only"', "APP_CHANNEL = 'beta'", 'data-act="beta-reset"', "async function loadTestData"):
         assert m in beta, f"beta build is missing {m}"
     print("channel check ok")
 def copy_beta():

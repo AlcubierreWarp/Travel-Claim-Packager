@@ -28,6 +28,9 @@ def _logo(grey):
     b = io.BytesIO(); im.save(b, format="PNG", optimize=True); return "data:image/png;base64," + base64.b64encode(b.getvalue()).decode()
 src_beta = src_beta.replace("__LOGO__", _logo(True))
 src = src.replace("__LOGO__", _logo(False))
+# Beta-only code and markup (between BETA-ONLY markers) never reaches production or its offline copy
+src = re.sub(r"/\*BETA-ONLY\*/.*?/\*/BETA-ONLY\*/", "", src, flags=re.S)
+src = re.sub(r"<!--BETA-ONLY-->.*?<!--/BETA-ONLY-->", "", src, flags=re.S)
 src = src.replace("__APP_VERSION__", VERSION).replace("__APP_LABEL__", PROD_LABEL).replace("__APP_CHANNEL__", "production")
 pdflib = (base / "npm/node_modules/pdf-lib/dist/pdf-lib.min.js").read_text().replace("\ufffd", "\\ufffd")
 assert "</script" not in pdflib.lower()

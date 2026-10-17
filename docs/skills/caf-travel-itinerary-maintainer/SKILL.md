@@ -50,6 +50,7 @@ If the Claude account or workspace is gone, follow `REBUILD.md` on the `source` 
 - `data-channel="beta"` marker.
 - `pwa/beta.css`: violet colour theme (light and dark) in place of production's green, overriding the same `:root` tokens. Status colours (ok, warn, bad) are unchanged.
 - `pwa/beta.css`: a Beta pill after the page title (Bêta in French), matching the import button's tag.
+- Menu bottom (Beta testing, beta only): Load test data and Reset the beta, as code between `/*BETA-ONLY*/` and `<!--BETA-ONLY-->` markers that build.py strips from production. Put any future beta-specific script or markup inside those markers.
 
 ## Itinerary import (Amex GBT)
 - Reader in `app/itin.js` (pure functions, inlined by build.py). pdf.js 3.11.174 is stored in the page as inert text and run on first import, no worker, no network.

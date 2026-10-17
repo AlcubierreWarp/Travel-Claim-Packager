@@ -5,7 +5,10 @@
    for anything that needs to differ in behaviour. To promote a beta-only change to production,
    move it into app/app.html.
    Build-time beta differences (in build.py): greyscale icons, grey theme and launch colour,
-   "CAF Travel Beta" app name, beta build number in the version label. */
+   "CAF Travel Beta" app name, beta build number in the version label.
+   Beta-only code and markup in app/app.html sit between /*BETA-ONLY*/ ... /*/BETA-ONLY*/ (script) or
+   <!--BETA-ONLY--> ... <!--/BETA-ONLY--> (markup); build.py removes them from production, and the
+   release check refuses a production build that still contains them. Today: Load test data and Reset the beta. */
 
 /* Beta colour theme: violet in place of production's green, so the two are never confused.
    Same tokens as the :root blocks in app/app.html; status colours (ok, warn, bad) are unchanged.

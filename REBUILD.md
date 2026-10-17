@@ -110,6 +110,7 @@ python test_savenow.py .
 python test_switch.py .
 python test_sdx.py .
 python test_split.py .
+python test_betatools.py .
 ```
 
 Each prints `errors: []`. Tests that check privacy also print `external requests: []`, and the newer ones print `failures: []`. `test_fr.py` also prints `missing: []` (no untranslated text). Delete the `fixtures/` and `shots/` folders afterwards.
@@ -172,7 +173,7 @@ In a new Claude account, add both as skills, or attach them at the start of a co
 Owner rules worth repeating:
 
 - Changes go to the beta. Production changes only when the owner says "push to production".
-- Only changes the owner calls "beta-specific" go in the beta-only layer (`pwa/beta.css`, beta build settings in `build.py`). Today these are: greyscale icons and header logo, grey launch colour, the "CAF Travel Beta" name, the beta version label, the violet colour theme and the Beta pill after the page title.
+- Only changes the owner calls "beta-specific" go in the beta-only layer (`pwa/beta.css`, beta build settings in `build.py`). Today these are: greyscale icons and header logo, grey launch colour, the "CAF Travel Beta" name, the beta version label, the violet colour theme, the Beta pill after the page title, and the Load test data and Reset the beta tools in the menu (code between BETA-ONLY markers, removed from production by build.py).
 - Statutory declaration wording that is not from an official source is listed in `docs/legal-wording-for-ajag-review.md`. Update it whenever that wording changes.
 
 ## 10. Updating the bundled libraries

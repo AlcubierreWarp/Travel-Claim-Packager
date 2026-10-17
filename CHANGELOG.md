@@ -6,6 +6,8 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 - The Switch to beta / Switch to production item moves to the bottom of the menu, under Help and Send feedback
 - Currency exchanges no longer get an "outside the trip" warning when dated up to 30 days before or after it
+- Statutory declarations: the wording is now shown as numbered paragraphs, the way it prints. Paragraphs 1 and 2 can each be rewritten on their own (one paragraph each, up to 400 characters), one paragraph of facts can be added after them, and the reason and standard paragraphs are locked, with links to the expense to change the facts at the source. A rewritten paragraph is flagged when the claim changes later. Long wording no longer runs off the page
+- Statutory declarations: the first click on See or edit the wording after typing in an expense now opens it
 - Beta: Reset the beta now also brings back the example claim, the local-only notice and the other first-run prompts. The beta keeps these preferences separately from production, so dismissing something in one no longer hides it in the other
 - Package output choice is now a compact One PDF / Separate PDFs switch with a one-line hint, on desktop and phone
 - Beta: the violet theme is back in light mode (a comment in the beta styles had cut off the light-mode rule); a release check now guards against it

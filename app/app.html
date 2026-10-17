@@ -47,7 +47,7 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .savechip.on{color:var(--ok)}
 .savechip.off{color:var(--warn)}
 .menu-wrap{position:relative}
-.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:18rem;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line-strong);border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:18rem;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line-strong);border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column;max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
 .menu>button{all:unset;box-sizing:border-box;padding:10px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
 .menu>button:hover,.menu>button:focus-visible{background:var(--accent-soft)}
 .menu>button.danger{color:var(--bad)}
@@ -56,6 +56,9 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .install-steps li{margin:2px 0}
 .menu>button.armed{background:var(--bad);color:#fff}
 .menu hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
+.menu .mi-t{display:block}
+.menu .mi-sub{display:block;font-size:.74rem;line-height:1.3;color:var(--muted);margin-top:2px}
+.menu .menu-h:first-child{margin-top:6px}
 .menu-h{font:600 .64rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 10px 2px}
 .menu-check{display:flex;gap:10px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
 .menu-check:hover{background:var(--accent-soft)}
@@ -530,11 +533,14 @@ html{touch-action:manipulation}
         <div class="menu" id="menu" hidden>
           <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
           <hr id="install-hr" hidden>
-          <button data-act="open-draft">Open draft file</button>
-          <button data-act="save-draft" id="save-draft">Save draft file</button>
-          <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
-          <button data-act="clear" id="clear-btn">Clear form</button>
-          <button data-act="dl-offline" id="dl-offline">Download offline copy</button>
+          <p class="menu-h">This claim</p>
+          <button data-act="clear" id="clear-btn">New claim</button>
+          <button data-act="open-draft">Import claim file…</button>
+          <button data-act="save-draft" id="save-draft"><span class="mi-t">Export claim file</span><span class="mi-sub">Your claim and receipts, to finish later or on another device.</span></button>
+          <button data-act="send-draft" id="send-draft" hidden>Send claim file</button>
+          <hr>
+          <p class="menu-h">This tool</p>
+          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Export offline app</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
           <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -542,6 +548,8 @@ html{touch-action:manipulation}
           <label class="menu-check"><input type="checkbox" id="opt-remember"> Remember my details</label>
           <label class="menu-check"><input type="checkbox" id="opt-pin"> Protect with a PIN</label>
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
+          <hr>
+          <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
           <p class="menu-note menu-ver" data-ver data-noi18n>__APP_LABEL__</p>
@@ -551,7 +559,7 @@ html{touch-action:manipulation}
     </div>
   </div>
 </header>
-<div class="localonly" id="localonly"><div class="lo-swipe" aria-hidden="true"><span class="lo-act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1zM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg><small>Hide</small></span></div><div class="lo-slide"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div></div>
+<div class="localonly" id="localonly"><div class="lo-swipe" aria-hidden="true"><span class="lo-act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1zM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg><small>Hide</small></span></div><div class="lo-slide"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Export a claim file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div></div>
 
 <div class="layout">
   <nav class="rail" aria-label="Worksheet sections" id="rail"></nav>
@@ -1771,8 +1779,8 @@ document.addEventListener('click', e => {
     case 'fill-stays': fillStays(); break;
     case 'start-blank': startBlank(T('Blank claim ready. Start with the trip name and section A.')); break;
     case 'clear': {
-      if (clearArmed && Date.now() - clearArmed < 4000) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('Clear form'); setMenu(false); startBlank(T('Form cleared.')); }
-      else { clearArmed = Date.now(); b.classList.add('armed'); b.textContent = T('Click again to clear'); setTimeout(() => { if (clearArmed && Date.now() - clearArmed >= 3900) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('Clear form'); } }, 4100); }
+      if (clearArmed && Date.now() - clearArmed < 4000) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('New claim'); setMenu(false); startBlank(T('New blank claim ready.')); }
+      else { clearArmed = Date.now(); b.classList.add('armed'); b.textContent = T('Tap again to erase this claim'); setTimeout(() => { if (clearArmed && Date.now() - clearArmed >= 3900) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('New claim'); } }, 4100); }
       break;
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
@@ -2117,7 +2125,7 @@ function sendDraft() {
   const title = sendTitle('Digital Itinerary File');
   const mb = payload.length / 1048576;
   if (mb > 20) toast(T('This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.', mb.toFixed(0)));
-  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
+  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
 }
 function sendPdf() {
   const file = new File([lastPdf.bytes], lastPdf.name, { type: 'application/pdf' });
@@ -2133,7 +2141,7 @@ function deviceLines() {
   return [T('Device: {0}, {1}', os, br) + (standalone ? T(', installed app') : ''), T('Version: {0} ({1})', verLabel().replace(/^Version /, ''), where), T('Language: English')];
 }
 function mailHref(subject, lines) { return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent(T('CAF Digital Travel Itinerary') + ' - ' + T(subject)) + '&body=' + encodeURIComponent(lines.join('\r\n')); }
-const NO_PI = 'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.';
+const NO_PI = 'Please do not include your PRI, receipts or claim files. If a screenshot helps, attach one with personal details covered.';
 function helpHref() {
   return mailHref('Help Request', ['Hello,', '', 'I need help with the CAF Digital Travel Itinerary.', '',
     '1. What I was trying to do:', '', '', '2. What happened instead:', '', '', '3. Steps to make it happen again (if known):', '', '',
@@ -2279,7 +2287,7 @@ function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motio
 function relabel() {
   const hh = helpHref(), fh = feedbackHref();
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
-  const sd = $('#send-draft'); if (sd) sd.textContent = IOS_PWA && SEND.draft ? T('Save or send draft file') : T('Send draft file');
+  const sd = $('#send-draft'); if (sd) sd.textContent = IOS_PWA && SEND.draft ? T('Save or send claim file') : T('Send claim file');
   $$('[data-ver]').forEach(el => { el.textContent = verLabel(); });
   const lb = $('#lang-btn');
   if (lb) { lb.querySelector('.lg').textContent = fr() ? 'English' : 'Français'; lb.querySelector('.sm').textContent = fr() ? 'EN' : 'FR'; lb.lang = fr() ? 'en' : 'fr'; lb.setAttribute('aria-label', fr() ? 'Switch to English' : 'Afficher en français'); }
@@ -2977,7 +2985,7 @@ function saveChip() {
   if (DEV.locked) { txt = T('Locked'); cls = 'off'; tip = T('Enter your PIN to open your saved claim.'); }
   else if (DEV.db && DEV.settings.keep) {
     txt = DEV.failed ? T('Not saved') : DEV.lastSaved ? T('Saved {0}', new Date(DEV.lastSaved).toTimeString().slice(0, 5)) : T('Saving');
-    cls = DEV.failed ? 'off' : 'on'; tip = DEV.failed ? T('This browser refused to save. Save a draft file to be safe.') : T('Kept on this device, in this browser only.') + (DEV.settings.pin ? ' ' + T('Protected with your PIN.') : '');
+    cls = DEV.failed ? 'off' : 'on'; tip = DEV.failed ? T('This browser refused to save. Export a claim file to be safe.') : T('Kept on this device, in this browser only.') + (DEV.settings.pin ? ' ' + T('Protected with your PIN.') : '');
   } else { txt = T('Tab only'); cls = ''; tip = T('Your work lasts until you close this tab. Turn on "Keep my work on this device" in the menu.'); }
   c.textContent = txt; c.className = 'savechip ' + cls; c.title = tip;
 }
@@ -2987,7 +2995,7 @@ function syncMenu() {
   $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
   $('#forget-btn').disabled = !ok;
   $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
-  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save draft file instead.');
+  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Export claim file instead.');
   saveChip();
 }
 function setMenu(open) { const m = $('#menu'), b = $('#menu-btn'); m.hidden = !open; b.setAttribute('aria-expanded', String(open)); }

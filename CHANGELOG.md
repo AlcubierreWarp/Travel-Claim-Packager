@@ -10,6 +10,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 - French: Français / English button in the header (FR / EN on phones), remembered on the device and defaulting to the browser language. The whole interface, help and feedback emails, file names and the PDF package switch language, including the statutory declaration with the French DOAD 7000-1 wording and provincial jurats, French rank names, French dates and decimal commas, and PROTÉGÉ A / PROTÉGÉ B / NON CLASSIFIÉ markings
 - Beta-only layer: beta.css and a beta marker are added to the beta build only; a release check stops any promotion that would carry beta-only content into production
 - Source, build tools and tests saved to the source branch (not published)
+- Import itinerary (section B): reads an Amex GBT itinerary (PDF, the email saved as .eml, or pasted text) on the device and fills section B with each flight, train, bus and rental car, its dates and times, connections, and hotel stays in another city. Optional: start and finish at your residence (on by default), add the fare and GBT service fee to transportation expenses with the itinerary as the receipt (off by default, for fares you paid yourself), add hotel stays to Lodging. Shows what it found and what section B will list before anything changes; Undo afterwards. Uses pdf.js 3.11.174 (Apache-2.0), stored in the page and run only on first import, with no worker and no network access
 
 ## 1.3 (17 Oct 2026)
 

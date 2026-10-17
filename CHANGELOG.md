@@ -4,6 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.6 (beta, in progress)
 
+- Save now: a Save button in the header (desktop), Save now at the top of the menu (all screens) and Ctrl+S / Cmd+S. It saves at once instead of waiting for the auto-save, reads the claim back to check it was stored, and says where it is kept: on this device (checked), or in this tab only until it closes (with a one-tap Keep on this device). If the browser refuses to store it, it says so and offers Export claim file
 - The PDF package shows the app version in the footer of every page (for example "CAF Digital Travel Itinerary v1.6", or "v1.7 beta 2" from the beta) and records it in the file properties, so any package can be traced to the version that built it
 - Import itinerary: when an itinerary arrives in several emails, add the others in the review step (Add another email or file, Paste another email, or drop them on the window). New legs are added and highlighted; legs, hotels, fares and attachments already listed are skipped, so adding the same email twice changes nothing
 - Import itinerary reads Outlook .msg emails (saved or dragged from desktop Outlook): the PDF itinerary attached to the email when there is one, otherwise the message text. Pasting the whole email (select all, copy, paste) also works. Arrivals with a terminal after the airport code ("Toronto, Canada (YYZ), Terminal 1") are now read correctly

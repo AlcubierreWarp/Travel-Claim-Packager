@@ -59,6 +59,7 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .brand p{margin:3px 0 0;color:var(--muted);font-size:.86rem}
 .top-actions{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .savechip{font:500 .72rem/1.2 var(--f-mono);color:var(--muted);white-space:nowrap}
+.save-btn.done{background:var(--accent-soft);border-color:var(--accent)}
 .savechip.on{color:var(--ok)}
 .savechip.off{color:var(--warn)}
 .menu-wrap{position:relative}
@@ -488,7 +489,7 @@ dialog,dialog .snap-body{overscroll-behavior:contain}
   h1{font-size:1.2rem}
   .mark{display:none}
   .top .wrap{padding-block:10px;flex-wrap:nowrap}
-  .savechip{display:none}
+  .savechip,.save-btn{display:none}
   .top-actions{flex-wrap:nowrap;gap:6px}
   .lang-btn{padding-inline:.6rem}
   .lang-btn .lg{display:none}
@@ -595,6 +596,7 @@ html{touch-action:manipulation}
     </div>
     <div class="top-actions">
       <span class="savechip" id="savechip" role="status"></span>
+      <button class="btn save-btn" id="save-now" data-act="save-now" title="Save now (Ctrl+S)">Save</button>
       <button class="btn lang-btn" id="lang-btn" data-act="lang" data-noi18n><span class="lg">Français</span><span class="sm">FR</span></button>
       <div class="menu-wrap">
         <button class="btn" id="menu-btn" data-act="menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu">Menu</button>
@@ -602,6 +604,7 @@ html{touch-action:manipulation}
           <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
           <hr id="install-hr" hidden>
           <p class="menu-h">This claim</p>
+          <button data-act="save-now" id="save-now-menu">Save now</button>
           <button data-act="clear" id="clear-btn">New claim</button>
           <button data-act="open-draft">Import claim file…</button>
           <button data-act="save-draft" id="save-draft"><span class="mi-t">Export claim file</span><span class="mi-sub">Your claim and receipts, to finish later or on another device.</span></button>
@@ -620,7 +623,7 @@ html{touch-action:manipulation}
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 9, built 17 Oct 2026 13:44 (production is 1.5)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 10, built 17 Oct 2026 13:58 (production is 1.5)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -824,7 +827,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 9, built 17 Oct 2026 13:44 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 10, built 17 Oct 2026 13:58 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1433,10 +1436,15 @@ const FR = {
 "Save and add another": "Enregistrer et en ajouter un autre",
 "Save cancelled.": "Enregistrement annulé.",
 "Save draft file": "Enregistrer le fichier brouillon",
+"Save now": "Enregistrer maintenant",
+"Save now (Ctrl+S)": "Enregistrer maintenant (Ctrl+S)",
 "Save or send PDF": "Enregistrer ou envoyer le PDF",
 "Save or send claim file": "Enregistrer ou envoyer le fichier de réclamation",
 "Save or send draft file": "Enregistrer ou envoyer le fichier brouillon",
 "Saved claim removed from this device. Your work now lasts until you close the tab.": "Réclamation enregistrée retirée de cet appareil. Votre travail dure maintenant jusqu'à la fermeture de l'onglet.",
+"Saved in this tab at {0}. It lasts until you close the tab.": "Enregistré dans cet onglet à {0}. Il est conservé jusqu'à la fermeture de l'onglet.",
+"Saved on this device at {1} and checked: the claim and {0} receipt read back correctly.": "Enregistré sur cet appareil à {1} et vérifié : la réclamation et {0} reçu se relisent correctement.",
+"Saved on this device at {1} and checked: the claim and {0} receipts read back correctly.": "Enregistré sur cet appareil à {1} et vérifié : la réclamation et {0} reçus se relisent correctement.",
 "Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.": "Le travail enregistré reste dans ce navigateur seulement et n'est jamais téléversé. Une réclamation enregistrée se supprime 30 jours après la création de son PDF.",
 "Saved {0}": "Enregistré : {0}",
 "Saving": "Enregistrement",
@@ -1510,11 +1518,13 @@ const FR = {
 "The extension must be 4 digits.": "Le poste doit comporter 4 chiffres.",
 "The final location has no name.": "Le lieu d'arrivée n'a pas de nom.",
 "The member, trip and receipts are made up so you can see how the package comes out.": "Le membre, le voyage et les reçus sont fictifs pour vous montrer le résultat de la trousse.",
+"The receipt photos were too large to keep in the tab.": "Les photos de reçus étaient trop volumineuses pour être conservées dans l'onglet.",
 "The starting location has no name.": "Le lieu de départ n'a pas de nom.",
 "The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.": "Le nom du voyage figure en haut du PDF et dans le nom du fichier. Le TAN et le code de réservation du voyage sont imprimés en dessous.",
 "The two PINs do not match.": "Les deux NIP ne correspondent pas.",
 "This PDF could not be added to the package. It may be password-protected or damaged. Submit \"{0}\" separately with this claim.": "Ce PDF n'a pas pu être ajouté à la trousse. Il est peut-être protégé par un mot de passe ou endommagé. Soumettez « {0} » séparément avec cette réclamation.",
 "This browser cannot read iPhone HEIC photos. Set the camera to \"Most Compatible\".": "Ce navigateur ne peut pas lire les photos HEIC de l'iPhone. Réglez l'appareil photo sur « Le plus compatible ».",
+"This browser did not save your claim. Export a claim file now to keep your work.": "Ce navigateur n'a pas enregistré votre réclamation. Exportez maintenant un fichier de réclamation pour conserver votre travail.",
 "This browser refused to save. Export a claim file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, exportez un fichier de réclamation.",
 "This browser refused to save. Save a draft file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, enregistrez un fichier brouillon.",
 "This browser view does not allow saving on the device. Use Export claim file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Exporter le fichier de réclamation.",
@@ -1527,11 +1537,13 @@ const FR = {
 "This replaces the {0} location now in section B. You can undo it right after.": "Ceci remplace le {0} endroit qui figure dans la section B. Vous pourrez annuler juste après.",
 "This replaces the {0} locations now in section B. You can undo it right after.": "Ceci remplace les {0} endroits qui figurent dans la section B. Vous pourrez annuler juste après.",
 "This tool": "Cet outil",
+"This view cannot save in the browser. Export a claim file to keep your work.": "Cet affichage ne peut pas enregistrer dans le navigateur. Exportez un fichier de réclamation pour conserver votre travail.",
 "Tick only the meals you are claiming": "Cochez seulement les repas que vous réclamez",
 "Time & duration": "Heure et durée",
 "To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Importer un fichier de réclamation, et sélectionnez ce fichier.",
 "To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Ouvrir un fichier brouillon, et sélectionnez ce fichier.",
 "To do": "À faire",
+"To keep it longer, turn on Keep my work on this device, or export a claim file.": "Pour le conserver plus longtemps, activez Conserver mon travail sur cet appareil ou exportez un fichier de réclamation.",
 "Toll": "Péage",
 "Total": "Total",
 "Total cost": "Coût total",
@@ -2921,6 +2933,7 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('focusout', e => { const id = e.target && e.target.id; if (id && requiredFields().some(([rid]) => rid === id)) { visited.add(id); markRequired(); } });
 document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveNow(); return; }
   if (e.key === 'Escape' && !$('#menu').hidden) { setMenu(false); $('#menu-btn').focus(); }
   if (e.key === 'Enter' && e.target.id === 'unlock-pin') { e.preventDefault(); $('[data-act="unlock"]').click(); }
   if (e.key === 'Enter' && (e.target.id === 'pin-1' || e.target.id === 'pin-2')) { e.preventDefault(); $('[data-act="pin-save"]').click(); }
@@ -2967,6 +2980,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
+    case 'save-now': setMenu(false); saveNow(); break;
     case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
@@ -3308,9 +3322,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.6-beta.9';
+const APP_VERSION = '1.6-beta.10';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.6 beta 9, built 17 Oct 2026 13:44 (production is 1.5)';
+const APP_LABEL = 'Version 1.6 beta 10, built 17 Oct 2026 13:58 (production is 1.5)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4194,6 +4208,35 @@ async function forgetDevice() {
   ['#unlock-banner', '#pin-banner', '#keep-banner'].forEach(id => { $(id).hidden = true; });
   S = blank(); R = {}; newClaimState(); renderAll(); syncMenu();
   toast(T('Everything saved in this browser has been deleted.'));
+}
+// Save now: write the claim straight away (no waiting for the auto-save), then read it back to check
+// it really was stored. Says plainly where the claim is kept and how long it lasts.
+let saving = false;
+async function saveNow() {
+  if (saving) return; saving = true;
+  try {
+    const ae = document.activeElement; // finish the field being typed in (formats phone numbers, times...)
+    if (ae && ae.matches && ae.matches('input, textarea, select')) ae.dispatchEvent(new Event('change', { bubbles: true }));
+    clearTimeout(pT);
+    const at = new Date().toTimeString().slice(0, 5), json = JSON.stringify(S), nRc = Object.keys(liveReceipts()).length;
+    let tab = 'none';
+    try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: liveReceipts() })); tab = 'full'; }
+    catch (e) { try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: {}, noR: true })); tab = 'noR'; } catch (_) {} }
+    if (tab !== 'none') { try { const back = JSON.parse(sessionStorage.getItem(STORE)); if (!back || JSON.stringify(back.S) !== json) tab = 'none'; } catch (e) { tab = 'none'; } }
+    if (DEV.db && DEV.settings.remember && !DEV.locked && !S.example) { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }
+    const exportBtn = { label: T('Export claim file'), fn: () => saveDraft() };
+    if (DEV.db && DEV.settings.keep && !DEV.locked) {
+      await devSave();
+      let ok = !DEV.failed;
+      if (ok) { try { const c = await unseal(await idbGet('claim')), keys = (await idbKeys()) || []; ok = !!c && JSON.stringify(c.S) === json && Object.keys(liveReceipts()).every(id => keys.includes('rc:' + id)); } catch (e) { ok = false; } }
+      if (ok) toast(nPl(nRc, 'Saved on this device at {1} and checked: the claim and {0} receipt read back correctly.', 'Saved on this device at {1} and checked: the claim and {0} receipts read back correctly.', at));
+      else { DEV.failed = true; saveChip(); toast(T('This browser did not save your claim. Export a claim file now to keep your work.'), exportBtn); }
+    } else if (tab === 'full' || tab === 'noR') {
+      const msg = T('Saved in this tab at {0}. It lasts until you close the tab.', at) + (tab === 'noR' ? ' ' + T('The receipt photos were too large to keep in the tab.') : '') + ' ' + T('To keep it longer, turn on Keep my work on this device, or export a claim file.');
+      toast(msg, DEV.db && !DEV.locked ? { label: T('Keep on this device'), fn: () => setKeep(true).then(syncMenu) } : exportBtn);
+    } else toast(T('This view cannot save in the browser. Export a claim file to keep your work.'), exportBtn);
+    const b = $('#save-now'); if (b) { b.classList.add('done'); setTimeout(() => b.classList.remove('done'), 1200); }
+  } finally { saving = false; }
 }
 function saveChip() {
   const c = $('#savechip'); if (!c) return;

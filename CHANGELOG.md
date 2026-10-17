@@ -4,6 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.6 (beta, in progress)
 
+- File number defaults to 7209-1 (Transportation and Travelling Expenses) in every file name until the member changes it. A number cleared on purpose stays cleared; claim files and remembered details from before this change get the default
 - Menu regrouped under This claim, This tool, This device and Help, with standard wording: New claim (was Clear form), Import claim file (was Open draft file), Export claim file (was Save draft file), Send claim file, and Export offline app. The two Export items each say in one line what the file contains
 - Export offline app (menu): saves the whole app as one .html file (about 2.3 MB, named with the version) that opens with a double-click in any browser and runs with no internet connection. It is built on the device from the page as it loaded, so it never contains the claim in progress, and it uses the strict no-network policy of the offline single file. Works on desktop, Android and the installed iPhone app (through the share sheet)
 - Beta only (stays out of production): violet colour theme in light and dark mode, so the beta is easy to tell apart from production's green

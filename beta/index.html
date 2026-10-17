@@ -610,7 +610,7 @@ html{touch-action:manipulation}
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 5, built 17 Oct 2026 12:47 (production is 1.5)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 6, built 17 Oct 2026 12:59 (production is 1.5)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -798,7 +798,7 @@ html{touch-action:manipulation}
             <label class="check pki-opt"><input type="checkbox" id="opt-pkisig" data-bind="pki"> Sign with PKI (digital signature)</label>
             <p class="sd-help" id="pki-help"></p>
             <div class="sd-grid fn-grid">
-              <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="e.g. 7209-1"></div>
+              <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="No file number"></div>
               <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="UNCLAS">UNCLASSIFIED</option><option value="PA">PROTECTED A</option><option value="PB">PROTECTED B</option><option value="">None</option></select></div>
             </div>
             <p class="fname">File: <code id="fname"></code></p>
@@ -814,7 +814,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 5, built 17 Oct 2026 12:47 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 6, built 17 Oct 2026 12:59 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1252,6 +1252,7 @@ const FR = {
 "No calls to claim.": "Aucun appel à réclamer.",
 "No cost or receipt needed. Quarters are billed directly to the unit.": "Aucun coût ni reçu requis. Les quartiers sont facturés directement à l'unité.",
 "No currency exchanges. Add one for each exchange receipt you have.": "Aucune opération de change. Ajoutez-en une pour chaque reçu de change que vous avez.",
+"No file number": "Aucun numéro de dossier",
 "No flights, trains, buses or rental cars were found. This reader knows the Amex GBT itinerary layout. For anything else, enter the stops by hand.": "Aucun vol, train, autobus ou voiture de location n'a été trouvé. Cet outil reconnaît la présentation des itinéraires d'Amex GBT. Pour tout autre document, entrez les arrêts à la main.",
 "No full leave days yet. Travel days stay claimable.": "Aucune journée complète de congé pour l'instant. Les jours de déplacement restent remboursables.",
 "No general expenses. Laundry, internet, conference fees and similar go here.": "Aucuns frais généraux. La blanchisserie, Internet, les frais de conférence et autres frais semblables vont ici.",
@@ -2074,8 +2075,11 @@ const ROWNEW = {
   exchange:  () => Object.assign({ date: '', location: '', soldAmt: '', soldCur: 'CAD', boughtAmt: '', boughtCur: 'USD', rate: '', charge: '', chargeCur: 'CAD' }, LOST()),
   calls:     () => Object.assign({ date: '', location: '', timeDur: '', number: '', person: '', kind: 'Business', cost: '', cur: 'CAD' }, LOST()),
 };
+// DSCDS 7209-1 Transportation and Travelling Expenses: used in file names until the member changes it.
+// fileNoSet records that they did, so a number they cleared on purpose stays cleared.
+const FILENO_DEFAULT = '7209-1';
 function blank() {
-  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: '', marking: 'PA',
+  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: FILENO_DEFAULT, fileNoSet: false, marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
@@ -2143,6 +2147,7 @@ function normalize(s) {
   for (const k of ['transport', 'general', 'exchange', 'calls']) if (!Array.isArray(o[k])) o[k] = [];
   for (const k of ['transport', 'general', 'exchange', 'calls', 'stays']) getArr(k, o).forEach((r, i, a) => { a[i] = Object.assign(ROWNEW[k](), r); a[i].id = r.id || uid(); a[i].rc = Array.isArray(r.rc) ? r.rc : []; });
   o.stops.forEach(s => { s.id = s.id || uid(); normMode(s); });
+  if (!o.fileNoSet && !String(o.fileNo || '').trim()) o.fileNo = FILENO_DEFAULT; // drafts from before the default
   return o;
 }
 
@@ -2746,6 +2751,7 @@ function normTime(v) {
 }
 function onBind(el, final) {
   const p = el.dataset.bind, fmt = el.dataset.fmt;
+  if (p === 'fileNo') S.fileNoSet = true;
   let v = el.type === 'checkbox' ? el.checked : el.value;
   if (fmt === 'ext') { v = v.replace(/\D/g, '').slice(0, 4); if (el.value !== v) el.value = v; }
   if (fmt === 'tel' && final) {
@@ -3191,9 +3197,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.6-beta.5';
+const APP_VERSION = '1.6-beta.6';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.6 beta 5, built 17 Oct 2026 12:47 (production is 1.5)';
+const APP_LABEL = 'Version 1.6 beta 6, built 17 Oct 2026 12:59 (production is 1.5)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4022,10 +4028,10 @@ async function devSave() {
   } catch (e) { DEV.failed = true; }
   saveChip();
 }
-const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
+const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, fileNoSet: !!S.fileNoSet, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
 function profileSchedule() { if (!DEV.db || !DEV.settings.remember || DEV.locked || S.example) return; clearTimeout(profT); profT = setTimeout(async () => { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }, 900); }
 async function loadProfile() { if (!DEV.db || !DEV.settings.remember) return null; try { return await unseal(await idbGet('profile')); } catch (e) { return null; } }
-function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string') S.fileNo = p.fileNo; if (typeof p.marking === 'string') S.marking = p.marking; }
+function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string' && (p.fileNo.trim() || p.fileNoSet)) { S.fileNo = p.fileNo; S.fileNoSet = true; } if (typeof p.marking === 'string') S.marking = p.marking; }
 async function wipeClaim() { try { const keys = (await idbKeys()) || []; for (const k of keys) if (k === 'claim' || k === 'meta' || String(k).startsWith('rc:')) await idbDel(k); } catch (e) {} DEV.savedRc.clear(); DEV.lastSaved = 0; }
 async function restoreDevice() {
   if (!DEV.db || !DEV.settings.keep) return false;

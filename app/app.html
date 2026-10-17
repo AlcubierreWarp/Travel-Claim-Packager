@@ -2244,9 +2244,25 @@ async function build() {
     }
     const pages = doc.getPages(), total = pages.length, Ff = P.F;
     const left = P.clean(['CAF Digital Travel Itinerary', [S.member.rank, S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
-    const mark = MARKINGS[S.marking || ''];
-    if (mark) pages.forEach(p => { const { width: pw, height: ph } = p.getSize(); const mw = P.B.widthOfTextAtSize(mark, 9); p.drawText(mark, { x: pw - P.M - mw, y: ph - 22, size: 9, font: P.B, color: P.C.ink }); });
-    pages.forEach((p, i) => { p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid }); const r = `Page ${i + 1} of ${total}`; p.drawText(r, { x: P.W - P.M - Ff.widthOfTextAtSize(r, 7), y: 22, size: 7, font: Ff, color: P.C.mid }); });
+    // Security marking, per DND guidance (marked at the top and bottom of each sensitive document) and the
+    // GC rule that loose documents are marked on every sheet, in letters larger than the body text.
+    // Top right and bottom right of every page, receipts included, on a white backing so it stays legible.
+    const mark = MARKINGS[S.marking || ''], MS = 12;
+    const stamp = (p, x, y) => { const w = P.B.widthOfTextAtSize(mark, MS); p.drawRectangle({ x: x - 3, y: y - 3, width: w + 6, height: MS + 4, color: P.C.white }); p.drawText(mark, { x, y, size: MS, font: P.B, color: P.C.ink }); };
+    pages.forEach((p, i) => {
+      const { width: pw, height: ph } = p.getSize();
+      const r = `Page ${i + 1} of ${total}`, rw = Ff.widthOfTextAtSize(r, 7);
+      if (mark) {
+        const mw = P.B.widthOfTextAtSize(mark, MS);
+        stamp(p, pw - P.M - mw, ph - 26); stamp(p, pw - P.M - mw, 16);
+        p.drawText(r, { x: (pw - rw) / 2, y: 20, size: 7, font: Ff, color: P.C.mid });
+        p.drawText(P.fit(left, Ff, 7, pw / 2 - P.M - rw / 2 - 12), { x: P.M, y: 20, size: 7, font: Ff, color: P.C.mid });
+      } else {
+        p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid });
+        p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
+      }
+    });
+    if (mark) { doc.setSubject(mark); doc.setKeywords([mark, 'CAF Digital Travel Itinerary']); }
     doc.setTitle(['CAF Digital Travel Itinerary', S.tripRef].filter(Boolean).join(' - '));
     doc.setAuthor(fullName());
     doc.setCreator('CAF Digital Travel Itinerary ' + APP_VERSION); doc.setProducer('pdf-lib, generated in the browser');

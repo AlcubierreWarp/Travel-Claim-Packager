@@ -6,6 +6,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 - The Switch to beta / Switch to production item moves to the bottom of the menu, under Help and Send feedback
 - Currency exchanges no longer get an "outside the trip" warning when dated up to 30 days before or after it
+- Beta: Reset the beta now also brings back the example claim, the local-only notice and the other first-run prompts. The beta keeps these preferences separately from production, so dismissing something in one no longer hides it in the other
 - Package output choice is now a compact One PDF / Separate PDFs switch with a one-line hint, on desktop and phone
 - Beta: the violet theme is back in light mode (a comment in the beta styles had cut off the light-mode rule); a release check now guards against it
 - Beta only (stays out of production): Load test data (a full test claim using every section and feature: point of contact, connections, a leave stop, rental car and other modes, all three kinds of lodging with rations, meal remarks, an exchange before the trip, business and personal calls, image and two-page PDF receipts, four missing receipts with one edited declaration, TAN, trip locator, file number and PROTECTED B; Undo is offered) and Reset the beta (clears the beta's saved claims, details, settings, PIN and offline copy on this device; production is untouched), at the bottom of the menu under Beta testing

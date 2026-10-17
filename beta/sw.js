@@ -5,7 +5,7 @@
 // Production and beta live on the same site, so each keeps its own cache, named after its folder.
 const SCOPE = new URL(self.registration.scope).pathname;
 const PREFIX = 'caf-dti-' + SCOPE + '-';
-const CACHE = PREFIX + 'dac0f75572';
+const CACHE = PREFIX + 'a82aa3c47e';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico', './favicon-32x32.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

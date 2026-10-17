@@ -51,10 +51,11 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .brand p{margin:3px 0 0;color:var(--muted);font-size:.86rem}
 .top-actions{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .savechip{font:500 .72rem/1.2 var(--f-mono);color:var(--muted);white-space:nowrap}
+.save-btn.done{background:var(--accent-soft);border-color:var(--accent)}
 .savechip.on{color:var(--ok)}
 .savechip.off{color:var(--warn)}
 .menu-wrap{position:relative}
-.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:18rem;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line-strong);border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:18rem;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line-strong);border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column;max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
 .menu>button{all:unset;box-sizing:border-box;padding:10px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
 .menu>button:hover,.menu>button:focus-visible{background:var(--accent-soft)}
 .menu>button.danger{color:var(--bad)}
@@ -63,6 +64,9 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .install-steps li{margin:2px 0}
 .menu>button.armed{background:var(--bad);color:#fff}
 .menu hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
+.menu .mi-t{display:block}
+.menu .mi-sub{display:block;font-size:.74rem;line-height:1.3;color:var(--muted);margin-top:2px}
+.menu .menu-h:first-child{margin-top:6px}
 .menu-h{font:600 .64rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 10px 2px}
 .menu-check{display:flex;gap:10px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
 .menu-check:hover{background:var(--accent-soft)}
@@ -133,6 +137,16 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .imp-opts .sub{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
 .imp-warn{margin:12px 0 0;padding:8px 10px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-size:.86rem}
 .imp-busy{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
+.imp-more{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:10px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:4px;background:var(--card)}
+.imp-more.dragover{border-color:var(--accent);background:var(--field)}
+.imp-more .drophint{flex:1 1 220px}
+.imp-paste{flex:1 1 100%;font-size:.84rem}
+.imp-paste summary{cursor:pointer;color:var(--accent);font-weight:600}
+.imp-paste textarea{display:block;width:100%;box-sizing:border-box;margin:6px 0;font:inherit;font-size:.85rem;padding:8px;border:1px solid var(--line-strong);border-radius:3px;background:var(--field);color:var(--ink)}
+.imp-list li.new{background:var(--accent-soft);border-radius:3px;padding:1px 4px;margin-left:-4px}
+.imp-list .tag{display:inline-block;margin-left:6px;padding:0 5px;border-radius:999px;border:1px solid currentColor;font:700 .6rem/1.5 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.imp-added{margin:8px 0 0;font-size:.84rem;font-weight:600;color:var(--accent)}
+.imp-added.none{color:var(--muted);font-weight:400}
 #sec-B.dragover{outline:2px dashed var(--accent);outline-offset:4px}
 dialog#imp[open]{display:flex;flex-direction:column}
 dialog#imp .snap-body{max-height:none;flex:1 1 auto;min-height:0}
@@ -467,7 +481,7 @@ dialog,dialog .snap-body{overscroll-behavior:contain}
   h1{font-size:1.2rem}
   .mark{display:none}
   .top .wrap{padding-block:10px;flex-wrap:nowrap}
-  .savechip{display:none}
+  .savechip,.save-btn{display:none}
   .top-actions{flex-wrap:nowrap;gap:6px}
   .lang-btn{padding-inline:.6rem}
   .lang-btn .lg{display:none}
@@ -533,16 +547,22 @@ html{touch-action:manipulation}
     </div>
     <div class="top-actions">
       <span class="savechip" id="savechip" role="status"></span>
+      <button class="btn save-btn" id="save-now" data-act="save-now" title="Save now (Ctrl+S)">Save</button>
       <button class="btn lang-btn" id="lang-btn" data-act="lang" data-noi18n><span class="lg">Français</span><span class="sm">FR</span></button>
       <div class="menu-wrap">
         <button class="btn" id="menu-btn" data-act="menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu">Menu</button>
         <div class="menu" id="menu" hidden>
           <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
           <hr id="install-hr" hidden>
-          <button data-act="open-draft">Open draft file</button>
-          <button data-act="save-draft" id="save-draft">Save draft file</button>
-          <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
-          <button data-act="clear" id="clear-btn">Clear form</button>
+          <p class="menu-h">This claim</p>
+          <button data-act="save-now" id="save-now-menu">Save now</button>
+          <button data-act="clear" id="clear-btn">New claim</button>
+          <button data-act="open-draft">Import claim file…</button>
+          <button data-act="save-draft" id="save-draft"><span class="mi-t">Export claim file</span><span class="mi-sub">Your claim and receipts, to finish later or on another device.</span></button>
+          <button data-act="send-draft" id="send-draft" hidden>Send claim file</button>
+          <hr>
+          <p class="menu-h">This tool</p>
+          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Export offline app</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
           <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -550,16 +570,18 @@ html{touch-action:manipulation}
           <label class="menu-check"><input type="checkbox" id="opt-remember"> Remember my details</label>
           <label class="menu-check"><input type="checkbox" id="opt-pin"> Protect with a PIN</label>
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
+          <hr>
+          <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.5, updated 17 Oct 2026</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6, updated 17 Oct 2026</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
     </div>
   </div>
 </header>
-<div class="localonly" id="localonly"><div class="lo-swipe" aria-hidden="true"><span class="lo-act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1zM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg><small>Hide</small></span></div><div class="lo-slide"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div></div>
+<div class="localonly" id="localonly"><div class="lo-swipe" aria-hidden="true"><span class="lo-act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1zM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg><small>Hide</small></span></div><div class="lo-slide"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Export a claim file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div></div>
 
 <div class="layout">
   <nav class="rail" aria-label="Worksheet sections" id="rail"></nav>
@@ -740,7 +762,7 @@ html{touch-action:manipulation}
             <label class="check pki-opt"><input type="checkbox" id="opt-pkisig" data-bind="pki"> Sign with PKI (digital signature)</label>
             <p class="sd-help" id="pki-help"></p>
             <div class="sd-grid fn-grid">
-              <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="e.g. 7209-1"></div>
+              <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="No file number"></div>
               <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="UNCLAS">UNCLASSIFIED</option><option value="PA">PROTECTED A</option><option value="PB">PROTECTED B</option><option value="">None</option></select></div>
             </div>
             <p class="fname">File: <code id="fname"></code></p>
@@ -756,7 +778,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.5, updated 17 Oct 2026</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6, updated 17 Oct 2026</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -794,15 +816,15 @@ html{touch-action:manipulation}
   <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and add another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
 </dialog>
 
-<input type="file" id="file-itin" accept=".pdf,.eml,.txt,.htm,.html,application/pdf,message/rfc822,text/plain,text/html" multiple hidden>
+<input type="file" id="file-itin" accept=".pdf,.msg,.eml,.txt,.htm,.html,application/pdf,application/vnd.ms-outlook,message/rfc822,text/plain,text/html" multiple hidden>
 <dialog id="imp" aria-labelledby="imp-h">
   <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
       <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.</p>
       <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.</span></p>
-      <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.</span></div>
-      <label for="imp-text" class="imp-or">Or paste the itinerary text from the email</label>
+      <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.</span></div>
+      <label for="imp-text" class="imp-or">Or open the email, select all, copy, and paste it here</label>
       <textarea id="imp-text" rows="4" autocomplete="off" spellcheck="false"></textarea>
       <div class="sec-tools"><button type="button" class="btn" data-act="imp-read-text">Read pasted text</button></div>
     </div>
@@ -811,6 +833,15 @@ html{touch-action:manipulation}
       <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>Compare this with your itinerary before you fill section B.</span></p>
       <h4 class="imp-sub">Found</h4>
       <ul class="imp-list" id="imp-list"></ul>
+      <p class="imp-added" id="imp-added" role="status" hidden></p>
+      <div class="imp-more" id="imp-more">
+        <button type="button" class="btn" data-act="imp-choose">Add another email or file</button>
+        <span class="drophint">Itinerary split over several emails? Add the others here or drop them on this window. New legs join the list; legs already listed are skipped.</span>
+        <details class="imp-paste"><summary>Paste another email</summary>
+          <textarea id="imp-text2" rows="3" autocomplete="off" spellcheck="false" aria-label="Pasted email text"></textarea>
+          <button type="button" class="btn" data-act="imp-read-text2">Add pasted text</button>
+        </details>
+      </div>
       <div class="imp-opts" id="imp-opts"></div>
       <h4 class="imp-sub">Section B will list</h4>
       <ol class="imp-plan" id="imp-plan"></ol>
@@ -895,6 +926,9 @@ html{touch-action:manipulation}
 <script>
 (() => {
 'use strict';
+// The page as it arrived, before anything is filled in or rendered. "Download offline copy" builds
+// the offline file from this, so it never contains the member's data and needs no network.
+const PRISTINE = document.documentElement.outerHTML;
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -937,14 +971,17 @@ const FR = {
 "<strong>Install on this computer</strong><ol class=\"install-steps\"><li>In Chrome or Edge, click the install icon at the right end of the address bar, or open the browser menu and choose <b>Install</b>.</li><li>Confirm. The app opens in its own window.</li></ol>": "<strong>Installer sur cet ordinateur</strong><ol class=\"install-steps\"><li>Dans Chrome ou Edge, cliquez sur l'icône d'installation à l'extrémité droite de la barre d'adresse, ou ouvrez le menu du navigateur et choisissez <b>Installer</b>.</li><li>Confirmez. L'application s'ouvre dans sa propre fenêtre.</li></ol>",
 "A Commissioner for Oaths outside Alberta.": "Commissaire aux serments à l'extérieur de l'Alberta.",
 "A Commissioner for Oaths.": "Commissaire aux serments.",
+"A copy of this tool as one .html file that runs without internet. No claim data.": "Une copie de cet outil en un seul fichier .html, utilisable sans Internet. Aucune donnée de réclamation.",
 "A statutory declaration for {0} replaces the receipt in the package.": "Une déclaration solennelle pour {0} remplace le reçu dans la trousse.",
 "Add a receipt": "Ajouter un reçu",
 "Add a short description.": "Ajoutez une courte description.",
 "Add a stay": "Ajouter un séjour",
 "Add a telephone number.": "Ajoutez un numéro de téléphone.",
+"Add another email or file": "Ajouter un autre courriel ou fichier",
 "Add call": "Ajouter un appel",
 "Add currency exchange": "Ajouter une opération de change",
 "Add general expense": "Ajouter des frais généraux",
+"Add pasted text": "Ajouter le texte collé",
 "Add stays from itinerary": "Ajouter les séjours d'après l'itinéraire",
 "Add the date you arrive at {0}.": "Ajoutez la date d'arrivée à {0}.",
 "Add the date you leave at the Start and the date you arrive at the Finish in section B. A row for each travel day appears here.": "Inscrivez la date de départ au Départ et la date d'arrivée à l'Arrivée dans la section B. Une ligne pour chaque jour de voyage s'affiche ici.",
@@ -957,6 +994,8 @@ const FR = {
 "Add transportation expense": "Ajouter des frais de transport",
 "Add your full name for the statutory declaration.": "Ajoutez votre nom au complet pour la déclaration solennelle.",
 "Add your home address for the statutory declaration (street, city, province).": "Ajoutez l'adresse de votre domicile pour la déclaration solennelle (rue, ville, province).",
+"Added {0} item from {1}. It is highlighted in the list.": "{0} élément ajouté à partir de {1}. Il est mis en évidence dans la liste.",
+"Added {0} items from {1}. They are highlighted in the list.": "{0} éléments ajoutés à partir de {1}. Ils sont mis en évidence dans la liste.",
 "Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.": "{0} séjour ajouté, un par endroit de nuitée. Ajoutez le nom de l'hôtel, le coût total et la facture, ou cochez Quartiers ou Logement privé.",
 "Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.": "{0} séjours ajoutés, un par endroit de nuitée. Ajoutez le nom de l'hôtel, le coût total et la facture, ou cochez Quartiers ou Logement privé.",
 "Adding declaration {0}...": "Ajout de la déclaration {0}...",
@@ -1056,6 +1095,7 @@ const FR = {
 "Digital signature": "Signature numérique",
 "Dinner": "Souper",
 "Dinner (short)": "Soup.",
+"Download offline copy": "Télécharger une copie hors ligne",
 "Drop receipts onto the expense or stay they belong to.": "Déposez les reçus sur la dépense ou le séjour auquel ils se rapportent.",
 "Déj.": "Déj.",
 "Dîn.": "Dîn.",
@@ -1065,12 +1105,15 @@ const FR = {
 "Enter your PIN to open your saved claim.": "Entrez votre NIP pour ouvrir votre réclamation enregistrée.",
 "Every overnight location already has a stay covering those dates.": "Chaque endroit de nuitée a déjà un séjour qui couvre ces dates.",
 "Everything required is filled in, and every expense has a receipt or a missing-receipt declaration.": "Tous les renseignements requis sont remplis, et chaque dépense a un reçu ou une déclaration de reçu manquant.",
+"Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose \"Keep my work on this device\" in the menu; otherwise it lasts until you close the tab. Export a claim file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.": "Tout fonctionne dans cette fenêtre du navigateur. Rien n'est téléversé ni stocké sur un serveur. Votre réclamation est conservée dans ce navigateur seulement si vous choisissez « Conserver mon travail sur cet appareil » dans le menu; sinon, elle dure jusqu'à la fermeture de l'onglet. Exportez un fichier de réclamation pour déplacer une réclamation vers un autre appareil. Outil non officiel : vérifiez vos réclamations selon la DFCVST et auprès de votre salle des rapports.",
 "Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose \"Keep my work on this device\" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.": "Tout fonctionne dans cette fenêtre du navigateur. Rien n'est téléversé ni stocké sur un serveur. Votre réclamation est conservée dans ce navigateur seulement si vous choisissez « Conserver mon travail sur cet appareil » dans le menu; sinon, elle dure jusqu'à la fermeture de l'onglet. Enregistrez un fichier brouillon pour déplacer une réclamation vers un autre appareil. Outil non officiel : vérifiez vos réclamations selon la DFCVST et auprès de votre salle des rapports.",
 "Everything saved in this browser has been deleted.": "Tout ce qui était enregistré dans ce navigateur a été supprimé.",
 "Example data only. Not a real receipt.": "Données d'exemple seulement. Ce n'est pas un vrai reçu.",
 "Exch. rate": "Taux de change",
 "Exchange": "Change",
 "Expense lines": "Lignes de dépenses",
+"Export claim file": "Exporter le fichier de réclamation",
+"Export offline app": "Exporter l'application hors ligne",
 "Ext": "Poste",
 "Extension is 4 digits.": "Le poste comporte 4 chiffres.",
 "Extension, optional, 4 digits": "Poste, facultatif, 4 chiffres",
@@ -1126,6 +1169,7 @@ const FR = {
 "I need help with the CAF Digital Travel Itinerary.": "J'ai besoin d'aide avec l'Itinéraire de voyage numérique des FAC.",
 "IN THE MATTER OF": "EN CE QUI CONCERNE",
 "Import an itinerary": "Importer un itinéraire",
+"Import claim file…": "Importer un fichier de réclamation…",
 "Import itinerary": "Importer un itinéraire",
 "Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures, le TAN et le code de réservation du voyage.",
 "Import the PDF or email to fill in your stops, dates and times.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures.",
@@ -1138,6 +1182,7 @@ const FR = {
 "Internet": "Internet",
 "Itinerary": "Itinéraire",
 "Itinerary imported: {0} locations.": "Itinéraire importé : {0} endroits.",
+"Itinerary split over several emails? Add the others here or drop them on this window. New legs join the list; legs already listed are skipped.": "Itinéraire réparti sur plusieurs courriels? Ajoutez les autres ici ou déposez-les sur cette fenêtre. Les nouveaux trajets s'ajoutent à la liste; ceux qui y figurent déjà sont ignorés.",
 "Jurat": "Constat d'assermentation",
 "Keep my work on this device": "Conserver mon travail sur cet appareil",
 "Keep on this device": "Conserver sur cet appareil",
@@ -1178,11 +1223,16 @@ const FR = {
 "Name, in full": "Nom, au complet",
 "Names on a statutory declaration must be in full, without initials in brackets.": "Les noms dans une déclaration solennelle doivent être au complet, sans initiales entre parenthèses.",
 "Navy": "Marine",
+"New": "Nouveau",
 "New PIN": "Nouveau NIP",
+"New blank claim ready.": "Nouvelle réclamation vierge prête.",
+"New claim": "Nouvelle réclamation",
 "Nights": "Nuits",
 "No calls to claim.": "Aucun appel à réclamer.",
 "No cost or receipt needed. Quarters are billed directly to the unit.": "Aucun coût ni reçu requis. Les quartiers sont facturés directement à l'unité.",
 "No currency exchanges. Add one for each exchange receipt you have.": "Aucune opération de change. Ajoutez-en une pour chaque reçu de change que vous avez.",
+"No file number": "Aucun numéro de dossier",
+"No flights, trains, buses or rental cars were found in {0}.": "Aucun vol, train, autobus ou voiture de location n'a été trouvé dans {0}.",
 "No flights, trains, buses or rental cars were found. This reader knows the Amex GBT itinerary layout. For anything else, enter the stops by hand.": "Aucun vol, train, autobus ou voiture de location n'a été trouvé. Cet outil reconnaît la présentation des itinéraires d'Amex GBT. Pour tout autre document, entrez les arrêts à la main.",
 "No full leave days yet. Travel days stay claimable.": "Aucune journée complète de congé pour l'instant. Les jours de déplacement restent remboursables.",
 "No general expenses. Laundry, internet, conference fees and similar go here.": "Aucuns frais généraux. La blanchisserie, Internet, les frais de conférence et autres frais semblables vont ici.",
@@ -1199,6 +1249,7 @@ const FR = {
 "Not saved": "Non enregistré",
 "Not started": "Non commencé",
 "Not started yet: {0}. These are checked when you fill them in or build the package.": "Pas encore commencé : {0}. Ces sections sont vérifiées quand vous les remplissez ou créez la trousse.",
+"Nothing new in {0}: everything in it is already listed.": "Rien de nouveau dans {0} : tout y figure déjà.",
 "Nothing you type or attach leaves this browser.": "Rien de ce que vous saisissez ou joignez ne quitte ce navigateur.",
 "Notice hidden. You can show it again from the menu.": "Avis masqué. Vous pouvez l'afficher de nouveau à partir du menu.",
 "Now: {0}. Your saved details change too if Remember my details is on.": "Actuellement : {0}. Vos renseignements enregistrés changent aussi si l'option Mémoriser mes renseignements est activée.",
@@ -1220,6 +1271,7 @@ const FR = {
 "Opened draft saved {0}.": "Brouillon ouvert, enregistré le {0}.",
 "Opened draft.": "Brouillon ouvert.",
 "Optional": "Facultatif",
+"Or open the email, select all, copy, and paste it here": "Ou ouvrez le courriel, sélectionnez tout, copiez-le et collez-le ici",
 "Or paste the itinerary text from the email": "Ou collez le texte de l'itinéraire tiré du courriel",
 "Other": "Autre",
 "Other expense": "Autre dépense",
@@ -1246,7 +1298,9 @@ const FR = {
 "Page": "Page",
 "Page {0} of {1}": "Page {0} de {1}",
 "Parking": "Stationnement",
+"Paste another email": "Coller un autre courriel",
 "Paste the itinerary text first.": "Collez d'abord le texte de l'itinéraire.",
+"Pasted email text": "Texte du courriel collé",
 "Pasted text": "Texte collé",
 "Person / section": "Personne / section",
 "Person or section called": "Personne ou section appelée",
@@ -1262,6 +1316,7 @@ const FR = {
 "Pick a date": "Choisir une date",
 "Place where taken": "Lieu où elle est reçue",
 "Place, in full (optional)": "Lieu, au complet (facultatif)",
+"Please do not include your PRI, receipts or claim files. If a screenshot helps, attach one with personal details covered.": "Veuillez ne pas inclure votre CIDP, vos reçus ni vos fichiers de réclamation. Si une capture d'écran peut aider, joignez-en une en masquant les renseignements personnels.",
 "Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.": "Veuillez ne pas inclure votre CIDP, vos reçus ni vos fichiers brouillons. Si une capture d'écran peut aider, joignez-en une en masquant les renseignements personnels.",
 "Please include all cities": "Veuillez inclure toutes les villes",
 "Please indicate only meals that you are claiming": "Veuillez indiquer seulement les repas réclamés",
@@ -1332,9 +1387,15 @@ const FR = {
 "Save and add another": "Enregistrer et en ajouter un autre",
 "Save cancelled.": "Enregistrement annulé.",
 "Save draft file": "Enregistrer le fichier brouillon",
+"Save now": "Enregistrer maintenant",
+"Save now (Ctrl+S)": "Enregistrer maintenant (Ctrl+S)",
 "Save or send PDF": "Enregistrer ou envoyer le PDF",
+"Save or send claim file": "Enregistrer ou envoyer le fichier de réclamation",
 "Save or send draft file": "Enregistrer ou envoyer le fichier brouillon",
 "Saved claim removed from this device. Your work now lasts until you close the tab.": "Réclamation enregistrée retirée de cet appareil. Votre travail dure maintenant jusqu'à la fermeture de l'onglet.",
+"Saved in this tab at {0}. It lasts until you close the tab.": "Enregistré dans cet onglet à {0}. Il est conservé jusqu'à la fermeture de l'onglet.",
+"Saved on this device at {1} and checked: the claim and {0} receipt read back correctly.": "Enregistré sur cet appareil à {1} et vérifié : la réclamation et {0} reçu se relisent correctement.",
+"Saved on this device at {1} and checked: the claim and {0} receipts read back correctly.": "Enregistré sur cet appareil à {1} et vérifié : la réclamation et {0} reçus se relisent correctement.",
 "Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.": "Le travail enregistré reste dans ce navigateur seulement et n'est jamais téléversé. Une réclamation enregistrée se supprime 30 jours après la création de son PDF.",
 "Saved {0}": "Enregistré : {0}",
 "Saving": "Enregistrement",
@@ -1345,6 +1406,7 @@ const FR = {
 "Section {0}: ": "Section {0} : ",
 "Security marking": "Marque de sécurité",
 "Send PDF": "Envoyer le PDF",
+"Send claim file": "Envoyer le fichier de réclamation",
 "Send draft file": "Envoyer le fichier brouillon",
 "Send feedback": "Envoyer des commentaires",
 "Sending is not available right now. Saving the file instead.": "L'envoi n'est pas disponible pour l'instant. Le fichier est enregistré à la place.",
@@ -1390,6 +1452,7 @@ const FR = {
 "TO WIT:": "À SAVOIR :",
 "Tab only": "Onglet seulement",
 "Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.": "Touchez Enregistrer ou envoyer le PDF, puis choisissez Enregistrer dans Fichiers, OneDrive, Teams ou Mail.",
+"Tap again to erase this claim": "Touchez de nouveau pour effacer cette réclamation",
 "Taxi": "Taxi",
 "Telephone": "Téléphone",
 "Telephone \"{0}\" must be ###-###-#### or ###-####.": "Le téléphone « {0} » doit être au format ###-###-#### ou ###-####.",
@@ -1400,28 +1463,38 @@ const FR = {
 "The PDF engine did not load. Reload the page and try again.": "Le moteur PDF ne s'est pas chargé. Rechargez la page et réessayez.",
 "The PDF gets digital signature fields to sign in Adobe with a PKI certificate. The signature records the date, so no date line is added.": "Le PDF comporte des champs de signature numérique à signer dans Adobe avec un certificat ICP. La signature enregistre la date, donc aucune ligne de date n'est ajoutée.",
 "The PDF gets lines to sign by hand, with a date line beside your signature. Print it, sign it, and scan it if your Orderly Room wants it electronically.": "Le PDF comporte des lignes pour signer à la main, avec une ligne de date à côté de votre signature. Imprimez-le, signez-le et numérisez-le si votre salle des rapports le veut en format électronique.",
+"The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel lui-même (fichier .msg d'Outlook, ou .eml). Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel enregistré en fichier .eml. Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The POC extension must be 4 digits.": "Le poste du PC doit comporter 4 chiffres.",
 "The extension must be 4 digits.": "Le poste doit comporter 4 chiffres.",
 "The final location has no name.": "Le lieu d'arrivée n'a pas de nom.",
 "The member, trip and receipts are made up so you can see how the package comes out.": "Le membre, le voyage et les reçus sont fictifs pour vous montrer le résultat de la trousse.",
+"The receipt photos were too large to keep in the tab.": "Les photos de reçus étaient trop volumineuses pour être conservées dans l'onglet.",
 "The starting location has no name.": "Le lieu de départ n'a pas de nom.",
 "The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.": "Le nom du voyage figure en haut du PDF et dans le nom du fichier. Le TAN et le code de réservation du voyage sont imprimés en dessous.",
 "The two PINs do not match.": "Les deux NIP ne correspondent pas.",
 "This PDF could not be added to the package. It may be password-protected or damaged. Submit \"{0}\" separately with this claim.": "Ce PDF n'a pas pu être ajouté à la trousse. Il est peut-être protégé par un mot de passe ou endommagé. Soumettez « {0} » séparément avec cette réclamation.",
 "This browser cannot read iPhone HEIC photos. Set the camera to \"Most Compatible\".": "Ce navigateur ne peut pas lire les photos HEIC de l'iPhone. Réglez l'appareil photo sur « Le plus compatible ».",
+"This browser did not save your claim. Export a claim file now to keep your work.": "Ce navigateur n'a pas enregistré votre réclamation. Exportez maintenant un fichier de réclamation pour conserver votre travail.",
+"This browser refused to save. Export a claim file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, exportez un fichier de réclamation.",
 "This browser refused to save. Save a draft file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, enregistrez un fichier brouillon.",
+"This browser view does not allow saving on the device. Use Export claim file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Exporter le fichier de réclamation.",
 "This browser view does not allow saving on the device. Use Save draft file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Enregistrer le fichier brouillon.",
+"This claim": "Cette réclamation",
 "This device": "Cet appareil",
 "This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.": "Ce brouillon fait {0} Mo à cause des photos de reçus. Le courriel pourrait le refuser; OneDrive ou Teams l'accepteront.",
 "This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.": "Cette fonction est nouvelle. Vérifiez chaque arrêt, chaque date et chaque heure par rapport à votre itinéraire avant de créer le dossier, et utilisez Envoyer des commentaires si un élément est mal lu.",
 "This is an example claim.": "Ceci est un exemple de réclamation.",
 "This replaces the {0} location now in section B. You can undo it right after.": "Ceci remplace le {0} endroit qui figure dans la section B. Vous pourrez annuler juste après.",
 "This replaces the {0} locations now in section B. You can undo it right after.": "Ceci remplace les {0} endroits qui figurent dans la section B. Vous pourrez annuler juste après.",
+"This tool": "Cet outil",
+"This view cannot save in the browser. Export a claim file to keep your work.": "Cet affichage ne peut pas enregistrer dans le navigateur. Exportez un fichier de réclamation pour conserver votre travail.",
 "Tick only the meals you are claiming": "Cochez seulement les repas que vous réclamez",
 "Time & duration": "Heure et durée",
+"To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Importer un fichier de réclamation, et sélectionnez ce fichier.",
 "To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Ouvrir un fichier brouillon, et sélectionnez ce fichier.",
 "To do": "À faire",
+"To keep it longer, turn on Keep my work on this device, or export a claim file.": "Pour le conserver plus longtemps, activez Conserver mon travail sur cet appareil ou exportez un fichier de réclamation.",
 "Toll": "Péage",
 "Total": "Total",
 "Total cost": "Coût total",
@@ -1467,6 +1540,7 @@ const FR = {
 "Worksheet, sections A to H": "Feuille de travail, sections A à H",
 "You sign it by hand in front of the officer.": "Vous la signez à la main devant l'officier.",
 "You sign it with your PKI certificate.": "Vous la signez avec votre certificat ICP.",
+"Your claim and receipts, to finish later or on another device.": "Votre réclamation et vos reçus, pour terminer plus tard ou sur un autre appareil.",
 "Your details will be filled in on your next claim.": "Vos renseignements seront remplis dans votre prochaine réclamation.",
 "Your remembered details were removed.": "Vos renseignements mémorisés ont été supprimés.",
 "Your saved claim is protected with a PIN.": "Votre réclamation enregistrée est protégée par un NIP.",
@@ -1546,6 +1620,7 @@ const FR = {
 "{0} receipt was too large to keep after the reload. Please attach it again.": "{0} reçu était trop volumineux pour être conservé après le rechargement. Veuillez le joindre de nouveau.",
 "{0} receipts attached": "{0} reçus joints",
 "{0} receipts were too large to keep after the reload. Please attach them again.": "{0} reçus étaient trop volumineux pour être conservés après le rechargement. Veuillez les joindre de nouveau.",
+"{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.": "{0} enregistré. Double-cliquez dessus pour l'ouvrir dans n'importe quel navigateur. Il fonctionne sans connexion Internet et se partage comme tout autre fichier (Teams, OneDrive, clé USB). Certains systèmes de courriel bloquent les pièces jointes .html.",
 "{0} stay added to section D.": "{0} séjour ajouté à la section D.",
 "{0} stays added to section D.": "{0} séjours ajoutés à la section D.",
 "{0} time, 24 hour": "{0}, heure (24 h)",
@@ -1602,8 +1677,9 @@ const ITIN = (() => {
   // "Winnipeg James Armstrong Richardson Intl Airport, Winnipeg, Canada (YWG)" -> name, city, code
   function place(v) {
     let s = String(v || '').replace(/\s+/g, ' ').trim(), code = '';
-    const m = s.match(/\(([A-Z]{3,4})\)\s*$/); if (m) { code = m[1]; s = s.slice(0, m.index).trim(); }
-    const parts = s.split(',').map(x => x.trim()).filter(Boolean);
+    // the code can be followed by a terminal: "Toronto, Canada (YYZ), Terminal 1"
+    const m = [...s.matchAll(/\(([A-Z]{3,4})\)/g)].pop(); if (m) { code = m[1]; s = (s.slice(0, m.index) + s.slice(m.index + m[0].length)).trim(); }
+    const parts = s.split(',').map(x => x.trim()).filter(x => x && !/^(?:terminal|a[ée]rogare|term\.?)\b/i.test(x));
     while (parts.length > 1 && NOTCITY.test(fold(parts[parts.length - 1]))) parts.pop();
     let city = parts.length > 1 ? parts[parts.length - 1] : (AIRPORTS[code] || parts[0] || code);
     if (AIRPORTS[code] && fold(AIRPORTS[code]) === fold(city)) city = AIRPORTS[code]; // keep the accents
@@ -1861,7 +1937,56 @@ const ITIN = (() => {
   const text = p => { try { return new TextDecoder(p.charset || 'utf-8').decode(p.bytes); } catch (e) { return new TextDecoder('utf-8').decode(p.bytes); } };
   const isPdf = p => p.type === 'application/pdf' || /\.pdf$/i.test(p.name) || (p.bytes.length > 4 && p.bytes[0] === 37 && p.bytes[1] === 80 && p.bytes[2] === 68 && p.bytes[3] === 70);
 
-  return { when, place, parse, merge, plan, roundTrip, mime, text, isPdf, fold, AIRPORTS };
+  /* ---------- Outlook message (.msg) ---------- */
+  // A .msg file is a Compound File (the old Office container): a small FAT file system in one file.
+  // This reads its directory and streams, then picks out the message body and the attachments.
+  // Returns leaf parts shaped like mime() so both go through the same steps.
+  function cfb(u) {
+    const dv = new DataView(u.buffer, u.byteOffset, u.byteLength), r32 = o => dv.getUint32(o, true), r16 = o => dv.getUint16(o, true);
+    if (u.length < 512 || r32(0) !== 0xE011CFD0 || r32(4) !== 0xE11AB1A1) return null;
+    const ss = 1 << r16(30), ms = 1 << r16(32), cutoff = r32(56), END = 0xFFFFFFFE, per = ss / 4;
+    const at = n => 512 + n * ss; // sector n (the header occupies the first 512 bytes)
+    const fatSecs = [];
+    for (let i = 0; i < 109; i++) { const n = r32(76 + i * 4); if (n < END) fatSecs.push(n); }
+    for (let d = r32(68), guard = 0; d < END && guard++ < 10000;) { for (let i = 0; i < per - 1; i++) { const n = r32(at(d) + i * 4); if (n < END) fatSecs.push(n); } d = r32(at(d) + (per - 1) * 4); }
+    const fat = []; fatSecs.forEach(n => { for (let i = 0; i < per; i++) fat.push(r32(at(n) + i * 4)); });
+    const chain = (start, next) => { const out = []; for (let n = start, g = 0; n < END && g++ < 1e6; n = next[n]) { if (n === undefined) break; out.push(n); } return out; };
+    const read = (start, size) => { const out = new Uint8Array(size); let o = 0; for (const n of chain(start, fat)) { const b = at(n); const k = Math.min(ss, size - o); if (k <= 0 || b + k > u.length) break; out.set(u.subarray(b, b + k), o); o += k; } return out; };
+    const dir = read(r32(48), chain(r32(48), fat).length * ss), ents = [];
+    for (let o = 0; o + 128 <= dir.length; o += 128) {
+      const e = new DataView(dir.buffer, o, 128), nl = e.getUint16(64, true);
+      let name = ''; for (let i = 0; i + 1 < Math.min(nl, 64) - 2 + 1; i += 2) { const c = e.getUint16(i, true); if (!c) break; name += String.fromCharCode(c); }
+      ents.push({ name, type: e.getUint8(66), left: e.getUint32(68, true), right: e.getUint32(72, true), child: e.getUint32(76, true), start: e.getUint32(116, true), size: e.getUint32(120, true) });
+    }
+    const root = ents[0]; if (!root || root.type !== 5) return null;
+    const mini = read(root.start, root.size), mfat = [];
+    chain(r32(60), fat).forEach(n => { for (let i = 0; i < per; i++) mfat.push(r32(at(n) + i * 4)); });
+    const data = e => {
+      if (e.size >= cutoff) return read(e.start, e.size);
+      const out = new Uint8Array(e.size); let o = 0;
+      for (const n of chain(e.start, mfat)) { const k = Math.min(ms, e.size - o); if (k <= 0) break; out.set(mini.subarray(n * ms, n * ms + k), o); o += k; }
+      return out;
+    };
+    const kids = (e, seen = new Set()) => { const out = []; const walk = i => { if (i >= ents.length || seen.has(i)) return; seen.add(i); const x = ents[i]; walk(x.left); out.push(x); walk(x.right); }; walk(e.child); return out; };
+    return { root, kids, data };
+  }
+  function msg(u) {
+    const c = cfb(u); if (!c) return [];
+    const u16 = b => { let s = ''; for (let i = 0; i + 1 < b.length; i += 2) s += String.fromCharCode(b[i] | b[i + 1] << 8); return s.replace(/\0+$/, ''); };
+    const props = e => { const m = {}; c.kids(e).forEach(k => { const t = /^__substg1\.0_([0-9A-F]{8})$/i.exec(k.name); if (t && k.type === 2) m[t[1].toUpperCase()] = k; }); return m; };
+    const str = (p, tag) => p[tag + '001F'] ? u16(c.data(p[tag + '001F'])) : p[tag + '001E'] ? new TextDecoder('windows-1252').decode(c.data(p[tag + '001E'])).replace(/\0+$/, '') : '';
+    const top = props(c.root), out = [];
+    c.kids(c.root).filter(k => k.type === 1 && /^__attach_version1\.0_/i.test(k.name)).forEach(a => {
+      const p = props(a); if (!p['37010102']) return; // embedded messages and links are skipped
+      out.push({ type: (str(p, '370E') || 'application/octet-stream').toLowerCase(), name: str(p, '3707') || str(p, '3704') || str(p, '3001'), bytes: c.data(p['37010102']), charset: '' });
+    });
+    if (top['10130102']) out.push({ type: 'text/html', name: '', bytes: c.data(top['10130102']), charset: 'utf-8' });
+    const body = str(top, '1000'); if (body) out.push({ type: 'text/plain', name: '', bytes: new TextEncoder().encode(body), charset: 'utf-8' });
+    return out;
+  }
+  const isMsg = u => u.length > 8 && u[0] === 0xD0 && u[1] === 0xCF && u[2] === 0x11 && u[3] === 0xE0;
+
+  return { when, place, parse, merge, plan, roundTrip, mime, msg, isMsg, text, isPdf, fold, AIRPORTS };
 })();
 const LANG_KEY = 'caf-dti-lang';
 let LANG = (() => { try { const v = localStorage.getItem(LANG_KEY); if (v === 'en' || v === 'fr') return v; } catch (e) {} return /^fr\b/i.test(navigator.language || '') ? 'fr' : 'en'; })();
@@ -1994,8 +2119,11 @@ const ROWNEW = {
   exchange:  () => Object.assign({ date: '', location: '', soldAmt: '', soldCur: 'CAD', boughtAmt: '', boughtCur: 'USD', rate: '', charge: '', chargeCur: 'CAD' }, LOST()),
   calls:     () => Object.assign({ date: '', location: '', timeDur: '', number: '', person: '', kind: 'Business', cost: '', cur: 'CAD' }, LOST()),
 };
+// DSCDS 7209-1 Transportation and Travelling Expenses: used in file names until the member changes it.
+// fileNoSet records that they did, so a number they cleared on purpose stays cleared.
+const FILENO_DEFAULT = '7209-1';
 function blank() {
-  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: '', marking: 'PA',
+  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: FILENO_DEFAULT, fileNoSet: false, marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
@@ -2063,6 +2191,7 @@ function normalize(s) {
   for (const k of ['transport', 'general', 'exchange', 'calls']) if (!Array.isArray(o[k])) o[k] = [];
   for (const k of ['transport', 'general', 'exchange', 'calls', 'stays']) getArr(k, o).forEach((r, i, a) => { a[i] = Object.assign(ROWNEW[k](), r); a[i].id = r.id || uid(); a[i].rc = Array.isArray(r.rc) ? r.rc : []; });
   o.stops.forEach(s => { s.id = s.id || uid(); normMode(s); });
+  if (!o.fileNoSet && !String(o.fileNo || '').trim()) o.fileNo = FILENO_DEFAULT; // drafts from before the default
   return o;
 }
 
@@ -2666,6 +2795,7 @@ function normTime(v) {
 }
 function onBind(el, final) {
   const p = el.dataset.bind, fmt = el.dataset.fmt;
+  if (p === 'fileNo') S.fileNoSet = true;
   let v = el.type === 'checkbox' ? el.checked : el.value;
   if (fmt === 'ext') { v = v.replace(/\D/g, '').slice(0, 4); if (el.value !== v) el.value = v; }
   if (fmt === 'tel' && final) {
@@ -2754,6 +2884,7 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('focusout', e => { const id = e.target && e.target.id; if (id && requiredFields().some(([rid]) => rid === id)) { visited.add(id); markRequired(); } });
 document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveNow(); return; }
   if (e.key === 'Escape' && !$('#menu').hidden) { setMenu(false); $('#menu-btn').focus(); }
   if (e.key === 'Enter' && e.target.id === 'unlock-pin') { e.preventDefault(); $('[data-act="unlock"]').click(); }
   if (e.key === 'Enter' && (e.target.id === 'pin-1' || e.target.id === 'pin-2')) { e.preventDefault(); $('[data-act="pin-save"]').click(); }
@@ -2795,11 +2926,13 @@ document.addEventListener('click', e => {
     case 'fill-stays': fillStays(); break;
     case 'start-blank': startBlank(T('Blank claim ready. Start with the trip name and section A.')); break;
     case 'clear': {
-      if (clearArmed && Date.now() - clearArmed < 4000) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('Clear form'); setMenu(false); startBlank(T('Form cleared.')); }
-      else { clearArmed = Date.now(); b.classList.add('armed'); b.textContent = T('Click again to clear'); setTimeout(() => { if (clearArmed && Date.now() - clearArmed >= 3900) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('Clear form'); } }, 4100); }
+      if (clearArmed && Date.now() - clearArmed < 4000) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('New claim'); setMenu(false); startBlank(T('New blank claim ready.')); }
+      else { clearArmed = Date.now(); b.classList.add('armed'); b.textContent = T('Tap again to erase this claim'); setTimeout(() => { if (clearArmed && Date.now() - clearArmed >= 3900) { clearArmed = 0; b.classList.remove('armed'); b.textContent = T('New claim'); } }, 4100); }
       break;
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
+    case 'save-now': setMenu(false); saveNow(); break;
+    case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
     case 'totop': toTop(); break;
@@ -2836,7 +2969,8 @@ document.addEventListener('click', e => {
     case 'imp-cancel': impClose(); break;
     case 'imp-back': impOpen(); break;
     case 'imp-apply': impApply(); break;
-    case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text') + '.txt', { type: 'text/plain' })]); break; }
+    case 'imp-read-text2': { const t = $('#imp-text2').value; if (!t.trim()) break; $('#imp-text2').value = ''; $('.imp-paste').open = false; impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
+    case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
     case 'snap-save': if (saveSnap()) closeSnap(); break;
     case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
     case 'save-pdf': if (lastPdf) offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'); break;
@@ -2844,7 +2978,7 @@ document.addEventListener('click', e => {
   }
 });
 // drag and drop onto expense rows and stay cards
-const dropTarget = el => el.closest('.row[data-sec], .stay, #imp-drop, #sec-B');
+const dropTarget = el => el.closest('.row[data-sec], .stay, #imp-drop, #imp-more, #sec-B');
 document.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); const t = dropTarget(e.target); $$('.dragover').forEach(r => r !== t && r.classList.remove('dragover')); if (t) t.classList.add('dragover'); } });
 document.addEventListener('dragleave', e => { const t = dropTarget(e.target); if (t && !t.contains(e.relatedTarget)) t.classList.remove('dragover'); });
 document.addEventListener('drop', e => {
@@ -2952,21 +3086,24 @@ async function readItinFiles(files) {
   for (const file of files) {
     const nm = file.name || T('Pasted text');
     try {
-      if (/\.msg$/i.test(nm)) { errs.push(T('{0}: Outlook .msg files cannot be read. Drag the PDF attachment instead, or paste the email text.', nm)); continue; }
       const buf = new Uint8Array(await file.arrayBuffer());
       const head = binStr(buf.subarray(0, 5));
       if (head === '%PDF-' || /\.pdf$/i.test(nm)) { found.push(await fromPdf(nm, buf)); names.push(nm); continue; }
-      const raw = binStr(buf);
-      if (/\.eml$/i.test(nm) || /^(?:[\w-]+:.*\r?\n)+/.test(raw.slice(0, 2000)) && /^(?:content-type|mime-version|received|from|subject):/im.test(raw.slice(0, 4000))) {
-        const parts = ITIN.mime(raw), got = [];
-        for (const p of parts.filter(ITIN.isPdf)) got.push(await fromPdf(p.name || nm.replace(/\.eml$/i, '.pdf'), p.bytes));
+      // An email: the PDF itinerary attached to it if there is one, otherwise the message text
+      const fromParts = async (parts, ext) => {
+        const got = [];
+        for (const p of parts.filter(ITIN.isPdf)) { try { got.push(await fromPdf(p.name || nm.replace(ext, '.pdf'), p.bytes)); } catch (e) {} }
         if (!got.some(f => f.segs.length || f.hotels.length)) {
           const h = parts.find(p => p.type === 'text/html'), t = parts.find(p => p.type === 'text/plain');
           if (h) got.push(ITIN.parse(htmlLines(ITIN.text(h))));
           if (t && !got.some(f => f.segs.length)) got.push(ITIN.parse(ITIN.text(t).split(/\r?\n/)));
         }
-        found.push(...got); names.push(nm); continue;
-      }
+        found.push(...got); names.push(nm);
+      };
+      if (ITIN.isMsg(buf)) { const parts = ITIN.msg(buf); if (parts.length) await fromParts(parts, /\.msg$/i); else errs.push(T('{0} could not be read.', nm)); continue; } // Outlook (desktop) message
+      if (/\.msg$/i.test(nm)) { errs.push(T('{0} could not be read.', nm)); continue; }
+      const raw = binStr(buf);
+      if (/\.eml$/i.test(nm) || /^(?:[\w-]+:.*\r?\n)+/.test(raw.slice(0, 2000)) && /^(?:content-type|mime-version|received|from|subject):/im.test(raw.slice(0, 4000))) { await fromParts(ITIN.mime(raw), /\.eml$/i); continue; }
       const txt = new TextDecoder().decode(buf);
       found.push(ITIN.parse(/<\/(td|tr|div|p|table)>/i.test(txt) ? htmlLines(txt) : txt.split(/\r?\n/))); names.push(nm);
     } catch (e) { errs.push(T('{0} could not be read.', nm)); }
@@ -2988,15 +3125,17 @@ function impStopName(s) {
 }
 const impWhere = p => p ? (p.code ? `${p.city} (${p.code})` : p.city || p.name) : '';
 function impOpen() {
-  IMP = null; $('#imp-pick').hidden = false; $('#imp-review').hidden = true; $('#imp-err').hidden = true; $('#imp-busy').hidden = true;
+  IMP = null; $('#imp-pick').hidden = false; $('#imp-review').hidden = true; $('#imp-added').hidden = true; $('#imp-text2').value = ''; $('.imp-paste').open = false; $('#imp-err').hidden = true; $('#imp-busy').hidden = true;
   $('#imp-apply').hidden = true; $('#imp-back').hidden = true; $('#imp-text').value = '';
   const d = $('#imp'); if (!d.open) { try { d.showModal(); } catch (_) { d.setAttribute('open', ''); } }
 }
 function impClose() { const d = $('#imp'); try { d.close(); } catch (_) { d.removeAttribute('open'); } IMP = null; }
 async function impFiles(files) {
   if (!$('#imp').open) impOpen();
+  const adding = !!(IMP && !$('#imp-review').hidden); // more emails for the trip already in review
   const err = $('#imp-err'); err.hidden = true; $('#imp-busy').hidden = false;
   let r; try { r = await readItinFiles(files); } finally { $('#imp-busy').hidden = true; }
+  if (adding) return impAdd(r);
   const f = r.found;
   if (!f.segs.length && !f.hotels.length) {
     err.textContent = [...r.errs, T('No flights, trains, buses or rental cars were found. This reader knows the Amex GBT itinerary layout. For anything else, enter the stops by hand.')].join(' ');
@@ -3005,6 +3144,29 @@ async function impFiles(files) {
   IMP = Object.assign(r, { res: true, fare: false, hotels: true });
   const nm = impName(); IMP.name = !!(nm && nm.empty); // an existing name is replaced only if the member asks
   impRender();
+}
+// Add the legs of more emails to the itinerary in review. Legs, hotels and attached PDFs that are
+// already listed are skipped, so adding the same email twice changes nothing (fares included).
+function impAdd(r) {
+  const note = $('#imp-added'), cur = IMP.found, names = r.names.join(', ') || T('Pasted text');
+  const known = new Set(cur.segs.map(s => s.k));
+  const freshS = r.found.segs.filter(s => !known.has(s.k));
+  const freshH = r.found.hotels.filter(h => !cur.hotels.some(x => x.in === h.in && ITIN.fold(x.name) === ITIN.fold(h.name)));
+  note.hidden = false;
+  if (!freshS.length && !freshH.length) {
+    note.className = 'imp-added none';
+    note.textContent = [...r.errs, r.found.segs.length || r.found.hotels.length ? T('Nothing new in {0}: everything in it is already listed.', names) : T('No flights, trains, buses or rental cars were found in {0}.', names)].join(' ');
+    return;
+  }
+  IMP.found = ITIN.merge([cur, r.found]);
+  r.pdfs.forEach(p => { if (!IMP.pdfs.some(x => x.name === p.name && x.bytes.length === p.bytes.length)) IMP.pdfs.push(p); });
+  IMP.names.push(...r.names); IMP.errs.push(...r.errs);
+  IMP.fresh = new Set(freshS.map(s => s.k));
+  if (!IMP.name) { const nm = impName(); IMP.name = !!(nm && nm.empty); }
+  note.className = 'imp-added';
+  note.textContent = [nPl(freshS.length + freshH.length, 'Added {0} item from {1}. It is highlighted in the list.', 'Added {0} items from {1}. They are highlighted in the list.', names), ...r.errs].join(' ');
+  impRender();
+  const first = $('#imp-list li.new'); if (first) first.scrollIntoView({ block: 'nearest' });
 }
 // The traveller's name, if the itinerary has one that differs from section A
 function impName() {
@@ -3023,7 +3185,8 @@ function impRender() {
   $('#imp-list').innerHTML = f.segs.map(s => {
     const what = T(IMP_KIND[s.kind] || 'Travel') + (s.num ? ' ' + s.num : '') + (s.carrier && s.kind !== 'rail' && s.kind !== 'bus' ? `, ${s.carrier}` : '');
     const arrD = s.arr.date && s.arr.date !== s.dep.date ? ` (${fmtDate(s.arr.date)})` : '';
-    return `<li><b>${esc(fmtDate(s.dep.date))}</b> ${esc(T('{0}: {1}', what, `${impWhere(s.from)} ${hm(s.dep.time)} → ${impWhere(s.to)} ${hm(s.arr.time)}${arrD}`))}</li>`;
+    const isNew = IMP.fresh && IMP.fresh.has(s.k);
+    return `<li${isNew ? ' class="new"' : ''}><b>${esc(fmtDate(s.dep.date))}</b> ${esc(T('{0}: {1}', what, `${impWhere(s.from)} ${hm(s.dep.time)} → ${impWhere(s.to)} ${hm(s.arr.time)}${arrD}`))}${isNew ? `<span class="tag">${esc(T('New'))}</span>` : ''}</li>`;
   }).concat(f.hotels.map(h => `<li><b>${esc(fmtDate(h.in))}</b> ${esc(T('{0}: {1}', T('Hotel'), [h.name, h.city, T('{0} to {1}', fmtDate(h.in), fmtDate(h.out))].filter(Boolean).join(', ')))}</li>`)).join('');
   const opt = (id, on, label, sub) => `<label class="check"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span>${esc(label)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</span></label>`;
   const money = f.fare + f.fee, nm = impName();
@@ -3080,6 +3243,24 @@ function impApply() {
   toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); Object.assign(S, { stops: o.stops, transport: o.transport, member: o.member, sd: o.sd, tan: o.tan, locator: o.locator }); S.lodging.stays = o.stays; redraw(); } });
 }
 
+/* ---------- offline copy ---------- */
+// One .html file that opens with a double-click in any browser and runs with no internet connection.
+// Built from the page as it loaded (PRISTINE), with the strict offline policy that blocks all network
+// access and without the installed-app links, so it is the same as CAF_Digital_Travel_Itinerary.html.
+const OFFLINE_CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'";
+function offlineHtml() {
+  const h = PRISTINE
+    .replace(/<meta http-equiv="Content-Security-Policy" content="[^"]*">/, `<meta http-equiv="Content-Security-Policy" content="${OFFLINE_CSP}">`)
+    .replace(/<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\s*/g, '')
+    .replace(/<meta name="(?:theme-color|mobile-web-app-capable|apple-mobile-web-app-capable|apple-mobile-web-app-title)"[^>]*>\s*/g, '');
+  return '<!doctype html>\n' + h + '\n';
+}
+const offlineName = () => `${fr() ? 'Itineraire-voyage-numerique-FAC' : 'CAF_Digital_Travel_Itinerary'}_v${APP_VERSION}.html`;
+async function downloadOffline() {
+  const name = offlineName(), ok = await offerFile(name, new Blob([offlineHtml()], { type: 'text/html' }), 'text/html');
+  if (ok !== false) toast(T('{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.', name));
+}
+
 /* ---------- drafts ---------- */
 function draftPayload() { return JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, ver: APP_VERSION, saved: new Date().toISOString(), state: S, receipts: liveReceipts() }); }
 const draftSuffix = () => fr() ? '_BROUILLON' : '_DRAFT';
@@ -3092,9 +3273,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.5';
+const APP_VERSION = '1.6';
 const APP_CHANNEL = 'production'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.5, updated 17 Oct 2026';
+const APP_LABEL = 'Version 1.6, updated 17 Oct 2026';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3122,7 +3303,7 @@ function sendDraft() {
   const title = sendTitle('Digital Itinerary File');
   const mb = payload.length / 1048576;
   if (mb > 20) toast(T('This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.', mb.toFixed(0)));
-  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
+  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
 }
 function sendPdf() {
   const file = new File([lastPdf.bytes], lastPdf.name, { type: 'application/pdf' });
@@ -3138,7 +3319,7 @@ function deviceLines() {
   return [T('Device: {0}, {1}', os, br) + (standalone ? T(', installed app') : ''), T('Version: {0} ({1})', verLabel().replace(/^Version /, ''), where), T('Language: English')];
 }
 function mailHref(subject, lines) { return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent(T('CAF Digital Travel Itinerary') + ' - ' + T(subject)) + '&body=' + encodeURIComponent(lines.join('\r\n')); }
-const NO_PI = 'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.';
+const NO_PI = 'Please do not include your PRI, receipts or claim files. If a screenshot helps, attach one with personal details covered.';
 function helpHref() {
   return mailHref('Help Request', ['Hello,', '', 'I need help with the CAF Digital Travel Itinerary.', '',
     '1. What I was trying to do:', '', '', '2. What happened instead:', '', '', '3. Steps to make it happen again (if known):', '', '',
@@ -3284,7 +3465,7 @@ function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motio
 function relabel() {
   const hh = helpHref(), fh = feedbackHref();
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
-  const sd = $('#send-draft'); if (sd) sd.textContent = IOS_PWA && SEND.draft ? T('Save or send draft file') : T('Send draft file');
+  const sd = $('#send-draft'); if (sd) sd.textContent = IOS_PWA && SEND.draft ? T('Save or send claim file') : T('Send claim file');
   $$('[data-ver]').forEach(el => { el.textContent = verLabel(); });
   const lb = $('#lang-btn');
   if (lb) { lb.querySelector('.lg').textContent = fr() ? 'English' : 'Français'; lb.querySelector('.sm').textContent = fr() ? 'EN' : 'FR'; lb.lang = fr() ? 'en' : 'fr'; lb.setAttribute('aria-label', fr() ? 'Switch to English' : 'Afficher en français'); }
@@ -3709,7 +3890,9 @@ async function build() {
       }
     }
     const pages = doc.getPages(), total = pages.length, Ff = P.F;
-    const left = P.clean([T('CAF Digital Travel Itinerary'), [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+    // The app version on every page (and in the file properties), so a package can be traced to the build that made it
+    const ver = 'v' + APP_VERSION.replace('-beta.', fr() ? ' bêta ' : ' beta ');
+    const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
     // Security marking, per DND guidance (marked at the top and bottom of each sensitive document) and the
     // GC rule that loose documents are marked on every sheet, in letters larger than the body text.
     // Top right and bottom right of every page, receipts included, on a white backing so it stays legible.
@@ -3728,7 +3911,8 @@ async function build() {
         p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
       }
     });
-    if (mark) { doc.setSubject(mark); doc.setKeywords([mark, T('CAF Digital Travel Itinerary')]); }
+    if (mark) doc.setSubject(mark);
+    doc.setKeywords([mark, T('CAF Digital Travel Itinerary'), ver, APP_LABEL].filter(Boolean));
     doc.setTitle([T('CAF Digital Travel Itinerary'), S.tripRef].filter(Boolean).join(' - '));
     doc.setLanguage(fr() ? 'fr-CA' : 'en-CA');
     doc.setAuthor(fullName());
@@ -3923,10 +4107,10 @@ async function devSave() {
   } catch (e) { DEV.failed = true; }
   saveChip();
 }
-const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
+const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, fileNoSet: !!S.fileNoSet, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
 function profileSchedule() { if (!DEV.db || !DEV.settings.remember || DEV.locked || S.example) return; clearTimeout(profT); profT = setTimeout(async () => { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }, 900); }
 async function loadProfile() { if (!DEV.db || !DEV.settings.remember) return null; try { return await unseal(await idbGet('profile')); } catch (e) { return null; } }
-function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string') S.fileNo = p.fileNo; if (typeof p.marking === 'string') S.marking = p.marking; }
+function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string' && (p.fileNo.trim() || p.fileNoSet)) { S.fileNo = p.fileNo; S.fileNoSet = true; } if (typeof p.marking === 'string') S.marking = p.marking; }
 async function wipeClaim() { try { const keys = (await idbKeys()) || []; for (const k of keys) if (k === 'claim' || k === 'meta' || String(k).startsWith('rc:')) await idbDel(k); } catch (e) {} DEV.savedRc.clear(); DEV.lastSaved = 0; }
 async function restoreDevice() {
   if (!DEV.db || !DEV.settings.keep) return false;
@@ -3976,13 +4160,42 @@ async function forgetDevice() {
   S = blank(); R = {}; newClaimState(); renderAll(); syncMenu();
   toast(T('Everything saved in this browser has been deleted.'));
 }
+// Save now: write the claim straight away (no waiting for the auto-save), then read it back to check
+// it really was stored. Says plainly where the claim is kept and how long it lasts.
+let saving = false;
+async function saveNow() {
+  if (saving) return; saving = true;
+  try {
+    const ae = document.activeElement; // finish the field being typed in (formats phone numbers, times...)
+    if (ae && ae.matches && ae.matches('input, textarea, select')) ae.dispatchEvent(new Event('change', { bubbles: true }));
+    clearTimeout(pT);
+    const at = new Date().toTimeString().slice(0, 5), json = JSON.stringify(S), nRc = Object.keys(liveReceipts()).length;
+    let tab = 'none';
+    try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: liveReceipts() })); tab = 'full'; }
+    catch (e) { try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: {}, noR: true })); tab = 'noR'; } catch (_) {} }
+    if (tab !== 'none') { try { const back = JSON.parse(sessionStorage.getItem(STORE)); if (!back || JSON.stringify(back.S) !== json) tab = 'none'; } catch (e) { tab = 'none'; } }
+    if (DEV.db && DEV.settings.remember && !DEV.locked && !S.example) { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }
+    const exportBtn = { label: T('Export claim file'), fn: () => saveDraft() };
+    if (DEV.db && DEV.settings.keep && !DEV.locked) {
+      await devSave();
+      let ok = !DEV.failed;
+      if (ok) { try { const c = await unseal(await idbGet('claim')), keys = (await idbKeys()) || []; ok = !!c && JSON.stringify(c.S) === json && Object.keys(liveReceipts()).every(id => keys.includes('rc:' + id)); } catch (e) { ok = false; } }
+      if (ok) toast(nPl(nRc, 'Saved on this device at {1} and checked: the claim and {0} receipt read back correctly.', 'Saved on this device at {1} and checked: the claim and {0} receipts read back correctly.', at));
+      else { DEV.failed = true; saveChip(); toast(T('This browser did not save your claim. Export a claim file now to keep your work.'), exportBtn); }
+    } else if (tab === 'full' || tab === 'noR') {
+      const msg = T('Saved in this tab at {0}. It lasts until you close the tab.', at) + (tab === 'noR' ? ' ' + T('The receipt photos were too large to keep in the tab.') : '') + ' ' + T('To keep it longer, turn on Keep my work on this device, or export a claim file.');
+      toast(msg, DEV.db && !DEV.locked ? { label: T('Keep on this device'), fn: () => setKeep(true).then(syncMenu) } : exportBtn);
+    } else toast(T('This view cannot save in the browser. Export a claim file to keep your work.'), exportBtn);
+    const b = $('#save-now'); if (b) { b.classList.add('done'); setTimeout(() => b.classList.remove('done'), 1200); }
+  } finally { saving = false; }
+}
 function saveChip() {
   const c = $('#savechip'); if (!c) return;
   let txt, cls, tip;
   if (DEV.locked) { txt = T('Locked'); cls = 'off'; tip = T('Enter your PIN to open your saved claim.'); }
   else if (DEV.db && DEV.settings.keep) {
     txt = DEV.failed ? T('Not saved') : DEV.lastSaved ? T('Saved {0}', new Date(DEV.lastSaved).toTimeString().slice(0, 5)) : T('Saving');
-    cls = DEV.failed ? 'off' : 'on'; tip = DEV.failed ? T('This browser refused to save. Save a draft file to be safe.') : T('Kept on this device, in this browser only.') + (DEV.settings.pin ? ' ' + T('Protected with your PIN.') : '');
+    cls = DEV.failed ? 'off' : 'on'; tip = DEV.failed ? T('This browser refused to save. Export a claim file to be safe.') : T('Kept on this device, in this browser only.') + (DEV.settings.pin ? ' ' + T('Protected with your PIN.') : '');
   } else { txt = T('Tab only'); cls = ''; tip = T('Your work lasts until you close this tab. Turn on "Keep my work on this device" in the menu.'); }
   c.textContent = txt; c.className = 'savechip ' + cls; c.title = tip;
 }
@@ -3991,7 +4204,8 @@ function syncMenu() {
   [['#opt-keep', 'keep'], ['#opt-remember', 'remember'], ['#opt-pin', 'pin']].forEach(([id, k]) => { const el = $(id); el.checked = !!DEV.settings[k]; el.disabled = !ok || DEV.locked; });
   $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
   $('#forget-btn').disabled = !ok;
-  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save draft file instead.');
+  $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
+  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Export claim file instead.');
   saveChip();
 }
 function setMenu(open) { const m = $('#menu'), b = $('#menu-btn'); m.hidden = !open; b.setAttribute('aria-expanded', String(open)); }

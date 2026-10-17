@@ -2,7 +2,9 @@
 
 Versioning: the minor number goes up by one only when the beta is promoted to production (1.1, 1.2, 1.3...). The beta shows the number the next production release will have plus its own build number, which goes up with every beta publish and starts again at 1 after a promotion, for example "Version 1.3 beta 3, built 17 Oct 2026 10:42 (production is 1.2)". The major number changes only when the owner decides a release is a major one.
 
-## 1.6 (beta, in progress)
+## 1.7 (beta, in progress)
+
+## 1.6 (17 Oct 2026)
 
 - Save now: a Save button in the header (desktop), Save now at the top of the menu (all screens) and Ctrl+S / Cmd+S. It saves at once instead of waiting for the auto-save, reads the claim back to check it was stored, and says where it is kept: on this device (checked), or in this tab only until it closes (with a one-tap Keep on this device). If the browser refuses to store it, it says so and offers Export claim file
 - The PDF package shows the app version in the footer of every page (for example "CAF Digital Travel Itinerary v1.6", or "v1.7 beta 2" from the beta) and records it in the file properties, so any package can be traced to the version that built it

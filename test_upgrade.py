@@ -1,6 +1,7 @@
-import asyncio, shutil, pathlib, re
+import asyncio, shutil, pathlib, re, sys
+base = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".")  # run through test_live.py
 from playwright.async_api import async_playwright
-U = "http://localhost:8767/Travel-Claim-Packager/"; root = pathlib.Path("site3/Travel-Claim-Packager")
+U = "http://localhost:8767/Travel-Claim-Packager/"; root = base / "live/s3/Travel-Claim-Packager"  # starts as the live production site
 async def ver(pg): return await pg.evaluate("() => (document.querySelector('.menu-ver') || document.querySelector('#app-ver') || {}).textContent")
 async def main():
     async with async_playwright() as p:
@@ -14,8 +15,8 @@ async def main():
         await bb.goto(U); await bb.wait_for_timeout(600); await bb.fill("#trip-ref", "Tab only upgrade test"); await bb.wait_for_timeout(1200)
         print("before:", await ver(a), "| kept:", await a.input_value("#trip-ref"), "| tab only:", await bb.input_value("#trip-ref"))
         # publish the next production build
-        for f in pathlib.Path("out/web").iterdir(): shutil.copy(f, root / f.name)
-        s = (root / "index.html").read_text().replace("Version 1.2, updated", "Version 1.3 TEST, updated"); (root / "index.html").write_text(s)
+        for f in (base / "out/web").iterdir(): shutil.copy(f, root / f.name)
+        s = re.sub(r"(Version \d+\.\d+), updated", r"\1 TEST, updated", (root / "index.html").read_text()); (root / "index.html").write_text(s)
         (root / "sw.js").write_text((root / "sw.js").read_text().replace("const CACHE = PREFIX + '", "const CACHE = PREFIX + 'next-"))
         # A: app closed and reopened
         await a.close(); a2 = await A.new_page(); a2.on("pageerror", lambda e: errs.append(str(e)))

@@ -1,6 +1,10 @@
 import sys, pathlib, asyncio
 from playwright.async_api import async_playwright
-base = pathlib.Path(sys.argv[1]); url = (base / "out/CAF_Digital_Travel_Itinerary.html").resolve().as_uri(); shots = base / "shots"
+base = pathlib.Path(sys.argv[1])
+(base / "fixtures").mkdir(exist_ok=True)
+if not (base / "fixtures/r.png").exists():  # a plain white "receipt" photo
+    from PIL import Image; Image.new("RGB", (400, 600), "white").save(base / "fixtures/r.png")
+url = (base / "out/CAF_Digital_Travel_Itinerary.html").resolve().as_uri(); shots = base / "shots"
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(); errs = []

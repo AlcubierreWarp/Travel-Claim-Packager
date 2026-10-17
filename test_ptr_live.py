@@ -1,4 +1,5 @@
-import asyncio, time, re, pathlib
+import asyncio, time, re, pathlib, sys
+base = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".")  # run through test_live.py
 from playwright.async_api import async_playwright
 U = "http://localhost:8766/beta/"
 PULL = """(dist) => { const t = document.querySelector('.sec h2') || document.body;
@@ -14,7 +15,7 @@ async def main():
         print("goto", flush=True); await q.goto(U); print("loaded", flush=True); await q.evaluate("navigator.serviceWorker.ready.then(r => r.scope)"); print("sw ready", flush=True); await q.reload(); await q.wait_for_timeout(800)
         print("controlled:", await q.evaluate("!!navigator.serviceWorker.controller"), "|", await q.inner_text(".menu-ver"))
         # publish a "new build" on the server
-        f = pathlib.Path("site2/beta/index.html"); s = f.read_text().replace("beta 6, built", "beta 99, built").replace("1.3-beta.6", "1.3-beta.99"); f.write_text(s)
+        f = base / "live/s2/beta/index.html"; s = re.sub(r"beta \d+, built", "beta 99, built", f.read_text()); s = re.sub(r"(\d+\.\d+-beta\.)\d+", r"\g<1>99", s); f.write_text(s)
         t0 = time.time()
         await q.evaluate(PULL, 220)
         await q.wait_for_function("() => document.querySelector('#toast') && !document.querySelector('#toast').hidden && /date|Updated/.test(document.querySelector('#toast').textContent)", timeout=15000)

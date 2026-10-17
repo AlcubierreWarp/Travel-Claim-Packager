@@ -110,7 +110,6 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .pill-beta{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid currentColor;border-radius:999px;font:700 .6rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;opacity:.85}
 .imp-betanote{display:flex;gap:8px;align-items:baseline;margin:0 0 12px;padding:8px 10px;border-radius:3px;background:var(--card);border:1px solid var(--line);font-size:.82rem;color:var(--muted)}
 .imp-betanote .pill-beta{margin-left:0;flex:none;color:var(--ink)}
-.imp-tools{margin:0 0 12px}
 .imp-lead{margin:0 0 12px;font-size:.9rem}
 .imp-drop{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border:1px dashed var(--line-strong);border-radius:4px;padding:14px;background:var(--card);margin-bottom:14px}
 .imp-drop.dragover{border-color:var(--accent);background:var(--field)}
@@ -329,6 +328,17 @@ fieldset.tg.off input{opacity:.3}
 .trip .sec-b{padding-block:14px}
 .trip label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
 .trip-in{font-size:1.1rem;font-weight:600;max-width:36rem}
+.trip-grid{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1fr);gap:12px 14px;align-items:end}
+.trip-grid .field{min-width:0}
+.trip-grid .trip-help{grid-column:1/-1;margin-top:0}
+.trip-grid input{width:100%;box-sizing:border-box}
+@media (max-width: 640px){ .trip-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .trip-grid .trip-name{grid-column:1/-1} }
+.imp-hero{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+.imp-hero-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
+.imp-hero-t strong{font-size:.95rem}
+.imp-hero-t > span{font-size:.82rem;color:var(--muted)}
+.imp-hero .pill-beta{margin-left:4px}
+@media (max-width: 560px){ .imp-hero .btn{width:100%} }
 .trip .sd-help{margin-top:6px}
 .pki-opt{font-weight:600}
 #pki-help{margin:4px 0 12px}
@@ -568,10 +578,16 @@ html{touch-action:manipulation}
     </div>
 
     <section class="sec trip" id="sec-T">
-      <div class="sec-b">
-        <label for="trip-ref">Trip name</label>
-        <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE">
-        <p class="sd-help">Shown at the top of the PDF and used in the file name.</p>
+      <div class="imp-hero" id="imp-hero">
+        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.</span></div>
+        <button class="btn primary" data-act="imp-open">Import itinerary</button>
+      </div>
+      <div class="sec-b trip-grid">
+        <div class="field trip-name"><label for="trip-ref">Trip name</label>
+          <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE"></div>
+        <div class="field"><label for="trip-tan">TAN</label><input id="trip-tan" data-bind="tan" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+        <div class="field"><label for="trip-loc">Trip locator</label><input id="trip-loc" data-bind="locator" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+        <p class="sd-help trip-help">The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.</p>
       </div>
     </section>
 
@@ -606,7 +622,6 @@ html{touch-action:manipulation}
     <section class="sec" id="sec-B">
       <header class="sec-h"><span class="L">B</span><h2>Travel itinerary</h2><p class="hint">Include every city. Enter each place once, with the date and time you arrive and leave.</p></header>
       <div class="sec-b">
-        <div class="sec-tools imp-tools"><button class="btn" data-act="imp-open">Import itinerary <span class="pill-beta">Beta</span></button><span class="drophint">From an Amex GBT itinerary (PDF or email). Fills in the stops, dates and times.</span></div>
         <ol id="itin"></ol>
       </div>
     </section>
@@ -771,7 +786,7 @@ html{touch-action:manipulation}
   <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
-      <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. The file is read on this device and is not uploaded.</p>
+      <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.</p>
       <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.</span></p>
       <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.</span></div>
       <label for="imp-text" class="imp-or">Or paste the itinerary text from the email</label>
@@ -948,7 +963,7 @@ const ROWNEW = {
   calls:     () => Object.assign({ date: '', location: '', timeDur: '', number: '', person: '', kind: 'Business', cost: '', cur: 'CAD' }, LOST()),
 };
 function blank() {
-  return { v: 3, example: false, tripRef: '', fileNo: '', marking: 'PA',
+  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: '', marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
@@ -1692,7 +1707,7 @@ document.addEventListener('change', e => {
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
   if (el.id === 'file-itin') { const fs = [...el.files]; el.value = ''; if (fs.length) impFiles(fs); return; }
-  if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels' }[el.id]] = el.checked; impRender(); return; }
+  if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels', 'imp-name': 'name' }[el.id]] = el.checked; impRender(); return; }
   if (el.id === 'file-snap') { const f = el.files[0]; el.value = ''; if (f) openSnap(f); return; }
   if (el.dataset.bind) { onBind(el, true); refresh(); return; }
   if (el.dataset.mealDate) { const m = S.meals[el.dataset.mealDate] = S.meals[el.dataset.mealDate] || {}; m[el.dataset.meal] = el.type === 'checkbox' ? el.checked : el.value; refresh(); return; }
@@ -1878,7 +1893,11 @@ async function pdfLines(bytes) {
     for (let p = 1; p <= doc.numPages; p++) {
       const tc = await (await doc.getPage(p)).getTextContent(), rows = [];
       for (const it of tc.items) { if (!it.str || !it.str.trim()) continue; const y = it.transform[5]; let r = rows.find(r => Math.abs(r.y - y) <= 2); if (!r) rows.push(r = { y, it: [] }); r.it.push(it); }
-      rows.sort((a, b) => b.y - a.y).forEach(r => out.push(r.it.sort((a, b) => a.transform[4] - b.transform[4]).map(i => i.str).join(' ')));
+      // a wide gap between two pieces of text on a line is a table cell boundary, kept as " | "
+      rows.sort((a, b) => b.y - a.y).forEach(r => {
+        const its = r.it.sort((a, b) => a.transform[4] - b.transform[4]);
+        out.push(its.map((it, k) => { if (!k) return it.str; const p = its[k - 1], h = Math.abs(p.transform[3]) || p.height || 10; return (it.transform[4] - (p.transform[4] + p.width) > h * 0.9 ? ' | ' : ' ') + it.str; }).join(''));
+      });
     }
     return { lines: out, pages: doc.numPages };
   } finally { try { await doc.destroy(); } catch (e) {} }
@@ -1889,7 +1908,7 @@ function htmlLines(html) {
   d.querySelectorAll('script,style,head,title,noscript').forEach(e => e.remove());
   d.querySelectorAll('br').forEach(e => e.replaceWith('\n'));
   d.querySelectorAll('p,div,tr,li,h1,h2,h3,h4,h5,h6,table,section,header,footer,dt,dd').forEach(e => e.append('\n'));
-  d.querySelectorAll('td,th').forEach(e => e.append(' '));
+  d.querySelectorAll('td,th').forEach(e => e.append(' | '));
   return (d.body ? d.body.textContent : '').split('\n');
 }
 const binStr = buf => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return s; };
@@ -1951,21 +1970,33 @@ async function impFiles(files) {
     err.hidden = false; return;
   }
   IMP = Object.assign(r, { res: true, fare: false, hotels: true });
+  const nm = impName(); IMP.name = !!(nm && nm.empty); // an existing name is replaced only if the member asks
   impRender();
+}
+// The traveller's name, if the itinerary has one that differs from section A
+function impName() {
+  const t = IMP && IMP.found.traveller; if (!t) return null;
+  const m = S.member, full = `${t.given} ${t.surname}`;
+  const now = [m.given, m.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
+  const same = ITIN.fold(String(m.surname).trim()) === ITIN.fold(t.surname) && ITIN.fold(String(m.given).replace(/\(.*?\)/g, '').trim()) === ITIN.fold(t.given);
+  if (same) return null;
+  return { full, now, empty: !String(m.surname || '').trim() && !String(m.given || '').trim() };
 }
 function impPlan() { return ITIN.plan(IMP.found, { residence: IMP.res }); }
 function impRender() {
   const f = IMP.found, round = ITIN.roundTrip(f);
   $('#imp-pick').hidden = true; $('#imp-review').hidden = false; $('#imp-back').hidden = false; $('#imp-apply').hidden = false;
-  $('#imp-src').textContent = [T('Read {0}.', IMP.names.join(', ')), f.locator.length ? T('Trip locator {0}.', f.locator.join(', ')) : '', ...IMP.errs].filter(Boolean).join(' ');
+  $('#imp-src').textContent = [T('Read {0}.', IMP.names.join(', ')), f.tan.length ? T('TAN {0}.', f.tan.join(', ')) : '', f.locator.length ? T('Trip locator {0}.', f.locator.join(', ')) : '', ...IMP.errs].filter(Boolean).join(' ');
   $('#imp-list').innerHTML = f.segs.map(s => {
     const what = T(IMP_KIND[s.kind] || 'Travel') + (s.num ? ' ' + s.num : '') + (s.carrier && s.kind !== 'rail' && s.kind !== 'bus' ? `, ${s.carrier}` : '');
     const arrD = s.arr.date && s.arr.date !== s.dep.date ? ` (${fmtDate(s.arr.date)})` : '';
     return `<li><b>${esc(fmtDate(s.dep.date))}</b> ${esc(T('{0}: {1}', what, `${impWhere(s.from)} ${hm(s.dep.time)} → ${impWhere(s.to)} ${hm(s.arr.time)}${arrD}`))}</li>`;
   }).concat(f.hotels.map(h => `<li><b>${esc(fmtDate(h.in))}</b> ${esc(T('{0}: {1}', T('Hotel'), [h.name, h.city, T('{0} to {1}', fmtDate(h.in), fmtDate(h.out))].filter(Boolean).join(', ')))}</li>`)).join('');
   const opt = (id, on, label, sub) => `<label class="check"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span>${esc(label)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</span></label>`;
-  const money = f.fare + f.fee;
-  $('#imp-opts').innerHTML = opt('imp-res', IMP.res, round ? T('Start and finish at your residence') : T('Start at your residence'), T('Adds the trip between your residence and the first station or airport. Choose how you travelled.'))
+  const money = f.fare + f.fee, nm = impName();
+  $('#imp-opts').innerHTML = (nm ? opt('imp-name', IMP.name, nm.empty ? T('Fill in your name: {0}', nm.full) : T('Replace your name with the one on the itinerary: {0}', nm.full),
+      nm.empty ? T('Section A and the statutory declaration.') : T('Now: {0}. Your saved details change too if Remember my details is on.', nm.now)) : '')
+    + opt('imp-res', IMP.res, round ? T('Start and finish at your residence') : T('Start at your residence'), T('Adds the trip between your residence and the first station or airport. Choose how you travelled.'))
     + (money ? opt('imp-fare', IMP.fare, T('Add the fare and GBT service fee to transportation expenses ({0} {1})', fmtN(money), f.cur), T('Only if you paid them yourself. Leave this off when the fare was billed to the department. The itinerary is attached as the receipt.')) : '')
     + (f.hotels.length ? opt('imp-hotels', IMP.hotels, nPl(f.hotels.length, 'Add the hotel stay to Lodging', 'Add the {0} hotel stays to Lodging'), '') : '');
   const plan = impPlan(), n = plan.length;
@@ -1984,11 +2015,18 @@ function impApply() {
   if (!IMP) return;
   const f = IMP.found, plan = impPlan();
   if (plan.length < 2) return;
-  const before = JSON.stringify({ stops: S.stops, transport: S.transport, stays: S.lodging.stays });
+  const before = JSON.stringify({ stops: S.stops, transport: S.transport, stays: S.lodging.stays, member: S.member, sd: S.sd, tan: S.tan, locator: S.locator });
   S.stops = plan.map(s => Object.assign(newStop(impStopName(s)), { arrDate: s.arrDate, arrTime: s.arrTime, depDate: s.depDate, depTime: s.depTime,
     mode: IMP_MODE[s.mode] || '', modeOther: s.mode === 'bus' ? T('Bus') : '' }));
   S.touched.B = true;
   const extra = [];
+  if (f.tan.length) S.tan = f.tan.join(', ');
+  if (f.locator.length) S.locator = f.locator.join(', ');
+  if (f.tan.length || f.locator.length) extra.push(T(f.tan.length && f.locator.length ? 'TAN and trip locator filled in.' : f.tan.length ? 'TAN filled in.' : 'Trip locator filled in.'));
+  if (IMP.name && f.traveller) {
+    const t = f.traveller; S.member.given = t.given; S.member.surname = t.surname; S.sd.name = `${t.given} ${t.surname}`;
+    S.touched.A = true; extra.push(T('Name filled in from the itinerary.'));
+  }
   if (IMP.fare && f.fare + f.fee > 0) {
     const legs = f.segs.filter(s => s.kind !== 'car').map(s => `${s.num ? s.num + ' ' : ''}${s.from.code || s.from.city}-${s.to.code || s.to.city}`).join(', ');
     const rc = IMP.pdfs.map(p => { const id = uid(); R[id] = { id, name: p.name, kind: 'pdf', dataUrl: 'data:application/pdf;base64,' + bufToB64(p.bytes), pages: p.pages }; return id; });
@@ -2003,10 +2041,10 @@ function impApply() {
     if (n) { S.touched[DEFS.stays.L] = true; extra.push(nPl(n, '{0} stay added to section D.', '{0} stays added to section D.')); }
   }
   impClose();
-  const redraw = () => { renderItin(); renderList('transport'); renderList('stays'); renderMeals(); refresh(); refreshPlaces(); };
+  const redraw = () => { renderBinds(); renderItin(); renderList('transport'); renderList('stays'); renderMeals(); refresh(); refreshPlaces(); };
   redraw();
   setTimeout(() => { const el = $('#sec-B'); if (el) el.scrollIntoView({ block: 'start' }); }, 0); // after the page is unlocked
-  toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); S.stops = o.stops; S.transport = o.transport; S.lodging.stays = o.stays; redraw(); } });
+  toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); Object.assign(S, { stops: o.stops, transport: o.transport, member: o.member, sd: o.sd, tan: o.tan, locator: o.locator }); S.lodging.stays = o.stays; redraw(); } });
 }
 
 /* ---------- drafts ---------- */
@@ -2321,8 +2359,9 @@ function painter(doc, F, B, I) {
   };
   P.para = (t, x, y, w, o = {}) => { const size = o.size || 9.5, lh = o.lh || size * 1.45; const lines = P.wrap(t, o.font || F, size, w); lines.forEach((l, i) => P.text(l, x, y - i * lh, { size, font: o.font || F, color: o.color })); return y - lines.length * lh; };
   P.fit = (t, font, size, maxW) => { t = clean(t); if (font.widthOfTextAtSize(t, size) <= maxW) return t; while (t.length && font.widthOfTextAtSize(t + '...', size) > maxW) t = t.slice(0, -1); return t + '...'; };
-  P.title = (t, sub) => {
+  P.title = (t, sub, refs) => {
     const s = 13; P.center(t, P.y - s, { size: s, font: B }); P.y -= s + 6;
+    if (refs) { P.center(refs, P.y - 8, { size: 8.5, font: B }); P.y -= 13; }
     if (sub) { P.center(sub, P.y - 8, { size: 8, color: C.mid }); P.y -= 20; }
   };
   P.bar = (L, title, note) => {
@@ -2407,7 +2446,8 @@ function drawWorksheet(P, items, wsPages) {
   const todayStr = fmtDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
   const nDecl = items.filter(i => i.decl).length, nRc = items.length - nDecl;
   P.newPage();
-  P.title(T('CAF Digital Travel Itinerary').toUpperCase(), [S.tripRef ? T('Trip: {0}', S.tripRef) : '', T('Prepared {0}', todayStr), nPl(nRc, '{0} receipt attached', '{0} receipts attached'), nDecl ? nPl(nDecl, '{0} missing receipt declaration', '{0} missing receipt declarations') : ''].filter(Boolean).join('   |   '));
+  P.title(T('CAF Digital Travel Itinerary').toUpperCase(), [S.tripRef ? T('Trip: {0}', S.tripRef) : '', T('Prepared {0}', todayStr), nPl(nRc, '{0} receipt attached', '{0} receipts attached'), nDecl ? nPl(nDecl, '{0} missing receipt declaration', '{0} missing receipt declarations') : ''].filter(Boolean).join('   |   '),
+    [S.tan.trim() ? T('TAN: {0}', S.tan.trim()) : '', S.locator.trim() ? T('Trip locator: {0}', S.locator.trim()) : ''].filter(Boolean).join('   |   '));
   // A
   P.bar('A', 'Personal information / Information personnel');
   P.table([{ l: 'PRI / SN', w: 1.2 }, { l: 'Rank', w: .7 }, { l: 'Surname', w: 1.3 }, { l: 'Given name and initials', w: 1.6 }, { l: 'Section', w: 1.1 }, { l: 'Telephone', w: 1.4 }], [[m.pri, rankAbbr(m.rank), m.surname, m.given, m.section, telStr(m)]]);

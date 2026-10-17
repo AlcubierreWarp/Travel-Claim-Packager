@@ -8,7 +8,7 @@ YWG = "Winnipeg James Armstrong Richardson Intl Airport, Winnipeg, Canada (YWG)"
 YYZ = "Toronto Lester B. Pearson Intl Airport, Toronto, Canada (YYZ)"
 YOW = "Ottawa Macdonald–Cartier Intl Airport, Ottawa, Canada (YOW)"
 def fl(no, a, ad, b, bd): return [("Air Canada", ""), (f"Flight # {no}", "Booking reference: TSTAC1"), ("Status: Booked", ""), ("Departing:", a), ("Date/time:", ad), ("Arriving:", b), ("Date/time:", bd), ("Duration:", "2h00m")]
-TRIP_A = [("E-Ticket Itinerary Receipt And Invoice", ""), ("ITINERARY DETAILS", ""), ("Trip locator:", "QA7TST"), ("Traveller:", "Mr JOHN SAMPLE"),
+TRIP_A = [("E-Ticket Itinerary Receipt And Invoice", ""), ("ITINERARY DETAILS", ""), ("Trip locator:", "QA7TST"), ("Traveller:", "Mr JOHN ALEX</td><td>VAN DER BERG</td><td>Travel Directive Module :"), ("TAN :", "TST12345"),
   ("ITINERARY SUMMARY", ""), ("Traffic Date From-to/location Supplier Times Class/room Status", ""),
   ("02 Dec 2026", "YWG - YYZ AC1234 07:45-11:05 Economy Booked"), ("02 Dec 2026", "YYZ - YOW AC1456 12:30-13:35 Economy Booked"), ("06 Dec 2026", "YOW - YWG AC1789 17:30-19:40 Economy Booked"),
   ("E-TICKET 1", ""), ("Ticket number:", "0140000000001"), ("Issuing Airline:", "Air Canada"), ("Fare amount:", "800.00 CAD"), ("Ticket amount:", "912.34 CAD")] \
@@ -21,7 +21,8 @@ TRIP_B = [("VIA Rail Canada", ""), ("Train # 33", "Booking reference: TSTVIA"), 
   ("Arriving:", "Montreal Central Station, Montreal, Canada"), ("Date/time:", "10 December 2026, 11:20"), ("Orleans Express Bus", ""), ("Departing:", "Montreal Bus Terminal, Montreal, Canada"),
   ("Date/time:", "12 December 2026, 16:00"), ("Arriving:", "Ottawa Bus Station, Ottawa, Canada"), ("Date/time:", "12 December 2026, 18:30"), ("Ticket amount:", "120.00 CAD")]
 def html(rows, img=""):
-    tr = "".join(f"<tr><td>{a}</td><td>{b}</td></tr>" for a, b in rows)
+    # rows with extra cells get a table of their own so their columns are not squeezed
+    tr = "".join(f"</table><table><tr><td>{a}</td><td>{b}</td></tr></table><table>" if "</td>" in b else f"<tr><td>{a}</td><td>{b}</td></tr>" for a, b in rows)
     return f"<!doctype html><html><head><meta charset='utf-8'><style>td{{padding:1px 8px;font:11px Arial}}</style></head><body>{img}<table>{tr}</table></body></html>"
 def eml(parts):
     out = ["From: GBT <noreply@example.com>", "To: member@example.com", "Subject: Itinerary QA7TST", "MIME-Version: 1.0", 'Content-Type: multipart/mixed; boundary="BOUNDARY1"', "", "preamble"]
@@ -70,7 +71,12 @@ async def main():
         await q.locator("#imp").screenshot(path=str(shots / "imp-preview.png"))
         n_tr = await q.eval_on_selector_all("#rows-transport .row", "e => e.length"); n_st = await q.eval_on_selector_all("#rows-stays .stay", "e => e.length")
         before = await q.evaluate(STOPS)
+        check("A: existing name kept unless asked", await q.is_checked("#imp-name"), False)
+        check("A: name offered as a replacement", "John Alex Van Der Berg" in prev and "Replace your name" in prev, True)
+        name0 = [await q.input_value(x) for x in ("#m-sur", "#m-given", "#sd-name")]
         await q.click("#imp-apply"); await q.wait_for_timeout(300)
+        check("A: name left alone", [await q.input_value(x) for x in ("#m-sur", "#m-given", "#sd-name")], name0)
+        check("A: TAN and trip locator filled", [await q.input_value("#trip-tan"), await q.input_value("#trip-loc")], ["TST12345", "QA7TST"])
         check("A: section B from PDF", await q.evaluate(STOPS), [list(x) for x in EXPECT_A])
         check("A: fare row added with the PDF as receipt", (await q.eval_on_selector_all("#rows-transport .row", "e => e.length")) - n_tr, 1)
         last = await q.inner_text("#rows-transport .row:last-child"); check("A: fare row has receipt", "trip_a.pdf" in last, True)
@@ -80,6 +86,23 @@ async def main():
         await q.click("#toast button"); await q.wait_for_timeout(200)
         check("A: undo restores section B", await q.evaluate(STOPS), before)
         check("A: undo removes fare row", await q.eval_on_selector_all("#rows-transport .row", "e => e.length"), n_tr)
+        check("A: undo clears TAN", await q.input_value("#trip-tan"), "")
+        # A2: replacing the name only when asked
+        await imp(["trip_a.pdf"]); await q.check("#imp-name"); await q.uncheck("#imp-hotels"); await q.click("#imp-apply"); await q.wait_for_timeout(300)
+        # the package shows the TAN and trip locator under the title
+        await q.evaluate("document.getElementById('sec-P').scrollIntoView()")
+        async with q.expect_download() as dl: await q.click("#build-btn")
+        d = await dl.value; await d.save_as(str(fx / "pkg.pdf"))
+        from pypdf import PdfReader
+        t1 = PdfReader(str(fx / "pkg.pdf")).pages[0].extract_text(); check("A2: TAN and trip locator on the PDF", "TAN: TST12345" in t1 and "Trip locator: QA7TST" in t1, True)
+
+        check("A2: name replaced when ticked", [await q.input_value(x) for x in ("#m-sur", "#m-given", "#sd-name")], ["Van Der Berg", "John Alex", "John Alex Van Der Berg"])
+        await imp(["trip_a.pdf"]); check("A2: same name not offered again", await q.locator("#imp-name").count(), 0); await q.click("#imp .snap-foot [data-act=imp-cancel]")
+        # A3: a blank claim fills the name by default
+        await q.click("[data-act=start-blank]") if await q.locator("#example-banner:not([hidden]) [data-act=start-blank]").count() else None
+        await q.evaluate("() => { for (const id of ['m-sur','m-given','sd-name']) { const e = document.getElementById(id); e.value=''; e.dispatchEvent(new Event('input', {bubbles:true})); } }")
+        await imp(["trip_a.pdf"]); check("A3: blank name filled by default", await q.is_checked("#imp-name"), True); await q.click("#imp-apply"); await q.wait_for_timeout(300)
+        check("A3: name filled", await q.input_value("#m-sur"), "Van Der Berg")
         # B: .eml with the PDF attached, train out and bus back
         await imp(["trip_b.eml"]); await q.click("#imp-apply"); await q.wait_for_timeout(300)
         got = await q.evaluate(STOPS); check("B: train and bus from .eml attachment", got, [list(x) for x in EXPECT_B])

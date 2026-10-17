@@ -71,10 +71,32 @@ const ITIN = (() => {
     sum: /^(\d{1,2} [a-zéû]{3,9}\.? \d{4}) ([A-Z]{3}) ?- ?([A-Z]{3}) ([A-Z0-9]{2} ?\d{1,4}) (\d{1,2}:\d{2}) ?- ?(\d{1,2}:\d{2})/i,
   };
 
+  // "Traveller: | Mr THOMAS SAMPLE | DOE | Travel Directive Module : | ..." -> given and surname, in normal case.
+  // The itinerary puts given names and surname in separate cells (" | " between them). Without cells
+  // (pasted text), the capitalised words before the next label are the name and the last one is the surname.
+  const TITLE = /^(?:mr|mrs|ms|miss|mx|dr|m|mme|mlle)\.?$/i;
+  const nameCase = v => v.toLowerCase().replace(/(^|[\s'’-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
+  function traveller(lines) {
+    for (const raw of lines) {
+      const m = String(raw).replace(/\t/g, ' | ').replace(/[\u00a0\s]+/g, ' ').trim().match(/^(?:traveller|traveler|voyageur|voyageuse)\s*:\s*(.*)$/i); if (!m) continue;
+      let cells = m[1].split('|').map(x => x.trim()).filter(Boolean);
+      const stop = cells.findIndex(c => c.includes(':')); if (stop >= 0) cells = cells.slice(0, stop);
+      const words = c => c.split(' ').filter(w => !TITLE.test(w));
+      let given, surname;
+      if (cells.length >= 2) { given = words(cells[0]).join(' '); surname = cells[1]; }
+      else {
+        const caps = []; for (const w of words(m[1].split(':')[0].replace(/\|/g, ' ').replace(/\s+/g, ' ').trim())) { if (/^[\p{Lu}'’-]+$/u.test(w)) caps.push(w); else break; }
+        if (caps.length < 2) continue; surname = caps.pop(); given = caps.join(' ');
+      }
+      if (given && surname) return { given: nameCase(given), surname: nameCase(surname) };
+    }
+    return null;
+  }
+
   // lines: the document text, one visual line per entry
   function parse(lines) {
     const L = lines.map(l => String(l).replace(/\s*\|\s*/g, ' ').replace(/[ \s]+/g, ' ').trim()).filter(Boolean);
-    const segs = [], hotels = [], fares = {}, fees = {}, totals = new Set(), summary = [], locator = [];
+    const segs = [], hotels = [], fares = {}, fees = {}, totals = new Set(), summary = [], locator = [], tan = [];
     let kind = '', num = '', carrier = '', seg = null, side = '', hotel = null, ticket = '', addr = null;
     const head = []; // recent short lines that are not labels: carrier, hotel name
     const val = (m, i) => { if (m[1] && m[1].trim()) return [m[1].trim(), i]; const n = L[i + 1]; return n && !RX.label.test(n) ? [n, i + 1] : ['', i]; };
@@ -91,7 +113,8 @@ const ITIN = (() => {
     };
     for (let i = 0; i < L.length; i++) {
       const l = L[i]; let m, v;
-      if ((m = l.match(/^(?:trip locator|booking reference|localisateur|record locator)\s*:?\s*([A-Z0-9]{6})\b/i))) locator.push(m[1].toUpperCase());
+      if ((m = l.match(/^(?:trip locator|localisateur(?: du voyage)?|record locator)\s*:?\s*([A-Z0-9]{6})\b/i))) locator.push(m[1].toUpperCase());
+      if ((m = l.match(/^TAN\s*:\s*([A-Z0-9][A-Z0-9-]{3,})\b/))) tan.push(m[1]);
       if ((m = l.match(RX.sum))) { const w = when(m[1]); summary.push({ date: w.date, from: m[2], to: m[3], num: m[4].replace(' ', ''), dep: m[5].replace(':', '').padStart(4, '0'), arr: m[6].replace(':', '').padStart(4, '0') }); continue; }
       if ((m = l.match(RX.ticket))) { ticket = m[1]; continue; }
       if ((m = l.match(RX.fare))) { fares[ticket || ('t' + i)] = { n: amt(m[1]), cur: m[2].toUpperCase() }; continue; }
@@ -153,17 +176,19 @@ const ITIN = (() => {
     let fare = Object.values(fares).reduce((t, x) => t + (x.cur === cur ? x.n : 0), 0);
     if (!fare && totals.size) fare = [...totals].reduce((t, x) => { const [n, c] = x.split(' '); return t + (c === cur ? +n : 0); }, 0);
     const fee = Object.values(fees).reduce((t, x) => t + (x.cur === cur ? x.n : 0), 0);
-    return { segs, hotels, fare: Math.round(fare * 100) / 100, fee: Math.round(fee * 100) / 100, cur, locator: [...new Set(locator)] };
+    return { segs, hotels, fare: Math.round(fare * 100) / 100, fee: Math.round(fee * 100) / 100, cur, locator: [...new Set(locator)], tan: [...new Set(tan)], traveller: traveller(lines) };
   }
 
   // Combine what several files found (an outbound and a separate return booking, say)
   function merge(list) {
-    const out = { segs: [], hotels: [], fare: 0, fee: 0, cur: 'CAD', locator: [] };
+    const out = { segs: [], hotels: [], fare: 0, fee: 0, cur: 'CAD', locator: [], tan: [], traveller: null };
     list.forEach(f => {
       f.segs.forEach(s => { if (!out.segs.some(x => x.k === s.k)) out.segs.push(s); });
       f.hotels.forEach(h => { if (!out.hotels.some(x => x.in === h.in && fold(x.name) === fold(h.name))) out.hotels.push(h); });
       if (f.fare || f.fee) { if (!out.fare && !out.fee) out.cur = f.cur; if (f.cur === out.cur) { out.fare += f.fare; out.fee += f.fee; } }
       f.locator.forEach(x => out.locator.includes(x) || out.locator.push(x));
+      (f.tan || []).forEach(x => out.tan.includes(x) || out.tan.push(x));
+      if (!out.traveller && f.traveller) out.traveller = f.traveller;
     });
     out.segs.sort((a, b) => (a.dep.date + a.dep.time).localeCompare(b.dep.date + b.dep.time));
     out.fare = Math.round(out.fare * 100) / 100; out.fee = Math.round(out.fee * 100) / 100;

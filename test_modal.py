@@ -8,9 +8,9 @@ async def main():
         c = await b.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True, device_scale_factor=2); q = await c.new_page(); q.on("pageerror", lambda e: errs.append(str(e)))
         await q.goto(url); await q.wait_for_timeout(400)
         def check(n, ok): print(("ok   " if ok else "FAIL ") + n); ok or fails.append(n)
-        await q.evaluate("document.querySelector('#sec-B .imp-tools').scrollIntoView({block:'center'})"); await q.wait_for_timeout(300)
+        await q.evaluate("document.querySelector('#sec-B').scrollIntoView({block:'center'})"); await q.wait_for_timeout(300)
         y0 = await q.evaluate("scrollY"); top0 = await q.evaluate("document.querySelector('#sec-B').getBoundingClientRect().top")
-        await q.click("[data-act=imp-open]"); await q.wait_for_timeout(200)
+        await q.evaluate("document.querySelector('[data-act=imp-open]').click()"); await q.wait_for_timeout(200)
         check("page pinned while open", await q.evaluate("getComputedStyle(document.body).position") == "fixed")
         for x, y in ((195, 60), (195, 500)):  # backdrop strip above the sheet, and inside the sheet
             await q.mouse.move(x, y); await q.mouse.wheel(0, 900); await q.wait_for_timeout(250)

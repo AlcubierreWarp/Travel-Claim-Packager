@@ -4,6 +4,8 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.7 (beta, in progress)
 
+- Switch to beta / Switch to production in the menu (This tool), to move between the two in the same window or installed app. The claim is saved first, and each version keeps its own claims (tab-only claims included). Production shows the switch only on a device that has opened the beta, so members do not see it
+
 ## 1.6 (17 Oct 2026)
 
 - Save now: a Save button in the header (desktop), Save now at the top of the menu (all screens) and Ctrl+S / Cmd+S. It saves at once instead of waiting for the auto-save, reads the claim back to check it was stored, and says where it is kept: on this device (checked), or in this tab only until it closes (with a one-tap Keep on this device). If the browser refuses to store it, it says so and offers Export claim file

@@ -2,7 +2,9 @@
 
 Versioning: the minor number goes up by one only when the beta is promoted to production (1.1, 1.2, 1.3...). The beta shows the number the next production release will have plus its own build number, which goes up with every beta publish and starts again at 1 after a promotion, for example "Version 1.3 beta 3, built 17 Oct 2026 10:42 (production is 1.2)". The major number changes only when the owner decides a release is a major one.
 
-## 1.4 (beta, in progress)
+## 1.5 (beta, in progress)
+
+## 1.4 (17 Oct 2026)
 
 - File names follow Date_FileNo_Marking_Details for the PDF package and the draft file, e.g. 20261102_7209-1_PA_TD-Claim_Winnipeg-Course_Capt-Sample.pdf
 - Optional file number and a security marking (UNCLASSIFIED, PROTECTED A by default, PROTECTED B, or none) in the Package section; remembered with your details
@@ -11,6 +13,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 - Beta-only layer: beta.css and a beta marker are added to the beta build only; a release check stops any promotion that would carry beta-only content into production
 - Source, build tools and tests saved to the source branch (not published)
 - Import itinerary (section B): reads an Amex GBT itinerary (PDF, the email saved as .eml, or pasted text) on the device and fills section B with each flight, train, bus and rental car, its dates and times, connections, and hotel stays in another city. Optional: start and finish at your residence (on by default), add the fare and GBT service fee to transportation expenses with the itinerary as the receipt (off by default, for fares you paid yourself), add hotel stays to Lodging. Shows what it found and what section B will list before anything changes; Undo afterwards. Uses pdf.js 3.11.174 (Apache-2.0), stored in the page and run only on first import, with no worker and no network access
+- Import itinerary is marked Beta for users (a badge on the button and dialog, and a note asking members to check every stop, date and time and to send feedback)
 
 ## 1.3 (17 Oct 2026)
 

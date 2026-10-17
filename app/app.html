@@ -107,6 +107,9 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .chip-r input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .chip-r input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
 /* itinerary import */
+.pill-beta{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid currentColor;border-radius:999px;font:700 .6rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;opacity:.85}
+.imp-betanote{display:flex;gap:8px;align-items:baseline;margin:0 0 12px;padding:8px 10px;border-radius:3px;background:var(--card);border:1px solid var(--line);font-size:.82rem;color:var(--muted)}
+.imp-betanote .pill-beta{margin-left:0;flex:none;color:var(--ink)}
 .imp-tools{margin:0 0 12px}
 .imp-lead{margin:0 0 12px;font-size:.9rem}
 .imp-drop{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border:1px dashed var(--line-strong);border-radius:4px;padding:14px;background:var(--card);margin-bottom:14px}
@@ -600,7 +603,7 @@ html{touch-action:manipulation}
     <section class="sec" id="sec-B">
       <header class="sec-h"><span class="L">B</span><h2>Travel itinerary</h2><p class="hint">Include every city. Enter each place once, with the date and time you arrive and leave.</p></header>
       <div class="sec-b">
-        <div class="sec-tools imp-tools"><button class="btn" data-act="imp-open">Import itinerary</button><span class="drophint">From an Amex GBT itinerary (PDF or email). Fills in the stops, dates and times.</span></div>
+        <div class="sec-tools imp-tools"><button class="btn" data-act="imp-open">Import itinerary <span class="pill-beta">Beta</span></button><span class="drophint">From an Amex GBT itinerary (PDF or email). Fills in the stops, dates and times.</span></div>
         <ol id="itin"></ol>
       </div>
     </section>
@@ -762,10 +765,11 @@ html{touch-action:manipulation}
 
 <input type="file" id="file-itin" accept=".pdf,.eml,.txt,.htm,.html,application/pdf,message/rfc822,text/plain,text/html" multiple hidden>
 <dialog id="imp" aria-labelledby="imp-h">
-  <div class="snap-head"><h3 id="imp-h">Import an itinerary</h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
+  <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
       <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. The file is read on this device and is not uploaded.</p>
+      <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.</span></p>
       <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.</span></div>
       <label for="imp-text" class="imp-or">Or paste the itinerary text from the email</label>
       <textarea id="imp-text" rows="4" autocomplete="off" spellcheck="false"></textarea>
@@ -773,6 +777,7 @@ html{touch-action:manipulation}
     </div>
     <div id="imp-review" hidden>
       <p class="imp-src" id="imp-src"></p>
+      <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>Compare this with your itinerary before you fill section B.</span></p>
       <h4 class="imp-sub">Found</h4>
       <ul class="imp-list" id="imp-list"></ul>
       <div class="imp-opts" id="imp-opts"></div>

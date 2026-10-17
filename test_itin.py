@@ -43,6 +43,11 @@ OUTLOOK_TXT = """ <https://example.com/logo.jpg> \t\t\r\n\r\nE-ticket itinerary 
  \r\nAir Canada\r\nOperated By: Air Canada Rouge\r\nFlight # AC2222\t  \t\r\n\r\nBooking reference: TSTAC2 \r\nDeparting: \tToronto Pearson Intl Airport, Toronto, Canada (YYZ), Terminal 1\t \r\nDate/time: \t09 December 2026, 14:50\t \r\nArriving: \tWinnipeg James Armstrong Richardson Intl Airport, Winnipeg, Canada (YWG)\t \r\nDate/time: \t09 December 2026, 16:27\t \r\n
  SERVICE FEES\t\t\r\nFee 1 Base:\t58.16 CAD\r\nFee 1 Total:\t65.72 CAD\r\n"""
 EXPECT_O = [("Residence", "", "", "2026-12-09", "", ""), ("Ottawa airport (YOW)", "2026-12-09", "", "2026-12-09", "1200", "CAL"), ("Toronto airport (YYZ)", "2026-12-09", "1307", "2026-12-09", "1450", "CAL"), ("Winnipeg", "2026-12-09", "1627", "", "", None)]
+RETURN_TXT = """ ITINERARY DETAILS\r\nTrip locator: \tQC9TST\r\nTraveller: \tMs ALEX JORDAN SAMPLE\r\nTAN : \tTST67890\r\n E-TICKET 1\r\nTicket number: \t0140000000003\r\nTicket amount: \t300.00 CAD\t \r\n
+Air Canada\r\nFlight # AC3333\t \r\nDeparting: \tWinnipeg James Armstrong Richardson Intl Airport, Winnipeg, Canada (YWG)\t \r\nDate/time: \t12 December 2026, 18:00\t \r\nArriving: \tOttawa Macdonald–Cartier Intl Airport, Ottawa, Canada (YOW)\t \r\nDate/time: \t12 December 2026, 21:30\t \r\n
+ SERVICE FEES\t\t\r\nFee 1 Total:\t30.00 CAD\r\n"""
+EXPECT_J = [("Residence", "", "", "2026-12-09", "", ""), ("Ottawa airport (YOW)", "2026-12-09", "", "2026-12-09", "1200", "CAL"), ("Toronto airport (YYZ)", "2026-12-09", "1307", "2026-12-09", "1450", "CAL"),
+  ("Winnipeg", "2026-12-09", "1627", "2026-12-12", "1800", "CAL"), ("Ottawa airport (YOW)", "2026-12-12", "2130", "2026-12-12", "", ""), ("Residence", "2026-12-12", "", "", "", None)]
 EXPECT_D = [("Winnipeg airport (YWG)", "", "", "2026-12-02", "0745", "CAL"), ("Ottawa", "2026-12-02", "1105", "2026-12-06", "1730", "CAL"), ("Winnipeg airport (YWG)", "2026-12-06", "1940", "", "", None)]
 fails = []
 def check(name, got, want):
@@ -65,6 +70,7 @@ async def main():
         (fx / "broken.msg").write_bytes(b"\xd0\xcf\x11\xe0 not really")
         msgfile.write(fx / "trip_a.msg", "Your itinerary is attached.", [("QA7TST.pdf", "application/octet-stream", (fx / "trip_a.pdf").read_bytes())])
         msgfile.write(fx / "outlook_body.msg", OUTLOOK_TXT)
+        msgfile.write(fx / "return.msg", RETURN_TXT)
         await mk.close()
         c = await b.new_context(viewport={"width": 1320, "height": 900}); q = await c.new_page()
         q.on("pageerror", lambda e: errs.append(str(e)))
@@ -144,6 +150,25 @@ async def main():
         await imp(text=OUTLOOK_TXT.replace("\r\n", "\n")); await q.click("#imp-apply"); await q.wait_for_timeout(300)
         check("I: section B from pasted email", await q.evaluate(STOPS), [list(x) for x in EXPECT_O])
         check("I: name read from pasted email", "Alex Jordan Sample" in prev, True)
+        # J: an itinerary split over two emails, added in the review step
+        await imp(["outlook_body.msg"])
+        check("J: first email lists 2 legs", await q.locator("#imp-list li").count(), 2)
+        check("J: add box shown in review", await q.is_visible("#imp-more"), True)
+        await q.set_input_files("#file-itin", str(fx / "return.msg")); await q.wait_for_selector("#imp-added:not([hidden])")
+        print("  J add:", await q.inner_text("#imp-added"))
+        check("J: second email adds its leg", [await q.locator("#imp-list li").count(), await q.locator("#imp-list li.new").count()], [3, 1])
+        fare1 = await q.inner_text("#imp-opts")
+        check("J: fares of both emails added", "763.94" in fare1, True)
+        await q.set_input_files("#file-itin", str(fx / "outlook_body.msg")); await q.wait_for_timeout(1500)
+        print("  J again:", await q.inner_text("#imp-added"))
+        check("J: same email twice adds nothing", [await q.locator("#imp-list li").count(), "Nothing new" in await q.inner_text("#imp-added")], [3, True])
+        check("J: fares not counted twice", "763.94" in await q.inner_text("#imp-opts"), True)
+        await q.click(".imp-paste summary"); await q.fill("#imp-text2", RETURN_TXT.replace("\r\n", "\n")); await q.click("[data-act=imp-read-text2]"); await q.wait_for_timeout(800)
+        check("J: pasting a listed email adds nothing", await q.locator("#imp-list li").count(), 3)
+        check("J: locators of both emails shown", "QB8TST" in await q.inner_text("#imp-src") and "QC9TST" in await q.inner_text("#imp-src"), True)
+        await q.locator("#imp").screenshot(path=str(shots / "imp-add-more.png"))
+        await q.click("#imp-apply"); await q.wait_for_timeout(300)
+        check("J: section B from both emails", await q.evaluate(STOPS), [list(x) for x in EXPECT_J])
         # F: French
         await q.click("#lang-btn"); await q.wait_for_timeout(300)
         prev = await imp(["trip_a.pdf"]); print(prev)

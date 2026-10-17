@@ -1702,8 +1702,10 @@ function sendTitle(kind) {
   const d = tripDates(); const dates = d && d.length ? rangeText(d) : 'Dates TBD';
   return `${dates} - ${(S.tripRef || '').trim() || 'Trip'} - ${kind}`;
 }
+// iPhone and iPad turn any message text into a second "text" file when saving to Files, so share the file alone there.
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 async function shareFile(file, title, text, fallback) {
-  try { await navigator.share({ files: [file], title, text }); return; }
+  try { await navigator.share(IOS ? { files: [file] } : { files: [file], title, text }); return; }
   catch (e) {
     if (e && e.name === 'AbortError') return;
     toast('Sending is not available right now. Saving the file instead.'); fallback();

@@ -4,7 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.2 (beta, in progress)
 
-- No changes yet
+- iPhone and iPad: saving or sending shares only the file, so Save to Files no longer adds a separate text file
 
 ## 1.1 (16 Oct 2026)
 

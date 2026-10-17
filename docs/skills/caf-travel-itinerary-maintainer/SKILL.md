@@ -24,14 +24,14 @@ If the Claude account or workspace is gone, follow `REBUILD.md` on the `source` 
 2. In the clone, add the source branch as a worktree: `git worktree add /home/claude/tcp-source source`.
 3. Copy the source branch contents into a separate working folder (the scratchpad). `release.py` treats its own folder as the source and syncs it to `/home/claude/tcp-source`, so the two must differ. Check the paths at the top of `release.py`.
 4. Run `pip install --break-system-packages playwright pillow pypdf` if missing. Then `python3 build.py .`.
-5. Run the tests: `python3 test_beta.py .`, plus test_send, test_ios, test_names, test_notice, test_rail, test_ptr, test_fr, test_fr_more, test_modal and test_itin as relevant. Expect `errors: []`, `external requests: []` and `failures: []`. test_fr_more needs `fixtures/r.png` (any small white PNG). Delete the `fixtures/` folder afterwards.
+5. Run the tests: `python3 test_beta.py .`, plus test_send, test_ios, test_names, test_notice, test_rail, test_ptr, test_fr, test_fr_more, test_modal and test_itin as relevant. Expect `errors: []`, `external requests: []` and `failures: []`. For service worker or storage changes also run `python3 test_live.py .` (local servers, upgrade check). Delete the `fixtures/` and `shots/` folders afterwards.
 
 ## Making a change
 1. Edit `app/app.html`. Every new English string needs an entry in `app/fr.js` (test_fr fails otherwise). Put a change in `pwa/beta.css` (beta only) only if Tom calls it "beta-specific".
 2. Build, test, and look at screenshots for visual changes.
 3. Add a line under the "in progress" beta heading in `CHANGELOG.md` (in the repo clone).
 4. Publish with `python3 release.py beta "Beta X.Y build N: summary"`. It bumps BETA_BUILD, runs the channel check, commits, pushes and saves the source branch.
-5. Confirm the push: `git rev-parse HEAD` must equal `git ls-remote origin main`.
+5. Confirm the push: `git rev-parse HEAD` must equal `git ls-remote origin main` (release.py also prints a WARNING when a push fails).
 6. Tell Tom the new label (e.g. 1.4 beta 5). He refreshes the installed beta app with pull to refresh.
 
 ## Push to production
@@ -39,7 +39,8 @@ If the Claude account or workspace is gone, follow `REBUILD.md` on the `source` 
 2. In the changelog, date the beta entry and add a new "in progress" heading for the next minor.
 3. Run `python3 release.py promote`. It bumps VERSION, resets BETA_BUILD to 1, copies the production build, single file and beta, then pushes. It also creates `release-vX.Y` and saves the source branch.
 4. Republish the artifact.
-5. Tell Tom what is in the release. Installed apps update on their next online open.
+5. If declaration wording changed, update `docs/legal-wording-for-ajag-review.md` and the claude.ai doc.
+6. Tell Tom what is in the release. Installed apps update on their next online open.
 
 ## Current beta-specific differences (keep unless Tom says otherwise)
 - Greyscale icons and favicon.

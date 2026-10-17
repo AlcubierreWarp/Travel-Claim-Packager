@@ -31,6 +31,10 @@ Unofficial prototype for testing and feedback. It is not an official DND/CAF app
 
 The version number is shown at the bottom of the page and in help emails. See `CHANGELOG.md`.
 
+## Source and rebuilding
+
+This branch (`main`) is the published site. The source, build and release scripts, tests and documentation are on the `source` branch. To rebuild or keep developing the app from nothing but this repository, follow `REBUILD.md` on that branch. Each production release also has a restore branch, `release-vX.Y`.
+
 ## Third-party code
 
-pdf-lib (MIT License) is bundled inside `index.html` and `CAF_Digital_Travel_Itinerary.html`. See `THIRD_PARTY_NOTICES.md`.
+pdf-lib (MIT License) and pdf.js (Apache License 2.0) are bundled inside `index.html` and `CAF_Digital_Travel_Itinerary.html`. See `THIRD_PARTY_NOTICES.md`.

@@ -5,6 +5,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 ## 1.6 (beta, in progress)
 
 - Beta only (stays out of production): violet colour theme in light and dark mode, so the beta is easy to tell apart from production's green
+- Beta only (stays out of production): Beta badge after the page title, matching the import button's tag (Bêta in French)
 
 ## 1.5 (17 Oct 2026)
 

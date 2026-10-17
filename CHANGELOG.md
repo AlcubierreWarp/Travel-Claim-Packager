@@ -2,7 +2,11 @@
 
 Versioning: the minor number goes up by one only when the beta is promoted to production (1.1, 1.2, 1.3...). Beta builds show the number the next production release will have, with "beta" and the build date. The major number changes only when the owner decides a release is a major one.
 
-## 1.2 (beta, in progress)
+## 1.3 (beta, in progress)
+
+- No changes yet
+
+## 1.2 (16 Oct 2026)
 
 - iPhone and iPad: saving or sending shares only the file, so Save to Files no longer adds a separate text file
 

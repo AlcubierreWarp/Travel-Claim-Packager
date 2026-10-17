@@ -658,7 +658,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.1</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.2</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1680,7 +1680,7 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // falls back to a .txt copy there. Open draft file accepts either.
 // Version: the minor number goes up only when beta is promoted to production; major only when the owner says so.
 // Beta builds carry the number the next production release will have, plus the build date.
-const APP_VERSION = '1.1'; // stamped by build.py from VERSION (beta gets the next minor)
+const APP_VERSION = '1.2'; // stamped by build.py from VERSION (beta gets the next minor)
 const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
@@ -1694,8 +1694,10 @@ function sendTitle(kind) {
   const d = tripDates(); const dates = d && d.length ? rangeText(d) : 'Dates TBD';
   return `${dates} - ${(S.tripRef || '').trim() || 'Trip'} - ${kind}`;
 }
+// iPhone and iPad turn any message text into a second "text" file when saving to Files, so share the file alone there.
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 async function shareFile(file, title, text, fallback) {
-  try { await navigator.share({ files: [file], title, text }); return; }
+  try { await navigator.share(IOS ? { files: [file] } : { files: [file], title, text }); return; }
   catch (e) {
     if (e && e.name === 'AbortError') return;
     toast('Sending is not available right now. Saving the file instead.'); fallback();

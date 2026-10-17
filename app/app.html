@@ -387,6 +387,7 @@ fieldset.tg.off input{opacity:.3}
 .sd-block{margin-top:18px}
 .sd-block:first-child{margin-top:0}
 .sd-help{margin:6px 0 0;font-size:.82rem;color:var(--muted);max-width:70ch}
+.sd-edit .sd-help{max-width:none}
 select.bad{border-color:var(--bad);background:var(--bad-soft)}
 .jurat{margin-top:12px;border:1px solid var(--line);border-radius:4px;background:var(--card);padding:12px 14px;font-size:.86rem;line-height:1.55;max-width:72ch}
 .jurat .who{display:block;margin-top:6px;color:var(--muted);font-size:.8rem}
@@ -397,8 +398,24 @@ select.bad{border-color:var(--bad);background:var(--bad-soft)}
 .sd-it-h .tag{padding:0 5px;border-radius:999px;border:1px solid currentColor;font:700 .6rem/1.5 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 .sd-edit{margin:4px 0 8px 0}
 .sd-edit summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.82rem}
-.sd-edit textarea{display:block;width:100%;box-sizing:border-box;margin:6px 0;font:inherit;font-size:.86rem;line-height:1.45;padding:8px;border:1px solid var(--line-strong);border-radius:3px;background:var(--field);color:var(--ink);resize:vertical}
-.sd-edit-acts{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.sd-it-h .tag.warn{color:var(--warn)}
+.sd-paras{list-style:none;margin:8px 0 4px;padding:0;display:flex;flex-direction:column;gap:2px}
+.sd-items .sd-paras>li{display:grid;grid-template-columns:1.6rem minmax(0,1fr);gap:0 4px;padding:6px 8px;border-radius:4px;border-left:3px solid transparent}
+.sd-paras>li.fixed{color:var(--muted)}
+.sd-paras>li.own{border-left-color:var(--accent);background:var(--accent-soft)}
+.sd-paras>li.stale{border-left-color:var(--warn);background:var(--warn-soft)}
+.sd-paras>li.editing{background:none;border-left-color:var(--accent)}
+.sd-items .sd-paras>li.sd-add-li{display:block;padding:0 8px 0 calc(1.6rem + 12px)}
+.sd-n{font-variant-numeric:tabular-nums;padding-top:1px}
+.sd-txt{margin:0;line-height:1.45}
+.sd-p-acts{display:flex;flex-wrap:wrap;align-items:center;gap:2px 14px;margin-top:2px}
+.sd-p-acts .link-btn,.sd-stale .link-btn,.sd-add-li .link-btn,.sd-help .link-btn{margin-left:0;font-size:.8rem;padding:2px 0}
+.sd-src{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.sd-stale{display:flex;flex-wrap:wrap;gap:2px 14px;align-items:center;margin-top:4px;font-size:.8rem;color:var(--ink)}
+.sd-stale span{flex-basis:100%}
+.sd-para{display:block;width:100%;box-sizing:border-box;min-height:4.5em;font:inherit;font-size:.86rem;line-height:1.45;padding:6px 8px;resize:none;overflow:hidden}
+.sd-count{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn.sm{padding:.3rem .8rem;font-size:.82rem}
 .sd-items .ref{font:600 .76rem var(--f-mono);min-width:3.4rem}
 
 /* meals */
@@ -547,6 +564,7 @@ html{touch-action:manipulation}
   input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important}
   .dshow{font-size:15px}
   .seg span{padding:.68rem 1rem}
+  .sd-p-acts .link-btn,.sd-stale .link-btn,.sd-add-li .link-btn,.sd-help .link-btn{padding:9px 0}
 }
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
 </style>
@@ -1035,7 +1053,9 @@ const telStr = o => o.tel ? o.tel + (o.ext ? ' ext ' + o.ext : '') : '';
 /* ---------- state ---------- */
 let S, R = {};
 const newStop = (city = '') => ({ id: uid(), city, arrDate: '', arrTime: '', depDate: '', depTime: '', mode: '', modeOther: '', leave: false });
-const LOST = () => ({ lost: false, lostReason: '', sdFacts: '' });
+// sdP1/sdP2: the member's own wording for paragraphs 1 and 2 ('' = built); sdB1/sdB2: the built wording it replaced,
+// to flag it when the claim changes later; sdMore: an optional extra paragraph of facts after paragraph 2
+const LOST = () => ({ lost: false, lostReason: '', sdP1: '', sdP2: '', sdB1: '', sdB2: '', sdMore: '' });
 const ROWNEW = {
   transport: () => Object.assign({ date: '', location: '', desc: '', cost: '', cur: 'CAD' }, LOST()),
   general:   () => Object.assign({ date: '', location: '', desc: '', cost: '', cur: 'CAD' }, LOST()),
@@ -1113,7 +1133,7 @@ function normalize(s) {
   }
   if (!Array.isArray(o.stops) || o.stops.length < 2) o.stops = [newStop(), newStop()];
   for (const k of ['transport', 'general', 'exchange', 'calls']) if (!Array.isArray(o[k])) o[k] = [];
-  for (const k of ['transport', 'general', 'exchange', 'calls', 'stays']) getArr(k, o).forEach((r, i, a) => { a[i] = Object.assign(ROWNEW[k](), r); a[i].id = r.id || uid(); a[i].rc = Array.isArray(r.rc) ? r.rc : []; });
+  for (const k of ['transport', 'general', 'exchange', 'calls', 'stays']) getArr(k, o).forEach((r, i, a) => { a[i] = Object.assign(ROWNEW[k](), r); a[i].id = r.id || uid(); a[i].rc = Array.isArray(r.rc) ? r.rc : []; sdMigrate(a[i]); });
   o.stops.forEach(s => { s.id = s.id || uid(); normMode(s); });
   if (!o.fileNoSet && !String(o.fileNo || '').trim()) o.fileNo = FILENO_DEFAULT; // drafts from before the default
   return o;
@@ -1177,7 +1197,7 @@ function rcHTML(sec, row, i) {
     const id = `${sec}-${row.id}-lostReason`;
     return `<div class="lost"><span class="pill warn">${T('Receipt missing')}</span>
       <span class="lost-txt">${T('A statutory declaration for {0} replaces the receipt in the package.', `<b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b>`)} ${S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.')}</span>
-      <div class="lost-why"><label for="${id}">${T('Unavailable because')}</label><input id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="lostReason" value="${esc(row.lostReason)}" placeholder="${esc(T("e.g. the taxi's card machine did not print one"))}" autocomplete="off"></div>
+      <div class="lost-why"><label for="${id}">${T('Unavailable because')}</label><input id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="lostReason" value="${esc(row.lostReason)}" maxlength="200" placeholder="${esc(T("e.g. the taxi's card machine did not print one"))}" autocomplete="off"></div>
       <button class="link-btn" data-act="unlose" data-sec="${sec}" data-row="${row.id}">${T('I have the receipt')}</button></div>`;
   }
   const refs = refsFor(sec, i, row.rc.length);
@@ -1369,23 +1389,45 @@ function juratPlaceText() {
   if (fr()) return `${place || '____________________'}, ${PROV_IN_FR[sd.juris] || '________'}`;
   return `${place ? 'the ' + place : 'the ____________________'} in the ${sd.juris === 'NT' || sd.juris === 'NU' || sd.juris === 'YT' ? '' : 'Province of '}${PROVS[sd.juris] || '________'}`;
 }
-function renderSD() {
+let sdEditing = ''; // 'rowId:1', 'rowId:2' or 'rowId:more' while that paragraph is open for editing
+const SD_MAX = 400;
+function sdParaHtml(it, x, n) {
+  const r = it.row, ed = sdEditing === r.id + ':' + x.k, a = `data-sdrow="${r.id}" data-sdsec="${it.sec}" data-p="${x.k}"`;
+  let body;
+  if (ed) {
+    const v = x.more ? sdClean(r.sdMore) : x.own ? sdClean(r['sdP' + x.k]) : x.text;
+    body = `<textarea class="sd-para" ${a} maxlength="${SD_MAX}" rows="3" enterkeyhint="done" spellcheck="true" aria-label="${esc(T('Paragraph {0}', n))}" aria-describedby="sd-count-${r.id}">${esc(v)}</textarea>
+      <div class="sd-p-acts"><button type="button" class="btn sm" data-act="sd-done" ${a}>${esc(T('Done'))}</button><span class="sd-count" id="sd-count-${r.id}">${v.length} / ${SD_MAX}</span></div>`;
+  } else {
+    const src = x.fixed === 'why' ? esc(T('From the expense')) : x.fixed ? esc(T('Standard wording')) : x.more ? esc(T('Your paragraph')) : x.own ? esc(T('Your wording')) : esc(T('Built from the claim'));
+    const acts = x.fixed === 'why' ? `<button type="button" class="link-btn" data-act="sd-goto" ${a}>${esc(T('Change the reason'))}</button>`
+      : x.fixed ? '' : `<button type="button" class="link-btn" data-act="sd-edit" ${a}>${esc(T('Edit'))}</button>`
+        + (x.more ? `<button type="button" class="link-btn" data-act="sd-del" ${a}>${esc(T('Remove'))}</button>` : x.own && !x.stale ? `<button type="button" class="link-btn" data-act="sd-reset" ${a}>${esc(T('Use the built wording'))}</button>` : '');
+    body = `<p class="sd-txt">${esc(x.text)}</p><div class="sd-p-acts"><span class="sd-src">${src}</span>${acts}</div>`;
+    if (x.stale) body += `<div class="sd-stale" role="note"><span>${esc(T('The claim changed after you rewrote this. Check it still matches.'))}</span><button type="button" class="link-btn" data-act="sd-reset" ${a}>${esc(T('Use the new built wording'))}</button><button type="button" class="link-btn" data-act="sd-keep" ${a}>${esc(T('Keep mine'))}</button></div>`;
+  }
+  return `<li class="sd-p${x.fixed ? ' fixed' : ''}${x.own ? ' own' : ''}${x.stale ? ' stale' : ''}${ed ? ' editing' : ''}" data-p="${x.k}"><span class="sd-n">${n}.</span><div class="sd-pb">${body}</div></li>`;
+}
+function renderSD(force) {
   const items = lostItems(), sec = $('#sec-SD');
   sec.hidden = !items.length; $('#railbtn-SD').hidden = !items.length;
   if (!items.length) return;
   const box = $('#sd-items');
-  if (!box.contains(document.activeElement) || document.activeElement === document.body) { // never redraw under the member's typing
+  if (force || !box.contains(document.activeElement) || document.activeElement === document.body) { // never redraw under the member's typing
     const open = new Set($$('details[open]', box).map(d => d.dataset.row));
-    box.innerHTML = items.map(it => {
-      const own = String(it.row.sdFacts || '').trim(), built = sdBuilt(it).slice(0, 2).join('\n\n');
-      return `<li><div class="sd-it-h"><span class="ref">${it.ref} ${T('SD')}</span><span>${esc(T('{0}: {1}', inMatter(it.sec, it.row), lostAmtText(it.sec, it.row)))}</span>${own ? `<span class="tag">${esc(T('Edited'))}</span>` : ''}</div>
-        <details class="sd-edit" data-row="${it.row.id}"${open.has(it.row.id) ? ' open' : ''}><summary>${esc(T('See or edit the wording'))}</summary>
-          <p class="sd-help">${esc(T('Paragraphs 1 and 2 state the facts. Change them if they do not describe what happened; leave a blank line between paragraphs. Paragraph 3 (why the receipt is missing) comes from the expense, and the closing paragraphs stay as they are.'))}</p>
-          <textarea class="sd-facts" rows="6" data-sdrow="${it.row.id}" data-sdsec="${it.sec}" aria-label="${esc(T('Wording of {0}', it.ref + ' ' + T('SD')))}" spellcheck="true">${esc(own || built)}</textarea>
-          <div class="sd-edit-acts"><button type="button" class="btn" data-act="sd-reset" data-sdrow="${it.row.id}" data-sdsec="${it.sec}"${own ? '' : ' disabled'}>${esc(T('Use the wording built from the claim'))}</button>
-          <span class="drophint">${esc(own ? T('Edited wording is printed as typed and does not change when you edit the expense.') : T('Built from the claim. It updates when you edit the expense.'))}</span></div>
+    const html = items.map(it => {
+      const r = it.row, parts = sdParts(it), stale = parts.some(x => x.stale);
+      if (sdEditing === r.id + ':more' && !parts.some(x => x.more)) parts.splice(2, 0, { k: 'more', text: '', own: true, more: true });
+      const lis = parts.map((x, i) => sdParaHtml(it, x, i + 1));
+      if (!parts.some(x => x.more)) lis.splice(2, 0, `<li class="sd-add-li"><button type="button" class="link-btn" data-act="sd-add" data-sdrow="${r.id}" data-sdsec="${it.sec}" data-p="more">${esc(T('+ Add a paragraph'))}</button></li>`);
+      return `<li><div class="sd-it-h"><span class="ref">${it.ref} ${T('SD')}</span><span>${esc(T('{0}: {1}', inMatter(it.sec, r), lostAmtText(it.sec, r)))}</span>${sdEdited(r) ? `<span class="tag">${esc(T('Edited'))}</span>` : ''}${stale ? `<span class="tag warn">${esc(T('Check'))}</span>` : ''}</div>
+        <details class="sd-edit" data-row="${r.id}"${stale || sdEditing.startsWith(r.id + ':') ? ' open' : ''}><summary>${esc(T('See or edit the wording'))}</summary>
+          <p class="sd-help">${esc(T('Wrong date, amount or place? Fix it in the expense and the wording follows.'))} <button type="button" class="link-btn" data-act="sd-goto" data-sdrow="${r.id}" data-sdsec="${it.sec}" data-p="1">${esc(T('Go to the expense'))}</button></p>
+          <ol class="sd-paras">${lis.join('')}</ol>
         </details></li>`;
     }).join('');
+    // redraw only when something changed, so a click that blurs another field still lands on what it was aimed at
+    if (force || box.__html !== html) { box.innerHTML = html; box.__html = html; $$('details.sd-edit', box).forEach(d => { if (open.has(d.dataset.row)) d.open = true; }); }
   }
   const sd = S.sd;
   $('#sd-name').placeholder = sdName() || T('e.g. Jordan Lee Sample');
@@ -1518,6 +1560,7 @@ function checks() {
     if (!sd.street.trim() || !sd.city.trim() || !sd.prov) add('bad', 'SD', T('Add your home address for the statutory declaration (street, city, province).'));
     if (sd.abroad && !sd.abroadPlace.trim()) add('warn', 'SD', T('Add the place outside Canada where the declaration will be taken.'));
     if (/\(|\)/.test(S.sd.name)) add('warn', 'SD', T('Names on a statutory declaration must be in full, without initials in brackets.'));
+    lostItems().forEach(it => sdParts(it).forEach((x, i) => { if (x.stale) add('warn', 'SD', T('{0} SD, paragraph {1}: the claim changed after you rewrote it. Check it still matches.', it.ref, i + 1)); }));
   }
   return out;
 }
@@ -1813,16 +1856,39 @@ function onField(el, final) {
   if (sec === 'stays' && final && (k === 'checkin' || k === 'checkout') && row.rations) renderMeals();
 }
 const liveKind = el => el.type === 'checkbox' || el.tagName === 'SELECT';
-// the member's own wording for a statutory declaration (stored with the expense; blank = built wording)
-function sdSetFacts(el) {
-  const row = getArr(el.dataset.sdsec).find(r => r.id === el.dataset.sdrow); if (!row) return;
-  const it = lostItems().find(x => x.row === row); if (!it) return;
-  const built = sdBuilt(it).slice(0, 2).join('\n\n'), v = el.value;
-  row.sdFacts = v.trim() === built.trim() || !v.trim() ? '' : v; persist();
+// the member's own wording for one paragraph of a statutory declaration (stored with the expense; blank = built wording).
+// One paragraph per field: line breaks become spaces, and a typed paragraph number is dropped.
+const sdRowOf = el => getArr(el.dataset.sdsec).find(r => r.id === el.dataset.sdrow);
+function sdSetPara(el) {
+  const row = sdRowOf(el); if (!row) return;
+  if (/[\r\n]/.test(el.value)) { const at = el.selectionStart; el.value = el.value.replace(/\s*[\r\n]+\s*/g, ' '); try { el.setSelectionRange(at, at); } catch (e) {} }
+  const k = el.dataset.p, v = sdClean(el.value);
+  S.touched.SD = true;
+  if (k === 'more') row.sdMore = v;
+  else {
+    const it = lostItems().find(x => x.row === row); if (!it) return;
+    const b = sdBuilt(it)[+k - 1];
+    if (!v || v === sdClean(b)) { row['sdP' + k] = ''; row['sdB' + k] = ''; } else { row['sdP' + k] = v; row['sdB' + k] = b; }
+  }
+  const c = $('#sd-count-' + row.id); if (c) c.textContent = `${el.value.length} / ${SD_MAX}`;
+  sdGrow(el); persist();
+}
+const sdGrow = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; };
+function sdOpen(row, k) {
+  sdEditing = row.id + ':' + k; renderSD(true);
+  const ta = $(`textarea.sd-para[data-sdrow="${row.id}"]`); if (ta) { sdGrow(ta); ta.focus(); const n = ta.value.length; try { ta.setSelectionRange(n, n); } catch (e) {} }
+}
+function sdClose(row, k) {
+  sdEditing = ''; renderSD(true); refresh();
+  const b = $(`[data-act="sd-edit"][data-sdrow="${row.id}"][data-p="${k}"]`) || $(`[data-act="sd-add"][data-sdrow="${row.id}"]`); if (b) b.focus();
+}
+function sdGoto(sec, row, k) {
+  const el = k === 'why' ? document.getElementById(`${sec}-${row.id}-lostReason`) : $$(`[data-row="${row.id}"]`).find(e => !e.closest('#sec-SD') && /INPUT|SELECT/.test(e.tagName));
+  if (!el) return; el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); el.focus({ preventScroll: true });
 }
 document.addEventListener('input', e => {
   const el = e.target;
-  if (el.classList && el.classList.contains('sd-facts')) { sdSetFacts(el); return; }
+  if (el.classList && el.classList.contains('sd-para')) { sdSetPara(el); return; }
   if (el.id === 'sd-date') { S.sd.declDate = el.value; S.sd.declDateSet = true; syncDate(el); persist(); refresh(); return; }
   if (el.type === 'date') syncDate(el);
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
@@ -1833,7 +1899,6 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
-  if (el.classList && el.classList.contains('sd-facts')) { sdSetFacts(el); el.blur(); refresh(); return; }
   if (el.type === 'date') syncDate(el);
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
   if (el.id === 'opt-keep') { setKeep(el.checked); return; }
@@ -1858,6 +1923,7 @@ document.addEventListener('focusout', e => { const id = e.target && e.target.id;
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveNow(); return; }
   if (e.key === 'Escape' && !$('#menu').hidden) { setMenu(false); $('#menu-btn').focus(); }
+  if ((e.key === 'Enter' || e.key === 'Escape') && e.target.classList && e.target.classList.contains('sd-para')) { e.preventDefault(); const row = sdRowOf(e.target); if (row) sdClose(row, e.target.dataset.p); return; }
   if (e.key === 'Enter' && e.target.id === 'unlock-pin') { e.preventDefault(); $('[data-act="unlock"]').click(); }
   if (e.key === 'Enter' && (e.target.id === 'pin-1' || e.target.id === 'pin-2')) { e.preventDefault(); $('[data-act="pin-save"]').click(); }
 });
@@ -1904,7 +1970,18 @@ document.addEventListener('click', e => {
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
     case 'save-now': setMenu(false); saveNow(); break;
-    case 'sd-reset': { const row = getArr(b.dataset.sdsec).find(r => r.id === b.dataset.sdrow); if (row) { row.sdFacts = ''; b.blur(); refresh(); persist(); toast(T('Back to the wording built from the claim.')); } break; }
+    case 'sd-edit': case 'sd-add': { const row = sdRowOf(b); if (row) sdOpen(row, b.dataset.p); break; }
+    case 'sd-done': { const row = sdRowOf(b); if (row) sdClose(row, b.dataset.p); break; }
+    case 'sd-goto': { const row = sdRowOf(b); if (row) sdGoto(b.dataset.sdsec, row, b.dataset.p); break; }
+    case 'sd-reset': case 'sd-del': case 'sd-keep': {
+      const row = sdRowOf(b), k = b.dataset.p; if (!row) break;
+      const it = lostItems().find(x => x.row === row), keys = k === 'more' ? ['sdMore'] : ['sdP' + k, 'sdB' + k], was = keys.map(x => row[x]);
+      if (b.dataset.act === 'sd-keep') { if (it) row['sdB' + k] = sdBuilt(it)[+k - 1]; }
+      else keys.forEach(x => { row[x] = ''; });
+      sdEditing = ''; renderSD(true); refresh(); persist();
+      if (b.dataset.act !== 'sd-keep') toast(k === 'more' ? T('Paragraph removed.') : T('Back to the wording built from the claim.'), { label: T('Undo'), fn: () => { keys.forEach((x, i) => { row[x] = was[i]; }); renderSD(true); refresh(); persist(); } });
+      break;
+    }
     case 'switch-channel': setMenu(false); switchChannel(); break;
     /*BETA-ONLY*/case 'beta-testdata': setMenu(false); loadTestData(); break;
     case 'beta-reset': betaReset(b); break;/*/BETA-ONLY*/
@@ -2762,11 +2839,32 @@ function sdExchange(r, date, purpose) {
 // edited it, otherwise the wording built from the claim. Why the receipt is missing, the
 // non-reimbursement paragraph and the closing always follow.
 const sdBuilt = it => fr() ? sdParagraphsFr(it) : sdParagraphs(it);
-function sdFinal(it) {
-  const built = sdBuilt(it), own = String(it.row.sdFacts || '').trim();
-  if (!own) return built;
-  return own.split(/\n\s*\n/).map(x => x.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean).concat(built.slice(2));
+const sdClean = v => String(v || '').replace(/\s*[\r\n]+\s*/g, ' ').replace(/^\s*(?:\(?\d{1,2}[.)]|[-\u2022*])\s+/, '').replace(/\s{2,}/g, ' ').trim();
+const sdEnd = s => s && !/[.!?\u2026:;\u00bb"')\]]$/.test(s) ? s + '.' : s;
+const sdEdited = r => !!(sdClean(r.sdP1) || sdClean(r.sdP2) || sdClean(r.sdMore));
+// drafts from 1.8 beta 3 to 5 kept the member's paragraphs 1 and 2 in one text box
+function sdMigrate(r) {
+  if (!r.sdFacts) return;
+  const ps = String(r.sdFacts).split(/\n\s*\n/).map(sdClean).filter(Boolean);
+  if (!r.sdP1 && ps[0]) r.sdP1 = ps[0];
+  if (!r.sdP2 && ps.length > 1) r.sdP2 = ps.slice(1).join(' ');
+  delete r.sdFacts;
 }
+// Each paragraph as printed, with where it comes from: 1 and 2 built from the claim unless the member rewrote them,
+// an optional paragraph of the member's own, then why the receipt is missing (from the expense) and the standard closing.
+function sdParts(it) {
+  const built = sdBuilt(it), r = it.row;
+  const para = n => {
+    const own = sdClean(r['sdP' + n]);
+    if (own && !r['sdB' + n]) r['sdB' + n] = built[n - 1]; // older drafts and test data: watch for changes from now on
+    return { k: String(n), text: own ? sdEnd(own) : built[n - 1], own: !!own, stale: !!own && r['sdB' + n] !== built[n - 1] };
+  };
+  const out = [para(1), para(2)], more = sdClean(r.sdMore);
+  if (more) out.push({ k: 'more', text: sdEnd(more), own: true, more: true });
+  out.push({ k: 'why', text: built[2], fixed: 'why' }, ...built.slice(3).map((s, i) => ({ k: 'std' + i, text: s, fixed: 'std' })));
+  return out;
+}
+const sdFinal = it => sdParts(it).map(x => x.text);
 function sdParagraphsFr(it) {
   const r = it.row, sec = it.sec, sd = S.sd, n = nights(r);
   const date = fmtLong(rowDate(sec, r)), loc = String(rowLoc(sec, r) || '').trim();
@@ -2797,6 +2895,7 @@ function sdParagraphs(it) {
   p.push('And I make this solemn declaration conscientiously believing it to be true, and knowing that it is of the same force and effect as if made under oath, and by virtue of the Canada Evidence Act.');
   return p;
 }
+const SD_JURAT_H = 235; // height of the jurat and signature block under the paragraphs
 function drawDeclaration(P, it) {
   const { M, W, F, B, C } = P, key = it.ref.replace(/[^A-Za-z0-9]/g, ''), sd = S.sd, m = S.member;
   const j = sd.juris, prov = provName(j), terr = ['NT', 'NU', 'YT'].includes(j);
@@ -2823,7 +2922,10 @@ function drawDeclaration(P, it) {
     ? `Je soussigné(e), ${who}, demeurant au ${addr || '____________________'}, ${isCiv() ? 'employé(e) civil(e) du ministère de la Défense nationale' : 'membre des Forces armées canadiennes'},`
     : `I, ${who}, of ${addr || '____________________'}, ${isCiv() ? 'a civilian employee of the Department of National Defence' : 'a member of the Canadian Armed Forces'},`, M, y, W - 2 * M) - 8;
   P.text(T('DO SOLEMNLY DECLARE THAT:'), M, y, { size: 9.5, font: B }); y -= 20;
-  sdFinal(it).forEach((t, i) => { P.text(`${i + 1}.`, M + 6, y, { size: 9.5 }); y = P.para(t, M + 24, y, W - 2 * M - 24) - 7; });
+  const paras = sdFinal(it), pw = W - 2 * M - 24, room = y - P.BOT - SD_JURAT_H;
+  const hAt = s => paras.reduce((h, t) => h + P.wrap(t, F, s, pw).length * s * 1.45 + 7, 0);
+  const fs = [9.5, 9, 8.5, 8, 7.5].find(s => hAt(s) <= room) || 7.5;
+  paras.forEach((t, i) => { P.text(`${i + 1}.`, M + 6, y, { size: fs }); y = P.para(t, M + 24, y, pw, { size: fs }) - 7; });
   y -= 18;
   // jurat (left) and declarant (right)
   const colW = half - 12, top = y;
@@ -3098,7 +3200,8 @@ async function loadTestData() {
   ];
   s.exchange = [
     row('exchange', { date: '2026-11-06', location: 'Test Bank, Ottawa', soldAmt: '300', soldCur: 'CAD', boughtAmt: '215', boughtCur: 'USD', charge: '4.50', chargeCur: 'CAD', lost: true, lostReason: 'the bank receipt was thrown out with my travel documents',
-      sdFacts: 'On 6 November 2026, three days before leaving on temporary duty to Halifax for Exercise SAMPLE TIDE, I bought United States dollars for a planned visit to the United States during the exercise.\n\nI exchanged $300.00 Canadian dollars for 215.00 United States dollars at Test Bank, Ottawa and paid a service charge of $4.50 Canadian dollars.' }),
+      sdP1: 'On 6 November 2026, three days before leaving on temporary duty to Halifax for Exercise SAMPLE TIDE, I bought United States dollars for a planned visit to the United States during the exercise.',
+      sdP2: 'I exchanged $300.00 Canadian dollars for 215.00 United States dollars at Test Bank, Ottawa and paid a service charge of $4.50 Canadian dollars.' }),
     row('exchange', { date: '2026-11-12', location: 'Test Exchange Office, Greenwood', soldAmt: '100', soldCur: 'USD', boughtAmt: '137', boughtCur: 'CAD', charge: '3.00', chargeCur: 'CAD', rc: [rc('exchange.jpg', ['Test Exchange Office', '12 Nov 2026', 'Sold USD 100.00', 'Bought CAD 137.00', 'Fee CAD 3.00'])] }),
   ];
   s.calls = [

@@ -58,6 +58,10 @@ If the Claude account or workspace is gone, follow `REBUILD.md` on the `source` 
 - Labelled Beta for users in both channels until Tom says otherwise.
 - Never keep a real itinerary in the workspace or repo after use; tests build fictional ones.
 
+## Statutory declarations
+- Paragraphs come from `sdParts()`: 1 and 2 built (`sdParagraphs`/`sdParagraphsFr`) unless the member rewrote them (`sdP1`/`sdP2`, with the built text they replaced in `sdB1`/`sdB2` to flag later changes), an optional `sdMore` paragraph, then the reason and the two standard paragraphs (locked).
+- Each editable paragraph is one paragraph (line breaks joined, typed numbers dropped), capped at 400 characters; the reason is capped at 200. `drawDeclaration` shrinks the paragraph text (to 7.5 pt at most) so the declaration stays on one page; `test_sdx.py` checks the longest case in both languages.
+
 ## Gotchas
 - Production and beta share an origin.
   - IndexedDB: `caf-dti-main` for production, `caf-dti` for beta.

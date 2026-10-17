@@ -106,6 +106,9 @@ async def main():
         # mobile layout of the dialog
         await q.set_viewport_size({"width": 390, "height": 844}); await imp(["trip_a.pdf"]); await q.screenshot(path=str(shots / "imp-mobile.png"))
         box = await q.locator("#imp-apply").bounding_box(); check("mobile: apply button on screen", box is not None and box["y"] + box["height"] <= 844, True)
+        await q.mouse.move(195, 400); await q.mouse.wheel(0, 600); await q.wait_for_timeout(300)
+        check("mobile: dialog content scrolls", (await q.evaluate("document.querySelector('#imp .snap-body').scrollTop")) > 0, True)
+        check("mobile: page behind stays pinned", await q.evaluate("getComputedStyle(document.body).position"), "fixed")
         await q.click("#imp .snap-foot [data-act=imp-cancel]"); await q.locator("#sec-B").screenshot(path=str(shots / "imp-secB-mobile.png"))
         print("errors:", errs); print("external requests:", reqs); print("failures:", fails)
         await b.close()

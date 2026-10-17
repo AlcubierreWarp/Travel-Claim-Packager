@@ -429,6 +429,9 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
 .ptr.spin svg{animation:ptrspin .8s linear infinite}
 @keyframes ptrspin{to{transform:rotate(360deg)}}
 html.standalone{overscroll-behavior-y:none}
+/* an open dialog holds the screen: the page behind it does not scroll (iPhone ignores overflow alone) */
+html.modal-open,html.modal-open body{overflow:hidden}
+dialog,dialog .snap-body{overscroll-behavior:contain}
 .totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:15;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:0;transition:opacity .2s,transform .2s}
 .totop[hidden]{display:grid;opacity:0;pointer-events:none;transform:translateY(8px)}
 .totop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
@@ -1835,6 +1838,28 @@ function fillStays() {
   toast(added ? nPl(added, 'Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.', 'Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.') : T('Every overnight location already has a stay covering those dates.'));
 }
 
+/* ---------- dialogs hold the screen ---------- */
+// While any dialog is open the page behind it is pinned in place, so a swipe inside the dialog
+// (or on the dimmed area around it) never scrolls the form. Closing it puts the page back where it was.
+let lockY = null;
+function syncModalLock() {
+  const open = !!document.querySelector('dialog[open]'), b = document.body, h = document.documentElement;
+  if (open && lockY === null) {
+    lockY = window.scrollY;
+    Object.assign(b.style, { position: 'fixed', top: `-${lockY}px`, left: '0', right: '0', width: '100%' }); h.classList.add('modal-open');
+  } else if (!open && lockY !== null) {
+    const y = lockY; lockY = null;
+    Object.assign(b.style, { position: '', top: '', left: '', right: '', width: '' }); h.classList.remove('modal-open');
+    window.scrollTo({ top: y, left: 0, behavior: 'instant' });
+  }
+}
+function initModalLock() {
+  new MutationObserver(syncModalLock).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
+  // a swipe that starts on the dimmed backdrop belongs to nothing
+  document.addEventListener('touchmove', e => { if (lockY !== null && e.target.tagName === 'DIALOG' && e.cancelable) e.preventDefault(); }, { passive: false });
+  syncModalLock();
+}
+
 /* ---------- itinerary import (Amex GBT) ---------- */
 // The PDF reader (pdf.js, Apache-2.0) sits in the page as inert text and only runs the first time
 // an itinerary is imported. It runs on this page with no worker and no network access.
@@ -1980,7 +2005,7 @@ function impApply() {
   impClose();
   const redraw = () => { renderItin(); renderList('transport'); renderList('stays'); renderMeals(); refresh(); refreshPlaces(); };
   redraw();
-  const el = $('#sec-B'); if (el) el.scrollIntoView({ block: 'start' });
+  setTimeout(() => { const el = $('#sec-B'); if (el) el.scrollIntoView({ block: 'start' }); }, 0); // after the page is unlocked
   toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); S.stops = o.stops; S.transport = o.transport; S.lodging.stays = o.stays; redraw(); } });
 }
 
@@ -2921,7 +2946,7 @@ async function startBlank(msg) {
 /* ---------- boot ---------- */
 async function boot() {
   captureStatic(); if (fr()) applyStatic();
-  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice(); initPullRefresh();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice(); initPullRefresh(); initModalLock();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

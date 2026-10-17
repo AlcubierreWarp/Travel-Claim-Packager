@@ -1,0 +1,66 @@
+import sys, pathlib, asyncio
+from playwright.async_api import async_playwright
+from PIL import Image, ImageDraw
+base = pathlib.Path(sys.argv[1]); fx = base / "fixtures"; fx.mkdir(exist_ok=True); shots = base / "shots"
+img = Image.new("RGB", (600, 800), "white"); ImageDraw.Draw(img).text((40, 40), "DUMMY TEST RECEIPT\nTOTAL CAD 12.00", fill="black"); img.save(fx / "dummy.png")
+url = (base / "out/CAF_Digital_Travel_Itinerary.html").resolve().as_uri()
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch(); ctx = await b.new_context(viewport={"width": 1320, "height": 900}, accept_downloads=True); pg = await ctx.new_page()
+        errs, reqs = [], []
+        pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
+        pg.on("request", lambda r: reqs.append(r.url) if not r.url.startswith(("file:", "data:", "blob:")) else None)
+        await pg.goto(url); await pg.wait_for_timeout(700)
+        print("1 keep banner:", await pg.is_visible("#keep-banner"), "| chip:", await pg.inner_text("#savechip"), "| bar:", await pg.inner_text("#barstatus"))
+        print("  date shows:", await pg.inner_text("#itin .dshow:not(.empty)"))
+        await pg.click("[data-act=keep-yes]"); await pg.wait_for_timeout(1500)
+        print("2 chip after keep:", await pg.inner_text("#savechip"))
+        await pg.reload(); await pg.wait_for_timeout(900)
+        print("  restored example after reload:", await pg.is_visible("#example-banner"), "| keep banner:", await pg.is_visible("#keep-banner"))
+        # remember details, then blank claim prefilled
+        await pg.click("#menu-btn"); await pg.check("#opt-remember"); await pg.wait_for_timeout(300); await pg.keyboard.press("Escape")
+        await pg.click("[data-act=start-blank]"); await pg.wait_for_timeout(500)
+        print("3 blank: member prefilled (should be empty, example not remembered):", repr(await pg.input_value("#m-sur")), "| bar:", await pg.inner_text("#barstatus"))
+        print("  checks:", (await pg.inner_text("#checks")).replace("\n", " ")[:180])
+        print("  rail A:", await pg.inner_text("#rail-A"), "| rail B:", await pg.inner_text("#rail-B"))
+        await pg.fill("#m-pri", "A00 000 001"); await pg.click("#m-sur"); await pg.click("#m-given")
+        print("4 surname flagged after leaving it empty:", await pg.eval_on_selector("#m-sur", "e => e.classList.contains('bad')"), "| bar:", await pg.inner_text("#barstatus"))
+        await pg.click("#build-btn"); await pg.wait_for_timeout(300)
+        print("5 after Build press:", await pg.inner_text("#build-status"), "| fix items:", (await pg.inner_text("#checks")).count("FIX"))
+        await pg.select_option("#m-rank", "Maj"); await pg.fill("#m-sur", "Tester"); await pg.fill("#m-given", "Pat"); await pg.press("#m-given", "Tab"); await pg.wait_for_timeout(1200)
+        await pg.click("#menu-btn"); await pg.click("#clear-btn"); await pg.click("#clear-btn"); await pg.wait_for_timeout(600)
+        print("6 remembered details on new claim:", await pg.input_value("#m-rank"), await pg.input_value("#m-sur"), await pg.input_value("#m-pri"))
+        # snap a receipt
+        await pg.set_input_files("#file-snap", str(fx / "dummy.png")); await pg.wait_for_timeout(500)
+        print("7 snap open:", await pg.is_visible("#snap"))
+        await pg.click("[data-act=snap-save]"); print("  needs type:", await pg.inner_text("#snap-err"))
+        await pg.click("#snap-types label:has-text('Taxi')"); await pg.fill("#snap-amt", "12.00"); await pg.fill("#snap-loc", "Winnipeg"); await pg.click("[data-act=snap-save]"); await pg.wait_for_timeout(300)
+        print("  rows in C:", await pg.eval_on_selector_all("#rows-transport .row", "e => e.length"), "| chip:", await pg.inner_text("#rows-transport .chip .ref"), "| toast:", await pg.inner_text("#toast"))
+        # PIN
+        await pg.click("#menu-btn"); await pg.click("#opt-pin"); await pg.wait_for_timeout(200)
+        print("8 pin banner:", await pg.is_visible("#pin-banner"))
+        await pg.fill("#pin-1", "2468"); await pg.fill("#pin-2", "2468"); await pg.click("[data-act=pin-save]"); await pg.wait_for_timeout(2500)
+        stored = await pg.evaluate("""() => new Promise(r => { const q = indexedDB.open('caf-dti-main'); q.onsuccess = () => { const t = q.result.transaction('kv').objectStore('kv').get('claim'); t.onsuccess = () => r(Object.keys(t.result || {})); }; })""")
+        print("  claim record fields (encrypted should be iv, ct):", stored)
+        await pg.reload(); await pg.wait_for_timeout(900)
+        print("9 unlock banner:", await pg.is_visible("#unlock-banner"), "| chip:", await pg.inner_text("#savechip"))
+        await pg.fill("#unlock-pin", "1111"); await pg.click("[data-act=unlock]"); await pg.wait_for_timeout(1500)
+        print("  wrong PIN:", await pg.inner_text("#unlock-err"))
+        await pg.fill("#unlock-pin", "2468"); await pg.click("[data-act=unlock]"); await pg.wait_for_timeout(2000)
+        print("  unlocked:", not await pg.is_visible("#unlock-banner"), "| surname:", await pg.input_value("#m-sur"), "| C rows:", await pg.eval_on_selector_all("#rows-transport .row", "e => e.length"), "| receipt kept:", await pg.eval_on_selector_all("#rows-transport .chip", "e => e.length"))
+        # forget
+        await pg.click("#menu-btn"); await pg.click("#forget-btn"); await pg.click("#forget-btn"); await pg.wait_for_timeout(800)
+        keys = await pg.evaluate("""() => new Promise(r => { const q = indexedDB.open('caf-dti-main'); q.onsuccess = () => { const t = q.result.transaction('kv').objectStore('kv').getAllKeys(); t.onsuccess = () => r(t.result); }; })""")
+        print("10 after forget, stored keys:", keys, "| surname:", repr(await pg.input_value("#m-sur")))
+        await pg.screenshot(path=str(shots / "beta-desk.png"))
+        # phone
+        c2 = await b.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True); q = await c2.new_page(); q.on("pageerror", lambda e: errs.append(str(e)))
+        await q.goto(url); await q.wait_for_timeout(700)
+        print("11 phone scrollWidth:", await q.evaluate("document.documentElement.scrollWidth"), "| bar height:", round((await (await q.query_selector(".totalbar")).bounding_box())["height"]))
+        await q.screenshot(path=str(shots / "beta-phone.png"))
+        await q.click("#menu-btn"); await q.screenshot(path=str(shots / "beta-phone-menu.png"))
+        await q.click("#menu-btn")
+        await q.set_input_files("#file-snap", str(fx / "dummy.png")); await q.wait_for_timeout(500); await q.screenshot(path=str(shots / "beta-phone-snap.png"))
+        print("errors:", errs); print("external requests:", reqs)
+        await b.close()
+asyncio.run(main())

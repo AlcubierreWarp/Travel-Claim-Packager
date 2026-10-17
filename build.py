@@ -1,0 +1,91 @@
+import sys, re, pathlib
+base = pathlib.Path(sys.argv[1])
+src = (base / "app/app.html").read_text()
+# Versions: production shows VERSION; beta shows the next minor and its own build number (BETA_BUILD),
+# which release.py raises on every beta publish and resets when the beta is promoted.
+import datetime, zoneinfo
+VERSION = (base / "VERSION").read_text().strip()
+_maj, _min = VERSION.split(".")
+BETA_VERSION = f"{_maj}.{int(_min) + 1}"
+BETA_BUILD = int((base / "BETA_BUILD").read_text().strip() or 0)
+_now = datetime.datetime.now(zoneinfo.ZoneInfo("America/Moncton"))
+PROD_LABEL = f"Version {VERSION}, updated {_now.strftime('%d %b %Y')}"
+BETA_LABEL = f"Version {BETA_VERSION} beta {BETA_BUILD}, built {_now.strftime('%d %b %Y %H:%M')} (production is {VERSION})"
+src_beta = src.replace("__APP_VERSION__", f"{BETA_VERSION}-beta.{BETA_BUILD}").replace("__APP_LABEL__", BETA_LABEL).replace("__APP_CHANNEL__", "beta")
+src = src.replace("__APP_VERSION__", VERSION).replace("__APP_LABEL__", PROD_LABEL).replace("__APP_CHANNEL__", "production")
+pdflib = (base / "npm/node_modules/pdf-lib/dist/pdf-lib.min.js").read_text().replace("\ufffd", "\\ufffd")
+assert "</script" not in pdflib.lower()
+inl = src.replace("/*PDFLIB*/", "\n" + pdflib + "\n")
+
+# Artifact version: page content only (the host adds the document skeleton)
+(base / "out").mkdir(exist_ok=True)
+(base / "out/travel-claim-packager.html").write_text(inl)
+
+# Standalone version: full document, no web fonts, strict policy that blocks all network access
+head, body = inl.split("<!--BODY-->", 1)
+head = re.sub(r"<!--FONTS-->.*?<!--/FONTS-->", "", head, flags=re.S)
+csp = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
+       "img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; "
+       "object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'")
+doc = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+       '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+       f'<meta http-equiv="Content-Security-Policy" content="{csp}">\n'
+       '<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. This page cannot make network requests. -->\n'
+       + head + "</head>\n<body>\n" + body + "\n</body>\n</html>\n")
+(base / "out/CAF_Digital_Travel_Itinerary.html").write_text(doc)
+print("ok", len(inl), len(doc))
+
+# Hosted web build (GitHub Pages or a unit server): same page, installable as an app.
+# The policy differs from the single file only in letting the page load its own manifest,
+# icons and offline helper from the same site. connect-src stays 'none'.
+import hashlib, shutil
+web = base / "out/web"; web.mkdir(parents=True, exist_ok=True)
+csp_web = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
+           "img-src 'self' data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; "
+           "object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'")
+pwa_head = ('<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" href="favicon.ico" sizes="any">\n'
+            '<link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">\n'
+            '<link rel="apple-touch-icon" href="apple-touch-icon.png">\n<meta name="theme-color" content="#052748">\n'
+            '<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n'
+            '<meta name="apple-mobile-web-app-title" content="CAF Travel">\n')
+webdoc = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+          '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+          f'<meta http-equiv="Content-Security-Policy" content="{csp_web}">\n' + pwa_head +
+          '<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. The page itself cannot make network requests. -->\n'
+          + head + "</head>\n<body>\n" + body + "\n</body>\n</html>\n")
+(web / "index.html").write_text(webdoc)
+ver = hashlib.sha256(webdoc.encode()).hexdigest()[:10]
+(web / "sw.js").write_text((base / "pwa/sw.js").read_text().replace("__VERSION__", ver))
+shutil.copy(base / "pwa/manifest.webmanifest", web / "manifest.webmanifest")
+for f in (base / "pwa/icons").iterdir(): shutil.copy(f, web / f.name)  # owner-supplied icon set
+print("web ok", ver)
+
+# Beta channel: same page with the next version number and its own app name, so an installed
+# beta is easy to tell apart from production on a home screen.
+import json
+webb = base / "out/web-beta"; shutil.rmtree(webb, ignore_errors=True); shutil.copytree(web, webb)
+binl = src_beta.replace("/*PDFLIB*/", "\n" + pdflib + "\n")
+bhead, bbody = binl.split("<!--BODY-->", 1)
+bhead = re.sub(r"<!--FONTS-->.*?<!--/FONTS-->", "", bhead, flags=re.S)
+beta_css = (base / "pwa/beta.css").read_text()
+bhead = bhead + '<style id="beta-only">\n' + beta_css + '\n</style>\n'
+bdoc = ('<!doctype html>\n<html lang="en" data-channel="beta">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+        f'<meta http-equiv="Content-Security-Policy" content="{csp_web}">\n' + pwa_head.replace('content="CAF Travel"', 'content="CAF Travel Beta"').replace('content="#052748"', 'content="#2b2b2b"') +
+        '<!-- CAF Digital Travel Itinerary (beta). Runs entirely in the browser. The page itself cannot make network requests. -->\n'
+        + bhead + "</head>\n<body>\n" + bbody + "\n</body>\n</html>\n")
+(webb / "index.html").write_text(bdoc)
+bver = hashlib.sha256(bdoc.encode()).hexdigest()[:10]
+(webb / "sw.js").write_text((base / "pwa/sw.js").read_text().replace("__VERSION__", bver))
+# Beta icons in greyscale so the beta is easy to tell apart on a home screen
+from PIL import Image
+for f in (base / "pwa/icons").iterdir():
+    im = Image.open(f).convert("RGBA"); r, g, b, a = im.split()
+    grey = Image.merge("RGBA", (*[im.convert("L")] * 3, a))
+    if f.suffix == ".ico": grey.save(webb / f.name, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
+    else: grey.save(webb / f.name, format="PNG", optimize=True)
+m = json.loads((base / "pwa/manifest.webmanifest").read_text())
+m["name"] = "CAF Digital Travel Itinerary (Beta)"; m["short_name"] = "CAF Travel Beta"
+m["theme_color"] = m["background_color"] = "#2b2b2b"
+(webb / "manifest.webmanifest").write_text(json.dumps(m, indent=2) + "\n")
+print("beta ok |", PROD_LABEL, "|", BETA_LABEL, "|", bver)

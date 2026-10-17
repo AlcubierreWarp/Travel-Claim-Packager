@@ -671,7 +671,7 @@ html{touch-action:manipulation}
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.8 beta 7, built 17 Oct 2026 17:18 (production is 1.7)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.8 beta 8, built 17 Oct 2026 17:25 (production is 1.7)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -810,7 +810,7 @@ html{touch-action:manipulation}
         <div class="sd-block">
           <h3>Declarations to be generated</h3>
           <ul class="sd-items" id="sd-items"></ul>
-          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or by hand (set under Build the package).</p>
+          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or in ink (set under Build the package).</p>
         </div>
         <div class="sd-block">
           <h3>Declarant</h3>
@@ -880,7 +880,7 @@ html{touch-action:manipulation}
           <span class="pk-out-l" id="pk-sign-l">Signing</span>
           <span class="seg">
             <label><input type="radio" name="pk-sign" value="pki" id="pk-pki"><span>PKI</span></label>
-            <label><input type="radio" name="pk-sign" value="hand" id="pk-hand"><span>By hand</span></label>
+            <label><input type="radio" name="pk-sign" value="hand" id="pk-hand"><span>Ink signature</span></label>
           </span>
           <span class="pk-out-hint" id="pk-sign-hint"></span>
         </div>
@@ -893,7 +893,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.8 beta 7, built 17 Oct 2026 17:18 (production is 1.7)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.8 beta 8, built 17 Oct 2026 17:25 (production is 1.7)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1151,7 +1151,6 @@ const FR = {
 "Bus": "Autobus",
 "Business": "Affaires",
 "Business call": "Appel d'affaires",
-"By hand": "À la main",
 "C - Transportation": "C - Transport",
 "CAF Digital Travel Itinerary": "Itinéraire de voyage numérique des FAC",
 "CAL": "Vol commercial",
@@ -1226,7 +1225,7 @@ const FR = {
 "Déj.": "Déj.",
 "Dîn.": "Dîn.",
 "EXAMPLE": "EXEMPLE",
-"Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or by hand (set under Build the package).": "Chaque reçu manquant a sa propre déclaration, préremplie à partir de cette réclamation. Vous la faites en personne devant un officier autorisé, qui remplit le constat d'assermentation. Vous la signez tous les deux, avec un certificat ICP ou à la main (choix sous Créer la trousse).",
+"Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or in ink (set under Build the package).": "Chaque reçu manquant a sa propre déclaration, préremplie à partir de cette réclamation. Vous la faites en personne devant un officier autorisé, qui remplit le constat d'assermentation. Vous la signez tous les deux, avec un certificat ICP ou à l'encre (choix sous Créer la trousse).",
 "Edit": "Modifier",
 "Edited": "Modifié",
 "Enter it to continue where you left off.": "Entrez-le pour reprendre là où vous étiez.",
@@ -1308,6 +1307,8 @@ const FR = {
 "In progress": "En cours",
 "Include every city. Enter each place once, with the date and time you arrive and leave.": "Incluez chaque ville. Inscrivez chaque endroit une seule fois, avec la date et l'heure d'arrivée et de départ.",
 "Include rental vehicle info, gas, taxis, bus, train, air, PMV and parking etc.": "Inclure véhicule de location, essence, taxis, autobus, train, avion, VP, stationnement, etc.",
+"Ink signature": "Signature à l'encre",
+"Ink signature lines": "Lignes de signature à l'encre",
 "Install app": "Installer l'application",
 "Install cancelled. You can install any time from the menu.": "Installation annulée. Vous pouvez l'installer en tout temps à partir du menu.",
 "Installed. Open CAF Travel from your home screen or app list.": "Installée. Ouvrez CAF Travel à partir de votre écran d'accueil ou de votre liste d'applications.",
@@ -1576,7 +1577,6 @@ const FR = {
 "Shown at the top of the PDF and used in the file name.": "Affiché en haut du PDF et utilisé dans le nom du fichier.",
 "Shuttle": "Navette",
 "Signature fields for your PKI certificate in Adobe.": "Champs de signature pour votre certificat ICP dans Adobe.",
-"Signature lines, to sign by hand": "Lignes de signature, à signer à la main",
 "Signature of Claimant": "Signature du réclamant",
 "Signature of Claimant (PKI digital signature)": "Signature du réclamant (signature numérique ICP)",
 "Signed by you and the officer, in person.": "Signée par vous et l'officier, en personne.",
@@ -1713,7 +1713,7 @@ const FR = {
 "Worksheet, sections A to H": "Feuille de travail, sections A à H",
 "Worksheet, totals, receipt index, then every receipt or declaration, labelled": "Feuille de travail, totaux, index des reçus, puis chaque reçu ou déclaration, identifié",
 "Wrong date, amount or place? Fix it in the expense and the wording follows.": "Date, montant ou lieu inexact? Corrigez-le dans la dépense et le libellé suivra.",
-"You sign it by hand in front of the officer.": "Vous la signez à la main devant l'officier.",
+"You sign it in ink in front of the officer.": "Vous la signez à l'encre devant l'officier.",
 "You sign it with your PKI certificate.": "Vous la signez avec votre certificat ICP.",
 "Your claim and receipts, to finish later or on another device.": "Votre réclamation et vos reçus, pour terminer plus tard ou sur un autre appareil.",
 "Your details will be filled in on your next claim.": "Vos renseignements seront remplis dans votre prochaine réclamation.",
@@ -2441,7 +2441,7 @@ function rcHTML(sec, row, i) {
   if (row.lost) {
     const id = `${sec}-${row.id}-lostReason`;
     return `<div class="lost"><span class="pill warn">${T('Receipt missing')}</span>
-      <span class="lost-txt">${T('A statutory declaration for {0} replaces the receipt in the package.', `<b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b>`)} <span data-pkitxt>${S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.')}</span></span>
+      <span class="lost-txt">${T('A statutory declaration for {0} replaces the receipt in the package.', `<b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b>`)} <span data-pkitxt>${S.pki ? T('You sign it with your PKI certificate.') : T('You sign it in ink in front of the officer.')}</span></span>
       <div class="lost-why"><label for="${id}">${T('Unavailable because')}</label><input id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="lostReason" value="${esc(row.lostReason)}" maxlength="200" placeholder="${esc(T("e.g. the taxi's card machine did not print one"))}" autocomplete="off"></div>
       <button class="link-btn" data-act="unlose" data-sec="${sec}" data-row="${row.id}">${T('I have the receipt')}</button></div>`;
   }
@@ -2581,7 +2581,7 @@ function syncOut() {
   const h = $('#pk-out-hint'); if (h) h.textContent = S.split ? T('Worksheet, receipts and each declaration as their own files.') : T('Everything in one file.');
   $('#pk-pki').checked = !!S.pki; $('#pk-hand').checked = !S.pki;
   $('#pk-sign-hint').textContent = S.pki ? T('Signature fields for your PKI certificate in Adobe.') : T('Lines to sign on paper.');
-  $$('[data-pkitxt]').forEach(el => { el.textContent = S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.'); });
+  $$('[data-pkitxt]').forEach(el => { el.textContent = S.pki ? T('You sign it with your PKI certificate.') : T('You sign it in ink in front of the officer.'); });
   const b = $('#build-btn'); if (b && !b.classList.contains('busy')) b.textContent = S.split ? T('Build PDF files') : T('Build PDF package');
 }
 function renderBinds() {
@@ -2912,7 +2912,7 @@ function refresh() {
     ['Summary of amounts claimed', curs.length ? curs.map(c => `${fmtN(t[c])} ${c}`).join(', ') : T('nil')],
     ['Receipts, labelled', `${ev.n}`]];
   if (ev.lost) rows.push(['Missing receipt declarations', `${ev.lost}`]);
-  rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Signature lines, to sign by hand', `${1 + ev.lost * 2}`]);
+  rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Ink signature lines', `${1 + ev.lost * 2}`]);
   $('#contents').innerHTML = rows.map(([a, b]) => `<li><span>${esc(T(a))}</span><span>${esc(b)}</span></li>`).join('');
   persist();
 }
@@ -3577,9 +3577,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.8-beta.7';
+const APP_VERSION = '1.8-beta.8';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.8 beta 7, built 17 Oct 2026 17:18 (production is 1.7)';
+const APP_LABEL = 'Version 1.8 beta 8, built 17 Oct 2026 17:25 (production is 1.7)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }

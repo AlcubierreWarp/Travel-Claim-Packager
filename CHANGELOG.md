@@ -4,6 +4,10 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.8 (beta, in progress)
 
+- The Switch to beta / Switch to production item moves to the bottom of the menu, under Help and Send feedback
+- Currency exchanges no longer get an "outside the trip" warning when dated up to 30 days before or after it
+- Beta only (stays out of production): Load test data (a full test claim using every section and feature: point of contact, connections, a leave stop, rental car and other modes, all three kinds of lodging with rations, meal remarks, an exchange before the trip, business and personal calls, image and two-page PDF receipts, four missing receipts with one edited declaration, TAN, trip locator, file number and PROTECTED B; Undo is offered) and Reset the beta (clears the beta's saved claims, details, settings, PIN and offline copy on this device; production is untouched), at the bottom of the menu under Beta testing
+
 - The app logo replaces the TD mark in the header (greyscale in the beta), and production is re-themed in navy and blue to match the logo, in light and dark mode. The beta keeps its violet theme
 - Currency exchange: the place field now asks Where exchanged (bank or exchange office, city). Its statutory declaration fits when the exchange happened: before leaving on the duty, during it (with the duty location taken from the itinerary, not the bank), or after returning
 - Statutory declarations: See or edit the wording under each declaration shows paragraphs 1 and 2 as they will print, and lets the member rewrite them; edited wording is printed as typed, marked Edited, and can be reset to the built wording

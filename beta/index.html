@@ -566,7 +566,10 @@ html{touch-action:manipulation}
    for anything that needs to differ in behaviour. To promote a beta-only change to production,
    move it into app/app.html.
    Build-time beta differences (in build.py): greyscale icons, grey theme and launch colour,
-   "CAF Travel Beta" app name, beta build number in the version label. */
+   "CAF Travel Beta" app name, beta build number in the version label.
+   Beta-only code and markup in app/app.html sit between /*BETA-ONLY*/ ... /*/BETA-ONLY*/ (script) or
+   <!--BETA-ONLY--> ... <!--/BETA-ONLY--> (markup); build.py removes them from production, and the
+   release check refuses a production build that still contains them. Today: Load test data and Reset the beta. */
 
 /* Beta colour theme: violet in place of production's green, so the two are never confused.
    Same tokens as the :root blocks in app/app.html; status colours (ok, warn, bad) are unchanged.
@@ -629,7 +632,6 @@ html{touch-action:manipulation}
           <hr>
           <p class="menu-h">This tool</p>
           <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Export offline app</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
-          <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
           <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -641,7 +643,11 @@ html{touch-action:manipulation}
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.8 beta 2, built 17 Oct 2026 15:04 (production is 1.7)</p>
+          <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
+          <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
+          <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
+          <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.8 beta 3, built 17 Oct 2026 15:18 (production is 1.7)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -851,7 +857,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.8 beta 2, built 17 Oct 2026 15:04 (production is 1.7)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.8 beta 3, built 17 Oct 2026 15:18 (production is 1.7)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1094,6 +1100,7 @@ const FR = {
 "Base or location": "Base ou lieu",
 "Before you build": "Avant de créer",
 "Beta": "Bêta",
+"Beta testing": "Essais de la version bêta",
 "Blank claim ready. Start with the trip name and section A.": "Réclamation vierge prête. Commencez par le nom du voyage et la section A.",
 "Bought": "Acheté",
 "Breakfast": "Déjeuner",
@@ -1135,6 +1142,7 @@ const FR = {
 "Claim {0} every day": "Réclamer le {0} chaque jour",
 "Claude artifact": "artefact Claude",
 "Clear form": "Effacer le formulaire",
+"Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.": "Efface tout ce que la version bêta conserve sur cet appareil : réclamations, renseignements, paramètres, NIP et copie hors ligne. La version de production n'est pas touchée.",
 "Click again to clear": "Cliquez de nouveau pour effacer",
 "Click again to delete everything": "Cliquez de nouveau pour tout supprimer",
 "Close": "Fermer",
@@ -1277,6 +1285,7 @@ const FR = {
 "Leave days {0}: meals unticked, no lodging needed.": "Jours de congé {0} : repas décochés, aucun hébergement requis.",
 "Leave these blank and the officer can type them into the PDF before signing.": "Laissez ces champs en blanc et l'officier pourra les remplir dans le PDF avant de signer.",
 "Linux or ChromeOS": "Linux ou ChromeOS",
+"Load test data": "Charger les données d'essai",
 "Location": "Lieu",
 "Locked": "Verrouillé",
 "Lodging": "Hébergement",
@@ -1460,6 +1469,9 @@ const FR = {
 "Repeat PIN": "Confirmer le NIP",
 "Replace section B": "Remplacer la section B",
 "Replace your name with the one on the itinerary: {0}": "Remplacer votre nom par celui de l'itinéraire : {0}",
+"Replaces the claim with a full test claim that uses every section and feature. Undo is offered.": "Remplace la réclamation par une réclamation d'essai complète qui utilise chaque section et fonction. Vous pouvez annuler.",
+"Reset the beta": "Réinitialiser la version bêta",
+"Resetting the beta...": "Réinitialisation de la version bêta...",
 "Residence": "Résidence",
 "Review and build": "Vérifier et créer",
 "Rideshare": "Covoiturage",
@@ -1555,11 +1567,13 @@ const FR = {
 "Tab only": "Onglet seulement",
 "Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.": "Touchez Enregistrer ou envoyer le PDF, puis choisissez Enregistrer dans Fichiers, OneDrive, Teams ou Mail.",
 "Tap again to erase this claim": "Touchez de nouveau pour effacer cette réclamation",
+"Tap again to reset the beta": "Touchez de nouveau pour réinitialiser la version bêta",
 "Taxi": "Taxi",
 "Telephone": "Téléphone",
 "Telephone \"{0}\" must be ###-###-#### or ###-####.": "Le téléphone « {0} » doit être au format ###-###-#### ou ###-####.",
 "Telephone and ext.": "Téléphone et poste",
 "Temporary duty itinerary worksheet and receipts, compiled into one PDF for the Orderly Room.": "Feuille de travail de l'itinéraire de service temporaire et reçus, réunis en un seul PDF pour la salle des rapports.",
+"Test data loaded: every section is filled in, with four missing receipts and one edited declaration.": "Données d'essai chargées : chaque section est remplie, avec quatre reçus manquants et une déclaration modifiée.",
 "That PIN is not right. Try again, or forget this device to start over.": "Ce NIP n'est pas le bon. Essayez de nouveau, ou oubliez cet appareil pour recommencer.",
 "That file is not a draft from this tool.": "Ce fichier n'est pas un brouillon de cet outil.",
 "The PDF engine did not load. Reload the page and try again.": "Le moteur PDF ne s'est pas chargé. Rechargez la page et réessayez.",
@@ -1568,6 +1582,7 @@ const FR = {
 "The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel lui-même (fichier .msg d'Outlook, ou .eml). Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel enregistré en fichier .eml. Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The POC extension must be 4 digits.": "Le poste du PC doit comporter 4 chiffres.",
+"The beta was reset. Everything it kept on this device is cleared.": "La version bêta a été réinitialisée. Tout ce qu'elle conservait sur cet appareil est effacé.",
 "The date declared is today's date unless you change it. Clear it to leave the date for the officer to fill in.": "La date de la déclaration est celle d'aujourd'hui, sauf si vous la changez. Effacez-la pour laisser l'officier inscrire la date.",
 "The extension must be 4 digits.": "Le poste doit comporter 4 chiffres.",
 "The final location has no name.": "Le lieu d'arrivée n'a pas de nom.",
@@ -2699,7 +2714,8 @@ function checks() {
   const td = tripDates();
   if (td) {
     const a = td[0], z = td[td.length - 1], span = rangeText([a, z]);
-    for (const sec of ['transport', 'general', 'exchange', 'calls']) getArr(sec).forEach((r, i) => { if (isoOk(r.date) && (r.date < a || r.date > z)) add('warn', DEFS[sec].L, T('{0} is dated {1}, outside the trip ({2}).', `${DEFS[sec].L}-${i + 1}`, fmtDate(r.date), span)); });
+    // currency is often bought before the trip or changed back after it, so exchanges get 30 days either side
+    for (const sec of ['transport', 'general', 'exchange', 'calls']) getArr(sec).forEach((r, i) => { const pad = sec === 'exchange' ? 30 : 0; if (isoOk(r.date) && (r.date < addDays(a, -pad) || r.date > addDays(z, pad))) add('warn', DEFS[sec].L, T('{0} is dated {1}, outside the trip ({2}).', `${DEFS[sec].L}-${i + 1}`, fmtDate(r.date), span)); });
     S.lodging.stays.forEach((r, i) => { if ((isoOk(r.checkin) && r.checkin < a) || (isoOk(r.checkout) && r.checkout > z)) add('warn', 'D', T('{0} dates fall outside the trip ({1}).', 'D-' + (i + 1), span)); });
   }
   if (lostItems().length) {
@@ -3097,6 +3113,8 @@ document.addEventListener('click', e => {
     case 'save-now': setMenu(false); saveNow(); break;
     case 'sd-reset': { const row = getArr(b.dataset.sdsec).find(r => r.id === b.dataset.sdrow); if (row) { row.sdFacts = ''; b.blur(); refresh(); persist(); toast(T('Back to the wording built from the claim.')); } break; }
     case 'switch-channel': setMenu(false); switchChannel(); break;
+    /*BETA-ONLY*/case 'beta-testdata': setMenu(false); loadTestData(); break;
+    case 'beta-reset': betaReset(b); break;/*/BETA-ONLY*/
     case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
@@ -3441,9 +3459,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.8-beta.2';
+const APP_VERSION = '1.8-beta.3';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.8 beta 2, built 17 Oct 2026 15:04 (production is 1.7)';
+const APP_LABEL = 'Version 1.8 beta 3, built 17 Oct 2026 15:18 (production is 1.7)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4234,6 +4252,90 @@ function loadExample() {
 
 
 
+/*BETA-ONLY*/
+/* ---------- beta testing tools (the beta only: build.py strips this from production) ---------- */
+// A test claim that uses every section and feature: POC, connections, a leave stop, rental car and
+// other modes, all three kinds of lodging with rations, meal remarks, exchange before the trip,
+// business and personal calls, image and multi-page PDF receipts, four missing receipts (one with
+// edited declaration wording), the TAN and trip locator, a file number and PROTECTED B.
+async function testPdfReceipt() {
+  const { PDFDocument, StandardFonts, rgb } = PDFLib, d = await PDFDocument.create(), f = await d.embedFont(StandardFonts.Helvetica), fb = await d.embedFont(StandardFonts.HelveticaBold);
+  [['SAMPLE E-TICKET RECEIPT', ['Test Airlines', 'Flight TS101  YOW - YHZ  09 Nov 2026', 'Flight TS202  YHZ - YOW  15 Nov 2026', 'Ticket amount 612.40 CAD']], ['SAMPLE E-TICKET RECEIPT (page 2)', ['Fare 520.00 CAD', 'Taxes 92.40 CAD', 'Test data only. Not a real receipt.']]].forEach(([h, lines]) => {
+    const pg = d.addPage([612, 792]); pg.drawText(h, { x: 60, y: 720, size: 18, font: fb }); lines.forEach((l, i) => pg.drawText(l, { x: 60, y: 680 - i * 24, size: 12, font: f, color: rgb(.1, .1, .1) }));
+  });
+  const bytes = await d.save(), id = uid(); R[id] = { id, name: 'eticket-test.pdf', kind: 'pdf', dataUrl: 'data:application/pdf;base64,' + bufToB64(bytes), pages: 2 }; return id;
+}
+let betaUndo = null;
+async function loadTestData() {
+  betaUndo = { S: JSON.stringify(S), R };
+  const s = blank(); R = {}; s.test = true;
+  const rc = (name, lines) => { const id = uid(); R[id] = { id, name, kind: 'img', dataUrl: sampleReceipt(lines), w: 520, h: 720, pages: 1 }; return id; };
+  const row = (sec, o) => Object.assign({ id: uid(), rc: [] }, ROWNEW[sec](), o);
+  Object.assign(s, { tripRef: 'Beta test, Exercise SAMPLE TIDE', fileNo: '7209-1', fileNoSet: true, marking: 'PB', tan: 'TST00001', locator: 'TSTLOC' });
+  s.member = { pri: 'A00 000 001', rank: 'MWO', surname: 'Tester', given: 'Morgan Alex (MA)', section: 'Test Cell', tel: '613-555-0199', ext: '1234' };
+  s.poc = { on: true, rank: 'Capt', surname: 'Contact', given: 'Riley', email: 'riley.contact@example.com', tel: '613-555-0100', ext: '' };
+  s.stops = [
+    Object.assign(newStop('Residence'), { depDate: '2026-11-09', depTime: '0600', mode: 'PMV' }),
+    Object.assign(newStop('Ottawa airport (YOW)'), { arrDate: '2026-11-09', arrTime: '0630', depDate: '2026-11-09', depTime: '0800', mode: 'CAL' }),
+    Object.assign(newStop('Halifax airport (YHZ)'), { arrDate: '2026-11-09', arrTime: '1105', depDate: '2026-11-09', depTime: '1200', mode: 'Rental Car' }),
+    Object.assign(newStop('Halifax'), { arrDate: '2026-11-09', arrTime: '1240', depDate: '2026-11-11', depTime: '0700', mode: 'Rental Car' }),
+    Object.assign(newStop('Greenwood'), { arrDate: '2026-11-11', arrTime: '0900', depDate: '2026-11-13', depTime: '1700', mode: 'Other', modeOther: 'Ferry and shuttle' }),
+    Object.assign(newStop('Digby'), { arrDate: '2026-11-13', arrTime: '1900', depDate: '2026-11-14', depTime: '1500', mode: 'Rental Car', leave: true }),
+    Object.assign(newStop('Halifax airport (YHZ)'), { arrDate: '2026-11-15', arrTime: '1000', depDate: '2026-11-15', depTime: '1300', mode: 'CAL' }),
+    Object.assign(newStop('Ottawa airport (YOW)'), { arrDate: '2026-11-15', arrTime: '1610', depDate: '2026-11-15', depTime: '1630', mode: 'PMV' }),
+    Object.assign(newStop('Residence'), { arrDate: '2026-11-15', arrTime: '1710' }),
+  ];
+  const pdf = await testPdfReceipt();
+  s.transport = [
+    row('transport', { date: '2026-11-09', location: 'Ottawa airport (YOW)', desc: 'Airfare, YOW-YHZ return', cost: '612.40', rc: [pdf] }),
+    row('transport', { date: '2026-11-09', location: 'Halifax airport (YHZ)', desc: 'Rental vehicle, 7 days', cost: '402.15', rc: [rc('rental.jpg', ['Test Car Rental', 'Out 09 Nov 2026 12:00', 'In  15 Nov 2026 10:00', '7 days', 'TOTAL      CAD 402.15']), rc('rental-fuel-policy.jpg', ['Test Car Rental', 'Fuel policy page', 'Full to full'])] }),
+    row('transport', { date: '2026-11-12', location: 'Greenwood', desc: 'Gas', cost: '68.30', rc: [rc('gas.jpg', ['Test Fuel', '12 Nov 2026', '40.2 L', 'TOTAL       CAD 68.30'])] }),
+    row('transport', { date: '2026-11-10', location: 'Halifax', desc: 'Taxi, hotel to dockyard', cost: '22.00', lost: true, lostReason: 'the driver had no way to print or send a receipt' }),
+    row('transport', { date: '2026-11-15', location: 'Ottawa airport (YOW)', desc: 'Airport parking, 7 days', cost: '133.00', rc: [rc('parking.jpg', ['Test Airport Parking', 'In  09 Nov 2026 06:25', 'Out 15 Nov 2026 16:40', 'TOTAL      CAD 133.00'])] }),
+  ];
+  s.lodging.stays = [
+    row('stays', { hotel: 'Test Harbour Hotel', location: 'Halifax', checkin: '2026-11-09', checkout: '2026-11-11', cost: '389.00', lost: true, lostReason: 'the hotel emailed the folio to an address I no longer have access to' }),
+    row('stays', { quarters: true, rations: true, location: '14 Wing Greenwood', checkin: '2026-11-11', checkout: '2026-11-13' }),
+    row('stays', { priv: true, street: '12 Test Lane', city: 'Digby', prov: 'NS', postal: 'B0V 1A0', country: 'Canada', checkin: '2026-11-13', checkout: '2026-11-15' }),
+  ];
+  s.meals = { '2026-11-09': { b: false, note: 'Breakfast before departure' }, '2026-11-15': { d: false, note: 'Home for dinner' } };
+  s.general = [
+    row('general', { date: '2026-11-10', location: 'Halifax', desc: 'Laundry', cost: '18.00', rc: [rc('laundry.jpg', ['Test Laundromat', '10 Nov 2026', 'TOTAL       CAD 18.00'])] }),
+    row('general', { date: '2026-11-11', location: 'Greenwood', desc: 'Conference fee', cost: '75.00', rc: [rc('conference.jpg', ['Test Conference', 'Registration', 'TOTAL       CAD 75.00'])] }),
+  ];
+  s.exchange = [
+    row('exchange', { date: '2026-11-06', location: 'Test Bank, Ottawa', soldAmt: '300', soldCur: 'CAD', boughtAmt: '215', boughtCur: 'USD', charge: '4.50', chargeCur: 'CAD', lost: true, lostReason: 'the bank receipt was thrown out with my travel documents',
+      sdFacts: 'On 6 November 2026, three days before leaving on temporary duty to Halifax for Exercise SAMPLE TIDE, I bought United States dollars for a planned visit to the United States during the exercise.\n\nI exchanged $300.00 Canadian dollars for 215.00 United States dollars at Test Bank, Ottawa and paid a service charge of $4.50 Canadian dollars.' }),
+    row('exchange', { date: '2026-11-12', location: 'Test Exchange Office, Greenwood', soldAmt: '100', soldCur: 'USD', boughtAmt: '137', boughtCur: 'CAD', charge: '3.00', chargeCur: 'CAD', rc: [rc('exchange.jpg', ['Test Exchange Office', '12 Nov 2026', 'Sold USD 100.00', 'Bought CAD 137.00', 'Fee CAD 3.00'])] }),
+  ];
+  s.calls = [
+    row('calls', { date: '2026-11-10', location: 'Halifax', timeDur: '0915, 12 min', number: '613-555-0100', person: 'Capt Riley Contact', kind: 'Business', cost: '6.20', rc: [rc('call.jpg', ['Test Hotel phone', '10 Nov 2026 09:15', '12 min', 'CAD 6.20'])] }),
+    row('calls', { date: '2026-11-12', location: 'Greenwood', timeDur: '2010, 8 min', number: '613-555-0177', person: 'Home', kind: 'Personal', cost: '4.10', lost: true, lostReason: 'the phone card provider does not issue receipts' }),
+  ];
+  s.sd = Object.assign(blankSD(), { name: 'Morgan Alex Tester', street: '200 Test Avenue', city: 'Ottawa', prov: 'ON', postal: 'K2A 0B2', purpose: 'take part in Exercise SAMPLE TIDE', juris: 'NS', place: 'Halifax Regional Municipality', env: 'naval', offName: 'Jamie Officer', offRank: 'Lieutenant-Commander', offUnit: 'Canadian Forces Base Halifax' });
+  S = s; newClaimState(); renderAll(); window.scrollTo(0, 0); persist();
+  toast(T('Test data loaded: every section is filled in, with four missing receipts and one edited declaration.'), { label: T('Undo'), fn: () => { if (!betaUndo) return; S = normalize(JSON.parse(betaUndo.S)); R = betaUndo.R; betaUndo = null; renderAll(); persist(); } });
+}
+let resetArmed = 0;
+async function betaReset(b) {
+  const t = $('#beta-reset-t');
+  if (!(resetArmed && Date.now() - resetArmed < 4000)) {
+    resetArmed = Date.now(); b.classList.add('armed'); t.textContent = T('Tap again to reset the beta');
+    setTimeout(() => { if (resetArmed && Date.now() - resetArmed >= 3900) { resetArmed = 0; b.classList.remove('armed'); t.textContent = T('Reset the beta'); } }, 4100);
+    return;
+  }
+  resetArmed = 0; setMenu(false); toast(T('Resetting the beta...'));
+  clearTimeout(pT); clearTimeout(dT); clearTimeout(profT);
+  try { if (DEV.db) DEV.db.close(); } catch (e) {} DEV.db = null;
+  await new Promise(res => { try { const r = indexedDB.deleteDatabase(IS_BETA ? 'caf-dti' : 'caf-dti-main'); r.onsuccess = r.onerror = r.onblocked = () => res(); setTimeout(res, 3000); } catch (e) { res(); } });
+  try { sessionStorage.removeItem(STORE); sessionStorage.removeItem(PTR_KEY); } catch (e) {}
+  try { if (window.caches) { const scope = new URL('./', location.href).pathname; for (const k of await caches.keys()) if (k.includes(scope)) await caches.delete(k); } } catch (e) {}
+  try { if (navigator.serviceWorker) for (const r of await navigator.serviceWorker.getRegistrations()) if (new URL(r.scope).pathname === new URL('./', location.href).pathname) await r.unregister(); } catch (e) {}
+  try { sessionStorage.setItem('caf-dti-beta-reset', '1'); } catch (e) {}
+  location.replace(location.pathname);
+}
+/*/BETA-ONLY*/
+
 /* ---------- snap a receipt ---------- */
 const SNAP = [
   ['taxi', 'Taxi', 'transport', 'Taxi'], ['ride', 'Rideshare', 'transport', 'Rideshare'], ['park', 'Parking', 'transport', 'Parking'], ['fuel', 'Fuel', 'transport', 'Gas'],
@@ -4374,7 +4476,7 @@ async function devSave() {
   saveChip();
 }
 const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, fileNoSet: !!S.fileNoSet, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
-function profileSchedule() { if (!DEV.db || !DEV.settings.remember || DEV.locked || S.example) return; clearTimeout(profT); profT = setTimeout(async () => { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }, 900); }
+function profileSchedule() { if (!DEV.db || !DEV.settings.remember || DEV.locked || S.example || S.test) return; clearTimeout(profT); profT = setTimeout(async () => { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }, 900); }
 async function loadProfile() { if (!DEV.db || !DEV.settings.remember) return null; try { return await unseal(await idbGet('profile')); } catch (e) { return null; } }
 function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string' && (p.fileNo.trim() || p.fileNoSet)) { S.fileNo = p.fileNo; S.fileNoSet = true; } if (typeof p.marking === 'string') S.marking = p.marking; }
 async function wipeClaim() { try { const keys = (await idbKeys()) || []; for (const k of keys) if (k === 'claim' || k === 'meta' || String(k).startsWith('rc:')) await idbDel(k); } catch (e) {} DEV.savedRc.clear(); DEV.lastSaved = 0; }
@@ -4516,6 +4618,7 @@ async function boot() {
   else loadExample();
   if (DEV.db && !DEV.settings.keep && !DEV.settings.asked) $('#keep-banner').hidden = false;
   syncMenu();
+  /*BETA-ONLY*/try { if (sessionStorage.getItem('caf-dti-beta-reset')) { sessionStorage.removeItem('caf-dti-beta-reset'); setTimeout(() => toast(T('The beta was reset. Everything it kept on this device is cleared.')), 600); } } catch (e) {}/*/BETA-ONLY*/
 }
 boot();
 })();

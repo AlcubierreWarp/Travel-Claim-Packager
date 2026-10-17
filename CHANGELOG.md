@@ -4,7 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.3 (beta, in progress)
 
-- No changes yet
+- Section rail follows the page: on phones the horizontal rail slides along as you scroll so the current section stays in view; the current section is highlighted on all screens
 
 ## 1.2 (16 Oct 2026)
 

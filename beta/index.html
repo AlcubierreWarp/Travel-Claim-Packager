@@ -144,6 +144,8 @@ dialog#snap::backdrop{background:rgba(5,8,7,.6)}
 .rail .L{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:2.6rem;height:1.5rem;padding:0 6px;font:600 .72rem/1 var(--f-mono);letter-spacing:.02em;border:1px solid var(--line-strong);border-radius:2px;background:var(--surface)}
 .rail button:hover .L{border-color:var(--accent)}
 .rail .n{font:500 .72rem var(--f-mono);color:var(--muted)}
+.rail button.here{background:var(--accent-soft)}
+.rail button.here .L{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
 .rail .n.warn{color:var(--warn)}
 .rail .n.bad{color:var(--bad)}
 .rail .n.ok{color:var(--ok)}
@@ -1689,7 +1691,7 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Version: the minor number goes up only when beta is promoted to production; major only when the owner says so.
 // Beta builds carry the number the next production release will have, plus the build date.
 const APP_VERSION = '1.3'; // stamped by build.py from VERSION (beta gets the next minor)
-const APP_UPDATED = '16 Oct 2026'; // stamped by build.py
+const APP_UPDATED = '17 Oct 2026'; // stamped by build.py
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -1745,6 +1747,38 @@ function feedbackHref() {
     '2. What worked well:', '', '', '3. What was confusing or slowed me down:', '', '', '4. What I would add or change:', '', '',
     '5. How I used it (phone, desktop, installed app):', '', '',
     '6. Rank and name (optional):', '', '7. Unit (optional):', '', '', '-----', ...deviceLines(), NO_PI]);
+}
+// Section rail follows the page: highlights the section you are in and, on phones, slides the
+// horizontal rail along at the same pace as the page so the current section stays in view.
+function initRailFollow() {
+  const rail = $('#rail'); if (!rail) return;
+  const narrow = matchMedia('(max-width: 880px)');
+  let busy = false, userUntil = 0, here = null;
+  const hold = () => { userUntil = Date.now() + 1500; };
+  ['touchstart', 'pointerdown', 'wheel'].forEach(ev => rail.addEventListener(ev, hold, { passive: true }));
+  const update = () => {
+    busy = false;
+    const items = $$('#rail button').map(b => ({ b, sec: document.getElementById(b.dataset.to) })).filter(x => x.sec && x.sec.offsetParent !== null);
+    if (!items.length) return;
+    const line = (narrow.matches ? rail.getBoundingClientRect().bottom : 0) + window.innerHeight * 0.25;
+    const tops = items.map(x => x.sec.getBoundingClientRect().top);
+    let i = 0; while (i < items.length - 1 && tops[i + 1] <= line) i++;
+    const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    if (atEnd) i = items.length - 1;
+    if (here !== items[i].b) { if (here) { here.classList.remove('here'); here.removeAttribute('aria-current'); } here = items[i].b; here.classList.add('here'); here.setAttribute('aria-current', 'true'); }
+    if (!narrow.matches || Date.now() < userUntil) return;
+    // fraction of the way from this section to the next, so the rail glides instead of jumping
+    let frac = 0;
+    if (!atEnd && i < items.length - 1) { const span = tops[i + 1] - tops[i]; if (span > 0) frac = Math.min(1, Math.max(0, (line - tops[i]) / span)); }
+    // keep the current chip about a third of the way across, so the one before it stays visible
+    const x = k => items[k].b.offsetLeft + items[k].b.offsetWidth / 2 - rail.clientWidth / 3;
+    const target = i < items.length - 1 ? x(i) + frac * (x(i + 1) - x(i)) : x(i);
+    rail.scrollLeft = Math.max(0, Math.min(target, rail.scrollWidth - rail.clientWidth));
+  };
+  const queue = () => { if (!busy) { busy = true; requestAnimationFrame(update); } };
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  queue();
 }
 function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
 function initExtras() {
@@ -2393,7 +2427,7 @@ async function startBlank(msg) {
 
 /* ---------- boot ---------- */
 async function boot() {
-  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

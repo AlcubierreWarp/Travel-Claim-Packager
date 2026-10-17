@@ -10,12 +10,12 @@ Leave taken during a trip can be recorded in the itinerary. Leave days stay on t
 
 Everything runs in the browser. The page has no server component and makes no network requests (a Content Security Policy in the page blocks them). Nothing you type or attach is uploaded.
 
-By default a claim lasts only as long as the browser tab. In the menu you can choose **Keep my work on this device**, which stores the claim in this browser only, optionally encrypted with a PIN, and deletes it 30 days after the PDF is built. Use **Save draft file** to move a claim to another device.
+By default a claim lasts only as long as the browser tab. In the menu you can choose **Keep my work on this device**, which stores the claim in this browser only, optionally encrypted with a PIN, and deletes it 30 days after the PDF is built. Use **Export claim file** (and **Import claim file** on the other device) to move a claim to another device.
 
 ## Use
 
 - **Website:** open the published page. On a phone, use **Install app** in the menu (or Add to Home Screen on iPhone) to use it like an app, including offline.
-- **Single file:** download `CAF_Digital_Travel_Itinerary.html` and open it in any browser. It works with no internet connection and cannot make network requests at all.
+- **Single file:** choose **Export offline app** in the menu, or download `CAF_Digital_Travel_Itinerary.html`, and open it in any browser. It works with no internet connection and cannot make network requests at all.
 
 The page opens with a fictional example claim; choose **Start a blank claim** to begin your own.
 

@@ -6,9 +6,9 @@
    move it into app/app.html.
    Build-time beta differences (in build.py): greyscale icons, grey theme and launch colour,
    "CAF Travel Beta" app name, beta build number in the version label.
-   Beta-only code and markup in app/app.html sit between /*BETA-ONLY*/ ... /*/BETA-ONLY*/ (script) or
-   <!--BETA-ONLY--> ... <!--/BETA-ONLY--> (markup); build.py removes them from production, and the
-   release check refuses a production build that still contains them. Today: Load test data and Reset the beta. */
+   Beta-only script and markup in app/app.html sit between BETA-ONLY markers (see SOURCE.md); build.py
+   removes them from production, and the release check refuses a production build that still has them.
+   Today: Load test data and Reset the beta. Never write a comment opener or closer inside this comment. */
 
 /* Beta colour theme: violet in place of production's green, so the two are never confused.
    Same tokens as the :root blocks in app/app.html; status colours (ok, warn, bad) are unchanged.

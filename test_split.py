@@ -16,6 +16,11 @@ async def main():
             # combined first, for comparison
             await q.evaluate("document.getElementById('sec-P').scrollIntoView()")
             check(f"{lang}: one PDF is the default", await q.is_checked("#pk-one"))
+            seg = await q.locator(".seg").bounding_box()
+            check(f"{lang}: output choice is a compact single-row control", seg["height"] < 48 and seg["width"] < 400, seg)
+            await q.set_viewport_size({"width": 360, "height": 800}); seg = await q.locator(".seg").bounding_box()
+            check(f"{lang}: output choice fits a phone", seg["height"] < 60 and seg["x"] + seg["width"] <= 360, seg)
+            await q.set_viewport_size({"width": 1320, "height": 900})
             async with q.expect_download() as dl: await q.click("#build-btn")
             one = fx / f"one-{lang}.pdf"; await (await dl.value).save_as(str(one)); n_one = len(PdfReader(str(one)).pages)
             await q.check("#pk-split"); await q.wait_for_timeout(200)

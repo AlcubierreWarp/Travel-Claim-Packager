@@ -130,10 +130,16 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .imp-opts .sub{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
 .imp-warn{margin:12px 0 0;padding:8px 10px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-size:.86rem}
 .imp-busy{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
-.pk-out{border:0;padding:0;margin:0 0 14px;display:grid;gap:8px;min-width:0}
-.pk-out legend{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px;padding:0}
-.pk-out .check{align-items:flex-start}
-.pk-out .sub{display:block;font-size:.8rem;color:var(--muted);margin-top:1px}
+.pk-out{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:18px 0 14px}
+.pk-out-l{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden;background:var(--field)}
+.seg label{position:relative;display:block;cursor:pointer}
+.seg label+label{border-left:1px solid var(--line-strong)}
+.seg input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+.seg span{display:block;padding:.42rem .9rem;font-size:.88rem;font-weight:600;color:var(--ink);white-space:nowrap}
+.seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:-4px;box-shadow:inset 0 0 0 3px var(--field)}
+.pk-out-hint{font-size:.8rem;color:var(--muted)}
 .part-list{margin:10px 0;padding:0;list-style:none;display:grid;gap:8px}
 .part-list li{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--card)}
 .part-list li > div:first-child{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 260px}
@@ -540,6 +546,7 @@ html{touch-action:manipulation}
 @media (pointer: coarse){
   input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important}
   .dshow{font-size:15px}
+  .seg span{padding:.68rem 1rem}
 }
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
 </style>
@@ -765,7 +772,7 @@ html{touch-action:manipulation}
     </section>
 
     <section class="sec" id="sec-P">
-      <header class="sec-h"><span class="L">PDF</span><h2>Build the package</h2><p class="hint">One PDF: worksheet, totals, receipt index, then every receipt or declaration, labelled</p></header>
+      <header class="sec-h"><span class="L">PDF</span><h2>Build the package</h2><p class="hint">Worksheet, totals, receipt index, then every receipt or declaration, labelled</p></header>
       <div class="sec-b">
         <div class="pk-grid">
           <div>
@@ -784,10 +791,14 @@ html{touch-action:manipulation}
             <ul class="contents" id="contents"></ul>
           </div>
         </div>
-        <fieldset class="pk-out"><legend>Output</legend>
-          <label class="check"><input type="radio" name="pk-split" value="one" id="pk-one"> <span><b>One PDF</b><span class="sub">Worksheet, receipts and declarations in one file, in order.</span></span></label>
-          <label class="check"><input type="radio" name="pk-split" value="split" id="pk-split"> <span><b>Separate PDFs</b><span class="sub">The worksheet, the receipts, and each statutory declaration as its own file, named for what it is, to sign and send one at a time.</span></span></label>
-        </fieldset>
+        <div class="pk-out" role="radiogroup" aria-labelledby="pk-out-l" aria-describedby="pk-out-hint">
+          <span class="pk-out-l" id="pk-out-l">Output</span>
+          <span class="seg">
+            <label><input type="radio" name="pk-split" value="one" id="pk-one"><span>One PDF</span></label>
+            <label><input type="radio" name="pk-split" value="split" id="pk-split"><span>Separate PDFs</span></label>
+          </span>
+          <span class="pk-out-hint" id="pk-out-hint"></span>
+        </div>
         <div class="build-row">
           <button class="btn primary big" data-act="build" id="build-btn">Build PDF package</button>
           <span id="build-status" role="status" aria-live="polite"></span>
@@ -1299,6 +1310,7 @@ function mealCounts() { const dates = tripDates() || [], c = { b: 0, l: 0, d: 0 
 function syncOut() {
   const one = $('#pk-one'), sp = $('#pk-split'); if (!one) return;
   one.checked = !S.split; sp.checked = !!S.split;
+  const h = $('#pk-out-hint'); if (h) h.textContent = S.split ? T('Worksheet, receipts and each declaration as their own files.') : T('Everything in one file.');
   const b = $('#build-btn'); if (b && !b.classList.contains('busy')) b.textContent = S.split ? T('Build PDF files') : T('Build PDF package');
 }
 function renderBinds() {

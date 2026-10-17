@@ -32,6 +32,8 @@ def check():
     assert max(max(p) - min(p) for p in zip(*[iter(im.tobytes())] * 3)) > 40, "production icon is not in colour"
     for m in ('data-channel="beta"', 'id="beta-only"', "APP_CHANNEL = 'beta'", 'data-act="beta-reset"', "async function loadTestData"):
         assert m in beta, f"beta build is missing {m}"
+    css = (S / "pwa/beta.css").read_text()
+    assert css.count("/*") == css.count("*/"), "pwa/beta.css: a comment opener or closer inside a comment would hide the beta theme"
     print("channel check ok")
 def copy_beta():
     shutil.rmtree(R / "beta", ignore_errors=True); shutil.copytree(S / "out/web-beta", R / "beta")

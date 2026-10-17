@@ -610,7 +610,7 @@ html{touch-action:manipulation}
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 6, built 17 Oct 2026 12:59 (production is 1.5)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 7, built 17 Oct 2026 13:31 (production is 1.5)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -814,7 +814,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 6, built 17 Oct 2026 12:59 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 7, built 17 Oct 2026 13:31 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -852,15 +852,15 @@ html{touch-action:manipulation}
   <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and add another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
 </dialog>
 
-<input type="file" id="file-itin" accept=".pdf,.eml,.txt,.htm,.html,application/pdf,message/rfc822,text/plain,text/html" multiple hidden>
+<input type="file" id="file-itin" accept=".pdf,.msg,.eml,.txt,.htm,.html,application/pdf,application/vnd.ms-outlook,message/rfc822,text/plain,text/html" multiple hidden>
 <dialog id="imp" aria-labelledby="imp-h">
   <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
       <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.</p>
       <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.</span></p>
-      <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.</span></div>
-      <label for="imp-text" class="imp-or">Or paste the itinerary text from the email</label>
+      <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.</span></div>
+      <label for="imp-text" class="imp-or">Or open the email, select all, copy, and paste it here</label>
       <textarea id="imp-text" rows="4" autocomplete="off" spellcheck="false"></textarea>
       <div class="sec-tools"><button type="button" class="btn" data-act="imp-read-text">Read pasted text</button></div>
     </div>
@@ -1290,6 +1290,7 @@ const FR = {
 "Opened draft saved {0}.": "Brouillon ouvert, enregistré le {0}.",
 "Opened draft.": "Brouillon ouvert.",
 "Optional": "Facultatif",
+"Or open the email, select all, copy, and paste it here": "Ou ouvrez le courriel, sélectionnez tout, copiez-le et collez-le ici",
 "Or paste the itinerary text from the email": "Ou collez le texte de l'itinéraire tiré du courriel",
 "Other": "Autre",
 "Other expense": "Autre dépense",
@@ -1474,6 +1475,7 @@ const FR = {
 "The PDF engine did not load. Reload the page and try again.": "Le moteur PDF ne s'est pas chargé. Rechargez la page et réessayez.",
 "The PDF gets digital signature fields to sign in Adobe with a PKI certificate. The signature records the date, so no date line is added.": "Le PDF comporte des champs de signature numérique à signer dans Adobe avec un certificat ICP. La signature enregistre la date, donc aucune ligne de date n'est ajoutée.",
 "The PDF gets lines to sign by hand, with a date line beside your signature. Print it, sign it, and scan it if your Orderly Room wants it electronically.": "Le PDF comporte des lignes pour signer à la main, avec une ligne de date à côté de votre signature. Imprimez-le, signez-le et numérisez-le si votre salle des rapports le veut en format électronique.",
+"The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel lui-même (fichier .msg d'Outlook, ou .eml). Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel enregistré en fichier .eml. Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The POC extension must be 4 digits.": "Le poste du PC doit comporter 4 chiffres.",
 "The extension must be 4 digits.": "Le poste doit comporter 4 chiffres.",
@@ -1683,8 +1685,9 @@ const ITIN = (() => {
   // "Winnipeg James Armstrong Richardson Intl Airport, Winnipeg, Canada (YWG)" -> name, city, code
   function place(v) {
     let s = String(v || '').replace(/\s+/g, ' ').trim(), code = '';
-    const m = s.match(/\(([A-Z]{3,4})\)\s*$/); if (m) { code = m[1]; s = s.slice(0, m.index).trim(); }
-    const parts = s.split(',').map(x => x.trim()).filter(Boolean);
+    // the code can be followed by a terminal: "Toronto, Canada (YYZ), Terminal 1"
+    const m = [...s.matchAll(/\(([A-Z]{3,4})\)/g)].pop(); if (m) { code = m[1]; s = (s.slice(0, m.index) + s.slice(m.index + m[0].length)).trim(); }
+    const parts = s.split(',').map(x => x.trim()).filter(x => x && !/^(?:terminal|a[ée]rogare|term\.?)\b/i.test(x));
     while (parts.length > 1 && NOTCITY.test(fold(parts[parts.length - 1]))) parts.pop();
     let city = parts.length > 1 ? parts[parts.length - 1] : (AIRPORTS[code] || parts[0] || code);
     if (AIRPORTS[code] && fold(AIRPORTS[code]) === fold(city)) city = AIRPORTS[code]; // keep the accents
@@ -1942,7 +1945,56 @@ const ITIN = (() => {
   const text = p => { try { return new TextDecoder(p.charset || 'utf-8').decode(p.bytes); } catch (e) { return new TextDecoder('utf-8').decode(p.bytes); } };
   const isPdf = p => p.type === 'application/pdf' || /\.pdf$/i.test(p.name) || (p.bytes.length > 4 && p.bytes[0] === 37 && p.bytes[1] === 80 && p.bytes[2] === 68 && p.bytes[3] === 70);
 
-  return { when, place, parse, merge, plan, roundTrip, mime, text, isPdf, fold, AIRPORTS };
+  /* ---------- Outlook message (.msg) ---------- */
+  // A .msg file is a Compound File (the old Office container): a small FAT file system in one file.
+  // This reads its directory and streams, then picks out the message body and the attachments.
+  // Returns leaf parts shaped like mime() so both go through the same steps.
+  function cfb(u) {
+    const dv = new DataView(u.buffer, u.byteOffset, u.byteLength), r32 = o => dv.getUint32(o, true), r16 = o => dv.getUint16(o, true);
+    if (u.length < 512 || r32(0) !== 0xE011CFD0 || r32(4) !== 0xE11AB1A1) return null;
+    const ss = 1 << r16(30), ms = 1 << r16(32), cutoff = r32(56), END = 0xFFFFFFFE, per = ss / 4;
+    const at = n => 512 + n * ss; // sector n (the header occupies the first 512 bytes)
+    const fatSecs = [];
+    for (let i = 0; i < 109; i++) { const n = r32(76 + i * 4); if (n < END) fatSecs.push(n); }
+    for (let d = r32(68), guard = 0; d < END && guard++ < 10000;) { for (let i = 0; i < per - 1; i++) { const n = r32(at(d) + i * 4); if (n < END) fatSecs.push(n); } d = r32(at(d) + (per - 1) * 4); }
+    const fat = []; fatSecs.forEach(n => { for (let i = 0; i < per; i++) fat.push(r32(at(n) + i * 4)); });
+    const chain = (start, next) => { const out = []; for (let n = start, g = 0; n < END && g++ < 1e6; n = next[n]) { if (n === undefined) break; out.push(n); } return out; };
+    const read = (start, size) => { const out = new Uint8Array(size); let o = 0; for (const n of chain(start, fat)) { const b = at(n); const k = Math.min(ss, size - o); if (k <= 0 || b + k > u.length) break; out.set(u.subarray(b, b + k), o); o += k; } return out; };
+    const dir = read(r32(48), chain(r32(48), fat).length * ss), ents = [];
+    for (let o = 0; o + 128 <= dir.length; o += 128) {
+      const e = new DataView(dir.buffer, o, 128), nl = e.getUint16(64, true);
+      let name = ''; for (let i = 0; i + 1 < Math.min(nl, 64) - 2 + 1; i += 2) { const c = e.getUint16(i, true); if (!c) break; name += String.fromCharCode(c); }
+      ents.push({ name, type: e.getUint8(66), left: e.getUint32(68, true), right: e.getUint32(72, true), child: e.getUint32(76, true), start: e.getUint32(116, true), size: e.getUint32(120, true) });
+    }
+    const root = ents[0]; if (!root || root.type !== 5) return null;
+    const mini = read(root.start, root.size), mfat = [];
+    chain(r32(60), fat).forEach(n => { for (let i = 0; i < per; i++) mfat.push(r32(at(n) + i * 4)); });
+    const data = e => {
+      if (e.size >= cutoff) return read(e.start, e.size);
+      const out = new Uint8Array(e.size); let o = 0;
+      for (const n of chain(e.start, mfat)) { const k = Math.min(ms, e.size - o); if (k <= 0) break; out.set(mini.subarray(n * ms, n * ms + k), o); o += k; }
+      return out;
+    };
+    const kids = (e, seen = new Set()) => { const out = []; const walk = i => { if (i >= ents.length || seen.has(i)) return; seen.add(i); const x = ents[i]; walk(x.left); out.push(x); walk(x.right); }; walk(e.child); return out; };
+    return { root, kids, data };
+  }
+  function msg(u) {
+    const c = cfb(u); if (!c) return [];
+    const u16 = b => { let s = ''; for (let i = 0; i + 1 < b.length; i += 2) s += String.fromCharCode(b[i] | b[i + 1] << 8); return s.replace(/\0+$/, ''); };
+    const props = e => { const m = {}; c.kids(e).forEach(k => { const t = /^__substg1\.0_([0-9A-F]{8})$/i.exec(k.name); if (t && k.type === 2) m[t[1].toUpperCase()] = k; }); return m; };
+    const str = (p, tag) => p[tag + '001F'] ? u16(c.data(p[tag + '001F'])) : p[tag + '001E'] ? new TextDecoder('windows-1252').decode(c.data(p[tag + '001E'])).replace(/\0+$/, '') : '';
+    const top = props(c.root), out = [];
+    c.kids(c.root).filter(k => k.type === 1 && /^__attach_version1\.0_/i.test(k.name)).forEach(a => {
+      const p = props(a); if (!p['37010102']) return; // embedded messages and links are skipped
+      out.push({ type: (str(p, '370E') || 'application/octet-stream').toLowerCase(), name: str(p, '3707') || str(p, '3704') || str(p, '3001'), bytes: c.data(p['37010102']), charset: '' });
+    });
+    if (top['10130102']) out.push({ type: 'text/html', name: '', bytes: c.data(top['10130102']), charset: 'utf-8' });
+    const body = str(top, '1000'); if (body) out.push({ type: 'text/plain', name: '', bytes: new TextEncoder().encode(body), charset: 'utf-8' });
+    return out;
+  }
+  const isMsg = u => u.length > 8 && u[0] === 0xD0 && u[1] === 0xCF && u[2] === 0x11 && u[3] === 0xE0;
+
+  return { when, place, parse, merge, plan, roundTrip, mime, msg, isMsg, text, isPdf, fold, AIRPORTS };
 })();
 const LANG_KEY = 'caf-dti-lang';
 let LANG = (() => { try { const v = localStorage.getItem(LANG_KEY); if (v === 'en' || v === 'fr') return v; } catch (e) {} return /^fr\b/i.test(navigator.language || '') ? 'fr' : 'en'; })();
@@ -2923,7 +2975,7 @@ document.addEventListener('click', e => {
     case 'imp-cancel': impClose(); break;
     case 'imp-back': impOpen(); break;
     case 'imp-apply': impApply(); break;
-    case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text') + '.txt', { type: 'text/plain' })]); break; }
+    case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
     case 'snap-save': if (saveSnap()) closeSnap(); break;
     case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
     case 'save-pdf': if (lastPdf) offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'); break;
@@ -3039,21 +3091,24 @@ async function readItinFiles(files) {
   for (const file of files) {
     const nm = file.name || T('Pasted text');
     try {
-      if (/\.msg$/i.test(nm)) { errs.push(T('{0}: Outlook .msg files cannot be read. Drag the PDF attachment instead, or paste the email text.', nm)); continue; }
       const buf = new Uint8Array(await file.arrayBuffer());
       const head = binStr(buf.subarray(0, 5));
       if (head === '%PDF-' || /\.pdf$/i.test(nm)) { found.push(await fromPdf(nm, buf)); names.push(nm); continue; }
-      const raw = binStr(buf);
-      if (/\.eml$/i.test(nm) || /^(?:[\w-]+:.*\r?\n)+/.test(raw.slice(0, 2000)) && /^(?:content-type|mime-version|received|from|subject):/im.test(raw.slice(0, 4000))) {
-        const parts = ITIN.mime(raw), got = [];
-        for (const p of parts.filter(ITIN.isPdf)) got.push(await fromPdf(p.name || nm.replace(/\.eml$/i, '.pdf'), p.bytes));
+      // An email: the PDF itinerary attached to it if there is one, otherwise the message text
+      const fromParts = async (parts, ext) => {
+        const got = [];
+        for (const p of parts.filter(ITIN.isPdf)) { try { got.push(await fromPdf(p.name || nm.replace(ext, '.pdf'), p.bytes)); } catch (e) {} }
         if (!got.some(f => f.segs.length || f.hotels.length)) {
           const h = parts.find(p => p.type === 'text/html'), t = parts.find(p => p.type === 'text/plain');
           if (h) got.push(ITIN.parse(htmlLines(ITIN.text(h))));
           if (t && !got.some(f => f.segs.length)) got.push(ITIN.parse(ITIN.text(t).split(/\r?\n/)));
         }
-        found.push(...got); names.push(nm); continue;
-      }
+        found.push(...got); names.push(nm);
+      };
+      if (ITIN.isMsg(buf)) { const parts = ITIN.msg(buf); if (parts.length) await fromParts(parts, /\.msg$/i); else errs.push(T('{0} could not be read.', nm)); continue; } // Outlook (desktop) message
+      if (/\.msg$/i.test(nm)) { errs.push(T('{0} could not be read.', nm)); continue; }
+      const raw = binStr(buf);
+      if (/\.eml$/i.test(nm) || /^(?:[\w-]+:.*\r?\n)+/.test(raw.slice(0, 2000)) && /^(?:content-type|mime-version|received|from|subject):/im.test(raw.slice(0, 4000))) { await fromParts(ITIN.mime(raw), /\.eml$/i); continue; }
       const txt = new TextDecoder().decode(buf);
       found.push(ITIN.parse(/<\/(td|tr|div|p|table)>/i.test(txt) ? htmlLines(txt) : txt.split(/\r?\n/))); names.push(nm);
     } catch (e) { errs.push(T('{0} could not be read.', nm)); }
@@ -3197,9 +3252,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.6-beta.6';
+const APP_VERSION = '1.6-beta.7';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.6 beta 6, built 17 Oct 2026 12:59 (production is 1.5)';
+const APP_LABEL = 'Version 1.6 beta 7, built 17 Oct 2026 13:31 (production is 1.5)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }

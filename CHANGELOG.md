@@ -4,6 +4,12 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.8 (beta, in progress)
 
+- The app logo replaces the TD mark in the header (greyscale in the beta), and production is re-themed in navy and blue to match the logo, in light and dark mode. The beta keeps its violet theme
+- Currency exchange: the place field now asks Where exchanged (bank or exchange office, city). Its statutory declaration fits when the exchange happened: before leaving on the duty, during it (with the duty location taken from the itinerary, not the bank), or after returning
+- Statutory declarations: See or edit the wording under each declaration shows paragraphs 1 and 2 as they will print, and lets the member rewrite them; edited wording is printed as typed, marked Edited, and can be reset to the built wording
+- Jurat date: filled in with today's date by default (for example "this 17th day of October A.D. 2026", "ce 17 jour d'octobre 2026"), editable in the form and still editable in the PDF, or cleared to leave it for the officer
+- Package output: One PDF (as before) or Separate PDFs: the worksheet, the receipts, and each statutory declaration as its own file, named for what it is (for example _1-Worksheet, _2-Receipts, _3-SD-C-2), each with its own page numbers, marking and version. The worksheet's receipt index says which file and page each receipt is in. Save each file, or Save all (one share sheet on phones)
+
 ## 1.7 (17 Oct 2026)
 
 - Switch to beta / Switch to production in the menu (This tool), to move between the two in the same window or installed app. The claim is saved first, and each version keeps its own claims (tab-only claims included). Production shows the switch only on a device that has opened the beta, so members do not see it

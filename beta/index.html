@@ -18,27 +18,27 @@
 <style>
 /* Layout: section rail on the left, one working column of form sections in worksheet order, totals bar pinned to the bottom */
 :root{
-  --bg:#eaede8; --surface:#f9faf7; --card:#ffffff; --field:#ffffff;
-  --ink:#17201c; --muted:#56615b; --line:#cfd5ce; --line-strong:#9aa39c;
-  --accent:#2b5a4a; --accent-ink:#ffffff; --accent-soft:#dbe7df;
-  --bar:#17201c; --bar-ink:#f1f4f0; --off:#dde1db;
+  --bg:#e9edf2; --surface:#f8fafc; --card:#ffffff; --field:#ffffff;
+  --ink:#14202e; --muted:#536071; --line:#cdd5df; --line-strong:#95a1b0;
+  --accent:#0b4f8c; --accent-ink:#ffffff; --accent-soft:#dbe6f2;
+  --bar:#052748; --bar-ink:#eef3f8; --off:#dbe0e7;
   --warn:#875000; --warn-soft:#f5e7cc; --bad:#a1302a; --bad-soft:#f7dfdb; --swipe-red:#e5392f; --swipe-red-strong:#d0261c; --ok:#2a6a3d; --ok-soft:#dcefe0;
   --f-display:"Archivo","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
   --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#111614; --surface:#171d1a; --card:#1c2320; --field:#131916;
-  --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
-  --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
-  --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
+  --bg:#0e141b; --surface:#141b24; --card:#19212c; --field:#111820;
+  --ink:#e3e9f0; --muted:#97a3b2; --line:#2a3441; --line-strong:#4a5666;
+  --accent:#7fb2e8; --accent-ink:#0a1420; --accent-soft:#1b2b3f;
+  --bar:#071a30; --bar-ink:#e3e9f0; --off:#212a35;
   --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#111614; --surface:#171d1a; --card:#1c2320; --field:#131916;
-  --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
-  --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
-  --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
+  --bg:#0e141b; --surface:#141b24; --card:#19212c; --field:#111820;
+  --ink:#e3e9f0; --muted:#97a3b2; --line:#2a3441; --line-strong:#4a5666;
+  --accent:#7fb2e8; --accent-ink:#0a1420; --accent-soft:#1b2b3f;
+  --bar:#071a30; --bar-ink:#e3e9f0; --off:#212a35;
   --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }
 *{box-sizing:border-box}
@@ -54,7 +54,7 @@ button{font:inherit;color:inherit}
 .wrap{max-width:1240px;margin:0 auto;padding-inline:16px}
 .top .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding-block:14px}
 .brand{display:flex;gap:12px;align-items:center;min-width:0}
-.mark{font:600 .8rem/1 var(--f-mono);letter-spacing:.06em;background:var(--bar);color:var(--bar-ink);padding:9px 8px;border-radius:2px;flex:none}
+.mark{display:block;width:44px;height:44px;border-radius:10px;flex:none}
 h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacing:.005em;text-wrap:balance}
 .brand p{margin:3px 0 0;color:var(--muted);font-size:.86rem}
 .top-actions{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
@@ -145,6 +145,14 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .imp-opts .sub{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
 .imp-warn{margin:12px 0 0;padding:8px 10px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-size:.86rem}
 .imp-busy{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
+.pk-out{border:0;padding:0;margin:0 0 14px;display:grid;gap:8px;min-width:0}
+.pk-out legend{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px;padding:0}
+.pk-out .check{align-items:flex-start}
+.pk-out .sub{display:block;font-size:.8rem;color:var(--muted);margin-top:1px}
+.part-list{margin:10px 0;padding:0;list-style:none;display:grid;gap:8px}
+.part-list li{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--card)}
+.part-list li > div:first-child{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 260px}
+.part-list .pf-name{font:500 .72rem/1.3 var(--f-mono);color:var(--muted);word-break:break-all}
 .imp-more{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:10px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:4px;background:var(--card)}
 .imp-more.dragover{border-color:var(--accent);background:var(--field)}
 .imp-more .drophint{flex:1 1 220px}
@@ -393,7 +401,13 @@ select.bad{border-color:var(--bad);background:var(--bad-soft)}
 .jurat .who{display:block;margin-top:6px;color:var(--muted);font-size:.8rem}
 .jurat b{font-weight:700}
 .sd-items{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:.86rem}
-.sd-items li{display:flex;gap:10px;align-items:baseline}
+.sd-items li{display:block}
+.sd-it-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.sd-it-h .tag{padding:0 5px;border-radius:999px;border:1px solid currentColor;font:700 .6rem/1.5 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.sd-edit{margin:4px 0 8px 0}
+.sd-edit summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.82rem}
+.sd-edit textarea{display:block;width:100%;box-sizing:border-box;margin:6px 0;font:inherit;font-size:.86rem;line-height:1.45;padding:8px;border:1px solid var(--line-strong);border-radius:3px;background:var(--field);color:var(--ink);resize:vertical}
+.sd-edit-acts{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
 .sd-items .ref{font:600 .76rem var(--f-mono);min-width:3.4rem}
 
 /* meals */
@@ -437,6 +451,9 @@ table.meals{width:100%;border-collapse:collapse;font-size:.88rem}
 .result span{font-size:.82rem;color:var(--muted)}
 .result>div:first-child{min-width:0}
 .result .acts{display:flex;gap:8px;flex-wrap:wrap}
+.result.split{flex-direction:column;align-items:stretch}
+.result.split .part-list{margin:0}
+.result.split>.acts{justify-content:flex-end}
 h3{font:700 .95rem/1.2 var(--f-display);font-stretch:90%;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px}
 
 /* totals bar */
@@ -487,7 +504,7 @@ dialog,dialog .snap-body{overscroll-behavior:contain}
 @media (max-width: 560px){
   .brand p{display:none}
   h1{font-size:1.2rem}
-  .mark{display:none}
+  .mark{width:34px;height:34px;border-radius:8px}
   .top .wrap{padding-block:10px;flex-wrap:nowrap}
   .savechip,.save-btn{display:none}
   .top-actions{flex-wrap:nowrap;gap:6px}
@@ -588,7 +605,7 @@ html{touch-action:manipulation}
 <header class="top">
   <div class="wrap">
     <div class="brand">
-      <span class="mark" aria-hidden="true">TD</span>
+      <img class="mark" src="data:image/png;base64,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" alt="" width="44" height="44" aria-hidden="true">
       <div>
         <h1>CAF Digital Travel Itinerary</h1>
         <p>Temporary duty itinerary worksheet and receipts, compiled into one PDF for the Orderly Room.</p>
@@ -624,7 +641,7 @@ html{touch-action:manipulation}
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.8 beta 1, built 17 Oct 2026 14:26 (production is 1.7)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.8 beta 2, built 17 Oct 2026 15:04 (production is 1.7)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -782,8 +799,10 @@ html{touch-action:manipulation}
           <div class="sd-grid">
             <div class="field"><label for="sd-juris">Province or territory where declared</label><select id="sd-juris" data-bind="sd.juris"></select></div>
             <div class="field"><label for="sd-place">Place, in full (optional)</label><input id="sd-place" data-bind="sd.place" autocomplete="off" placeholder="e.g. City of Ottawa"></div>
+            <div class="field"><label for="sd-date">Date declared</label><span class="dwrap"><input id="sd-date" type="date"><span class="dshow empty" aria-hidden="true">Pick a date</span></span></div>
             <div class="field" id="sd-env-f" hidden><label for="sd-env">Officer's service</label><select id="sd-env" data-bind="sd.env"><option value="naval">Navy</option><option value="military">Army</option><option value="air">Air Force</option></select></div>
           </div>
+          <p class="sd-help" id="sd-date-help">The date declared is today's date unless you change it. Clear it to leave the date for the officer to fill in.</p>
           <label class="check toggle"><input type="checkbox" id="sd-abroad" data-bind="sd.abroad"> Declared outside Canada</label>
           <div class="field" id="sd-abroad-f" hidden style="margin-top:10px;max-width:28rem"><label for="sd-abroadPlace">Place where taken</label><input id="sd-abroadPlace" data-bind="sd.abroadPlace" autocomplete="off" placeholder="e.g. Camp Example, Kuwait"></div>
           <div class="jurat" id="sd-jurat"></div>
@@ -820,6 +839,10 @@ html{touch-action:manipulation}
             <ul class="contents" id="contents"></ul>
           </div>
         </div>
+        <fieldset class="pk-out"><legend>Output</legend>
+          <label class="check"><input type="radio" name="pk-split" value="one" id="pk-one"> <span><b>One PDF</b><span class="sub">Worksheet, receipts and declarations in one file, in order.</span></span></label>
+          <label class="check"><input type="radio" name="pk-split" value="split" id="pk-split"> <span><b>Separate PDFs</b><span class="sub">The worksheet, the receipts, and each statutory declaration as its own file, named for what it is, to sign and send one at a time.</span></span></label>
+        </fieldset>
         <div class="build-row">
           <button class="btn primary big" data-act="build" id="build-btn">Build PDF package</button>
           <span id="build-status" role="status" aria-live="polite"></span>
@@ -828,7 +851,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.8 beta 1, built 17 Oct 2026 14:26 (production is 1.7)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.8 beta 2, built 17 Oct 2026 15:04 (production is 1.7)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1063,9 +1086,11 @@ const FR = {
 "Arrival time": "Heure d'arrivée",
 "Arrive": "Arrivée",
 "At {0}, the departure is earlier than the arrival.": "À {0}, le départ est antérieur à l'arrivée.",
+"Back to the wording built from the claim.": "Retour au libellé tiré de la réclamation.",
 "Back to top": "Retour en haut",
 "Baggage fee": "Frais de bagages",
 "Bank or exchange office": "Banque ou bureau de change",
+"Bank or exchange office, city": "Banque ou bureau de change, ville",
 "Base or location": "Base ou lieu",
 "Before you build": "Avant de créer",
 "Beta": "Bêta",
@@ -1074,9 +1099,11 @@ const FR = {
 "Breakfast": "Déjeuner",
 "Breakfast (short)": "Déj.",
 "Build": "Créer",
+"Build PDF files": "Créer les fichiers PDF",
 "Build PDF package": "Créer la trousse PDF",
 "Build the package": "Créer la trousse",
 "Building the package...": "Création de la trousse...",
+"Built from the claim. It updates when you edit the expense.": "Tiré de la réclamation. Il se met à jour lorsque vous modifiez la dépense.",
 "Bus": "Autobus",
 "Business": "Affaires",
 "Business call": "Appel d'affaires",
@@ -1130,6 +1157,7 @@ const FR = {
 "DAOD 7000-1 does not allow abbreviations of names, ranks, units or places. Spell them out in full.": "La DOAD 7000-1 n'autorise aucune abréviation de noms, de grades, d'unités ou de lieux. Écrivez-les au complet.",
 "DO SOLEMNLY DECLARE THAT:": "DÉCLARE SOLENNELLEMENT QUE :",
 "Date": "Date",
+"Date declared": "Date de la déclaration",
 "Dates TBD": "Dates à déterminer",
 "Declarant": "Déclarant",
 "Declarations to be generated": "Déclarations à produire",
@@ -1151,6 +1179,8 @@ const FR = {
 "Dîn.": "Dîn.",
 "EXAMPLE": "EXEMPLE",
 "Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or by hand (set under Build the package).": "Chaque reçu manquant a sa propre déclaration, préremplie à partir de cette réclamation. Vous la faites en personne devant un officier autorisé, qui remplit le constat d'assermentation. Vous la signez tous les deux, avec un certificat ICP ou à la main (choix sous Créer la trousse).",
+"Edited": "Modifié",
+"Edited wording is printed as typed and does not change when you edit the expense.": "Le libellé modifié est imprimé tel quel et ne change pas lorsque vous modifiez la dépense.",
 "Enter it to continue where you left off.": "Entrez-le pour reprendre là où vous étiez.",
 "Enter your PIN to open your saved claim.": "Entrez votre NIP pour ouvrir votre réclamation enregistrée.",
 "Every overnight location already has a stay covering those dates.": "Chaque endroit de nuitée a déjà un séjour qui couvre ces dates.",
@@ -1223,6 +1253,7 @@ const FR = {
 "Import itinerary": "Importer un itinéraire",
 "Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures, le TAN et le code de réservation du voyage.",
 "Import the PDF or email to fill in your stops, dates and times.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures.",
+"In file": "Fichier",
 "In progress": "En cours",
 "Include every city. Enter each place once, with the date and time you arrive and leave.": "Incluez chaque ville. Inscrivez chaque endroit une seule fois, avec la date et l'heure d'arrivée et de départ.",
 "Include rental vehicle info, gas, taxis, bus, train, air, PMV and parking etc.": "Inclure véhicule de location, essence, taxis, autobus, train, avion, VP, stationnement, etc.",
@@ -1309,10 +1340,12 @@ const FR = {
 "Officer's service": "Service de l'officier",
 "On leave": "En congé",
 "On leave at this stop": "En congé à cette escale",
+"One PDF": "Un seul PDF",
 "One PDF: worksheet, totals, receipt index, then every receipt or declaration, labelled": "Un seul PDF : feuille de travail, totaux, index des reçus, puis chaque reçu ou déclaration, identifié",
 "One card for each place you slept: hotel, private accommodation or quarters": "Une fiche pour chaque endroit où vous avez dormi : hôtel, logement privé ou quartiers",
 "One card per place you stayed overnight, with the dates filled in.": "Une fiche par endroit où vous avez passé la nuit, avec les dates déjà inscrites.",
 "Only if you paid them yourself. Leave this off when the fare was billed to the department. The itinerary is attached as the receipt.": "Seulement si vous les avez payés vous-même. Laissez cette case décochée si le tarif a été facturé au ministère. L'itinéraire est joint comme reçu.",
+"Open": "Ouvrir",
 "Open draft file": "Ouvrir un fichier brouillon",
 "Open in new tab": "Ouvrir dans un nouvel onglet",
 "Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.": "Ouvrez-le dans Adobe et signez le champ du réclamant à la page {0} avec votre certificat ICP.",
@@ -1326,6 +1359,8 @@ const FR = {
 "Other": "Autre",
 "Other expense": "Autre dépense",
 "Other way of travelling": "Autre moyen de transport",
+"Output": "Sortie",
+"Own file": "Fichier distinct",
 "PIN": "NIP",
 "PIN removed. Your saved work is no longer encrypted.": "NIP retiré. Votre travail enregistré n'est plus chiffré.",
 "PIN set. Your saved work is now encrypted.": "NIP défini. Votre travail enregistré est maintenant chiffré.",
@@ -1347,6 +1382,7 @@ const FR = {
 "Package": "Trousse",
 "Page": "Page",
 "Page {0} of {1}": "Page {0} de {1}",
+"Paragraphs 1 and 2 state the facts. Change them if they do not describe what happened; leave a blank line between paragraphs. Paragraph 3 (why the receipt is missing) comes from the expense, and the closing paragraphs stay as they are.": "Les paragraphes 1 et 2 énoncent les faits. Modifiez-les s'ils ne décrivent pas ce qui s'est passé; laissez une ligne vide entre les paragraphes. Le paragraphe 3 (pourquoi le reçu manque) provient de la dépense, et les paragraphes de clôture restent tels quels.",
 "Parking": "Stationnement",
 "Paste another email": "Coller un autre courriel",
 "Paste the itinerary text first.": "Collez d'abord le texte de l'itinéraire.",
@@ -1406,6 +1442,7 @@ const FR = {
 "Receipt missing": "Reçu manquant",
 "Receipt photo": "Photo du reçu",
 "Receipts": "Reçus",
+"Receipts p. {0}": "Reçus p. {0}",
 "Receipts, labelled": "Reçus, identifiés",
 "Record every call you are asking to be reimbursed for": "Inscrivez chaque appel dont vous demandez le remboursement",
 "Ref": "Réf.",
@@ -1434,12 +1471,16 @@ const FR = {
 "Same location, no travel": "Même endroit, aucun déplacement",
 "Save": "Enregistrer",
 "Save PDF": "Enregistrer le PDF",
+"Save all": "Tout enregistrer",
 "Save and add another": "Enregistrer et en ajouter un autre",
 "Save cancelled.": "Enregistrement annulé.",
 "Save draft file": "Enregistrer le fichier brouillon",
 "Save now": "Enregistrer maintenant",
 "Save now (Ctrl+S)": "Enregistrer maintenant (Ctrl+S)",
+"Save or send": "Enregistrer ou envoyer",
 "Save or send PDF": "Enregistrer ou envoyer le PDF",
+"Save or send all": "Tout enregistrer ou envoyer",
+"Save or send all of them at once, then choose Save to Files, OneDrive, Teams or Mail.": "Enregistrez-les ou envoyez-les tous en même temps, puis choisissez Enregistrer dans Fichiers, OneDrive, Teams ou Mail.",
 "Save or send claim file": "Enregistrer ou envoyer le fichier de réclamation",
 "Save or send draft file": "Enregistrer ou envoyer le fichier brouillon",
 "Saved claim removed from this device. Your work now lasts until you close the tab.": "Réclamation enregistrée retirée de cet appareil. Votre travail dure maintenant jusqu'à la fermeture de l'onglet.",
@@ -1448,18 +1489,25 @@ const FR = {
 "Saved on this device at {1} and checked: the claim and {0} receipts read back correctly.": "Enregistré sur cet appareil à {1} et vérifié : la réclamation et {0} reçus se relisent correctement.",
 "Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.": "Le travail enregistré reste dans ce navigateur seulement et n'est jamais téléversé. Une réclamation enregistrée se supprime 30 jours après la création de son PDF.",
 "Saved {0}": "Enregistré : {0}",
+"Saved {0} file.": "{0} fichier enregistré.",
+"Saved {0} files. If the browser asked, allow it to download several files.": "{0} fichiers enregistrés. Si le navigateur le demande, autorisez le téléchargement de plusieurs fichiers.",
 "Saving": "Enregistrement",
 "Saving files is not available in this view. Use the standalone copy of this tool.": "L'enregistrement de fichiers n'est pas disponible dans cet affichage. Utilisez la copie autonome de cet outil.",
 "Section": "Section",
 "Section A and the statutory declaration.": "Section A et déclaration solennelle.",
 "Section B will list": "La section B contiendra",
 "Section {0}: ": "Section {0} : ",
+"Sections A to H, totals and receipt index. You sign it.": "Sections A à H, totaux et index des reçus. Vous la signez.",
 "Security marking": "Marque de sécurité",
+"See or edit the wording": "Voir ou modifier le libellé",
 "Send PDF": "Envoyer le PDF",
+"Send all": "Tout envoyer",
 "Send claim file": "Envoyer le fichier de réclamation",
 "Send draft file": "Envoyer le fichier brouillon",
 "Send feedback": "Envoyer des commentaires",
 "Sending is not available right now. Saving the file instead.": "L'envoi n'est pas disponible pour l'instant. Le fichier est enregistré à la place.",
+"Separate PDFs": "PDF distincts",
+"Separate PDFs, {0} in all. Sign each where it asks: the worksheet, and each declaration in front of the officer.": "PDF distincts, {0} au total. Signez chacun là où c'est demandé : la feuille de travail, et chaque déclaration devant l'officier.",
 "Service charge": "Frais de service",
 "Service charge / fee": "Frais de service",
 "Service charge {0}": "Frais de service {0}",
@@ -1472,6 +1520,7 @@ const FR = {
 "Signature lines, to sign by hand": "Lignes de signature, à signer à la main",
 "Signature of Claimant": "Signature du réclamant",
 "Signature of Claimant (PKI digital signature)": "Signature du réclamant (signature numérique ICP)",
+"Signed by you and the officer, in person.": "Signée par vous et l'officier, en personne.",
 "Sold": "Vendu",
 "Sold {0}, bought {1}": "Vendu {0}, acheté {1}",
 "Someone else is the point of contact for this claim": "Une autre personne est le point de contact pour cette réclamation",
@@ -1485,6 +1534,7 @@ const FR = {
 "Starting location": "Lieu de départ",
 "Stat dec": "Décl. sol.",
 "Statutory declaration": "Déclaration solennelle",
+"Statutory declaration {0}": "Déclaration solennelle {0}",
 "Stop {0}": "Escale {0}",
 "Stop {0} has no name.": "L'escale {0} n'a pas de nom.",
 "Stop {0} location": "Lieu de l'escale {0}",
@@ -1518,6 +1568,7 @@ const FR = {
 "The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel lui-même (fichier .msg d'Outlook, ou .eml). Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel enregistré en fichier .eml. Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
 "The POC extension must be 4 digits.": "Le poste du PC doit comporter 4 chiffres.",
+"The date declared is today's date unless you change it. Clear it to leave the date for the officer to fill in.": "La date de la déclaration est celle d'aujourd'hui, sauf si vous la changez. Effacez-la pour laisser l'officier inscrire la date.",
 "The extension must be 4 digits.": "Le poste doit comporter 4 chiffres.",
 "The final location has no name.": "Le lieu d'arrivée n'a pas de nom.",
 "The member, trip and receipts are made up so you can see how the package comes out.": "Le membre, le voyage et les reçus sont fictifs pour vous montrer le résultat de la trousse.",
@@ -1527,6 +1578,7 @@ const FR = {
 "The test version. Each version keeps its own claims.": "La version d'essai. Chaque version conserve ses propres réclamations.",
 "The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.": "Le nom du voyage figure en haut du PDF et dans le nom du fichier. Le TAN et le code de réservation du voyage sont imprimés en dessous.",
 "The two PINs do not match.": "Les deux NIP ne correspondent pas.",
+"The worksheet, the receipts, and each statutory declaration as its own file, named for what it is, to sign and send one at a time.": "La feuille de travail, les reçus et chaque déclaration solennelle dans des fichiers distincts, nommés selon leur contenu, pour les signer et les envoyer un à la fois.",
 "This PDF could not be added to the package. It may be password-protected or damaged. Submit \"{0}\" separately with this claim.": "Ce PDF n'a pas pu être ajouté à la trousse. Il est peut-être protégé par un mot de passe ou endommagé. Soumettez « {0} » séparément avec cette réclamation.",
 "This browser cannot read iPhone HEIC photos. Set the camera to \"Most Compatible\".": "Ce navigateur ne peut pas lire les photos HEIC de l'iPhone. Réglez l'appareil photo sur « Le plus compatible ».",
 "This browser did not save your claim. Export a claim file now to keep your work.": "Ce navigateur n'a pas enregistré votre réclamation. Exportez maintenant un fichier de réclamation pour conserver votre travail.",
@@ -1580,17 +1632,22 @@ const FR = {
 "Updated to version {0}.": "Mis à jour à la version {0}.",
 "Use ###-###-#### or ###-####.": "Utilisez le format ###-###-#### ou ###-####.",
 "Use 4 to 12 digits.": "Utilisez de 4 à 12 chiffres.",
+"Use the wording built from the claim": "Utiliser le libellé tiré de la réclamation",
 "Version: {0} ({1})": "Version : {0} ({1})",
 "View receipt {0}": "Voir le reçu {0}",
 "Visa fee": "Frais de visa",
 "What goes in": "Contenu",
 "What is it?": "De quoi s'agit-il?",
 "Where": "Où",
+"Where exchanged": "Lieu de l'échange",
 "Where it says \"Choose how you travelled\", the itinerary does not cover that part of the trip. Fill it in after the import.": "Là où il est écrit « Choisissez le moyen de transport », l'itinéraire ne couvre pas cette partie du voyage. Remplissez-la après l'importation.",
 "Where you called from": "D'où vous avez appelé",
 "Where you finish, e.g. Residence": "Où vous terminez, p. ex. Résidence",
 "Where you leave from, e.g. Residence or unit lines": "D'où vous partez, p. ex. Résidence ou lignes de l'unité",
+"Wording of {0}": "Libellé de {0}",
+"Worksheet": "Feuille de travail",
 "Worksheet sections": "Sections de la feuille de travail",
+"Worksheet, receipts and declarations in one file, in order.": "Feuille de travail, reçus et déclarations dans un seul fichier, dans l'ordre.",
 "Worksheet, sections A to H": "Feuille de travail, sections A à H",
 "You sign it by hand in front of the officer.": "Vous la signez à la main devant l'officier.",
 "You sign it with your PKI certificate.": "Vous la signez avec votre certificat ICP.",
@@ -1648,6 +1705,8 @@ const FR = {
 "{0} could not be read.": "Impossible de lire {0}.",
 "{0} date": "{0}, date",
 "{0} dates fall outside the trip ({1}).": "Les dates de {0} sont en dehors du voyage ({1}).",
+"{0} file ready": "{0} fichier prêt",
+"{0} files ready": "{0} fichiers prêts",
 "{0} has no city.": "{0} n'a pas de ville.",
 "{0} has no cost.": "{0} n'a pas de coût.",
 "{0} has no date.": "{0} n'a pas de date.",
@@ -1672,8 +1731,10 @@ const FR = {
 "{0} receipt added as {1}.": "Reçu ({0}) ajouté sous {1}.",
 "{0} receipt attached": "{0} reçu joint",
 "{0} receipt was too large to keep after the reload. Please attach it again.": "{0} reçu était trop volumineux pour être conservé après le rechargement. Veuillez le joindre de nouveau.",
+"{0} receipt, labelled with its reference.": "{0} reçu, identifié par sa référence.",
 "{0} receipts attached": "{0} reçus joints",
 "{0} receipts were too large to keep after the reload. Please attach them again.": "{0} reçus étaient trop volumineux pour être conservés après le rechargement. Veuillez les joindre de nouveau.",
+"{0} receipts, each labelled with its reference.": "{0} reçus, chacun identifié par sa référence.",
 "{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.": "{0} enregistré. Double-cliquez dessus pour l'ouvrir dans n'importe quel navigateur. Il fonctionne sans connexion Internet et se partage comme tout autre fichier (Teams, OneDrive, clé USB). Certains systèmes de courriel bloquent les pièces jointes .html.",
 "{0} stay added to section D.": "{0} séjour ajouté à la section D.",
 "{0} stays added to section D.": "{0} séjours ajoutés à la section D.",
@@ -2167,7 +2228,7 @@ const telStr = o => o.tel ? o.tel + (o.ext ? ' ext ' + o.ext : '') : '';
 /* ---------- state ---------- */
 let S, R = {};
 const newStop = (city = '') => ({ id: uid(), city, arrDate: '', arrTime: '', depDate: '', depTime: '', mode: '', modeOther: '', leave: false });
-const LOST = () => ({ lost: false, lostReason: '' });
+const LOST = () => ({ lost: false, lostReason: '', sdFacts: '' });
 const ROWNEW = {
   transport: () => Object.assign({ date: '', location: '', desc: '', cost: '', cur: 'CAD' }, LOST()),
   general:   () => Object.assign({ date: '', location: '', desc: '', cost: '', cur: 'CAD' }, LOST()),
@@ -2179,14 +2240,14 @@ const ROWNEW = {
 // fileNoSet records that they did, so a number they cleared on purpose stays cleared.
 const FILENO_DEFAULT = '7209-1';
 function blank() {
-  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: FILENO_DEFAULT, fileNoSet: false, marking: 'PA',
+  return { v: 3, example: false, split: false, tripRef: '', tan: '', locator: '', fileNo: FILENO_DEFAULT, fileNoSet: false, marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
     transport: [], lodging: { stays: [] }, meals: {},
     general: [], exchange: [], calls: [], sd: blankSD(), touched: {}, pki: true };
 }
-const blankSD = () => ({ name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
+const blankSD = () => ({ declDate: '', declDateSet: false, name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
 const sdName = () => S.sd.name.trim() || [String(S.member.given || '').replace(/\(.*?\)/g, ''), S.member.surname].map(x => x.trim()).filter(Boolean).join(' ');
 const isCiv = () => S.member.rank === 'Civ';
 const sdRank = () => isCiv() ? '' : rankFull(S.member.rank.trim());
@@ -2264,7 +2325,7 @@ const DEFS = {
   stays: { L: 'D', name: 'Lodging', cols: [], empty: 'No stays yet. Add one card for each place you slept. A three-night hotel stay is one card.' },
   general: { L: 'F', name: 'General expenses', grid: 'tg', cols: [COL.date, COL.loc('Where'), { k: 'desc', l: 'Description', t: 'text', ph: 'e.g. Laundry', list: 'dl-general' }, COL.cost, COL.cur],
     empty: 'No general expenses. Laundry, internet, conference fees and similar go here.' },
-  exchange: { L: 'G', name: 'Currency exchange', grid: 'xg', cols: [COL.date, COL.loc('Bank or exchange office'), { k: 'soldAmt', l: 'Sold', t: 'money' }, { k: 'soldCur', l: 'Cur', t: 'cur' }, { k: 'boughtAmt', l: 'Bought', t: 'money' }, { k: 'boughtCur', l: 'Cur', t: 'cur' }, { k: 'rate', l: 'Exch. rate', t: 'rate', ph: 'auto' }, { k: 'charge', l: 'Service charge', t: 'money' }, { k: 'chargeCur', l: 'Cur', t: 'cur' }],
+  exchange: { L: 'G', name: 'Currency exchange', grid: 'xg', cols: [COL.date, { k: 'location', l: 'Where exchanged', t: 'text', ph: 'Bank or exchange office, city', list: 'dl-places' }, { k: 'soldAmt', l: 'Sold', t: 'money' }, { k: 'soldCur', l: 'Cur', t: 'cur' }, { k: 'boughtAmt', l: 'Bought', t: 'money' }, { k: 'boughtCur', l: 'Cur', t: 'cur' }, { k: 'rate', l: 'Exch. rate', t: 'rate', ph: 'auto' }, { k: 'charge', l: 'Service charge', t: 'money' }, { k: 'chargeCur', l: 'Cur', t: 'cur' }],
     empty: 'No currency exchanges. Add one for each exchange receipt you have.' },
   calls: { L: 'H', name: 'Calls', grid: 'cg', cols: [COL.date, COL.loc('Where you called from'), { k: 'timeDur', l: 'Time & duration', t: 'short', ph: '1415, 12 min' }, { k: 'number', l: 'Number called', t: 'tel' }, { k: 'person', l: 'Person / section', t: 'text' }, { k: 'kind', l: 'Type', t: 'select', opts: ['Business', 'Personal'] }, COL.cost, COL.cur],
     empty: 'No calls to claim.' },
@@ -2442,7 +2503,13 @@ function renderMeals() {
   </table></div>`;
 }
 function mealCounts() { const dates = tripDates() || [], c = { b: 0, l: 0, d: 0 }; dates.forEach(d => { MEALS.forEach(([k]) => { if (mealVal(d, k)) c[k]++; }); }); return { c, n: dates.length }; }
+function syncOut() {
+  const one = $('#pk-one'), sp = $('#pk-split'); if (!one) return;
+  one.checked = !S.split; sp.checked = !!S.split;
+  const b = $('#build-btn'); if (b && !b.classList.contains('busy')) b.textContent = S.split ? T('Build PDF files') : T('Build PDF package');
+}
 function renderBinds() {
+  syncOut();
   const refs = $('#trip-refs'); if (refs) refs.hidden = !(String(S.tan || '').trim() || String(S.locator || '').trim());
   $$('[data-bind]').forEach(el => {
     const v = getPath(el.dataset.bind);
@@ -2474,6 +2541,21 @@ const inMatter = (sec, r) => {
   const what = String(r.desc || '').split(/[,;(]/)[0].trim();
   return fr() ? `Reçu manquant (${what || 'dépense'})` : `Missing ${t(what) || 'Expense'} Receipt`;
 };
+// Jurat date: today unless the member changed it; cleared on purpose = blank lines for the officer
+const today = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; };
+const juratDate = () => S.sd.declDateSet ? S.sd.declDate : today();
+function juratDay(iso) { // { day, month, yy } in the jurat's words: "17th", "October", "26" / "17", "d'octobre", "26"
+  if (!isoOk(iso)) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  if (fr()) { const mo = MONTHS_FR[m - 1]; return { day: d === 1 ? '1er' : String(d), month: (/^[aeiouh]/.test(mo) ? "d'" : 'de ') + mo, yy: String(y).slice(2), y }; }
+  const th = (d % 100 >= 11 && d % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[d % 10] || 'th');
+  return { day: d + th, month: MONTHS[m - 1], yy: String(y).slice(2), y };
+}
+function juratDateText() {
+  const j = juratDay(juratDate());
+  if (fr()) return j ? `ce ${j.day} jour ${j.month} ${j.y}` : 'ce ____ jour de __________ 20__';
+  return j ? `this ${j.day} day of ${j.month} A.D. ${j.y}` : 'this ____ day of __________ A.D. 20__';
+}
 function juratPlaceText() {
   const sd = S.sd, place = sd.place.trim().replace(/^(the|la|le|les)\s+/i, '');
   if (fr()) return `${place || '____________________'}, ${PROV_IN_FR[sd.juris] || '________'}`;
@@ -2483,14 +2565,28 @@ function renderSD() {
   const items = lostItems(), sec = $('#sec-SD');
   sec.hidden = !items.length; $('#railbtn-SD').hidden = !items.length;
   if (!items.length) return;
-  $('#sd-items').innerHTML = items.map(it => `<li><span class="ref">${it.ref} ${T('SD')}</span><span>${esc(T('{0}: {1}', inMatter(it.sec, it.row), lostAmtText(it.sec, it.row)))}</span></li>`).join('');
+  const box = $('#sd-items');
+  if (!box.contains(document.activeElement) || document.activeElement === document.body) { // never redraw under the member's typing
+    const open = new Set($$('details[open]', box).map(d => d.dataset.row));
+    box.innerHTML = items.map(it => {
+      const own = String(it.row.sdFacts || '').trim(), built = sdBuilt(it).slice(0, 2).join('\n\n');
+      return `<li><div class="sd-it-h"><span class="ref">${it.ref} ${T('SD')}</span><span>${esc(T('{0}: {1}', inMatter(it.sec, it.row), lostAmtText(it.sec, it.row)))}</span>${own ? `<span class="tag">${esc(T('Edited'))}</span>` : ''}</div>
+        <details class="sd-edit" data-row="${it.row.id}"${open.has(it.row.id) ? ' open' : ''}><summary>${esc(T('See or edit the wording'))}</summary>
+          <p class="sd-help">${esc(T('Paragraphs 1 and 2 state the facts. Change them if they do not describe what happened; leave a blank line between paragraphs. Paragraph 3 (why the receipt is missing) comes from the expense, and the closing paragraphs stay as they are.'))}</p>
+          <textarea class="sd-facts" rows="6" data-sdrow="${it.row.id}" data-sdsec="${it.sec}" aria-label="${esc(T('Wording of {0}', it.ref + ' ' + T('SD')))}" spellcheck="true">${esc(own || built)}</textarea>
+          <div class="sd-edit-acts"><button type="button" class="btn" data-act="sd-reset" data-sdrow="${it.row.id}" data-sdsec="${it.sec}"${own ? '' : ' disabled'}>${esc(T('Use the wording built from the claim'))}</button>
+          <span class="drophint">${esc(own ? T('Edited wording is printed as typed and does not change when you edit the expense.') : T('Built from the claim. It updates when you edit the expense.'))}</span></div>
+        </details></li>`;
+    }).join('');
+  }
   const sd = S.sd;
   $('#sd-name').placeholder = sdName() || T('e.g. Jordan Lee Sample');
+  const dd = $('#sd-date'); if (dd && document.activeElement !== dd) { dd.value = juratDate() || ''; syncDate(dd); }
   $('#sd-env-f').hidden = !(sd.juris === 'BC' || sd.juris === 'SK');
   $('#sd-abroad-f').hidden = !sd.abroad;
   $('#sd-juris').classList.toggle('bad', !sd.juris);
   $('#sd-jurat').innerHTML = sd.juris
-    ? (fr() ? `<b>DÉCLARÉ</b> devant moi à ${esc(juratPlaceText())}, ce ____ jour de __________ 20__.` : `<b>DECLARED</b> before me at ${esc(juratPlaceText())}, this ____ day of __________ A.D. 20__.`) + `<span class="who">${esc(juratWho(sd.juris, sd.env))} ${esc(jur(sd.juris).law)}<br>${esc(jur(sd.juris).note)}</span>`
+    ? (fr() ? `<b>DÉCLARÉ</b> devant moi à ${esc(juratPlaceText())}, ${esc(juratDateText())}.` : `<b>DECLARED</b> before me at ${esc(juratPlaceText())}, ${esc(juratDateText())}.`) + `<span class="who">${esc(juratWho(sd.juris, sd.env))} ${esc(jur(sd.juris).law)}<br>${esc(jur(sd.juris).note)}</span>`
     : T('Choose the province or territory where you will make the declaration. The jurat wording, and who may take it, depend on it.');
 }
 function renderAll() {
@@ -2908,8 +3004,17 @@ function onField(el, final) {
   if (sec === 'stays' && final && (k === 'checkin' || k === 'checkout') && row.rations) renderMeals();
 }
 const liveKind = el => el.type === 'checkbox' || el.tagName === 'SELECT';
+// the member's own wording for a statutory declaration (stored with the expense; blank = built wording)
+function sdSetFacts(el) {
+  const row = getArr(el.dataset.sdsec).find(r => r.id === el.dataset.sdrow); if (!row) return;
+  const it = lostItems().find(x => x.row === row); if (!it) return;
+  const built = sdBuilt(it).slice(0, 2).join('\n\n'), v = el.value;
+  row.sdFacts = v.trim() === built.trim() || !v.trim() ? '' : v; persist();
+}
 document.addEventListener('input', e => {
   const el = e.target;
+  if (el.classList && el.classList.contains('sd-facts')) { sdSetFacts(el); return; }
+  if (el.id === 'sd-date') { S.sd.declDate = el.value; S.sd.declDateSet = true; syncDate(el); persist(); refresh(); return; }
   if (el.type === 'date') syncDate(el);
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
   if (liveKind(el)) return; // checkboxes and selects are handled on change
@@ -2919,12 +3024,14 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.classList && el.classList.contains('sd-facts')) { sdSetFacts(el); el.blur(); refresh(); return; }
   if (el.type === 'date') syncDate(el);
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
   if (el.id === 'opt-keep') { setKeep(el.checked); return; }
   if (el.id === 'opt-remember') { setRemember(el.checked); return; }
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
+  if (el.name === 'pk-split') { S.split = el.value === 'split'; touch(el); persist(); syncOut(); return; }
   if (el.id === 'file-itin') { const fs = [...el.files]; el.value = ''; if (fs.length) impFiles(fs); return; }
   if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels', 'imp-name': 'name' }[el.id]] = el.checked; impRender(); return; }
   if (el.id === 'file-snap') { const f = el.files[0]; el.value = ''; if (f) openSnap(f); return; }
@@ -2988,6 +3095,7 @@ document.addEventListener('click', e => {
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
     case 'save-now': setMenu(false); saveNow(); break;
+    case 'sd-reset': { const row = getArr(b.dataset.sdsec).find(r => r.id === b.dataset.sdrow); if (row) { row.sdFacts = ''; b.blur(); refresh(); persist(); toast(T('Back to the wording built from the claim.')); } break; }
     case 'switch-channel': setMenu(false); switchChannel(); break;
     case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
@@ -3030,6 +3138,9 @@ document.addEventListener('click', e => {
     case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text'), { type: 'text/plain' })]); break; }
     case 'snap-save': if (saveSnap()) closeSnap(); break;
     case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
+    case 'save-part': { const x = lastParts && lastParts[+b.dataset.i]; if (x) { if (IOS_PWA && SEND.pdf) shareFile(new File([x.bytes], x.name, { type: 'application/pdf' }), sendTitle('Travel Claim Package'), '', () => offerFile(x.name, new Blob([x.bytes], { type: 'application/pdf' }), 'application/pdf')); else offerFile(x.name, new Blob([x.bytes], { type: 'application/pdf' }), 'application/pdf'); } break; }
+    case 'open-part': { const x = lastParts && lastParts[+b.dataset.i]; if (x) { const u = URL.createObjectURL(new Blob([x.bytes], { type: 'application/pdf' })); window.open(u, '_blank'); setTimeout(() => URL.revokeObjectURL(u), 120000); } break; }
+    case 'save-all': case 'send-all': if (lastParts) saveAllParts(act === 'send-all'); break;
     case 'save-pdf': if (lastPdf) offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'); break;
     case 'open-pdf': if (lastPdf) { const u = URL.createObjectURL(new Blob([lastPdf.bytes], { type: 'application/pdf' })); window.open(u, '_blank'); setTimeout(() => URL.revokeObjectURL(u), 120000); } break;
   }
@@ -3330,9 +3441,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.8-beta.1';
+const APP_VERSION = '1.8-beta.2';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.8 beta 1, built 17 Oct 2026 14:26 (production is 1.7)';
+const APP_LABEL = 'Version 1.8 beta 2, built 17 Oct 2026 15:04 (production is 1.7)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3361,6 +3472,15 @@ function sendDraft() {
   const mb = payload.length / 1048576;
   if (mb > 20) toast(T('This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.', mb.toFixed(0)));
   shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
+}
+// All the separate files: one share sheet on phones (Save to Files takes them all), one download each on a computer
+async function saveAllParts(send) {
+  const files = lastParts.map(x => new File([x.bytes], x.name, { type: 'application/pdf' }));
+  if ((IOS_PWA || send) && navigator.canShare && navigator.share) {
+    try { if (navigator.canShare({ files })) { await navigator.share({ files }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  for (const x of lastParts) { await offerFile(x.name, new Blob([x.bytes], { type: 'application/pdf' }), 'application/pdf'); await new Promise(r => setTimeout(r, 450)); }
+  toast(nPl(lastParts.length, 'Saved {0} file.', 'Saved {0} files. If the browser asked, allow it to download several files.'));
 }
 function sendPdf() {
   const file = new File([lastPdf.bytes], lastPdf.name, { type: 'application/pdf' });
@@ -3578,7 +3698,7 @@ async function openDraft(f) {
 }
 
 /* ---------- PDF ---------- */
-let lastPdf = null;
+let lastPdf = null, lastParts = null; // the last build: one PDF, or the separate files
 const meals = m => MEALS.filter(([k]) => m && m[k]).map(([k]) => k.toUpperCase()).join(' ');
 const amt = (v, c) => { const m = money(v); return m ? `${m} ${curOf(c)}`.trim() : ''; };
 function rowDesc(sec, r) {
@@ -3700,8 +3820,9 @@ function painter(doc, F, B, I) {
     P.page.drawLine({ start: { x, y }, end: { x: x + w, y }, thickness: .75, color: C.ink });
     if (caption) P.text(caption, x, y - 10, { size: 7.2, color: C.mid });
   };
-  P.textField = (name, x, y, w, h) => {
+  P.textField = (name, x, y, w, h, value) => {
     const tf = doc.getForm().createTextField(name);
+    if (value) tf.setText(P.clean(value));
     tf.addToPage(P.page, { x, y, width: w, height: h, borderWidth: 0, backgroundColor: C.sig, font: F });
     tf.setFontSize(9);
     P.page.drawLine({ start: { x, y }, end: { x: x + w, y }, thickness: .6, color: C.ink });
@@ -3712,7 +3833,7 @@ function subtotalRows(arr, k, ck, colCount, labelIdx, amtIdx, curIdx) {
   const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => { const cells = Array(colCount).fill(''); cells[labelIdx] = T('Subtotal {0}', c); cells[amtIdx] = fmtN(t[c]); if (curIdx != null) cells[curIdx] = c; return { cells, bold: true, fill: true }; });
 }
 const fullName = () => [rankAbbr(S.member.rank), S.member.given, S.member.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
-function drawWorksheet(P, items, wsPages) {
+function drawWorksheet(P, items, wsPages, inFile) {
   updateLeave();
   const m = S.member, today = new Date();
   const todayStr = fmtDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
@@ -3767,8 +3888,8 @@ function drawWorksheet(P, items, wsPages) {
   // Receipt index
   P.bar('', 'Receipt index', 'SD = statutory declaration for a missing receipt, signed by the member');
   let pg = (wsPages || 0) + 1;
-  P.table([{ l: 'Ref', w: .7, a: 'c' }, { l: 'Section', w: 1.4 }, { l: 'Date', w: .85 }, { l: 'Description', w: 2.6 }, { l: 'Amount', w: 1.1, a: 'r' }, { l: 'Page', w: .6, a: 'c' }],
-    items.map(it => { const p = wsPages ? (it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : `${pg}`) : '00-00'; pg += it.pages; return [it.decl ? it.ref + ' ' + T('SD') : it.ref, T(SECNAME[it.sec]), fmtDate(rowDate(it.sec, it.row)), (it.decl ? T('Missing receipt declaration: ') : '') + [rowLoc(it.sec, it.row), rowDesc(it.sec, it.row)].filter(Boolean).join(', '), rowAmt(it.sec, it.row), p]; }), T('No receipts attached'));
+  P.table([{ l: 'Ref', w: .7, a: 'c' }, { l: 'Section', w: 1.4 }, { l: 'Date', w: .85 }, { l: 'Description', w: inFile ? 2.2 : 2.6 }, { l: 'Amount', w: 1.1, a: 'r' }, inFile ? { l: 'In file', w: 1, a: 'c' } : { l: 'Page', w: .6, a: 'c' }],
+    items.map(it => { const p = inFile ? inFile.get(it) : wsPages ? (it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : `${pg}`) : '00-00'; pg += it.pages; return [it.decl ? it.ref + ' ' + T('SD') : it.ref, T(SECNAME[it.sec]), fmtDate(rowDate(it.sec, it.row)), (it.decl ? T('Missing receipt declaration: ') : '') + [rowLoc(it.sec, it.row), rowDesc(it.sec, it.row)].filter(Boolean).join(', '), rowAmt(it.sec, it.row), p]; }), T('No receipts attached'));
   // Signature
   P.ensure(70); P.y -= 12;
   P.text(T('I certify that the information on this worksheet is correct and complete.'), P.M, P.y - 9, { size: 8.2, color: P.C.mid });
@@ -3795,14 +3916,54 @@ const CURNAME = { CAD: 'Canadian dollars', USD: 'United States dollars', EUR: 'e
 const CURNAME_FR = { CAD: 'dollars canadiens', USD: 'dollars américains', EUR: 'euros', GBP: 'livres sterling', AUD: 'dollars australiens', NZD: 'dollars néo-zélandais', JPY: 'yens japonais', CHF: 'francs suisses' };
 const amtFull = (v, c) => { const m = money(v); if (!m) return ''; const cc = curOf(c) || 'CAD'; return fr() ? `${m} ${CURNAME_FR[cc] || cc}` : `${cc === 'CAD' ? '$' : ''}${m} ${CURNAME[cc] || cc}`; };
 const cap = t => { t = String(t || '').trim().replace(/[.\s]+$/, ''); return t ? t[0].toUpperCase() + t.slice(1) + '.' : ''; };
+// When an exchange happened relative to the trip, and the trip's main destination (longest stay)
+function tripWhen(d) {
+  const a = S.stops[0].depDate, b = S.stops[S.stops.length - 1].arrDate;
+  if (!isoOk(d)) return 'during';
+  if (isoOk(a) && d < a) return 'before';
+  if (isoOk(b) && d > b) return 'after';
+  return 'during';
+}
+function tripDest() {
+  let best = '', most = -1;
+  S.stops.slice(1, -1).forEach(s => { const n = isoOk(s.arrDate) && isoOk(s.depDate) ? (Date.parse(s.depDate) - Date.parse(s.arrDate)) / 864e5 : 0; if (s.city.trim() && !s.leave && n > most) { most = n; best = s.city.trim(); } });
+  return best || S.stops[S.stops.length - 1].city.trim();
+}
+function sdExchangeFr(r, date, purpose) {
+  const when = tripWhen(r.date), dest = tripDest(), where = String(r.location || '').trim();
+  const pur = purpose ? ' pour ' + purpose : '', to = dest ? ' à ' + dest : '';
+  const deal = `${amtFull(r.soldAmt, r.soldCur) || 'des fonds canadiens'} contre ${amtFull(r.boughtAmt, r.boughtCur) || 'des devises étrangères'}${where ? ' auprès de ' + where : ''}${money(r.charge) ? ` et j'ai payé des frais de service de ${amtFull(r.charge, r.chargeCur)}` : ''}`;
+  if (when === 'before') return [`Le ${date || "jour de l'échange"}, avant de partir en service temporaire${to}${pur}, j'ai échangé des devises pour les besoins de ce service.`, `J'ai échangé ${deal}.`];
+  if (when === 'after') return [`Le ${date || "jour de l'échange"}, après mon retour de service temporaire${to}${pur}, j'ai échangé les devises qui me restaient de ce service.`, `J'ai échangé ${deal}.`];
+  const td = locFor(r.date);
+  return [`Le ${date || "jour de l'échange"}, j'étais en service temporaire${td ? ' à ' + td : ''}${pur}.`, `Pendant ce service, j'ai échangé ${deal}.`];
+}
+function sdExchange(r, date, purpose) {
+  const when = tripWhen(r.date), dest = tripDest(), where = String(r.location || '').trim();
+  const pur = purpose ? ' to ' + purpose : '', to = dest ? ' to ' + dest : '';
+  const deal = `${amtFull(r.soldAmt, r.soldCur) || 'Canadian funds'} for ${amtFull(r.boughtAmt, r.boughtCur) || 'foreign currency'}${where ? ' at ' + where : ''}${money(r.charge) ? ` and paid a service charge of ${amtFull(r.charge, r.chargeCur)}` : ''}`;
+  if (when === 'before') return [`On ${date || 'the date of the exchange'}, before leaving on temporary duty${to}${pur}, I exchanged currency for use during that duty.`, `I exchanged ${deal}.`];
+  if (when === 'after') return [`On ${date || 'the date of the exchange'}, after returning from temporary duty${to}${pur}, I exchanged the currency left over from that duty.`, `I exchanged ${deal}.`];
+  const td = locFor(r.date);
+  return [`On ${date || 'the date of the exchange'}, I was on temporary duty${td ? ' in ' + td : ''}${pur}.`, `During this duty, I exchanged ${deal}.`];
+}
+// The declaration as printed: the member's own wording for the facts (paragraphs 1 and 2) when they
+// edited it, otherwise the wording built from the claim. Why the receipt is missing, the
+// non-reimbursement paragraph and the closing always follow.
+const sdBuilt = it => fr() ? sdParagraphsFr(it) : sdParagraphs(it);
+function sdFinal(it) {
+  const built = sdBuilt(it), own = String(it.row.sdFacts || '').trim();
+  if (!own) return built;
+  return own.split(/\n\s*\n/).map(x => x.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean).concat(built.slice(2));
+}
 function sdParagraphsFr(it) {
   const r = it.row, sec = it.sec, sd = S.sd, n = nights(r);
   const date = fmtLong(rowDate(sec, r)), loc = String(rowLoc(sec, r) || '').trim();
   const purpose = sd.purpose.trim().replace(/[.\s]+$/, '').replace(/^pour\s+/i, '');
   const ny = n > 0 ? ` (${n} nuit${n > 1 ? 's' : ''})` : '';
-  const p = [`Le ${date || 'jour de la dépense'}, j'étais en service temporaire${loc && sec !== 'stays' ? ' à ' + loc : ''}${purpose ? ' pour ' + purpose : ''}.`];
-  if (sec === 'stays') p.push(`Pendant ce service, j'ai séjourné à ${r.hotel.trim() || 'un hôtel'}${loc ? ', ' + loc : ''}, du ${fmtLong(r.checkin)} au ${fmtLong(r.checkout)}${ny}, et j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour l'hébergement.`);
-  else if (sec === 'exchange') p.push(`Pendant ce service, j'ai échangé ${amtFull(r.soldAmt, r.soldCur) || 'des fonds canadiens'} contre ${amtFull(r.boughtAmt, r.boughtCur) || 'des devises étrangères'}${loc ? ' à ' + loc : ''}${money(r.charge) ? ` et j'ai payé des frais de service de ${amtFull(r.charge, r.chargeCur)}` : ''}.`);
+  const p = sec === 'exchange' ? sdExchangeFr(r, date, purpose) : [`Le ${date || 'jour de la dépense'}, j'étais en service temporaire${loc && sec !== 'stays' ? ' à ' + loc : ''}${purpose ? ' pour ' + purpose : ''}.`];
+  if (sec === 'exchange') { /* both paragraphs above */ }
+  else if (sec === 'stays') p.push(`Pendant ce service, j'ai séjourné à ${r.hotel.trim() || 'un hôtel'}${loc ? ', ' + loc : ''}, du ${fmtLong(r.checkin)} au ${fmtLong(r.checkout)}${ny}, et j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour l'hébergement.`);
   else if (sec === 'calls') p.push(`Pendant ce service, j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour un appel téléphonique ${r.kind === 'Personal' ? 'personnel' : "d'affaires"}${r.person.trim() ? ' à ' + r.person.trim() : ''}${r.number.trim() ? ' au ' + r.number.trim() : ''}.`);
   else p.push(`Pendant ce service, j'ai payé ${amtFull(r.cost, r.cur) || 'le montant réclamé'} pour la dépense suivante : ${cap(r.desc) || 'une dépense.'}`);
   p.push(`Le reçu original de cette dépense n'est pas disponible pour la raison suivante : ${r.lostReason.trim() ? r.lostReason.trim().replace(/[.\s]+$/, '') + '.' : '____________________________________________.'}`);
@@ -3812,13 +3973,12 @@ function sdParagraphsFr(it) {
   return p;
 }
 function sdParagraphs(it) {
-  if (fr()) return sdParagraphsFr(it);
   const r = it.row, sec = it.sec, sd = S.sd, n = nights(r);
   const date = fmtLong(rowDate(sec, r)), loc = String(rowLoc(sec, r) || '').trim();
   const purpose = sd.purpose.trim().replace(/[.\s]+$/, '').replace(/^to\s+/i, '');
-  const p = [`On ${date || 'the date of the expense'}, I was on temporary duty${loc && sec !== 'stays' ? ' in ' + loc : ''}${purpose ? ' to ' + purpose : ''}.`];
-  if (sec === 'stays') p.push(`During this duty, I stayed at ${r.hotel.trim() || 'a hotel'}${loc ? ', ' + loc : ''}, from ${fmtLong(r.checkin)} to ${fmtLong(r.checkout)}${n > 0 ? ` (${n} night${n > 1 ? 's' : ''})` : ''}, and paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for lodging.`);
-  else if (sec === 'exchange') p.push(`During this duty, I exchanged ${amtFull(r.soldAmt, r.soldCur) || 'Canadian funds'} for ${amtFull(r.boughtAmt, r.boughtCur) || 'foreign currency'}${loc ? ' at ' + loc : ''}${money(r.charge) ? ` and paid a service charge of ${amtFull(r.charge, r.chargeCur)}` : ''}.`);
+  const p = sec === 'exchange' ? sdExchange(r, date, purpose) : [`On ${date || 'the date of the expense'}, I was on temporary duty${loc && sec !== 'stays' ? ' in ' + loc : ''}${purpose ? ' to ' + purpose : ''}.`];
+  if (sec === 'exchange') { /* both paragraphs above */ }
+  else if (sec === 'stays') p.push(`During this duty, I stayed at ${r.hotel.trim() || 'a hotel'}${loc ? ', ' + loc : ''}, from ${fmtLong(r.checkin)} to ${fmtLong(r.checkout)}${n > 0 ? ` (${n} night${n > 1 ? 's' : ''})` : ''}, and paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for lodging.`);
   else if (sec === 'calls') p.push(`During this duty, I paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for a ${r.kind.toLowerCase()} telephone call${r.person.trim() ? ' to ' + r.person.trim() : ''}${r.number.trim() ? ' at ' + r.number.trim() : ''}.`);
   else p.push(`During this duty, I paid ${amtFull(r.cost, r.cur) || 'the amount claimed'} for the following expense: ${cap(r.desc) || 'an expense.'}`);
   p.push(`The original receipt for this expense is unavailable because: ${r.lostReason.trim() ? r.lostReason.trim().replace(/[.\s]+$/, '') + '.' : '____________________________________________.'}`);
@@ -3852,7 +4012,7 @@ function drawDeclaration(P, it) {
     ? `Je soussigné(e), ${who}, demeurant au ${addr || '____________________'}, ${isCiv() ? 'employé(e) civil(e) du ministère de la Défense nationale' : 'membre des Forces armées canadiennes'},`
     : `I, ${who}, of ${addr || '____________________'}, ${isCiv() ? 'a civilian employee of the Department of National Defence' : 'a member of the Canadian Armed Forces'},`, M, y, W - 2 * M) - 8;
   P.text(T('DO SOLEMNLY DECLARE THAT:'), M, y, { size: 9.5, font: B }); y -= 20;
-  sdParagraphs(it).forEach((t, i) => { P.text(`${i + 1}.`, M + 6, y, { size: 9.5 }); y = P.para(t, M + 24, y, W - 2 * M - 24) - 7; });
+  sdFinal(it).forEach((t, i) => { P.text(`${i + 1}.`, M + 6, y, { size: 9.5 }); y = P.para(t, M + 24, y, W - 2 * M - 24) - 7; });
   y -= 18;
   // jurat (left) and declarant (right)
   const colW = half - 12, top = y;
@@ -3865,15 +4025,16 @@ function drawDeclaration(P, it) {
   else P.textField(`SD_${key}_Place`, px, ly - 3, M + colW - px, 14);
   ly -= 16;
   if (!sd.abroad) { P.text(fr() ? `${PROV_IN_FR[j] || ''},` : `in the ${terr ? '' : 'Province of '}${prov},`, M, ly, { size: 9.5 }); ly -= 16; }
+  const jd = juratDay(juratDate()); // filled in (today by default), still editable in the PDF
   if (fr()) {
-    // "ce ___ jour de ______ 20__." (no A.D. in French)
-    P.text('ce', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 16, ly - 3, 34, 14);
-    P.text('jour de', M + 54, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, M + 88, ly - 3, 78, 14);
-    P.text('20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 182, ly - 3, 22, 14); P.text('.', M + 205, ly, { size: 9.5 });
+    // "ce ___ jour de ______ 20__." (no A.D. in French); "de" moves into the month field when filled ("d'octobre")
+    P.text('ce', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 16, ly - 3, 34, 14, jd && jd.day);
+    P.text(jd ? 'jour' : 'jour de', M + 54, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, jd ? M + 78 : M + 88, ly - 3, jd ? 88 : 78, 14, jd && jd.month);
+    P.text('20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 182, ly - 3, 22, 14, jd && jd.yy); P.text('.', M + 205, ly, { size: 9.5 });
   } else {
-    P.text('this', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 20, ly - 3, 34, 14);
-    P.text('day of', M + 58, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, M + 88, ly - 3, 78, 14);
-    P.text('A.D. 20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 204, ly - 3, 22, 14); P.text('.', M + 227, ly, { size: 9.5 });
+    P.text('this', M, ly, { size: 9.5 }); P.textField(`SD_${key}_Day`, M + 20, ly - 3, 34, 14, jd && jd.day);
+    P.text('day of', M + 58, ly, { size: 9.5 }); P.textField(`SD_${key}_Month`, M + 88, ly - 3, 78, 14, jd && jd.month);
+    P.text('A.D. 20', M + 170, ly, { size: 9.5 }); P.textField(`SD_${key}_Year`, M + 204, ly - 3, 22, 14, jd && jd.yy); P.text('.', M + 227, ly, { size: 9.5 });
   }
   ly -= 14;
   const sigTop = ly;
@@ -3915,18 +4076,17 @@ async function build() {
       if (it.r && it.r.kind === 'pdf') { try { it.src = await PDFDocument.load(dataUrlToBytes(it.r.dataUrl), { ignoreEncryption: true }); it.pages = it.src.getPageCount() || 1; } catch (e) { it.err = true; } }
     }
     const mk = async () => { const doc = await PDFDocument.create(); const P = painter(doc, await doc.embedFont(StandardFonts.Helvetica), await doc.embedFont(StandardFonts.HelveticaBold), await doc.embedFont(StandardFonts.HelveticaOblique)); return { doc, P }; };
-    const probe = await mk(); drawWorksheet(probe.P, items, null); const wsPages = probe.doc.getPageCount();
-    const { doc, P } = await mk(); drawWorksheet(P, items, wsPages);
-    for (const it of items) {
+    // one receipt or declaration onto the document being built
+    const drawItem = async (doc, P, it) => {
       status.textContent = it.decl ? T('Adding declaration {0}...', it.ref) : T('Adding receipt {0}...', it.ref);
-      if (it.decl) { drawDeclaration(P, it); continue; }
+      if (it.decl) { drawDeclaration(P, it); return; }
       const title = T('RECEIPT {0}', it.ref), meta = itemMeta(it);
       if (it.r.kind === 'img') {
         P.newPage(); const top = receiptHeader(P, title, meta);
         const img = await doc.embedJpg(dataUrlToBytes(it.r.dataUrl));
         const box = fitBox(P, img.width, img.height, top); P.page.drawImage(img, box);
         P.page.drawRectangle(Object.assign({}, box, { borderColor: P.C.line, borderWidth: .5 }));
-        continue;
+        return;
       }
       let ok = false;
       if (!it.err) {
@@ -3946,39 +4106,63 @@ async function build() {
           if (k === 0) P.wrap(T('This PDF could not be added to the package. It may be password-protected or damaged. Submit "{0}" separately with this claim.', it.r.name), P.F, 10, P.W - 2 * P.M).forEach((l, j) => P.text(l, P.M, top - 20 - j * 14, { size: 10 }));
         }
       }
-    }
-    const pages = doc.getPages(), total = pages.length, Ff = P.F;
-    // The app version on every page (and in the file properties), so a package can be traced to the build that made it
-    const ver = 'v' + APP_VERSION.replace('-beta.', fr() ? ' bêta ' : ' beta ');
-    const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+    };
+    // Every page: security marking top and bottom right, page number of this file, and the app version.
     // Security marking, per DND guidance (marked at the top and bottom of each sensitive document) and the
     // GC rule that loose documents are marked on every sheet, in letters larger than the body text.
-    // Top right and bottom right of every page, receipts included, on a white backing so it stays legible.
-    const mark = markText(S.marking), MS = 12;
-    const stamp = (p, x, y) => { const w = P.B.widthOfTextAtSize(mark, MS); p.drawRectangle({ x: x - 3, y: y - 3, width: w + 6, height: MS + 4, color: P.C.white }); p.drawText(mark, { x, y, size: MS, font: P.B, color: P.C.ink }); };
-    pages.forEach((p, i) => {
-      const { width: pw, height: ph } = p.getSize();
-      const r = T('Page {0} of {1}', i + 1, total), rw = Ff.widthOfTextAtSize(r, 7);
-      if (mark) {
-        const mw = P.B.widthOfTextAtSize(mark, MS);
-        stamp(p, pw - P.M - mw, ph - 26); stamp(p, pw - P.M - mw, 16);
-        p.drawText(r, { x: (pw - rw) / 2, y: 20, size: 7, font: Ff, color: P.C.mid });
-        p.drawText(P.fit(left, Ff, 7, pw / 2 - P.M - rw / 2 - 12), { x: P.M, y: 20, size: 7, font: Ff, color: P.C.mid });
-      } else {
-        p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid });
-        p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
-      }
-    });
-    if (mark) doc.setSubject(mark);
-    doc.setKeywords([mark, T('CAF Digital Travel Itinerary'), ver, APP_LABEL].filter(Boolean));
-    doc.setTitle([T('CAF Digital Travel Itinerary'), S.tripRef].filter(Boolean).join(' - '));
-    doc.setLanguage(fr() ? 'fr-CA' : 'en-CA');
-    doc.setAuthor(fullName());
-    doc.setCreator('CAF Digital Travel Itinerary ' + APP_VERSION); doc.setProducer('pdf-lib, generated in the browser');
-    const bytes = await doc.save();
-    lastPdf = { name: fileBase() + '.pdf', bytes, pages: total };
+    const ver = 'v' + APP_VERSION.replace('-beta.', fr() ? ' bêta ' : ' beta ');
+    const finish = async (doc, P, part) => {
+      const pages = doc.getPages(), total = pages.length, Ff = P.F;
+      // the app version on every page (and in the file properties), so a package can be traced to the build that made it
+      const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, part, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+      const mark = markText(S.marking), MS = 12;
+      const stamp = (p, x, y) => { const w = P.B.widthOfTextAtSize(mark, MS); p.drawRectangle({ x: x - 3, y: y - 3, width: w + 6, height: MS + 4, color: P.C.white }); p.drawText(mark, { x, y, size: MS, font: P.B, color: P.C.ink }); };
+      pages.forEach((p, i) => {
+        const { width: pw, height: ph } = p.getSize();
+        const r = T('Page {0} of {1}', i + 1, total), rw = Ff.widthOfTextAtSize(r, 7);
+        if (mark) {
+          const mw = P.B.widthOfTextAtSize(mark, MS);
+          stamp(p, pw - P.M - mw, ph - 26); stamp(p, pw - P.M - mw, 16);
+          p.drawText(r, { x: (pw - rw) / 2, y: 20, size: 7, font: Ff, color: P.C.mid });
+          p.drawText(P.fit(left, Ff, 7, pw / 2 - P.M - rw / 2 - 12), { x: P.M, y: 20, size: 7, font: Ff, color: P.C.mid });
+        } else {
+          p.drawText(P.fit(left, Ff, 7, pw - 2 * P.M - rw - 16), { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid });
+          p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
+        }
+      });
+      if (mark) doc.setSubject(mark);
+      doc.setKeywords([mark, T('CAF Digital Travel Itinerary'), ver, APP_LABEL].filter(Boolean));
+      doc.setTitle([T('CAF Digital Travel Itinerary'), S.tripRef, part].filter(Boolean).join(' - '));
+      doc.setLanguage(fr() ? 'fr-CA' : 'en-CA');
+      doc.setAuthor(fullName());
+      doc.setCreator('CAF Digital Travel Itinerary ' + APP_VERSION); doc.setProducer('pdf-lib, generated in the browser');
+      return { bytes: await doc.save(), pages: total };
+    };
+    const split = !!S.split && items.length > 0;
+    const rcItems = items.filter(i => !i.decl), sdItems = items.filter(i => i.decl);
+    // where each item sits: a page of this PDF, or (separate files) a page of the receipts file or its own file
+    let where = null;
+    if (split) { let pg = 1; where = new Map(items.map(it => { if (it.decl) return [it, T('Own file')]; const w = T('Receipts p. {0}', it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : pg); pg += it.pages; return [it, w]; })); }
+    const probe = await mk(); drawWorksheet(probe.P, items, null, where); const wsPages = probe.doc.getPageCount();
+    const base = fileBase(), part = k => base + '_' + k, parts = [];
+    let total;
+    if (!split) {
+      const { doc, P } = await mk(); drawWorksheet(P, items, wsPages);
+      for (const it of items) await drawItem(doc, P, it);
+      const out = await finish(doc, P, '');
+      total = out.pages; lastPdf = { name: base + '.pdf', bytes: out.bytes, pages: total }; lastParts = null;
+    } else {
+      const fn = k => String(k).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      { const { doc, P } = await mk(); drawWorksheet(P, items, wsPages, where); const o = await finish(doc, P, T('Worksheet')); parts.push({ name: part('1-' + fn(T('Worksheet'))) + '.pdf', label: T('Worksheet'), what: T('Sections A to H, totals and receipt index. You sign it.'), ...o }); }
+      if (rcItems.length) { const { doc, P } = await mk(); for (const it of rcItems) await drawItem(doc, P, it); const o = await finish(doc, P, T('Receipts')); parts.push({ name: part('2-' + fn(T('Receipts'))) + '.pdf', label: T('Receipts'), what: nPl(rcItems.length, '{0} receipt, labelled with its reference.', '{0} receipts, each labelled with its reference.'), ...o }); }
+      for (const it of sdItems) { const { doc, P } = await mk(); await drawItem(doc, P, it); const lbl = `${T('SD')} ${it.ref}`; const o = await finish(doc, P, lbl); parts.push({ name: part('3-' + fn(T('SD')) + '-' + fn(it.ref)) + '.pdf', label: T('Statutory declaration {0}', it.ref), what: T('Signed by you and the officer, in person.'), ...o }); }
+      total = parts.reduce((t, x) => t + x.pages, 0); lastParts = parts;
+      lastPdf = parts[0];
+    }
+    const bytes = split ? null : lastPdf.bytes;
     if (DEV.db && DEV.settings.keep && !DEV.locked) { try { const meta = (await idbGet('meta')) || {}; meta.builtAt = Date.now(); await idbPut('meta', meta); } catch (e) {} }
-    const kb = bytes.length / 1024, size = kb > 1024 ? (kb / 1024).toFixed(1).replace('.', fr() ? ',' : '.') + (fr() ? ' Mo' : ' MB') : Math.round(kb) + (fr() ? ' Ko' : ' KB');
+    const sizeOf = n => { const kb = n / 1024; return kb > 1024 ? (kb / 1024).toFixed(1).replace('.', fr() ? ',' : '.') + (fr() ? ' Mo' : ' MB') : Math.round(kb) + (fr() ? ' Ko' : ' KB'); };
+    const size = split ? sizeOf(lastParts.reduce((t, x) => t + x.bytes.length, 0)) : sizeOf(bytes.length);
     const nDecl = items.filter(i => i.decl).length;
     status.textContent = '';
     const res = $('#result');
@@ -3986,6 +4170,15 @@ async function build() {
     const howTo = S.pki
       ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the claimant field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the claimant field on page {1} and the {0} declarations with your PKI certificate.', wsPages) : T('Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.', wsPages))
       : (nDecl ? nPl(nDecl, 'Print it, then sign and date page {1} and sign the {0} declaration in front of the officer.', 'Print it, then sign and date page {1} and sign the {0} declarations in front of the officer.', wsPages) : T('Print it, then sign and date page {0}.', wsPages));
+    if (split) {
+      const one = (x, i) => `<li><div><strong>${esc(x.label)}</strong><span class="pf-name">${esc(x.name)}</span><span>${esc(x.what)} ${esc(nPl(x.pages, '{0} page', '{0} pages'))}, ${esc(sizeOf(x.bytes.length))}.</span></div><div class="acts"><button class="btn" data-act="save-part" data-i="${i}">${esc(IOS_PWA && SEND.pdf ? T('Save or send') : T('Save'))}</button>${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-part" data-i="${i}">${esc(T('Open'))}</button>`}</div></li>`;
+      res.innerHTML = `<div><strong>${esc(nPl(lastParts.length, '{0} file ready', '{0} files ready'))}</strong><span>${esc(T('Separate PDFs, {0} in all. Sign each where it asks: the worksheet, and each declaration in front of the officer.', size))}${iosHint ? ' ' + esc(T('Save or send all of them at once, then choose Save to Files, OneDrive, Teams or Mail.')) : ''}</span></div>
+        <ol class="part-list">${lastParts.map(one).join('')}</ol>
+        <div class="acts"><button class="btn primary" data-act="save-all">${esc(IOS_PWA && SEND.pdf ? T('Save or send all') : T('Save all'))}</button>${SEND.pdf && !IOS_PWA ? `<button class="btn" data-act="send-all">${esc(T('Send all'))}</button>` : ''}</div>`;
+      res.classList.add('split'); res.hidden = false; res.scrollIntoView({ block: 'center' });
+      return;
+    }
+    res.classList.remove('split');
     res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${nPl(total, '{0} page', '{0} pages')}, ${size}. ${howTo}${iosHint}</span></div><div class="acts">${IOS_PWA && SEND.pdf ? `<button class="btn primary" data-act="send-pdf">${T('Save or send PDF')}</button>` : `<button class="btn primary" data-act="save-pdf">${T('Save PDF')}</button>${SEND.pdf ? `<button class="btn" data-act="send-pdf">${T('Send PDF')}</button>` : ''}`}${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-pdf">${T('Open in new tab')}</button>`}</div>`;
     res.hidden = false;
     if (!IOS_PWA) offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');

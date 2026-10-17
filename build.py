@@ -1,6 +1,7 @@
 import sys, re, pathlib
 base = pathlib.Path(sys.argv[1])
 src = (base / "app/app.html").read_text()
+src = src.replace("/*I18N_FR*/", (base / "app/fr.js").read_text().strip())  # French text, see app/fr.js
 # Versions: production shows VERSION; beta shows the next minor and its own build number (BETA_BUILD),
 # which release.py raises on every beta publish and resets when the beta is promoted.
 import datetime, zoneinfo

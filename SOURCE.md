@@ -12,3 +12,7 @@ This branch holds the source, build tools and tests. GitHub Pages publishes `mai
 - pdf-lib 1.17.1 (MIT) is in `npm/node_modules/pdf-lib/dist/`.
 
 To rebuild elsewhere: clone this branch, `pip install playwright pillow pypdf`, then `python3 build.py .`.
+
+## Legal wording
+
+Some statutory declaration sentences (English and French) were drafted for the tool rather than taken from DAOD 7000-1 or the Canada Evidence Act. They are listed, with their basis, in the doc "Statutory Declaration Wording for AJAG Review" (https://claude.ai/artifact/BqVDd7XQjyfp5DYipR8sgQ), pending AJAG review. Update that doc whenever `sdParagraphs`, `sdParagraphsFr`, `drawDeclaration` or the jurat tables change, and apply any AJAG changes in both languages.

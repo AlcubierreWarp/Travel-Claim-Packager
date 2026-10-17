@@ -122,7 +122,15 @@ dialog#snap::backdrop{background:rgba(5,8,7,.6)}
 .sd-grid.snap-grid .field:nth-child(n+3){grid-column:1/-1}
 @media (min-width: 561px){ .sd-grid.snap-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,1.6fr)} .sd-grid.snap-grid .field:nth-child(n+3){grid-column:auto} .sd-grid.snap-grid .field.wide{grid-column:1/-1} }
 .snap-foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--line)}
-.localonly{border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.localonly{border-bottom:1px solid var(--line);background:var(--accent-soft);touch-action:pan-y;overflow:hidden}
+.localonly[hidden]{display:none}
+.localonly .wrap{position:relative;padding-right:52px}
+.localonly.dragging .wrap{transition:none}
+.localonly .wrap{transition:transform .2s ease,opacity .2s ease}
+.lo-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--accent);cursor:pointer;padding:0}
+.lo-close:hover{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.lo-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.lo-more[open]~.lo-close,.localonly:has(.lo-more[open]) .lo-close{top:6px;transform:none}
 .localonly .wrap{display:flex;gap:10px;align-items:baseline;padding-block:7px;font-size:.84rem;flex-wrap:wrap}
 .localonly b{font:600 .7rem/1 var(--f-mono);letter-spacing:.1em;color:var(--accent);border:1px solid var(--accent);padding:3px 5px;border-radius:2px}
 
@@ -472,6 +480,7 @@ html{touch-action:manipulation}
           <button data-act="save-draft" id="save-draft">Save draft file</button>
           <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
+          <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
           <label class="menu-check"><input type="checkbox" id="opt-keep"> Keep my work on this device</label>
@@ -486,7 +495,7 @@ html{touch-action:manipulation}
     </div>
   </div>
 </header>
-<div class="localonly"><div class="wrap"><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div>
+<div class="localonly" id="localonly"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div>
 
 <div class="layout">
   <nav class="rail" aria-label="Worksheet sections" id="rail"></nav>
@@ -1608,6 +1617,8 @@ document.addEventListener('click', e => {
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
     case 'totop': toTop(); break;
+    case 'hide-notice': hideNotice(); break;
+    case 'show-notice': setMenu(false); showNotice(true); break;
     case 'open-draft': setMenu(false); $('#file-draft').click(); break;
     case 'build': build(); break;
     case 'menu': setMenu($('#menu').hidden); break;
@@ -1779,6 +1790,43 @@ function initRailFollow() {
   window.addEventListener('scroll', queue, { passive: true });
   window.addEventListener('resize', queue);
   queue();
+}
+// Local-only notice: can be hidden once read (X, or swipe on touch screens) and restored from the menu.
+// Remembered in this browser only, as a display preference.
+const LO_KEY = 'caf-dti-notice-hidden';
+function noticeHidden() { try { return localStorage.getItem(LO_KEY) === '1'; } catch (e) { return false; } }
+function setNotice(show) {
+  const el = $('#localonly'); if (el) { el.hidden = !show; const w = el.querySelector('.wrap'); w.style.transform = ''; w.style.opacity = ''; }
+  try { show ? localStorage.removeItem(LO_KEY) : localStorage.setItem(LO_KEY, '1'); } catch (e) {}
+  const m = $('#show-notice'); if (m) m.hidden = show;
+}
+function hideNotice() { setNotice(false); toast('Notice hidden. You can show it again from the menu.', { label: 'Undo', fn: () => setNotice(true) }); }
+function showNotice(scroll) { setNotice(true); if (scroll) window.scrollTo({ top: 0 }); }
+function initNotice() {
+  const el = $('#localonly'); if (!el) return;
+  if (noticeHidden()) setNotice(false); else { const m = $('#show-notice'); if (m) m.hidden = true; }
+  const w = el.querySelector('.wrap'); let x0 = 0, y0 = 0, dx = 0, mode = '', id = null, t0 = 0;
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || e.target.closest('button, summary, a')) return;
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; mode = ''; t0 = Date.now();
+  });
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== id) return;
+    const mx = e.clientX - x0, my = e.clientY - y0;
+    if (!mode) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.5) { mode = 'x'; el.classList.add('dragging'); try { el.setPointerCapture(id); } catch (err) {} } else if (Math.abs(my) > 10) { mode = 'y'; } }
+    if (mode !== 'x') return;
+    dx = mx; w.style.transform = `translateX(${dx}px)`; w.style.opacity = String(Math.max(0.2, 1 - Math.abs(dx) / el.clientWidth));
+  });
+  const end = e => {
+    if (e.pointerId !== id) return; id = null; el.classList.remove('dragging');
+    if (mode !== 'x') return;
+    const fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > 0.6 && Math.abs(dx) > 40;
+    if (Math.abs(dx) > el.clientWidth * 0.3 || fast) {
+      w.style.transform = `translateX(${dx < 0 ? -el.clientWidth : el.clientWidth}px)`; w.style.opacity = '0';
+      setTimeout(hideNotice, 180);
+    } else { w.style.transform = ''; w.style.opacity = ''; }
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
 }
 function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
 function initExtras() {
@@ -2427,7 +2475,7 @@ async function startBlank(msg) {
 
 /* ---------- boot ---------- */
 async function boot() {
-  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

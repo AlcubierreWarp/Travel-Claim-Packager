@@ -9,6 +9,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 - + Receipt no longer forces the camera: phones offer Take Photo, Photo Library or Files; the desktop button reads Add a receipt
 - Pull to refresh in the installed app: pull down from the top and release to save the claim and load the newest version, with a message saying whether it changed
 - Faster, reliable refresh: the app page is always checked with the server (GitHub lets phones reuse a copy for 10 minutes), and pull to refresh no longer waits on a full background update
+- Beta only: greyscale app icon and grey theme colour, so the beta is easy to tell apart from production
 - Beta build numbers: footer, menu and help emails show the beta build, build time and current production version
 
 ## 1.2 (16 Oct 2026)

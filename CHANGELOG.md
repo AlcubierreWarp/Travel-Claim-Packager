@@ -4,6 +4,8 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.6 (beta, in progress)
 
+- Beta only (stays out of production): violet colour theme in light and dark mode, so the beta is easy to tell apart from production's green
+
 ## 1.5 (17 Oct 2026)
 
 - Import itinerary moved to the top of the form, in its own card above the trip name

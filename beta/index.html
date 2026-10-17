@@ -343,11 +343,12 @@ fieldset.tg.off input{opacity:.3}
 .trip .sec-b{padding-block:14px}
 .trip label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
 .trip-in{font-size:1.1rem;font-weight:600;max-width:36rem}
-.trip-grid{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1fr);gap:12px 14px;align-items:end}
-.trip-grid .field{min-width:0}
-.trip-grid .trip-help{grid-column:1/-1;margin-top:0}
-.trip-grid input{width:100%;box-sizing:border-box}
-@media (max-width: 640px){ .trip-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .trip-grid .trip-name{grid-column:1/-1} }
+.trip-refs{display:grid;grid-template-columns:repeat(2,minmax(0,11rem));gap:6px 12px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.trip-refs[hidden]{display:none}
+.trip-refs .field{min-width:0}
+.trip .trip-refs label{font-size:.62rem;margin-bottom:3px}
+.trip-refs input{width:100%;box-sizing:border-box;font-size:.85rem;padding-block:5px}
+.trip-refs .sd-help{grid-column:1/-1;margin-top:0;font-size:.72rem}
 .imp-hero{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
 .imp-hero-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
 .imp-hero-t strong{font-size:.95rem}
@@ -570,7 +571,7 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.5 beta 3, built 17 Oct 2026 06:11 (production is 1.4)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.5 beta 4, built 17 Oct 2026 06:24 (production is 1.4)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -607,15 +608,18 @@ html{touch-action:manipulation}
 
     <section class="sec trip" id="sec-T">
       <div class="imp-hero" id="imp-hero">
-        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.</span></div>
+        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times.</span></div>
         <button class="btn primary" data-act="imp-open">Import itinerary</button>
       </div>
-      <div class="sec-b trip-grid">
-        <div class="field trip-name"><label for="trip-ref">Trip name</label>
-          <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE"></div>
-        <div class="field"><label for="trip-tan">TAN</label><input id="trip-tan" data-bind="tan" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
-        <div class="field"><label for="trip-loc">Trip locator</label><input id="trip-loc" data-bind="locator" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
-        <p class="sd-help trip-help">The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.</p>
+      <div class="sec-b">
+        <label for="trip-ref">Trip name</label>
+        <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE">
+        <p class="sd-help">Shown at the top of the PDF and used in the file name.</p>
+        <div class="trip-refs" id="trip-refs" hidden>
+          <div class="field"><label for="trip-tan">TAN</label><input id="trip-tan" data-bind="tan" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+          <div class="field"><label for="trip-loc">Trip locator</label><input id="trip-loc" data-bind="locator" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+          <p class="sd-help">From the imported itinerary. Printed under the title of the package.</p>
+        </div>
       </div>
     </section>
 
@@ -771,7 +775,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.5 beta 3, built 17 Oct 2026 06:11 (production is 1.4)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.5 beta 4, built 17 Oct 2026 06:24 (production is 1.4)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1113,6 +1117,7 @@ const FR = {
 "Form cleared.": "Formulaire effacé.",
 "Found": "Trouvé",
 "From an Amex GBT itinerary (PDF or email). Fills in the stops, dates and times.": "À partir d'un itinéraire d'Amex GBT (PDF ou courriel). Remplit les arrêts, les dates et les heures.",
+"From the imported itinerary. Printed under the title of the package.": "Tirés de l'itinéraire importé. Imprimés sous le titre du dossier.",
 "Fuel": "Carburant",
 "Full name, no initials": "Nom au complet, sans initiales",
 "G - Currency exchange": "G - Change",
@@ -1142,6 +1147,7 @@ const FR = {
 "Import an itinerary": "Importer un itinéraire",
 "Import itinerary": "Importer un itinéraire",
 "Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures, le TAN et le code de réservation du voyage.",
+"Import the PDF or email to fill in your stops, dates and times.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures.",
 "In progress": "En cours",
 "Include every city. Enter each place once, with the date and time you arrive and leave.": "Incluez chaque ville. Inscrivez chaque endroit une seule fois, avec la date et l'heure d'arrivée et de départ.",
 "Include rental vehicle info, gas, taxis, bus, train, air, PMV and parking etc.": "Inclure véhicule de location, essence, taxis, autobus, train, avion, VP, stationnement, etc.",
@@ -2271,6 +2277,7 @@ function renderMeals() {
 }
 function mealCounts() { const dates = tripDates() || [], c = { b: 0, l: 0, d: 0 }; dates.forEach(d => { MEALS.forEach(([k]) => { if (mealVal(d, k)) c[k]++; }); }); return { c, n: dates.length }; }
 function renderBinds() {
+  const refs = $('#trip-refs'); if (refs) refs.hidden = !(String(S.tan || '').trim() || String(S.locator || '').trim());
   $$('[data-bind]').forEach(el => {
     const v = getPath(el.dataset.bind);
     if (el.type === 'checkbox') { el.checked = !!v; return; }
@@ -3104,9 +3111,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.5-beta.3';
+const APP_VERSION = '1.5-beta.4';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.5 beta 3, built 17 Oct 2026 06:11 (production is 1.4)';
+const APP_LABEL = 'Version 1.5 beta 4, built 17 Oct 2026 06:24 (production is 1.4)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }

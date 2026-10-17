@@ -5,7 +5,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 ## 1.5 (beta, in progress)
 
 - Import itinerary moved to the top of the form, in its own card above the trip name
-- TAN and trip locator fields beside the trip name, printed under the title of the package; the import fills both from the itinerary
+- TAN and trip locator, filled by the import and printed under the title of the package. They appear under the trip name only when an imported itinerary (or an opened draft) has them, in smaller fields
 - Import can fill in the member's name (section A and the declarant's full name) from the itinerary. On a claim with a name already entered it is offered as a replacement and is off unless ticked; a blank claim fills it by default
 - Open windows (Import itinerary, Add a receipt, receipt preview) hold the screen: the form behind no longer scrolls on iPhone, and closing returns to the same place
 

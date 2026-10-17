@@ -2766,7 +2766,9 @@ async function build() {
       }
     }
     const pages = doc.getPages(), total = pages.length, Ff = P.F;
-    const left = P.clean([T('CAF Digital Travel Itinerary'), [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+    // The app version on every page (and in the file properties), so a package can be traced to the build that made it
+    const ver = 'v' + APP_VERSION.replace('-beta.', fr() ? ' bêta ' : ' beta ');
+    const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
     // Security marking, per DND guidance (marked at the top and bottom of each sensitive document) and the
     // GC rule that loose documents are marked on every sheet, in letters larger than the body text.
     // Top right and bottom right of every page, receipts included, on a white backing so it stays legible.
@@ -2785,7 +2787,8 @@ async function build() {
         p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
       }
     });
-    if (mark) { doc.setSubject(mark); doc.setKeywords([mark, T('CAF Digital Travel Itinerary')]); }
+    if (mark) doc.setSubject(mark);
+    doc.setKeywords([mark, T('CAF Digital Travel Itinerary'), ver, APP_LABEL].filter(Boolean));
     doc.setTitle([T('CAF Digital Travel Itinerary'), S.tripRef].filter(Boolean).join(' - '));
     doc.setLanguage(fr() ? 'fr-CA' : 'en-CA');
     doc.setAuthor(fullName());

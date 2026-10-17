@@ -29,7 +29,7 @@ async def main():
             async with q.expect_download() as dl: await q.click("#build-btn")
             hand = fx / f"hand-{lang}.pdf"; await (await dl.value).save_as(str(hand))
             sigs = [k for k, v in (PdfReader(str(hand)).get_fields() or {}).items() if v.get("/FT") == "/Sig"]
-            check(f"{lang}: By hand builds without PKI signature fields", sigs == [], sigs)
+            check(f"{lang}: Ink signature builds without PKI signature fields", sigs == [], sigs)
             await q.check("#pk-pki"); await q.wait_for_timeout(200)
             async with q.expect_download() as dl: await q.click("#build-btn")
             one = fx / f"one-{lang}.pdf"; await (await dl.value).save_as(str(one)); n_one = len(PdfReader(str(one)).pages)

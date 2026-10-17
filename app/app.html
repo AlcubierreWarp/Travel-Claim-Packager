@@ -749,7 +749,7 @@ html{touch-action:manipulation}
         <div class="sd-block">
           <h3>Declarations to be generated</h3>
           <ul class="sd-items" id="sd-items"></ul>
-          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or by hand (set under Build the package).</p>
+          <p class="sd-help">Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or in ink (set under Build the package).</p>
         </div>
         <div class="sd-block">
           <h3>Declarant</h3>
@@ -819,7 +819,7 @@ html{touch-action:manipulation}
           <span class="pk-out-l" id="pk-sign-l">Signing</span>
           <span class="seg">
             <label><input type="radio" name="pk-sign" value="pki" id="pk-pki"><span>PKI</span></label>
-            <label><input type="radio" name="pk-sign" value="hand" id="pk-hand"><span>By hand</span></label>
+            <label><input type="radio" name="pk-sign" value="hand" id="pk-hand"><span>Ink signature</span></label>
           </span>
           <span class="pk-out-hint" id="pk-sign-hint"></span>
         </div>
@@ -1203,7 +1203,7 @@ function rcHTML(sec, row, i) {
   if (row.lost) {
     const id = `${sec}-${row.id}-lostReason`;
     return `<div class="lost"><span class="pill warn">${T('Receipt missing')}</span>
-      <span class="lost-txt">${T('A statutory declaration for {0} replaces the receipt in the package.', `<b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b>`)} <span data-pkitxt>${S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.')}</span></span>
+      <span class="lost-txt">${T('A statutory declaration for {0} replaces the receipt in the package.', `<b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b>`)} <span data-pkitxt>${S.pki ? T('You sign it with your PKI certificate.') : T('You sign it in ink in front of the officer.')}</span></span>
       <div class="lost-why"><label for="${id}">${T('Unavailable because')}</label><input id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="lostReason" value="${esc(row.lostReason)}" maxlength="200" placeholder="${esc(T("e.g. the taxi's card machine did not print one"))}" autocomplete="off"></div>
       <button class="link-btn" data-act="unlose" data-sec="${sec}" data-row="${row.id}">${T('I have the receipt')}</button></div>`;
   }
@@ -1343,7 +1343,7 @@ function syncOut() {
   const h = $('#pk-out-hint'); if (h) h.textContent = S.split ? T('Worksheet, receipts and each declaration as their own files.') : T('Everything in one file.');
   $('#pk-pki').checked = !!S.pki; $('#pk-hand').checked = !S.pki;
   $('#pk-sign-hint').textContent = S.pki ? T('Signature fields for your PKI certificate in Adobe.') : T('Lines to sign on paper.');
-  $$('[data-pkitxt]').forEach(el => { el.textContent = S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.'); });
+  $$('[data-pkitxt]').forEach(el => { el.textContent = S.pki ? T('You sign it with your PKI certificate.') : T('You sign it in ink in front of the officer.'); });
   const b = $('#build-btn'); if (b && !b.classList.contains('busy')) b.textContent = S.split ? T('Build PDF files') : T('Build PDF package');
 }
 function renderBinds() {
@@ -1674,7 +1674,7 @@ function refresh() {
     ['Summary of amounts claimed', curs.length ? curs.map(c => `${fmtN(t[c])} ${c}`).join(', ') : T('nil')],
     ['Receipts, labelled', `${ev.n}`]];
   if (ev.lost) rows.push(['Missing receipt declarations', `${ev.lost}`]);
-  rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Signature lines, to sign by hand', `${1 + ev.lost * 2}`]);
+  rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Ink signature lines', `${1 + ev.lost * 2}`]);
   $('#contents').innerHTML = rows.map(([a, b]) => `<li><span>${esc(T(a))}</span><span>${esc(b)}</span></li>`).join('');
   persist();
 }

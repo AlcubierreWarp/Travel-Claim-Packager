@@ -534,6 +534,7 @@ html{touch-action:manipulation}
           <button data-act="save-draft" id="save-draft">Save draft file</button>
           <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
+          <button data-act="dl-offline" id="dl-offline">Download offline copy</button>
           <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -826,6 +827,9 @@ html{touch-action:manipulation}
 <script>
 (() => {
 'use strict';
+// The page as it arrived, before anything is filled in or rendered. "Download offline copy" builds
+// the offline file from this, so it never contains the member's data and needs no network.
+const PRISTINE = document.documentElement.outerHTML;
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -1772,6 +1776,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
+    case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
     case 'totop': toTop(); break;
@@ -2050,6 +2055,24 @@ function impApply() {
   redraw();
   setTimeout(() => { const el = $('#sec-B'); if (el) el.scrollIntoView({ block: 'start' }); }, 0); // after the page is unlocked
   toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); Object.assign(S, { stops: o.stops, transport: o.transport, member: o.member, sd: o.sd, tan: o.tan, locator: o.locator }); S.lodging.stays = o.stays; redraw(); } });
+}
+
+/* ---------- offline copy ---------- */
+// One .html file that opens with a double-click in any browser and runs with no internet connection.
+// Built from the page as it loaded (PRISTINE), with the strict offline policy that blocks all network
+// access and without the installed-app links, so it is the same as CAF_Digital_Travel_Itinerary.html.
+const OFFLINE_CSP = "__OFFLINE_CSP__";
+function offlineHtml() {
+  const h = PRISTINE
+    .replace(/<meta http-equiv="Content-Security-Policy" content="[^"]*">/, `<meta http-equiv="Content-Security-Policy" content="${OFFLINE_CSP}">`)
+    .replace(/<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\s*/g, '')
+    .replace(/<meta name="(?:theme-color|mobile-web-app-capable|apple-mobile-web-app-capable|apple-mobile-web-app-title)"[^>]*>\s*/g, '');
+  return '<!doctype html>\n' + h + '\n';
+}
+const offlineName = () => `${fr() ? 'Itineraire-voyage-numerique-FAC' : 'CAF_Digital_Travel_Itinerary'}_v${APP_VERSION}.html`;
+async function downloadOffline() {
+  const name = offlineName(), ok = await offerFile(name, new Blob([offlineHtml()], { type: 'text/html' }), 'text/html');
+  if (ok !== false) toast(T('{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.', name));
 }
 
 /* ---------- drafts ---------- */
@@ -2963,6 +2986,7 @@ function syncMenu() {
   [['#opt-keep', 'keep'], ['#opt-remember', 'remember'], ['#opt-pin', 'pin']].forEach(([id, k]) => { const el = $(id); el.checked = !!DEV.settings[k]; el.disabled = !ok || DEV.locked; });
   $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
   $('#forget-btn').disabled = !ok;
+  $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
   $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save draft file instead.');
   saveChip();
 }

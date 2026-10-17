@@ -3,6 +3,11 @@ base = pathlib.Path(sys.argv[1])
 src = (base / "app/app.html").read_text()
 src = src.replace("/*I18N_FR*/", (base / "app/fr.js").read_text().strip())  # French text, see app/fr.js
 src = src.replace("/*ITIN*/", (base / "app/itin.js").read_text().strip())  # itinerary reader, see app/itin.js
+# Policy of the offline single file: no network access at all. The app also uses it for "Download offline copy".
+OFFLINE_CSP = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
+       "img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; "
+       "object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'")
+src = src.replace("__OFFLINE_CSP__", OFFLINE_CSP)
 # Versions: production shows VERSION; beta shows the next minor and its own build number (BETA_BUILD),
 # which release.py raises on every beta publish and resets when the beta is promoted.
 import datetime, zoneinfo
@@ -33,9 +38,7 @@ inl = libs(src)
 # Standalone version: full document, no web fonts, strict policy that blocks all network access
 head, body = inl.split("<!--BODY-->", 1)
 head = re.sub(r"<!--FONTS-->.*?<!--/FONTS-->", "", head, flags=re.S)
-csp = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
-       "img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; "
-       "object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'")
+csp = OFFLINE_CSP
 doc = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
        f'<meta http-equiv="Content-Security-Policy" content="{csp}">\n'

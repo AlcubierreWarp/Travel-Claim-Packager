@@ -287,6 +287,7 @@ const FR = {
 "No calls to claim.": "Aucun appel à réclamer.",
 "No cost or receipt needed. Quarters are billed directly to the unit.": "Aucun coût ni reçu requis. Les quartiers sont facturés directement à l'unité.",
 "No currency exchanges. Add one for each exchange receipt you have.": "Aucune opération de change. Ajoutez-en une pour chaque reçu de change que vous avez.",
+"No file number": "Aucun numéro de dossier",
 "No flights, trains, buses or rental cars were found. This reader knows the Amex GBT itinerary layout. For anything else, enter the stops by hand.": "Aucun vol, train, autobus ou voiture de location n'a été trouvé. Cet outil reconnaît la présentation des itinéraires d'Amex GBT. Pour tout autre document, entrez les arrêts à la main.",
 "No full leave days yet. Travel days stay claimable.": "Aucune journée complète de congé pour l'instant. Les jours de déplacement restent remboursables.",
 "No general expenses. Laundry, internet, conference fees and similar go here.": "Aucuns frais généraux. La blanchisserie, Internet, les frais de conférence et autres frais semblables vont ici.",

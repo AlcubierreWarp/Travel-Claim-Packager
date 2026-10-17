@@ -740,7 +740,7 @@ html{touch-action:manipulation}
             <label class="check pki-opt"><input type="checkbox" id="opt-pkisig" data-bind="pki"> Sign with PKI (digital signature)</label>
             <p class="sd-help" id="pki-help"></p>
             <div class="sd-grid fn-grid">
-              <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="e.g. 7209-1"></div>
+              <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="No file number"></div>
               <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="UNCLAS">UNCLASSIFIED</option><option value="PA">PROTECTED A</option><option value="PB">PROTECTED B</option><option value="">None</option></select></div>
             </div>
             <p class="fname">File: <code id="fname"></code></p>
@@ -978,8 +978,11 @@ const ROWNEW = {
   exchange:  () => Object.assign({ date: '', location: '', soldAmt: '', soldCur: 'CAD', boughtAmt: '', boughtCur: 'USD', rate: '', charge: '', chargeCur: 'CAD' }, LOST()),
   calls:     () => Object.assign({ date: '', location: '', timeDur: '', number: '', person: '', kind: 'Business', cost: '', cur: 'CAD' }, LOST()),
 };
+// DSCDS 7209-1 Transportation and Travelling Expenses: used in file names until the member changes it.
+// fileNoSet records that they did, so a number they cleared on purpose stays cleared.
+const FILENO_DEFAULT = '7209-1';
 function blank() {
-  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: '', marking: 'PA',
+  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: FILENO_DEFAULT, fileNoSet: false, marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
@@ -1047,6 +1050,7 @@ function normalize(s) {
   for (const k of ['transport', 'general', 'exchange', 'calls']) if (!Array.isArray(o[k])) o[k] = [];
   for (const k of ['transport', 'general', 'exchange', 'calls', 'stays']) getArr(k, o).forEach((r, i, a) => { a[i] = Object.assign(ROWNEW[k](), r); a[i].id = r.id || uid(); a[i].rc = Array.isArray(r.rc) ? r.rc : []; });
   o.stops.forEach(s => { s.id = s.id || uid(); normMode(s); });
+  if (!o.fileNoSet && !String(o.fileNo || '').trim()) o.fileNo = FILENO_DEFAULT; // drafts from before the default
   return o;
 }
 
@@ -1650,6 +1654,7 @@ function normTime(v) {
 }
 function onBind(el, final) {
   const p = el.dataset.bind, fmt = el.dataset.fmt;
+  if (p === 'fileNo') S.fileNoSet = true;
   let v = el.type === 'checkbox' ? el.checked : el.value;
   if (fmt === 'ext') { v = v.replace(/\D/g, '').slice(0, 4); if (el.value !== v) el.value = v; }
   if (fmt === 'tel' && final) {
@@ -2926,10 +2931,10 @@ async function devSave() {
   } catch (e) { DEV.failed = true; }
   saveChip();
 }
-const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
+const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, fileNoSet: !!S.fileNoSet, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
 function profileSchedule() { if (!DEV.db || !DEV.settings.remember || DEV.locked || S.example) return; clearTimeout(profT); profT = setTimeout(async () => { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }, 900); }
 async function loadProfile() { if (!DEV.db || !DEV.settings.remember) return null; try { return await unseal(await idbGet('profile')); } catch (e) { return null; } }
-function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string') S.fileNo = p.fileNo; if (typeof p.marking === 'string') S.marking = p.marking; }
+function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string' && (p.fileNo.trim() || p.fileNoSet)) { S.fileNo = p.fileNo; S.fileNoSet = true; } if (typeof p.marking === 'string') S.marking = p.marking; }
 async function wipeClaim() { try { const keys = (await idbKeys()) || []; for (const k of keys) if (k === 'claim' || k === 'meta' || String(k).startsWith('rc:')) await idbDel(k); } catch (e) {} DEV.savedRc.clear(); DEV.lastSaved = 0; }
 async function restoreDevice() {
   if (!DEV.db || !DEV.settings.keep) return false;

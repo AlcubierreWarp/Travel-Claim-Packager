@@ -4,7 +4,9 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.4 (beta, in progress)
 
-- No changes yet
+- File names follow Date_FileNo_Marking_Details for the PDF package and the draft file, e.g. 20261102_7209-1_PB_TD-Claim_Winnipeg-Course_Capt-Sample.pdf
+- Optional file number and a security marking (PROTECTED B by default, PROTECTED A or none) in the Package section; remembered with your details
+- The security marking is printed at the top right of every page of the PDF
 
 ## 1.3 (17 Oct 2026)
 

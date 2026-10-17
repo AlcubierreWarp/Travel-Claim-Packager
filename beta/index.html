@@ -359,6 +359,8 @@ table.meals{width:100%;border-collapse:collapse;font-size:.88rem}
 
 /* package */
 .pk-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px}
+.fn-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:12px}
+.fn-grid .opt{font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0}
 .fname{margin:8px 0 0;font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
 .fname code{font-family:var(--f-mono);color:var(--ink)}
 .checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
@@ -509,7 +511,7 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver">Version 1.4 beta 1, built 17 Oct 2026 03:46 (production is 1.3)</p>
+          <p class="menu-note menu-ver">Version 1.4 beta 2, built 17 Oct 2026 03:58 (production is 1.3)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -685,6 +687,10 @@ html{touch-action:manipulation}
           <div>
             <label class="check pki-opt"><input type="checkbox" id="opt-pkisig" data-bind="pki"> Sign with PKI (digital signature)</label>
             <p class="sd-help" id="pki-help"></p>
+            <div class="sd-grid fn-grid">
+              <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="e.g. 7209-1"></div>
+              <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="PB">PROTECTED B</option><option value="PA">PROTECTED A</option><option value="">None</option></select></div>
+            </div>
             <p class="fname">File: <code id="fname"></code></p>
             <h3 style="margin-top:18px">What goes in</h3>
             <ul class="contents" id="contents"></ul>
@@ -698,7 +704,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4 beta 1, built 17 Oct 2026 03:46 (production is 1.3)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4 beta 2, built 17 Oct 2026 03:58 (production is 1.3)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -848,7 +854,7 @@ const ROWNEW = {
   calls:     () => Object.assign({ date: '', location: '', timeDur: '', number: '', person: '', kind: 'Business', cost: '', cur: 'CAD' }, LOST()),
 };
 function blank() {
-  return { v: 3, example: false, tripRef: '',
+  return { v: 3, example: false, tripRef: '', fileNo: '', marking: 'PB',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
@@ -1388,9 +1394,14 @@ function refreshPlaces() {
   LIST_SECS.forEach(sec => getArr(sec).forEach(r => { const l = rowLoc(sec, r); if (l && l.trim()) set.add(l.trim()); }));
   $('#dl-places').innerHTML = [...set].map(v => `<option value="${esc(v)}"></option>`).join('');
 }
+// File names follow Date_FileNo_Marking_Details: trip start date (or today), the optional file number,
+// the security marking, then what it is. Every output uses it: the PDF package and the draft file.
+const MARKINGS = { PB: 'PROTECTED B', PA: 'PROTECTED A', '': '' };
 function fileBase() {
-  const clean = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  return ['CAF_TRAVEL_ITINERARY', S.tripRef, S.member.rank, S.member.surname].map(clean).filter(Boolean).join('_');
+  const part = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const start = (S.stops[0] || {}).depDate, t = new Date(), today = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`, d = isoOk(start) ? start : today;
+  const who = [S.member.rank, S.member.surname].map(part).filter(Boolean).join('-');
+  return [d.replace(/-/g, ''), part(S.fileNo), S.marking || '', 'TD-Claim', part(S.tripRef), who].filter(Boolean).join('_');
 }
 
 /* ---------- persistence (this tab only) ---------- */
@@ -1725,8 +1736,8 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.4-beta.1';
-const APP_LABEL = 'Version 1.4 beta 1, built 17 Oct 2026 03:46 (production is 1.3)';
+const APP_VERSION = '1.4-beta.2';
+const APP_LABEL = 'Version 1.4 beta 2, built 17 Oct 2026 03:58 (production is 1.3)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -2267,6 +2278,8 @@ async function build() {
     }
     const pages = doc.getPages(), total = pages.length, Ff = P.F;
     const left = P.clean(['CAF Digital Travel Itinerary', [S.member.rank, S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+    const mark = MARKINGS[S.marking || ''];
+    if (mark) pages.forEach(p => { const { width: pw, height: ph } = p.getSize(); const mw = P.B.widthOfTextAtSize(mark, 9); p.drawText(mark, { x: pw - P.M - mw, y: ph - 22, size: 9, font: P.B, color: P.C.ink }); });
     pages.forEach((p, i) => { p.drawText(left, { x: P.M, y: 22, size: 7, font: Ff, color: P.C.mid }); const r = `Page ${i + 1} of ${total}`; p.drawText(r, { x: P.W - P.M - Ff.widthOfTextAtSize(r, 7), y: 22, size: 7, font: Ff, color: P.C.mid }); });
     doc.setTitle(['CAF Digital Travel Itinerary', S.tripRef].filter(Boolean).join(' - '));
     doc.setAuthor(fullName());
@@ -2455,10 +2468,10 @@ async function devSave() {
   } catch (e) { DEV.failed = true; }
   saveChip();
 }
-const profileOf = () => { const m = S.member, sd = S.sd; return { member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
+const profileOf = () => { const m = S.member, sd = S.sd; return { fileNo: S.fileNo, marking: S.marking, member: { pri: m.pri, rank: m.rank, surname: m.surname, given: m.given, section: m.section, tel: m.tel, ext: m.ext }, sd: { name: sd.name, street: sd.street, city: sd.city, prov: sd.prov, postal: sd.postal } }; };
 function profileSchedule() { if (!DEV.db || !DEV.settings.remember || DEV.locked || S.example) return; clearTimeout(profT); profT = setTimeout(async () => { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }, 900); }
 async function loadProfile() { if (!DEV.db || !DEV.settings.remember) return null; try { return await unseal(await idbGet('profile')); } catch (e) { return null; } }
-function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); }
+function applyProfile(p) { if (!p) return; Object.assign(S.member, p.member || {}); Object.assign(S.sd, p.sd || {}); if (typeof p.fileNo === 'string') S.fileNo = p.fileNo; if (typeof p.marking === 'string') S.marking = p.marking; }
 async function wipeClaim() { try { const keys = (await idbKeys()) || []; for (const k of keys) if (k === 'claim' || k === 'meta' || String(k).startsWith('rc:')) await idbDel(k); } catch (e) {} DEV.savedRc.clear(); DEV.lastSaved = 0; }
 async function restoreDevice() {
   if (!DEV.db || !DEV.settings.keep) return false;

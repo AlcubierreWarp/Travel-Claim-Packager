@@ -4,6 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.6 (beta, in progress)
 
+- Download offline copy (menu): saves the whole app as one .html file (about 2.3 MB, named with the version) that opens with a double-click in any browser and runs with no internet connection. It is built on the device from the page as it loaded, so it never contains the claim in progress, and it uses the strict no-network policy of the offline single file. Works on desktop, Android and the installed iPhone app (through the share sheet)
 - Beta only (stays out of production): violet colour theme in light and dark mode, so the beta is easy to tell apart from production's green
 - Beta only (stays out of production): Beta badge after the page title, matching the import button's tag (Bêta in French)
 

@@ -592,6 +592,7 @@ html{touch-action:manipulation}
           <button data-act="save-draft" id="save-draft">Save draft file</button>
           <button data-act="send-draft" id="send-draft" hidden>Send draft file</button>
           <button data-act="clear" id="clear-btn">Clear form</button>
+          <button data-act="dl-offline" id="dl-offline">Download offline copy</button>
           <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -601,7 +602,7 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 3, built 17 Oct 2026 12:18 (production is 1.5)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 4, built 17 Oct 2026 12:40 (production is 1.5)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -805,7 +806,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 3, built 17 Oct 2026 12:18 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 4, built 17 Oct 2026 12:40 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -944,6 +945,9 @@ html{touch-action:manipulation}
 <script>
 (() => {
 'use strict';
+// The page as it arrived, before anything is filled in or rendered. "Download offline copy" builds
+// the offline file from this, so it never contains the member's data and needs no network.
+const PRISTINE = document.documentElement.outerHTML;
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -1105,6 +1109,7 @@ const FR = {
 "Digital signature": "Signature numérique",
 "Dinner": "Souper",
 "Dinner (short)": "Soup.",
+"Download offline copy": "Télécharger une copie hors ligne",
 "Drop receipts onto the expense or stay they belong to.": "Déposez les reçus sur la dépense ou le séjour auquel ils se rapportent.",
 "Déj.": "Déj.",
 "Dîn.": "Dîn.",
@@ -1595,6 +1600,7 @@ const FR = {
 "{0} receipt was too large to keep after the reload. Please attach it again.": "{0} reçu était trop volumineux pour être conservé après le rechargement. Veuillez le joindre de nouveau.",
 "{0} receipts attached": "{0} reçus joints",
 "{0} receipts were too large to keep after the reload. Please attach them again.": "{0} reçus étaient trop volumineux pour être conservés après le rechargement. Veuillez les joindre de nouveau.",
+"{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.": "{0} enregistré. Double-cliquez dessus pour l'ouvrir dans n'importe quel navigateur. Il fonctionne sans connexion Internet et se partage comme tout autre fichier (Teams, OneDrive, clé USB). Certains systèmes de courriel bloquent les pièces jointes .html.",
 "{0} stay added to section D.": "{0} séjour ajouté à la section D.",
 "{0} stays added to section D.": "{0} séjours ajoutés à la section D.",
 "{0} time, 24 hour": "{0}, heure (24 h)",
@@ -2849,6 +2855,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
+    case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
     case 'totop': toTop(); break;
@@ -3129,6 +3136,24 @@ function impApply() {
   toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); Object.assign(S, { stops: o.stops, transport: o.transport, member: o.member, sd: o.sd, tan: o.tan, locator: o.locator }); S.lodging.stays = o.stays; redraw(); } });
 }
 
+/* ---------- offline copy ---------- */
+// One .html file that opens with a double-click in any browser and runs with no internet connection.
+// Built from the page as it loaded (PRISTINE), with the strict offline policy that blocks all network
+// access and without the installed-app links, so it is the same as CAF_Digital_Travel_Itinerary.html.
+const OFFLINE_CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'";
+function offlineHtml() {
+  const h = PRISTINE
+    .replace(/<meta http-equiv="Content-Security-Policy" content="[^"]*">/, `<meta http-equiv="Content-Security-Policy" content="${OFFLINE_CSP}">`)
+    .replace(/<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\s*/g, '')
+    .replace(/<meta name="(?:theme-color|mobile-web-app-capable|apple-mobile-web-app-capable|apple-mobile-web-app-title)"[^>]*>\s*/g, '');
+  return '<!doctype html>\n' + h + '\n';
+}
+const offlineName = () => `${fr() ? 'Itineraire-voyage-numerique-FAC' : 'CAF_Digital_Travel_Itinerary'}_v${APP_VERSION}.html`;
+async function downloadOffline() {
+  const name = offlineName(), ok = await offerFile(name, new Blob([offlineHtml()], { type: 'text/html' }), 'text/html');
+  if (ok !== false) toast(T('{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.', name));
+}
+
 /* ---------- drafts ---------- */
 function draftPayload() { return JSON.stringify({ app: 'caf-digital-travel-itinerary', v: 3, ver: APP_VERSION, saved: new Date().toISOString(), state: S, receipts: liveReceipts() }); }
 const draftSuffix = () => fr() ? '_BROUILLON' : '_DRAFT';
@@ -3141,9 +3166,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.6-beta.3';
+const APP_VERSION = '1.6-beta.4';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.6 beta 3, built 17 Oct 2026 12:18 (production is 1.5)';
+const APP_LABEL = 'Version 1.6 beta 4, built 17 Oct 2026 12:40 (production is 1.5)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4040,6 +4065,7 @@ function syncMenu() {
   [['#opt-keep', 'keep'], ['#opt-remember', 'remember'], ['#opt-pin', 'pin']].forEach(([id, k]) => { const el = $(id); el.checked = !!DEV.settings[k]; el.disabled = !ok || DEV.locked; });
   $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
   $('#forget-btn').disabled = !ok;
+  $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
   $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save draft file instead.');
   saveChip();
 }

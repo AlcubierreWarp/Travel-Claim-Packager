@@ -7,6 +7,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 - File names follow Date_FileNo_Marking_Details for the PDF package and the draft file, e.g. 20261102_7209-1_PA_TD-Claim_Winnipeg-Course_Capt-Sample.pdf
 - Optional file number and a security marking (UNCLASSIFIED, PROTECTED A by default, PROTECTED B, or none) in the Package section; remembered with your details
 - Security marking printed at the top right and bottom right of every page of the PDF (receipts included), larger than the body text, per DND guidance to mark the top and bottom of sensitive documents; page number moves to the centre; marking also set in the PDF properties
+- French: Français / English button in the header (FR / EN on phones), remembered on the device and defaulting to the browser language. The whole interface, help and feedback emails, file names and the PDF package switch language, including the statutory declaration with the French DOAD 7000-1 wording and provincial jurats, French rank names, French dates and decimal commas, and PROTÉGÉ A / PROTÉGÉ B / NON CLASSIFIÉ markings
 - Beta-only layer: beta.css and a beta marker are added to the beta build only; a release check stops any promotion that would carry beta-only content into production
 - Source, build tools and tests saved to the source branch (not published)
 

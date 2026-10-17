@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-channel="beta">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -479,6 +479,16 @@ html{touch-action:manipulation}
 }
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
 </style>
+<style id="beta-only">
+/* BETA ONLY. This stylesheet is added to the /beta/ build and never to production.
+   Put beta-specific visual changes here. Everything in the main app (app/app.html) goes to
+   both. The page also carries <html data-channel="beta">, and APP_CHANNEL === 'beta' in script,
+   for anything that needs to differ in behaviour. To promote a beta-only change to production,
+   move it into app/app.html.
+   Build-time beta differences (in build.py): greyscale icons, grey theme and launch colour,
+   "CAF Travel Beta" app name, beta build number in the version label. */
+
+</style>
 </head>
 <body>
 
@@ -511,7 +521,7 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver">Version 1.4 beta 3, built 17 Oct 2026 04:02 (production is 1.3)</p>
+          <p class="menu-note menu-ver">Version 1.4 beta 4, built 17 Oct 2026 04:07 (production is 1.3)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -704,7 +714,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4 beta 3, built 17 Oct 2026 04:02 (production is 1.3)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4 beta 4, built 17 Oct 2026 04:07 (production is 1.3)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1736,8 +1746,9 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.4-beta.3';
-const APP_LABEL = 'Version 1.4 beta 3, built 17 Oct 2026 04:02 (production is 1.3)';
+const APP_VERSION = '1.4-beta.4';
+const APP_CHANNEL = 'beta'; // 'beta' or 'production'
+const APP_LABEL = 'Version 1.4 beta 4, built 17 Oct 2026 04:07 (production is 1.3)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }

@@ -130,8 +130,9 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .imp-opts .sub{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
 .imp-warn{margin:12px 0 0;padding:8px 10px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-size:.86rem}
 .imp-busy{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
-.pk-out{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:18px 0 14px}
-.pk-out-l{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.pk-opts{display:flex;flex-direction:column;gap:10px;margin:18px 0 16px}
+.pk-out{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.pk-out-l{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);min-width:5.2rem}
 .seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden;background:var(--field)}
 .seg label{position:relative;display:block;cursor:pointer}
 .seg label+label{border-left:1px solid var(--line-strong)}
@@ -369,8 +370,6 @@ fieldset.tg.off input{opacity:.3}
 .imp-hero .pill-beta{margin-left:4px}
 @media (max-width: 560px){ .imp-hero .btn{width:100%} }
 .trip .sd-help{margin-top:6px}
-.pki-opt{font-weight:600}
-#pki-help{margin:4px 0 12px}
 .leave-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px}
 .leave-days{font-size:.8rem;color:var(--warn)}
 .stop.is-leave .stop-card{border-style:dashed;border-color:var(--warn);background:color-mix(in srgb,var(--warn-soft) 45%,var(--card))}
@@ -798,8 +797,6 @@ html{touch-action:manipulation}
             <ul class="checks" id="checks"></ul>
           </div>
           <div>
-            <label class="check pki-opt"><input type="checkbox" id="opt-pkisig" data-bind="pki"> Sign with PKI (digital signature)</label>
-            <p class="sd-help" id="pki-help"></p>
             <div class="sd-grid fn-grid">
               <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="No file number"></div>
               <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="UNCLAS">UNCLASSIFIED</option><option value="PA">PROTECTED A</option><option value="PB">PROTECTED B</option><option value="">None</option></select></div>
@@ -809,6 +806,7 @@ html{touch-action:manipulation}
             <ul class="contents" id="contents"></ul>
           </div>
         </div>
+        <div class="pk-opts">
         <div class="pk-out" role="radiogroup" aria-labelledby="pk-out-l" aria-describedby="pk-out-hint">
           <span class="pk-out-l" id="pk-out-l">Output</span>
           <span class="seg">
@@ -816,6 +814,15 @@ html{touch-action:manipulation}
             <label><input type="radio" name="pk-split" value="split" id="pk-split"><span>Separate PDFs</span></label>
           </span>
           <span class="pk-out-hint" id="pk-out-hint"></span>
+        </div>
+        <div class="pk-out" role="radiogroup" aria-labelledby="pk-sign-l" aria-describedby="pk-sign-hint">
+          <span class="pk-out-l" id="pk-sign-l">Signing</span>
+          <span class="seg">
+            <label><input type="radio" name="pk-sign" value="pki" id="pk-pki"><span>PKI</span></label>
+            <label><input type="radio" name="pk-sign" value="hand" id="pk-hand"><span>By hand</span></label>
+          </span>
+          <span class="pk-out-hint" id="pk-sign-hint"></span>
+        </div>
         </div>
         <div class="build-row">
           <button class="btn primary big" data-act="build" id="build-btn">Build PDF package</button>
@@ -1196,7 +1203,7 @@ function rcHTML(sec, row, i) {
   if (row.lost) {
     const id = `${sec}-${row.id}-lostReason`;
     return `<div class="lost"><span class="pill warn">${T('Receipt missing')}</span>
-      <span class="lost-txt">${T('A statutory declaration for {0} replaces the receipt in the package.', `<b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b>`)} ${S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.')}</span>
+      <span class="lost-txt">${T('A statutory declaration for {0} replaces the receipt in the package.', `<b data-lostamt="${sec}:${row.id}">${esc(lostAmtText(sec, row))}</b>`)} <span data-pkitxt>${S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.')}</span></span>
       <div class="lost-why"><label for="${id}">${T('Unavailable because')}</label><input id="${id}" data-sec="${sec}" data-row="${row.id}" data-k="lostReason" value="${esc(row.lostReason)}" maxlength="200" placeholder="${esc(T("e.g. the taxi's card machine did not print one"))}" autocomplete="off"></div>
       <button class="link-btn" data-act="unlose" data-sec="${sec}" data-row="${row.id}">${T('I have the receipt')}</button></div>`;
   }
@@ -1334,6 +1341,9 @@ function syncOut() {
   const one = $('#pk-one'), sp = $('#pk-split'); if (!one) return;
   one.checked = !S.split; sp.checked = !!S.split;
   const h = $('#pk-out-hint'); if (h) h.textContent = S.split ? T('Worksheet, receipts and each declaration as their own files.') : T('Everything in one file.');
+  $('#pk-pki').checked = !!S.pki; $('#pk-hand').checked = !S.pki;
+  $('#pk-sign-hint').textContent = S.pki ? T('Signature fields for your PKI certificate in Adobe.') : T('Lines to sign on paper.');
+  $$('[data-pkitxt]').forEach(el => { el.textContent = S.pki ? T('You sign it with your PKI certificate.') : T('You sign it by hand in front of the officer.'); });
   const b = $('#build-btn'); if (b && !b.classList.contains('busy')) b.textContent = S.split ? T('Build PDF files') : T('Build PDF package');
 }
 function renderBinds() {
@@ -1665,7 +1675,6 @@ function refresh() {
     ['Receipts, labelled', `${ev.n}`]];
   if (ev.lost) rows.push(['Missing receipt declarations', `${ev.lost}`]);
   rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Signature lines, to sign by hand', `${1 + ev.lost * 2}`]);
-  $('#pki-help').textContent = S.pki ? T('The PDF gets digital signature fields to sign in Adobe with a PKI certificate. The signature records the date, so no date line is added.') : T('The PDF gets lines to sign by hand, with a date line beside your signature. Print it, sign it, and scan it if your Orderly Room wants it electronically.');
   $('#contents').innerHTML = rows.map(([a, b]) => `<li><span>${esc(T(a))}</span><span>${esc(b)}</span></li>`).join('');
   persist();
 }
@@ -1906,6 +1915,7 @@ document.addEventListener('change', e => {
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
   if (el.name === 'pk-split') { S.split = el.value === 'split'; touch(el); persist(); syncOut(); return; }
+  if (el.name === 'pk-sign') { S.pki = el.value === 'pki'; touch(el); persist(); refresh(); syncOut(); return; }
   if (el.id === 'file-itin') { const fs = [...el.files]; el.value = ''; if (fs.length) impFiles(fs); return; }
   if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels', 'imp-name': 'name' }[el.id]] = el.checked; impRender(); return; }
   if (el.id === 'file-snap') { const f = el.files[0]; el.value = ''; if (f) openSnap(f); return; }

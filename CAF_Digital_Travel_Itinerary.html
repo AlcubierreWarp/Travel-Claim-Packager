@@ -117,7 +117,6 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .pill-beta{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid currentColor;border-radius:999px;font:700 .6rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;opacity:.85}
 .imp-betanote{display:flex;gap:8px;align-items:baseline;margin:0 0 12px;padding:8px 10px;border-radius:3px;background:var(--card);border:1px solid var(--line);font-size:.82rem;color:var(--muted)}
 .imp-betanote .pill-beta{margin-left:0;flex:none;color:var(--ink)}
-.imp-tools{margin:0 0 12px}
 .imp-lead{margin:0 0 12px;font-size:.9rem}
 .imp-drop{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border:1px dashed var(--line-strong);border-radius:4px;padding:14px;background:var(--card);margin-bottom:14px}
 .imp-drop.dragover{border-color:var(--accent);background:var(--field)}
@@ -336,6 +335,18 @@ fieldset.tg.off input{opacity:.3}
 .trip .sec-b{padding-block:14px}
 .trip label{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
 .trip-in{font-size:1.1rem;font-weight:600;max-width:36rem}
+.trip-refs{display:grid;grid-template-columns:repeat(2,minmax(0,11rem));gap:6px 12px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.trip-refs[hidden]{display:none}
+.trip-refs .field{min-width:0}
+.trip .trip-refs label{font-size:.62rem;margin-bottom:3px}
+.trip-refs input{width:100%;box-sizing:border-box;font-size:.85rem;padding-block:5px}
+.trip-refs .sd-help{grid-column:1/-1;margin-top:0;font-size:.72rem}
+.imp-hero{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+.imp-hero-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
+.imp-hero-t strong{font-size:.95rem}
+.imp-hero-t > span{font-size:.82rem;color:var(--muted)}
+.imp-hero .pill-beta{margin-left:4px}
+@media (max-width: 560px){ .imp-hero .btn{width:100%} }
 .trip .sd-help{margin-top:6px}
 .pki-opt{font-weight:600}
 #pki-help{margin:4px 0 12px}
@@ -436,6 +447,9 @@ dialog#lb button{background:#fff;color:#111;border:0;border-radius:3px;padding:6
 .ptr.spin svg{animation:ptrspin .8s linear infinite}
 @keyframes ptrspin{to{transform:rotate(360deg)}}
 html.standalone{overscroll-behavior-y:none}
+/* an open dialog holds the screen: the page behind it does not scroll (iPhone ignores overflow alone) */
+html.modal-open,html.modal-open body{overflow:hidden}
+dialog,dialog .snap-body{overscroll-behavior:contain}
 .totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:15;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:0;transition:opacity .2s,transform .2s}
 .totop[hidden]{display:grid;opacity:0;pointer-events:none;transform:translateY(8px)}
 .totop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
@@ -538,7 +552,7 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.4, updated 17 Oct 2026</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.5, updated 17 Oct 2026</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -574,10 +588,19 @@ html{touch-action:manipulation}
     </div>
 
     <section class="sec trip" id="sec-T">
+      <div class="imp-hero" id="imp-hero">
+        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times.</span></div>
+        <button class="btn primary" data-act="imp-open">Import itinerary</button>
+      </div>
       <div class="sec-b">
         <label for="trip-ref">Trip name</label>
         <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE">
         <p class="sd-help">Shown at the top of the PDF and used in the file name.</p>
+        <div class="trip-refs" id="trip-refs" hidden>
+          <div class="field"><label for="trip-tan">TAN</label><input id="trip-tan" data-bind="tan" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+          <div class="field"><label for="trip-loc">Trip locator</label><input id="trip-loc" data-bind="locator" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+          <p class="sd-help">From the imported itinerary. Printed under the title of the package.</p>
+        </div>
       </div>
     </section>
 
@@ -612,7 +635,6 @@ html{touch-action:manipulation}
     <section class="sec" id="sec-B">
       <header class="sec-h"><span class="L">B</span><h2>Travel itinerary</h2><p class="hint">Include every city. Enter each place once, with the date and time you arrive and leave.</p></header>
       <div class="sec-b">
-        <div class="sec-tools imp-tools"><button class="btn" data-act="imp-open">Import itinerary <span class="pill-beta">Beta</span></button><span class="drophint">From an Amex GBT itinerary (PDF or email). Fills in the stops, dates and times.</span></div>
         <ol id="itin"></ol>
       </div>
     </section>
@@ -734,7 +756,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.4, updated 17 Oct 2026</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.5, updated 17 Oct 2026</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -777,7 +799,7 @@ html{touch-action:manipulation}
   <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
-      <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. The file is read on this device and is not uploaded.</p>
+      <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.</p>
       <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.</span></p>
       <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.</span></div>
       <label for="imp-text" class="imp-or">Or paste the itinerary text from the email</label>
@@ -1060,7 +1082,9 @@ const FR = {
 "File number": "Numéro de dossier",
 "File:": "Fichier :",
 "File: {0}": "Fichier : {0}",
+"Fill in your name: {0}": "Remplir votre nom : {0}",
 "Fill section B": "Remplir la section B",
+"Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.": "Remplit la section B à partir d'un itinéraire d'Amex GBT : vols, trains, autobus et voitures de location, avec leurs dates et heures. Remplit aussi le TAN et le code de réservation du voyage, ainsi que votre nom si vous le choisissez. Le fichier est lu sur cet appareil et n'est pas téléversé.",
 "Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. The file is read on this device and is not uploaded.": "Remplit la section B à partir d'un itinéraire d'Amex GBT : vols, trains, autobus et voitures de location, avec leurs dates et heures. Le fichier est lu sur cet appareil et n'est pas téléversé.",
 "Final location": "Lieu d'arrivée",
 "Finish": "Arrivée",
@@ -1074,6 +1098,7 @@ const FR = {
 "Form cleared.": "Formulaire effacé.",
 "Found": "Trouvé",
 "From an Amex GBT itinerary (PDF or email). Fills in the stops, dates and times.": "À partir d'un itinéraire d'Amex GBT (PDF ou courriel). Remplit les arrêts, les dates et les heures.",
+"From the imported itinerary. Printed under the title of the package.": "Tirés de l'itinéraire importé. Imprimés sous le titre du dossier.",
 "Fuel": "Carburant",
 "Full name, no initials": "Nom au complet, sans initiales",
 "G - Currency exchange": "G - Change",
@@ -1084,6 +1109,7 @@ const FR = {
 "Given name and initials": "Prénoms et initiales",
 "H - Calls": "H - Appels",
 "HHMM": "HHMM",
+"Have an Amex GBT itinerary?": "Vous avez un itinéraire d'Amex GBT?",
 "Hello,": "Bonjour,",
 "Help": "Aide",
 "Help Request": "Demande d'aide",
@@ -1101,6 +1127,8 @@ const FR = {
 "IN THE MATTER OF": "EN CE QUI CONCERNE",
 "Import an itinerary": "Importer un itinéraire",
 "Import itinerary": "Importer un itinéraire",
+"Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures, le TAN et le code de réservation du voyage.",
+"Import the PDF or email to fill in your stops, dates and times.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures.",
 "In progress": "En cours",
 "Include every city. Enter each place once, with the date and time you arrive and leave.": "Incluez chaque ville. Inscrivez chaque endroit une seule fois, avec la date et l'heure d'arrivée et de départ.",
 "Include rental vehicle info, gas, taxis, bus, train, air, PMV and parking etc.": "Inclure véhicule de location, essence, taxis, autobus, train, avion, VP, stationnement, etc.",
@@ -1146,6 +1174,7 @@ const FR = {
 "Must record all telephone calls requested for reimbursement": "Consigner tous les appels dont on demande le remboursement",
 "N/A": "S.O.",
 "NIL": "NÉANT",
+"Name filled in from the itinerary.": "Nom rempli à partir de l'itinéraire.",
 "Name, in full": "Nom, au complet",
 "Names on a statutory declaration must be in full, without initials in brackets.": "Les noms dans une déclaration solennelle doivent être au complet, sans initiales entre parenthèses.",
 "Navy": "Marine",
@@ -1172,6 +1201,7 @@ const FR = {
 "Not started yet: {0}. These are checked when you fill them in or build the package.": "Pas encore commencé : {0}. Ces sections sont vérifiées quand vous les remplissez ou créez la trousse.",
 "Nothing you type or attach leaves this browser.": "Rien de ce que vous saisissez ou joignez ne quitte ce navigateur.",
 "Notice hidden. You can show it again from the menu.": "Avis masqué. Vous pouvez l'afficher de nouveau à partir du menu.",
+"Now: {0}. Your saved details change too if Remember my details is on.": "Actuellement : {0}. Vos renseignements enregistrés changent aussi si l'option Mémoriser mes renseignements est activée.",
 "Number and street, unit": "Numéro et rue, unité",
 "Number called": "Numéro composé",
 "Officer taking the declaration (if known)": "Officier qui reçoit la déclaration (s'il est connu)",
@@ -1287,6 +1317,7 @@ const FR = {
 "Rental vehicle, gas, taxis, bus, train, air, PMV, parking, tolls": "Véhicule de location, essence, taxis, autobus, train, avion, VP, stationnement, péages",
 "Repeat PIN": "Confirmer le NIP",
 "Replace section B": "Remplacer la section B",
+"Replace your name with the one on the itinerary: {0}": "Remplacer votre nom par celui de l'itinéraire : {0}",
 "Residence": "Résidence",
 "Review and build": "Vérifier et créer",
 "Rideshare": "Covoiturage",
@@ -1309,6 +1340,7 @@ const FR = {
 "Saving": "Enregistrement",
 "Saving files is not available in this view. Use the standalone copy of this tool.": "L'enregistrement de fichiers n'est pas disponible dans cet affichage. Utilisez la copie autonome de cet outil.",
 "Section": "Section",
+"Section A and the statutory declaration.": "Section A et déclaration solennelle.",
 "Section B will list": "La section B contiendra",
 "Section {0}: ": "Section {0} : ",
 "Security marking": "Marque de sécurité",
@@ -1350,6 +1382,11 @@ const FR = {
 "Summary of amounts entered": "Sommaire des montants inscrits",
 "Supplies": "Fournitures",
 "Surname": "Nom de famille",
+"TAN": "TAN",
+"TAN and trip locator filled in.": "TAN et code de réservation du voyage remplis.",
+"TAN filled in.": "TAN rempli.",
+"TAN {0}.": "TAN {0}.",
+"TAN: {0}": "TAN : {0}",
 "TO WIT:": "À SAVOIR :",
 "Tab only": "Onglet seulement",
 "Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.": "Touchez Enregistrer ou envoyer le PDF, puis choisissez Enregistrer dans Fichiers, OneDrive, Teams ou Mail.",
@@ -1369,6 +1406,7 @@ const FR = {
 "The final location has no name.": "Le lieu d'arrivée n'a pas de nom.",
 "The member, trip and receipts are made up so you can see how the package comes out.": "Le membre, le voyage et les reçus sont fictifs pour vous montrer le résultat de la trousse.",
 "The starting location has no name.": "Le lieu de départ n'a pas de nom.",
+"The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.": "Le nom du voyage figure en haut du PDF et dans le nom du fichier. Le TAN et le code de réservation du voyage sont imprimés en dessous.",
 "The two PINs do not match.": "Les deux NIP ne correspondent pas.",
 "This PDF could not be added to the package. It may be password-protected or damaged. Submit \"{0}\" separately with this claim.": "Ce PDF n'a pas pu être ajouté à la trousse. Il est peut-être protégé par un mot de passe ou endommagé. Soumettez « {0} » séparément avec cette réclamation.",
 "This browser cannot read iPhone HEIC photos. Set the camera to \"Most Compatible\".": "Ce navigateur ne peut pas lire les photos HEIC de l'iPhone. Réglez l'appareil photo sur « Le plus compatible ».",
@@ -1398,7 +1436,10 @@ const FR = {
 "Travel itinerary / Itineraire de voyage": "Itinéraire de voyage / Travel itinerary",
 "Trip": "Voyage",
 "Trip ends here": "Le voyage se termine ici",
+"Trip locator": "Code de réservation du voyage",
+"Trip locator filled in.": "Code de réservation du voyage rempli.",
 "Trip locator {0}.": "Code de réservation du voyage {0}.",
+"Trip locator: {0}": "Code de réservation du voyage : {0}",
 "Trip name": "Nom du voyage",
 "Trip starts here": "Le voyage commence ici",
 "Trip: {0}": "Voyage : {0}",
@@ -1599,10 +1640,32 @@ const ITIN = (() => {
     sum: /^(\d{1,2} [a-zéû]{3,9}\.? \d{4}) ([A-Z]{3}) ?- ?([A-Z]{3}) ([A-Z0-9]{2} ?\d{1,4}) (\d{1,2}:\d{2}) ?- ?(\d{1,2}:\d{2})/i,
   };
 
+  // "Traveller: | Mr THOMAS SAMPLE | DOE | Travel Directive Module : | ..." -> given and surname, in normal case.
+  // The itinerary puts given names and surname in separate cells (" | " between them). Without cells
+  // (pasted text), the capitalised words before the next label are the name and the last one is the surname.
+  const TITLE = /^(?:mr|mrs|ms|miss|mx|dr|m|mme|mlle)\.?$/i;
+  const nameCase = v => v.toLowerCase().replace(/(^|[\s'’-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
+  function traveller(lines) {
+    for (const raw of lines) {
+      const m = String(raw).replace(/\t/g, ' | ').replace(/[\u00a0\s]+/g, ' ').trim().match(/^(?:traveller|traveler|voyageur|voyageuse)\s*:\s*(.*)$/i); if (!m) continue;
+      let cells = m[1].split('|').map(x => x.trim()).filter(Boolean);
+      const stop = cells.findIndex(c => c.includes(':')); if (stop >= 0) cells = cells.slice(0, stop);
+      const words = c => c.split(' ').filter(w => !TITLE.test(w));
+      let given, surname;
+      if (cells.length >= 2) { given = words(cells[0]).join(' '); surname = cells[1]; }
+      else {
+        const caps = []; for (const w of words(m[1].split(':')[0].replace(/\|/g, ' ').replace(/\s+/g, ' ').trim())) { if (/^[\p{Lu}'’-]+$/u.test(w)) caps.push(w); else break; }
+        if (caps.length < 2) continue; surname = caps.pop(); given = caps.join(' ');
+      }
+      if (given && surname) return { given: nameCase(given), surname: nameCase(surname) };
+    }
+    return null;
+  }
+
   // lines: the document text, one visual line per entry
   function parse(lines) {
     const L = lines.map(l => String(l).replace(/\s*\|\s*/g, ' ').replace(/[ \s]+/g, ' ').trim()).filter(Boolean);
-    const segs = [], hotels = [], fares = {}, fees = {}, totals = new Set(), summary = [], locator = [];
+    const segs = [], hotels = [], fares = {}, fees = {}, totals = new Set(), summary = [], locator = [], tan = [];
     let kind = '', num = '', carrier = '', seg = null, side = '', hotel = null, ticket = '', addr = null;
     const head = []; // recent short lines that are not labels: carrier, hotel name
     const val = (m, i) => { if (m[1] && m[1].trim()) return [m[1].trim(), i]; const n = L[i + 1]; return n && !RX.label.test(n) ? [n, i + 1] : ['', i]; };
@@ -1619,7 +1682,8 @@ const ITIN = (() => {
     };
     for (let i = 0; i < L.length; i++) {
       const l = L[i]; let m, v;
-      if ((m = l.match(/^(?:trip locator|booking reference|localisateur|record locator)\s*:?\s*([A-Z0-9]{6})\b/i))) locator.push(m[1].toUpperCase());
+      if ((m = l.match(/^(?:trip locator|localisateur(?: du voyage)?|record locator)\s*:?\s*([A-Z0-9]{6})\b/i))) locator.push(m[1].toUpperCase());
+      if ((m = l.match(/^TAN\s*:\s*([A-Z0-9][A-Z0-9-]{3,})\b/))) tan.push(m[1]);
       if ((m = l.match(RX.sum))) { const w = when(m[1]); summary.push({ date: w.date, from: m[2], to: m[3], num: m[4].replace(' ', ''), dep: m[5].replace(':', '').padStart(4, '0'), arr: m[6].replace(':', '').padStart(4, '0') }); continue; }
       if ((m = l.match(RX.ticket))) { ticket = m[1]; continue; }
       if ((m = l.match(RX.fare))) { fares[ticket || ('t' + i)] = { n: amt(m[1]), cur: m[2].toUpperCase() }; continue; }
@@ -1681,17 +1745,19 @@ const ITIN = (() => {
     let fare = Object.values(fares).reduce((t, x) => t + (x.cur === cur ? x.n : 0), 0);
     if (!fare && totals.size) fare = [...totals].reduce((t, x) => { const [n, c] = x.split(' '); return t + (c === cur ? +n : 0); }, 0);
     const fee = Object.values(fees).reduce((t, x) => t + (x.cur === cur ? x.n : 0), 0);
-    return { segs, hotels, fare: Math.round(fare * 100) / 100, fee: Math.round(fee * 100) / 100, cur, locator: [...new Set(locator)] };
+    return { segs, hotels, fare: Math.round(fare * 100) / 100, fee: Math.round(fee * 100) / 100, cur, locator: [...new Set(locator)], tan: [...new Set(tan)], traveller: traveller(lines) };
   }
 
   // Combine what several files found (an outbound and a separate return booking, say)
   function merge(list) {
-    const out = { segs: [], hotels: [], fare: 0, fee: 0, cur: 'CAD', locator: [] };
+    const out = { segs: [], hotels: [], fare: 0, fee: 0, cur: 'CAD', locator: [], tan: [], traveller: null };
     list.forEach(f => {
       f.segs.forEach(s => { if (!out.segs.some(x => x.k === s.k)) out.segs.push(s); });
       f.hotels.forEach(h => { if (!out.hotels.some(x => x.in === h.in && fold(x.name) === fold(h.name))) out.hotels.push(h); });
       if (f.fare || f.fee) { if (!out.fare && !out.fee) out.cur = f.cur; if (f.cur === out.cur) { out.fare += f.fare; out.fee += f.fee; } }
       f.locator.forEach(x => out.locator.includes(x) || out.locator.push(x));
+      (f.tan || []).forEach(x => out.tan.includes(x) || out.tan.push(x));
+      if (!out.traveller && f.traveller) out.traveller = f.traveller;
     });
     out.segs.sort((a, b) => (a.dep.date + a.dep.time).localeCompare(b.dep.date + b.dep.time));
     out.fare = Math.round(out.fare * 100) / 100; out.fee = Math.round(out.fee * 100) / 100;
@@ -1929,7 +1995,7 @@ const ROWNEW = {
   calls:     () => Object.assign({ date: '', location: '', timeDur: '', number: '', person: '', kind: 'Business', cost: '', cur: 'CAD' }, LOST()),
 };
 function blank() {
-  return { v: 3, example: false, tripRef: '', fileNo: '', marking: 'PA',
+  return { v: 3, example: false, tripRef: '', tan: '', locator: '', fileNo: '', marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
@@ -2192,6 +2258,7 @@ function renderMeals() {
 }
 function mealCounts() { const dates = tripDates() || [], c = { b: 0, l: 0, d: 0 }; dates.forEach(d => { MEALS.forEach(([k]) => { if (mealVal(d, k)) c[k]++; }); }); return { c, n: dates.length }; }
 function renderBinds() {
+  const refs = $('#trip-refs'); if (refs) refs.hidden = !(String(S.tan || '').trim() || String(S.locator || '').trim());
   $$('[data-bind]').forEach(el => {
     const v = getPath(el.dataset.bind);
     if (el.type === 'checkbox') { el.checked = !!v; return; }
@@ -2673,7 +2740,7 @@ document.addEventListener('change', e => {
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
   if (el.id === 'file-itin') { const fs = [...el.files]; el.value = ''; if (fs.length) impFiles(fs); return; }
-  if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels' }[el.id]] = el.checked; impRender(); return; }
+  if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels', 'imp-name': 'name' }[el.id]] = el.checked; impRender(); return; }
   if (el.id === 'file-snap') { const f = el.files[0]; el.value = ''; if (f) openSnap(f); return; }
   if (el.dataset.bind) { onBind(el, true); refresh(); return; }
   if (el.dataset.mealDate) { const m = S.meals[el.dataset.mealDate] = S.meals[el.dataset.mealDate] || {}; m[el.dataset.meal] = el.type === 'checkbox' ? el.checked : el.value; refresh(); return; }
@@ -2819,6 +2886,28 @@ function fillStays() {
   toast(added ? nPl(added, 'Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.', 'Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.') : T('Every overnight location already has a stay covering those dates.'));
 }
 
+/* ---------- dialogs hold the screen ---------- */
+// While any dialog is open the page behind it is pinned in place, so a swipe inside the dialog
+// (or on the dimmed area around it) never scrolls the form. Closing it puts the page back where it was.
+let lockY = null;
+function syncModalLock() {
+  const open = !!document.querySelector('dialog[open]'), b = document.body, h = document.documentElement;
+  if (open && lockY === null) {
+    lockY = window.scrollY;
+    Object.assign(b.style, { position: 'fixed', top: `-${lockY}px`, left: '0', right: '0', width: '100%' }); h.classList.add('modal-open');
+  } else if (!open && lockY !== null) {
+    const y = lockY; lockY = null;
+    Object.assign(b.style, { position: '', top: '', left: '', right: '', width: '' }); h.classList.remove('modal-open');
+    window.scrollTo({ top: y, left: 0, behavior: 'instant' });
+  }
+}
+function initModalLock() {
+  new MutationObserver(syncModalLock).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
+  // a swipe that starts on the dimmed backdrop belongs to nothing
+  document.addEventListener('touchmove', e => { if (lockY !== null && e.target.tagName === 'DIALOG' && e.cancelable) e.preventDefault(); }, { passive: false });
+  syncModalLock();
+}
+
 /* ---------- itinerary import (Amex GBT) ---------- */
 // The PDF reader (pdf.js, Apache-2.0) sits in the page as inert text and only runs the first time
 // an itinerary is imported. It runs on this page with no worker and no network access.
@@ -2837,7 +2926,11 @@ async function pdfLines(bytes) {
     for (let p = 1; p <= doc.numPages; p++) {
       const tc = await (await doc.getPage(p)).getTextContent(), rows = [];
       for (const it of tc.items) { if (!it.str || !it.str.trim()) continue; const y = it.transform[5]; let r = rows.find(r => Math.abs(r.y - y) <= 2); if (!r) rows.push(r = { y, it: [] }); r.it.push(it); }
-      rows.sort((a, b) => b.y - a.y).forEach(r => out.push(r.it.sort((a, b) => a.transform[4] - b.transform[4]).map(i => i.str).join(' ')));
+      // a wide gap between two pieces of text on a line is a table cell boundary, kept as " | "
+      rows.sort((a, b) => b.y - a.y).forEach(r => {
+        const its = r.it.sort((a, b) => a.transform[4] - b.transform[4]);
+        out.push(its.map((it, k) => { if (!k) return it.str; const p = its[k - 1], h = Math.abs(p.transform[3]) || p.height || 10; return (it.transform[4] - (p.transform[4] + p.width) > h * 0.9 ? ' | ' : ' ') + it.str; }).join(''));
+      });
     }
     return { lines: out, pages: doc.numPages };
   } finally { try { await doc.destroy(); } catch (e) {} }
@@ -2848,7 +2941,7 @@ function htmlLines(html) {
   d.querySelectorAll('script,style,head,title,noscript').forEach(e => e.remove());
   d.querySelectorAll('br').forEach(e => e.replaceWith('\n'));
   d.querySelectorAll('p,div,tr,li,h1,h2,h3,h4,h5,h6,table,section,header,footer,dt,dd').forEach(e => e.append('\n'));
-  d.querySelectorAll('td,th').forEach(e => e.append(' '));
+  d.querySelectorAll('td,th').forEach(e => e.append(' | '));
   return (d.body ? d.body.textContent : '').split('\n');
 }
 const binStr = buf => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return s; };
@@ -2910,21 +3003,33 @@ async function impFiles(files) {
     err.hidden = false; return;
   }
   IMP = Object.assign(r, { res: true, fare: false, hotels: true });
+  const nm = impName(); IMP.name = !!(nm && nm.empty); // an existing name is replaced only if the member asks
   impRender();
+}
+// The traveller's name, if the itinerary has one that differs from section A
+function impName() {
+  const t = IMP && IMP.found.traveller; if (!t) return null;
+  const m = S.member, full = `${t.given} ${t.surname}`;
+  const now = [m.given, m.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
+  const same = ITIN.fold(String(m.surname).trim()) === ITIN.fold(t.surname) && ITIN.fold(String(m.given).replace(/\(.*?\)/g, '').trim()) === ITIN.fold(t.given);
+  if (same) return null;
+  return { full, now, empty: !String(m.surname || '').trim() && !String(m.given || '').trim() };
 }
 function impPlan() { return ITIN.plan(IMP.found, { residence: IMP.res }); }
 function impRender() {
   const f = IMP.found, round = ITIN.roundTrip(f);
   $('#imp-pick').hidden = true; $('#imp-review').hidden = false; $('#imp-back').hidden = false; $('#imp-apply').hidden = false;
-  $('#imp-src').textContent = [T('Read {0}.', IMP.names.join(', ')), f.locator.length ? T('Trip locator {0}.', f.locator.join(', ')) : '', ...IMP.errs].filter(Boolean).join(' ');
+  $('#imp-src').textContent = [T('Read {0}.', IMP.names.join(', ')), f.tan.length ? T('TAN {0}.', f.tan.join(', ')) : '', f.locator.length ? T('Trip locator {0}.', f.locator.join(', ')) : '', ...IMP.errs].filter(Boolean).join(' ');
   $('#imp-list').innerHTML = f.segs.map(s => {
     const what = T(IMP_KIND[s.kind] || 'Travel') + (s.num ? ' ' + s.num : '') + (s.carrier && s.kind !== 'rail' && s.kind !== 'bus' ? `, ${s.carrier}` : '');
     const arrD = s.arr.date && s.arr.date !== s.dep.date ? ` (${fmtDate(s.arr.date)})` : '';
     return `<li><b>${esc(fmtDate(s.dep.date))}</b> ${esc(T('{0}: {1}', what, `${impWhere(s.from)} ${hm(s.dep.time)} → ${impWhere(s.to)} ${hm(s.arr.time)}${arrD}`))}</li>`;
   }).concat(f.hotels.map(h => `<li><b>${esc(fmtDate(h.in))}</b> ${esc(T('{0}: {1}', T('Hotel'), [h.name, h.city, T('{0} to {1}', fmtDate(h.in), fmtDate(h.out))].filter(Boolean).join(', ')))}</li>`)).join('');
   const opt = (id, on, label, sub) => `<label class="check"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span>${esc(label)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</span></label>`;
-  const money = f.fare + f.fee;
-  $('#imp-opts').innerHTML = opt('imp-res', IMP.res, round ? T('Start and finish at your residence') : T('Start at your residence'), T('Adds the trip between your residence and the first station or airport. Choose how you travelled.'))
+  const money = f.fare + f.fee, nm = impName();
+  $('#imp-opts').innerHTML = (nm ? opt('imp-name', IMP.name, nm.empty ? T('Fill in your name: {0}', nm.full) : T('Replace your name with the one on the itinerary: {0}', nm.full),
+      nm.empty ? T('Section A and the statutory declaration.') : T('Now: {0}. Your saved details change too if Remember my details is on.', nm.now)) : '')
+    + opt('imp-res', IMP.res, round ? T('Start and finish at your residence') : T('Start at your residence'), T('Adds the trip between your residence and the first station or airport. Choose how you travelled.'))
     + (money ? opt('imp-fare', IMP.fare, T('Add the fare and GBT service fee to transportation expenses ({0} {1})', fmtN(money), f.cur), T('Only if you paid them yourself. Leave this off when the fare was billed to the department. The itinerary is attached as the receipt.')) : '')
     + (f.hotels.length ? opt('imp-hotels', IMP.hotels, nPl(f.hotels.length, 'Add the hotel stay to Lodging', 'Add the {0} hotel stays to Lodging'), '') : '');
   const plan = impPlan(), n = plan.length;
@@ -2943,11 +3048,18 @@ function impApply() {
   if (!IMP) return;
   const f = IMP.found, plan = impPlan();
   if (plan.length < 2) return;
-  const before = JSON.stringify({ stops: S.stops, transport: S.transport, stays: S.lodging.stays });
+  const before = JSON.stringify({ stops: S.stops, transport: S.transport, stays: S.lodging.stays, member: S.member, sd: S.sd, tan: S.tan, locator: S.locator });
   S.stops = plan.map(s => Object.assign(newStop(impStopName(s)), { arrDate: s.arrDate, arrTime: s.arrTime, depDate: s.depDate, depTime: s.depTime,
     mode: IMP_MODE[s.mode] || '', modeOther: s.mode === 'bus' ? T('Bus') : '' }));
   S.touched.B = true;
   const extra = [];
+  if (f.tan.length) S.tan = f.tan.join(', ');
+  if (f.locator.length) S.locator = f.locator.join(', ');
+  if (f.tan.length || f.locator.length) extra.push(T(f.tan.length && f.locator.length ? 'TAN and trip locator filled in.' : f.tan.length ? 'TAN filled in.' : 'Trip locator filled in.'));
+  if (IMP.name && f.traveller) {
+    const t = f.traveller; S.member.given = t.given; S.member.surname = t.surname; S.sd.name = `${t.given} ${t.surname}`;
+    S.touched.A = true; extra.push(T('Name filled in from the itinerary.'));
+  }
   if (IMP.fare && f.fare + f.fee > 0) {
     const legs = f.segs.filter(s => s.kind !== 'car').map(s => `${s.num ? s.num + ' ' : ''}${s.from.code || s.from.city}-${s.to.code || s.to.city}`).join(', ');
     const rc = IMP.pdfs.map(p => { const id = uid(); R[id] = { id, name: p.name, kind: 'pdf', dataUrl: 'data:application/pdf;base64,' + bufToB64(p.bytes), pages: p.pages }; return id; });
@@ -2962,10 +3074,10 @@ function impApply() {
     if (n) { S.touched[DEFS.stays.L] = true; extra.push(nPl(n, '{0} stay added to section D.', '{0} stays added to section D.')); }
   }
   impClose();
-  const redraw = () => { renderItin(); renderList('transport'); renderList('stays'); renderMeals(); refresh(); refreshPlaces(); };
+  const redraw = () => { renderBinds(); renderItin(); renderList('transport'); renderList('stays'); renderMeals(); refresh(); refreshPlaces(); };
   redraw();
-  const el = $('#sec-B'); if (el) el.scrollIntoView({ block: 'start' });
-  toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); S.stops = o.stops; S.transport = o.transport; S.lodging.stays = o.stays; redraw(); } });
+  setTimeout(() => { const el = $('#sec-B'); if (el) el.scrollIntoView({ block: 'start' }); }, 0); // after the page is unlocked
+  toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); Object.assign(S, { stops: o.stops, transport: o.transport, member: o.member, sd: o.sd, tan: o.tan, locator: o.locator }); S.lodging.stays = o.stays; redraw(); } });
 }
 
 /* ---------- drafts ---------- */
@@ -2980,9 +3092,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 const APP_CHANNEL = 'production'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.4, updated 17 Oct 2026';
+const APP_LABEL = 'Version 1.5, updated 17 Oct 2026';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3280,8 +3392,9 @@ function painter(doc, F, B, I) {
   };
   P.para = (t, x, y, w, o = {}) => { const size = o.size || 9.5, lh = o.lh || size * 1.45; const lines = P.wrap(t, o.font || F, size, w); lines.forEach((l, i) => P.text(l, x, y - i * lh, { size, font: o.font || F, color: o.color })); return y - lines.length * lh; };
   P.fit = (t, font, size, maxW) => { t = clean(t); if (font.widthOfTextAtSize(t, size) <= maxW) return t; while (t.length && font.widthOfTextAtSize(t + '...', size) > maxW) t = t.slice(0, -1); return t + '...'; };
-  P.title = (t, sub) => {
+  P.title = (t, sub, refs) => {
     const s = 13; P.center(t, P.y - s, { size: s, font: B }); P.y -= s + 6;
+    if (refs) { P.center(refs, P.y - 8, { size: 8.5, font: B }); P.y -= 13; }
     if (sub) { P.center(sub, P.y - 8, { size: 8, color: C.mid }); P.y -= 20; }
   };
   P.bar = (L, title, note) => {
@@ -3366,7 +3479,8 @@ function drawWorksheet(P, items, wsPages) {
   const todayStr = fmtDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
   const nDecl = items.filter(i => i.decl).length, nRc = items.length - nDecl;
   P.newPage();
-  P.title(T('CAF Digital Travel Itinerary').toUpperCase(), [S.tripRef ? T('Trip: {0}', S.tripRef) : '', T('Prepared {0}', todayStr), nPl(nRc, '{0} receipt attached', '{0} receipts attached'), nDecl ? nPl(nDecl, '{0} missing receipt declaration', '{0} missing receipt declarations') : ''].filter(Boolean).join('   |   '));
+  P.title(T('CAF Digital Travel Itinerary').toUpperCase(), [S.tripRef ? T('Trip: {0}', S.tripRef) : '', T('Prepared {0}', todayStr), nPl(nRc, '{0} receipt attached', '{0} receipts attached'), nDecl ? nPl(nDecl, '{0} missing receipt declaration', '{0} missing receipt declarations') : ''].filter(Boolean).join('   |   '),
+    [S.tan.trim() ? T('TAN: {0}', S.tan.trim()) : '', S.locator.trim() ? T('Trip locator: {0}', S.locator.trim()) : ''].filter(Boolean).join('   |   '));
   // A
   P.bar('A', 'Personal information / Information personnel');
   P.table([{ l: 'PRI / SN', w: 1.2 }, { l: 'Rank', w: .7 }, { l: 'Surname', w: 1.3 }, { l: 'Given name and initials', w: 1.6 }, { l: 'Section', w: 1.1 }, { l: 'Telephone', w: 1.4 }], [[m.pri, rankAbbr(m.rank), m.surname, m.given, m.section, telStr(m)]]);
@@ -3905,7 +4019,7 @@ async function startBlank(msg) {
 /* ---------- boot ---------- */
 async function boot() {
   captureStatic(); if (fr()) applyStatic();
-  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice(); initPullRefresh();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice(); initPullRefresh(); initModalLock();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

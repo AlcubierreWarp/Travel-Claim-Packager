@@ -2,7 +2,9 @@
 
 Versioning: the minor number goes up by one only when the beta is promoted to production (1.1, 1.2, 1.3...). The beta shows the number the next production release will have plus its own build number, which goes up with every beta publish and starts again at 1 after a promotion, for example "Version 1.3 beta 3, built 17 Oct 2026 10:42 (production is 1.2)". The major number changes only when the owner decides a release is a major one.
 
-## 1.5 (beta, in progress)
+## 1.6 (beta, in progress)
+
+## 1.5 (17 Oct 2026)
 
 - Import itinerary moved to the top of the form, in its own card above the trip name
 - TAN and trip locator, filled by the import and printed under the title of the package. They appear under the trip name only when an imported itinerary (or an opened draft) has them, in smaller fields

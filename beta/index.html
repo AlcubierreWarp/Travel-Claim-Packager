@@ -620,7 +620,7 @@ html{touch-action:manipulation}
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 8, built 17 Oct 2026 13:39 (production is 1.5)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.6 beta 9, built 17 Oct 2026 13:44 (production is 1.5)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -824,7 +824,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 8, built 17 Oct 2026 13:39 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.6 beta 9, built 17 Oct 2026 13:44 (production is 1.5)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -3308,9 +3308,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.6-beta.8';
+const APP_VERSION = '1.6-beta.9';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.6 beta 8, built 17 Oct 2026 13:39 (production is 1.5)';
+const APP_LABEL = 'Version 1.6 beta 9, built 17 Oct 2026 13:44 (production is 1.5)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3925,7 +3925,9 @@ async function build() {
       }
     }
     const pages = doc.getPages(), total = pages.length, Ff = P.F;
-    const left = P.clean([T('CAF Digital Travel Itinerary'), [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
+    // The app version on every page (and in the file properties), so a package can be traced to the build that made it
+    const ver = 'v' + APP_VERSION.replace('-beta.', fr() ? ' bêta ' : ' beta ');
+    const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
     // Security marking, per DND guidance (marked at the top and bottom of each sensitive document) and the
     // GC rule that loose documents are marked on every sheet, in letters larger than the body text.
     // Top right and bottom right of every page, receipts included, on a white backing so it stays legible.
@@ -3944,7 +3946,8 @@ async function build() {
         p.drawText(r, { x: pw - P.M - rw, y: 22, size: 7, font: Ff, color: P.C.mid });
       }
     });
-    if (mark) { doc.setSubject(mark); doc.setKeywords([mark, T('CAF Digital Travel Itinerary')]); }
+    if (mark) doc.setSubject(mark);
+    doc.setKeywords([mark, T('CAF Digital Travel Itinerary'), ver, APP_LABEL].filter(Boolean));
     doc.setTitle([T('CAF Digital Travel Itinerary'), S.tripRef].filter(Boolean).join(' - '));
     doc.setLanguage(fr() ? 'fr-CA' : 'en-CA');
     doc.setAuthor(fullName());

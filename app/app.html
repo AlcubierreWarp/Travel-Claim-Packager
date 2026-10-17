@@ -554,6 +554,7 @@ html{touch-action:manipulation}
           <hr>
           <p class="menu-h">This tool</p>
           <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Export offline app</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
+          <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
           <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
           <hr>
           <p class="menu-h">This device</p>
@@ -898,7 +899,9 @@ const num = v => { if (v === '' || v == null) return NaN; return parseFloat(Stri
 const fmtN = n => fr() ? n.toFixed(2).replace('.', ',') : n.toFixed(2);
 const money = v => { const n = num(v); return isNaN(n) ? '' : fmtN(n); };
 const curOf = c => String(c || '').trim().toUpperCase();
-const STORE = 'caf-dti-v1';
+// Tab-only claims: production and beta share the site, so the beta keeps its own key and switching
+// between them in one tab never mixes the two claims.
+const STORE = '__APP_CHANNEL__' === 'beta' ? 'caf-dti-v1-beta' : 'caf-dti-v1';
 const inViewer = !!(window.claude && typeof window.claude.use === 'function');
 const MODES = ['CAL', 'Train', 'PMV', 'PMV Pax', 'Rental Car', 'Shuttle', 'Other', 'No travel'];
 const NOTRAVEL = 'No travel';
@@ -1813,6 +1816,7 @@ document.addEventListener('click', e => {
     }
     case 'save-draft': setMenu(false); saveDraft(); break;
     case 'save-now': setMenu(false); saveNow(); break;
+    case 'switch-channel': setMenu(false); switchChannel(); break;
     case 'dl-offline': setMenu(false); downloadOffline(); break;
     case 'send-draft': setMenu(false); sendDraft(); break;
     case 'send-pdf': if (lastPdf) sendPdf(); break;
@@ -2345,6 +2349,7 @@ function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motio
 // Text that code sets on fixed elements, refreshed when the language changes
 function relabel() {
   const hh = helpHref(), fh = feedbackHref();
+  if (typeof syncSwitch === 'function') syncSwitch();
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
   const sd = $('#send-draft'); if (sd) sd.textContent = IOS_PWA && SEND.draft ? T('Save or send claim file') : T('Send claim file');
   $$('[data-ver]').forEach(el => { el.textContent = verLabel(); });
@@ -2940,6 +2945,21 @@ async function installApp() {
   else t.innerHTML = T('<strong>Install on this computer</strong><ol class="install-steps"><li>In Chrome or Edge, click the install icon at the right end of the address bar, or open the browser menu and choose <b>Install</b>.</li><li>Confirm. The app opens in its own window.</li></ol>');
   $('#install-banner').hidden = false; window.scrollTo(0, 0);
 }
+// Switch between production and the beta in the same window (or the same installed app: the beta
+// sits inside the production app's scope, so the browser installs only one of the two).
+// Production offers the switch only on a device that has opened the beta, so members never see it.
+const BETA_SEEN = 'caf-dti-beta-seen';
+function syncSwitch() {
+  const b = $('#switch-channel'); if (!b) return;
+  let seen = false; try { if (IS_BETA) localStorage.setItem(BETA_SEEN, '1'); seen = !!localStorage.getItem(BETA_SEEN); } catch (e) {}
+  b.hidden = !(/^https?:$/.test(location.protocol) && !inViewer && (IS_BETA || seen));
+  $('#switch-t').textContent = IS_BETA ? T('Switch to production') : T('Switch to beta');
+  $('#switch-sub').textContent = IS_BETA ? T('The released version. Each version keeps its own claims.') : T('The test version. Each version keeps its own claims.');
+}
+async function switchChannel() {
+  await flushSave(); // the claim stays where it is, in this version
+  location.assign(new URL(IS_BETA ? '../' : 'beta/', location.href).href);
+}
 function registerOffline() { if (!pwaReady() || !('serviceWorker' in navigator)) return; navigator.serviceWorker.register('sw.js').catch(() => {}); }
 
 /* ---------- device storage: IndexedDB in this browser only, never uploaded ---------- */
@@ -3086,6 +3106,7 @@ function syncMenu() {
   $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
   $('#forget-btn').disabled = !ok;
   $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
+  syncSwitch();
   $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Export claim file instead.');
   saveChip();
 }

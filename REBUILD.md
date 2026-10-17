@@ -107,6 +107,7 @@ python test_offline_copy.py .
 python test_fileno.py .
 python test_pdfver.py .
 python test_savenow.py .
+python test_switch.py .
 ```
 
 Each prints `errors: []`. Tests that check privacy also print `external requests: []`, and the newer ones print `failures: []`. `test_fr.py` also prints `missing: []` (no untranslated text). Delete the `fixtures/` and `shots/` folders afterwards.

@@ -28,3 +28,11 @@
   --accent:#b7a2ec; --accent-ink:#15111f; --accent-soft:#2a2340;
   --bar:#0c0b11; --bar-ink:#e7e5ee; --off:#26232f;
 }
+
+/* Beta badge after the page title, the same pill as the import button's Beta tag (.pill-beta) */
+:root[data-channel="beta"] header h1::after{
+  content:"Beta"; display:inline-block; margin-left:8px; padding:1px 6px; border:1px solid currentColor; border-radius:999px;
+  font:700 .6rem/1.4 var(--f-body); font-stretch:100%; letter-spacing:.08em; text-transform:uppercase; vertical-align:middle; opacity:.85;
+  position:relative; top:-.15em;
+}
+:root[data-channel="beta"]:lang(fr) header h1::after{ content:"Bêta" }

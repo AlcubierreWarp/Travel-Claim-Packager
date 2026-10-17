@@ -1,6 +1,7 @@
 /* BETA ONLY. This stylesheet is added to the /beta/ build and never to production.
-   Put beta-specific visual changes here. Everything in the main app (app/app.html) goes to
-   both. The page also carries <html data-channel="beta">, and APP_CHANNEL === 'beta' in script,
+   Only things the owner asks for as "beta-specific" go here: tools or visuals that make testing
+   and telling the beta apart easier. Every other change goes in the main app (app/app.html), which
+   goes to both beta and production. If it is unclear, ask the owner first. The page also carries <html data-channel="beta">, and APP_CHANNEL === 'beta' in script,
    for anything that needs to differ in behaviour. To promote a beta-only change to production,
    move it into app/app.html.
    Build-time beta differences (in build.py): greyscale icons, grey theme and launch colour,

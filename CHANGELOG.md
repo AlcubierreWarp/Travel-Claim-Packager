@@ -5,7 +5,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 ## 1.3 (beta, in progress)
 
 - Section rail follows the page: on phones the horizontal rail slides along as you scroll so the current section stays in view; the current section is highlighted on all screens
-- Local-only notice can be hidden with its X, or by swiping it sideways on touch screens, with Undo; Show local-only notice in the menu brings it back
+- Local-only notice can be hidden with its X, or by swiping it sideways on touch screens (iPhone-style red Hide action with a bin icon underneath), with Undo; Show local-only notice in the menu brings it back
 - Beta build numbers: footer, menu and help emails show the beta build, build time and current production version
 
 ## 1.2 (16 Oct 2026)

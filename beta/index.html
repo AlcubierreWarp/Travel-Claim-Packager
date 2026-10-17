@@ -22,7 +22,7 @@
   --ink:#17201c; --muted:#56615b; --line:#cfd5ce; --line-strong:#9aa39c;
   --accent:#2b5a4a; --accent-ink:#ffffff; --accent-soft:#dbe7df;
   --bar:#17201c; --bar-ink:#f1f4f0; --off:#dde1db;
-  --warn:#875000; --warn-soft:#f5e7cc; --bad:#a1302a; --bad-soft:#f7dfdb; --ok:#2a6a3d; --ok-soft:#dcefe0;
+  --warn:#875000; --warn-soft:#f5e7cc; --bad:#a1302a; --bad-soft:#f7dfdb; --swipe-red:#e5392f; --swipe-red-strong:#d0261c; --ok:#2a6a3d; --ok-soft:#dcefe0;
   --f-display:"Archivo","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
   --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
@@ -32,14 +32,14 @@
   --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
   --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
   --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
-  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --ok:#86c99a; --ok-soft:#1b2f22;
+  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#111614; --surface:#171d1a; --card:#1c2320; --field:#131916;
   --ink:#e4eae6; --muted:#9aa69f; --line:#2c3632; --line-strong:#4c5852;
   --accent:#86c1a7; --accent-ink:#0d1411; --accent-soft:#20332b;
   --bar:#0a0e0c; --bar-ink:#e4eae6; --off:#232b27;
-  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --ok:#86c99a; --ok-soft:#1b2f22;
+  --warn:#e3a64a; --warn-soft:#33281a; --bad:#ef8a80; --bad-soft:#3a201d; --swipe-red:#d93a30; --swipe-red-strong:#ec4136; --ok:#86c99a; --ok-soft:#1b2f22;
   color-scheme:dark }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -124,11 +124,22 @@ dialog#snap::backdrop{background:rgba(5,8,7,.6)}
 .sd-grid.snap-grid .field:nth-child(n+3){grid-column:1/-1}
 @media (min-width: 561px){ .sd-grid.snap-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,1.6fr)} .sd-grid.snap-grid .field:nth-child(n+3){grid-column:auto} .sd-grid.snap-grid .field.wide{grid-column:1/-1} }
 .snap-foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--line)}
-.localonly{border-bottom:1px solid var(--line);background:var(--accent-soft);touch-action:pan-y;overflow:hidden}
+.localonly{position:relative;border-bottom:1px solid var(--line);background:var(--accent-soft);touch-action:pan-y;overflow:hidden}
 .localonly[hidden]{display:none}
 .localonly .wrap{position:relative;padding-right:52px}
-.localonly.dragging .wrap{transition:none}
-.localonly .wrap{transition:transform .2s ease,opacity .2s ease}
+/* swipe to hide: the green notice slides over a red action layer, like a list row on iPhone */
+.lo-slide{position:relative;z-index:1;background:var(--accent-soft);transition:transform .22s ease,box-shadow .22s ease;will-change:transform}
+.localonly.dragging .lo-slide{transition:none}
+.localonly.swipe-l .lo-slide{box-shadow:6px 0 10px -4px rgba(0,0,0,.35),1px 0 0 rgba(0,0,0,.12)}
+.localonly.swipe-r .lo-slide{box-shadow:-6px 0 10px -4px rgba(0,0,0,.35),-1px 0 0 rgba(0,0,0,.12)}
+.lo-swipe{position:absolute;inset:0;display:none;align-items:center;background:var(--swipe-red);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.28),inset 0 -1px 2px rgba(0,0,0,.18);padding:0 22px}
+.localonly.swipe-l .lo-swipe{display:flex;justify-content:flex-end}
+.localonly.swipe-r .lo-swipe{display:flex;justify-content:flex-start}
+.lo-act{display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .15s ease}
+.lo-act svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lo-act small{font:600 .68rem/1 var(--f-body);letter-spacing:.02em}
+.localonly.armed .lo-swipe{background:var(--swipe-red-strong)}
+.localonly.armed .lo-act{transform:scale(1.15)}
 .lo-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--accent);cursor:pointer;padding:0}
 .lo-close:hover{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .lo-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
@@ -491,14 +502,14 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver">Version 1.3 beta 3, built 17 Oct 2026 03:00 (production is 1.2)</p>
+          <p class="menu-note menu-ver">Version 1.3 beta 4, built 17 Oct 2026 03:05 (production is 1.2)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
     </div>
   </div>
 </header>
-<div class="localonly" id="localonly"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div>
+<div class="localonly" id="localonly"><div class="lo-swipe" aria-hidden="true"><span class="lo-act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1zM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg><small>Hide</small></span></div><div class="lo-slide"><div class="wrap"><button class="lo-close" data-act="hide-notice" aria-label="Hide this notice" title="Hide this notice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><b>LOCAL ONLY</b><span>Nothing you type or attach leaves this browser.</span><details class="lo-more"><summary>More</summary><p>Everything runs in this browser window. Nothing is uploaded or stored on a server. Your claim is kept in this browser only if you choose "Keep my work on this device" in the menu; otherwise it lasts until you close the tab. Save a draft file to move a claim to another device. Unofficial tool: check claims against CFTDTI and your Orderly Room.</p></details></div></div></div>
 
 <div class="layout">
   <nav class="rail" aria-label="Worksheet sections" id="rail"></nav>
@@ -680,7 +691,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.3 beta 3, built 17 Oct 2026 03:00 (production is 1.2)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.3 beta 4, built 17 Oct 2026 03:05 (production is 1.2)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1706,8 +1717,8 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.3-beta.3';
-const APP_LABEL = 'Version 1.3 beta 3, built 17 Oct 2026 03:00 (production is 1.2)';
+const APP_VERSION = '1.3-beta.4';
+const APP_LABEL = 'Version 1.3 beta 4, built 17 Oct 2026 03:05 (production is 1.2)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -1801,7 +1812,7 @@ function initRailFollow() {
 const LO_KEY = 'caf-dti-notice-hidden';
 function noticeHidden() { try { return localStorage.getItem(LO_KEY) === '1'; } catch (e) { return false; } }
 function setNotice(show) {
-  const el = $('#localonly'); if (el) { el.hidden = !show; const w = el.querySelector('.wrap'); w.style.transform = ''; w.style.opacity = ''; }
+  const el = $('#localonly'); if (el) { el.hidden = !show; el.classList.remove('swipe-l', 'swipe-r', 'armed', 'dragging'); el.querySelector('.lo-slide').style.transform = ''; }
   try { show ? localStorage.removeItem(LO_KEY) : localStorage.setItem(LO_KEY, '1'); } catch (e) {}
   const m = $('#show-notice'); if (m) m.hidden = show;
 }
@@ -1810,7 +1821,9 @@ function showNotice(scroll) { setNotice(true); if (scroll) window.scrollTo({ top
 function initNotice() {
   const el = $('#localonly'); if (!el) return;
   if (noticeHidden()) setNotice(false); else { const m = $('#show-notice'); if (m) m.hidden = true; }
-  const w = el.querySelector('.wrap'); let x0 = 0, y0 = 0, dx = 0, mode = '', id = null, t0 = 0;
+  const w = el.querySelector('.lo-slide'); let x0 = 0, y0 = 0, dx = 0, mode = '', id = null, t0 = 0;
+  const reach = () => el.clientWidth * 0.3;
+  const reset = () => { el.classList.remove('dragging', 'armed'); w.style.transform = ''; setTimeout(() => { if (!el.classList.contains('dragging')) el.classList.remove('swipe-l', 'swipe-r'); }, 230); };
   el.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' || e.target.closest('button, summary, a')) return;
     id = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; mode = ''; t0 = Date.now();
@@ -1820,16 +1833,21 @@ function initNotice() {
     const mx = e.clientX - x0, my = e.clientY - y0;
     if (!mode) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.5) { mode = 'x'; el.classList.add('dragging'); try { el.setPointerCapture(id); } catch (err) {} } else if (Math.abs(my) > 10) { mode = 'y'; } }
     if (mode !== 'x') return;
-    dx = mx; w.style.transform = `translateX(${dx}px)`; w.style.opacity = String(Math.max(0.2, 1 - Math.abs(dx) / el.clientWidth));
+    dx = mx;
+    el.classList.toggle('swipe-l', dx < 0); el.classList.toggle('swipe-r', dx > 0);
+    el.classList.toggle('armed', Math.abs(dx) > reach());
+    w.style.transform = `translateX(${dx}px)`;
   });
   const end = e => {
-    if (e.pointerId !== id) return; id = null; el.classList.remove('dragging');
-    if (mode !== 'x') return;
+    if (e.pointerId !== id) return; id = null;
+    if (mode !== 'x') { el.classList.remove('dragging'); return; }
+    el.classList.remove('dragging');
     const fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > 0.6 && Math.abs(dx) > 40;
-    if (Math.abs(dx) > el.clientWidth * 0.3 || fast) {
-      w.style.transform = `translateX(${dx < 0 ? -el.clientWidth : el.clientWidth}px)`; w.style.opacity = '0';
-      setTimeout(hideNotice, 180);
-    } else { w.style.transform = ''; w.style.opacity = ''; }
+    if (Math.abs(dx) > reach() || fast) {
+      el.classList.add('armed');
+      w.style.transform = `translateX(${dx < 0 ? -el.clientWidth : el.clientWidth}px)`;
+      setTimeout(hideNotice, 230);
+    } else reset();
   };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
 }

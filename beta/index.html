@@ -511,7 +511,7 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <p class="menu-note menu-ver">Version 1.4 beta 2, built 17 Oct 2026 03:58 (production is 1.3)</p>
+          <p class="menu-note menu-ver">Version 1.4 beta 3, built 17 Oct 2026 04:02 (production is 1.3)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -689,7 +689,7 @@ html{touch-action:manipulation}
             <p class="sd-help" id="pki-help"></p>
             <div class="sd-grid fn-grid">
               <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="e.g. 7209-1"></div>
-              <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="PB">PROTECTED B</option><option value="PA">PROTECTED A</option><option value="">None</option></select></div>
+              <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="UNCLAS">UNCLASSIFIED</option><option value="PA">PROTECTED A</option><option value="PB">PROTECTED B</option><option value="">None</option></select></div>
             </div>
             <p class="fname">File: <code id="fname"></code></p>
             <h3 style="margin-top:18px">What goes in</h3>
@@ -704,7 +704,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4 beta 2, built 17 Oct 2026 03:58 (production is 1.3)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.4 beta 3, built 17 Oct 2026 04:02 (production is 1.3)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -854,7 +854,7 @@ const ROWNEW = {
   calls:     () => Object.assign({ date: '', location: '', timeDur: '', number: '', person: '', kind: 'Business', cost: '', cur: 'CAD' }, LOST()),
 };
 function blank() {
-  return { v: 3, example: false, tripRef: '', fileNo: '', marking: 'PB',
+  return { v: 3, example: false, tripRef: '', fileNo: '', marking: 'PA',
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
@@ -1396,7 +1396,7 @@ function refreshPlaces() {
 }
 // File names follow Date_FileNo_Marking_Details: trip start date (or today), the optional file number,
 // the security marking, then what it is. Every output uses it: the PDF package and the draft file.
-const MARKINGS = { PB: 'PROTECTED B', PA: 'PROTECTED A', '': '' };
+const MARKINGS = { UNCLAS: 'UNCLASSIFIED', PA: 'PROTECTED A', PB: 'PROTECTED B', '': '' };
 function fileBase() {
   const part = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const start = (S.stops[0] || {}).depDate, t = new Date(), today = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`, d = isoOk(start) ? start : today;
@@ -1736,8 +1736,8 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.4-beta.2';
-const APP_LABEL = 'Version 1.4 beta 2, built 17 Oct 2026 03:58 (production is 1.3)';
+const APP_VERSION = '1.4-beta.3';
+const APP_LABEL = 'Version 1.4 beta 3, built 17 Oct 2026 04:02 (production is 1.3)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }

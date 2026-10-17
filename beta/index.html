@@ -75,6 +75,8 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .menu-check{display:flex;gap:10px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
 .menu-check:hover{background:var(--accent-soft)}
 .menu-check input:disabled+*{opacity:.5}
+
+.menu-ver{font-family:var(--f-mono);font-size:.7rem!important;color:var(--muted)}
 .menu-note{font-size:.76rem;line-height:1.4;color:var(--muted);margin:6px 10px 4px}
 .banner.device{background:var(--accent-soft);border-color:var(--accent)}
 .banner-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -489,6 +491,7 @@ html{touch-action:manipulation}
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
+          <p class="menu-note menu-ver">Version 1.3 beta 3, built 17 Oct 2026 03:00 (production is 1.2)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -677,7 +680,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.3</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver">Version 1.3 beta 3, built 17 Oct 2026 03:00 (production is 1.2)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1701,8 +1704,10 @@ function saveDraft() { offerFile(fileBase() + '_DRAFT.json', draftPayload(), 'ap
 // falls back to a .txt copy there. Open draft file accepts either.
 // Version: the minor number goes up only when beta is promoted to production; major only when the owner says so.
 // Beta builds carry the number the next production release will have, plus the build date.
-const APP_VERSION = '1.3'; // stamped by build.py from VERSION (beta gets the next minor)
-const APP_UPDATED = '17 Oct 2026'; // stamped by build.py
+// Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
+// with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
+const APP_VERSION = '1.3-beta.3';
+const APP_LABEL = 'Version 1.3 beta 3, built 17 Oct 2026 03:00 (production is 1.2)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -1743,7 +1748,7 @@ function deviceLines() {
   const br = /Edg\//.test(ua) ? 'Edge' : /Firefox|FxiOS/.test(ua) ? 'Firefox' : /CriOS|Chrome/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : 'Other';
   let standalone = false; try { standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
   const where = inViewer ? 'Claude artifact' : location.protocol === 'file:' ? 'single-file copy' : /\/beta\//.test(location.pathname) ? 'website, beta' : 'website';
-  return [`Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${APP_VERSION}, updated ${APP_UPDATED} (${where})`];
+  return [`Device: ${os}, ${br}${standalone ? ', installed app' : ''}`, `Version: ${APP_LABEL.replace(/^Version /, '')} (${where})`];
 }
 const NO_PI = 'Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.';
 function mailHref(subject, lines) { return 'mailto:Thomas.Huet@forces.gc.ca?subject=' + encodeURIComponent('CAF Digital Travel Itinerary - ' + subject) + '&body=' + encodeURIComponent(lines.join('\r\n')); }
@@ -1830,7 +1835,6 @@ function initNotice() {
 }
 function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' }); }
 function initExtras() {
-  const av = $('#app-ver'); if (av) av.textContent = 'Version ' + APP_VERSION + (/\/beta\//.test(location.pathname) ? ' beta' : '') + ', updated ' + APP_UPDATED;
   const hh = helpHref(), fh = feedbackHref();
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
   ['#help-menu', '#fb-menu'].forEach(id => { const el = $(id); if (el) el.addEventListener('click', () => setTimeout(() => setMenu(false), 0)); });

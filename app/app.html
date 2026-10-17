@@ -89,8 +89,8 @@ fieldset.tg.off .dshow{display:none}
 .bar-acts .sm{display:none}
 .totalbar .btn.bar-snap{background:transparent;color:var(--bar-ink);border-color:var(--bar-ink)}
 /* snap dialog */
-dialog#snap{border:0;border-radius:6px;padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.35)}
-dialog#snap::backdrop{background:rgba(5,8,7,.6)}
+dialog#snap,dialog#imp{border:0;border-radius:6px;padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .snap-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bar);color:var(--bar-ink)}
 .snap-head h3{margin:0;color:inherit}
 .snap-head .icon-btn{color:var(--bar-ink)}
@@ -106,6 +106,28 @@ dialog#snap::backdrop{background:rgba(5,8,7,.6)}
 .chip-r span{display:inline-block;padding:8px 11px;border:1px solid var(--line-strong);border-radius:3px;font-size:.86rem;background:var(--field)}
 .chip-r input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .chip-r input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+/* itinerary import */
+.imp-tools{margin:0 0 12px}
+.imp-lead{margin:0 0 12px;font-size:.9rem}
+.imp-drop{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border:1px dashed var(--line-strong);border-radius:4px;padding:14px;background:var(--card);margin-bottom:14px}
+.imp-drop.dragover{border-color:var(--accent);background:var(--field)}
+.imp-or{display:block;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+#imp-text{width:100%;box-sizing:border-box;font:inherit;font-size:.85rem;padding:8px;border:1px solid var(--line-strong);border-radius:3px;background:var(--field);color:var(--ink);resize:vertical}
+.imp-src{margin:0 0 10px;font-size:.84rem;color:var(--muted)}
+.imp-sub{margin:14px 0 6px;font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.imp-list,.imp-plan{margin:0;padding-left:20px;font-size:.88rem}
+.imp-list li,.imp-plan li{margin:3px 0}
+.imp-plan .md{color:var(--muted)}
+.imp-plan .md.need{color:var(--warn);font-weight:600}
+.imp-opts{display:grid;gap:8px;margin-top:12px}
+.imp-opts .check{align-items:flex-start}
+.imp-opts .sub{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
+.imp-warn{margin:12px 0 0;padding:8px 10px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-size:.86rem}
+.imp-busy{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
+#sec-B.dragover{outline:2px dashed var(--accent);outline-offset:4px}
+dialog#imp[open]{display:flex;flex-direction:column}
+dialog#imp .snap-body{max-height:none;flex:1 1 auto;min-height:0}
+dialog#imp .snap-head,dialog#imp .snap-foot{flex:none}
 .sd-grid.snap-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
 .sd-grid.snap-grid .field:nth-child(n+3){grid-column:1/-1}
 @media (min-width: 561px){ .sd-grid.snap-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,1.6fr)} .sd-grid.snap-grid .field:nth-child(n+3){grid-column:auto} .sd-grid.snap-grid .field.wide{grid-column:1/-1} }
@@ -438,7 +460,7 @@ html.standalone{overscroll-behavior-y:none}
   .bar-acts .btn{padding:.58rem .7rem}
   #toast{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   .totop{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
-  dialog#snap{margin:auto auto 0;width:100%;max-width:100%;border-radius:10px 10px 0 0;max-height:92vh}
+  dialog#snap,dialog#imp{margin:auto auto 0;width:100%;max-width:100%;border-radius:10px 10px 0 0;max-height:92vh}
   .snap-body{max-height:calc(92vh - 130px)}
   .snap-foot .btn{flex:1 1 auto}
   .times{grid-template-columns:minmax(0,1fr)}
@@ -577,7 +599,10 @@ html{touch-action:manipulation}
 
     <section class="sec" id="sec-B">
       <header class="sec-h"><span class="L">B</span><h2>Travel itinerary</h2><p class="hint">Include every city. Enter each place once, with the date and time you arrive and leave.</p></header>
-      <div class="sec-b"><ol id="itin"></ol></div>
+      <div class="sec-b">
+        <div class="sec-tools imp-tools"><button class="btn" data-act="imp-open">Import itinerary</button><span class="drophint">From an Amex GBT itinerary (PDF or email). Fills in the stops, dates and times.</span></div>
+        <ol id="itin"></ol>
+      </div>
     </section>
 
     <section class="sec" id="sec-C">
@@ -735,12 +760,41 @@ html{touch-action:manipulation}
   <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and add another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
 </dialog>
 
+<input type="file" id="file-itin" accept=".pdf,.eml,.txt,.htm,.html,application/pdf,message/rfc822,text/plain,text/html" multiple hidden>
+<dialog id="imp" aria-labelledby="imp-h">
+  <div class="snap-head"><h3 id="imp-h">Import an itinerary</h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
+  <div class="snap-body">
+    <div id="imp-pick">
+      <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. The file is read on this device and is not uploaded.</p>
+      <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email saved as an .eml file. You can choose more than one, for example a return trip booked separately.</span></div>
+      <label for="imp-text" class="imp-or">Or paste the itinerary text from the email</label>
+      <textarea id="imp-text" rows="4" autocomplete="off" spellcheck="false"></textarea>
+      <div class="sec-tools"><button type="button" class="btn" data-act="imp-read-text">Read pasted text</button></div>
+    </div>
+    <div id="imp-review" hidden>
+      <p class="imp-src" id="imp-src"></p>
+      <h4 class="imp-sub">Found</h4>
+      <ul class="imp-list" id="imp-list"></ul>
+      <div class="imp-opts" id="imp-opts"></div>
+      <h4 class="imp-sub">Section B will list</h4>
+      <ol class="imp-plan" id="imp-plan"></ol>
+      <p class="drophint note" id="imp-note" hidden></p>
+      <p class="imp-warn" id="imp-warn" hidden></p>
+    </div>
+    <p class="imp-busy" id="imp-busy" hidden>Reading the itinerary…</p>
+    <span class="err" id="imp-err" hidden></span>
+  </div>
+  <div class="snap-foot"><button type="button" class="btn" data-act="imp-cancel">Cancel</button><button type="button" class="btn" data-act="imp-back" id="imp-back" hidden>Start over</button><button type="button" class="btn primary" data-act="imp-apply" id="imp-apply" hidden>Fill section B</button></div>
+</dialog>
+
 <datalist id="dl-cur"><option>CAD</option><option>USD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>JPY</option><option>CHF</option><option>NOK</option><option>QAR</option><option>AED</option><option>KWD</option></datalist>
 <datalist id="dl-transport"><option>Toll</option><option>Parking</option><option>Gas</option><option>Rental vehicle</option><option>Taxi</option><option>Rideshare</option><option>Bus</option><option>Train</option><option>Airfare</option><option>Baggage fee</option><option>Ferry</option><option>PMV kilometres</option></datalist>
 <datalist id="dl-general"><option>Laundry</option><option>Internet</option><option>Conference fee</option><option>Visa fee</option><option>Supplies</option></datalist>
 <datalist id="dl-prov"><option>AB</option><option>BC</option><option>MB</option><option>NB</option><option>NL</option><option>NS</option><option>NT</option><option>NU</option><option>ON</option><option>PE</option><option>QC</option><option>SK</option><option>YT</option></datalist>
 <datalist id="dl-places"></datalist>
 
+<script type="text/x-pdfjs-worker" id="pdfjs-w">/*PDFJSW*/</script>
+<script type="text/x-pdfjs" id="pdfjs-l">/*PDFJS*/</script>
 <script>/*PDFLIB*/</script>
 <script>
 (() => {
@@ -753,6 +807,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 // Everything is written in English in the code and passed through T(). In French, T() looks the
 // English text up in FR (app/fr.js). Stored data stays language-neutral (codes, not labels).
 /*I18N_FR*/
+/*ITIN*/
 const LANG_KEY = 'caf-dti-lang';
 let LANG = (() => { try { const v = localStorage.getItem(LANG_KEY); if (v === 'en' || v === 'fr') return v; } catch (e) {} return /^fr\b/i.test(navigator.language || '') ? 'fr' : 'en'; })();
 const fr = () => LANG === 'fr';
@@ -1628,6 +1683,8 @@ document.addEventListener('change', e => {
   if (el.id === 'opt-remember') { setRemember(el.checked); return; }
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
+  if (el.id === 'file-itin') { const fs = [...el.files]; el.value = ''; if (fs.length) impFiles(fs); return; }
+  if (IMP && el.closest && el.closest('#imp-opts')) { IMP[{ 'imp-res': 'res', 'imp-fare': 'fare', 'imp-hotels': 'hotels' }[el.id]] = el.checked; impRender(); return; }
   if (el.id === 'file-snap') { const f = el.files[0]; el.value = ''; if (f) openSnap(f); return; }
   if (el.dataset.bind) { onBind(el, true); refresh(); return; }
   if (el.dataset.mealDate) { const m = S.meals[el.dataset.mealDate] = S.meals[el.dataset.mealDate] || {}; m[el.dataset.meal] = el.type === 'checkbox' ? el.checked : el.value; refresh(); return; }
@@ -1718,6 +1775,12 @@ document.addEventListener('click', e => {
     }
     case 'snap': $('#file-snap').click(); break;
     case 'snap-cancel': closeSnap(); break;
+    case 'imp-open': impOpen(); break;
+    case 'imp-choose': $('#file-itin').click(); break;
+    case 'imp-cancel': impClose(); break;
+    case 'imp-back': impOpen(); break;
+    case 'imp-apply': impApply(); break;
+    case 'imp-read-text': { const t = $('#imp-text').value; if (!t.trim()) { const e = $('#imp-err'); e.textContent = T('Paste the itinerary text first.'); e.hidden = false; break; } impFiles([new File([t], T('Pasted text') + '.txt', { type: 'text/plain' })]); break; }
     case 'snap-save': if (saveSnap()) closeSnap(); break;
     case 'snap-save-more': if (saveSnap()) { closeSnap(); $('#file-snap').click(); } break;
     case 'save-pdf': if (lastPdf) offerFile(lastPdf.name, new Blob([lastPdf.bytes], { type: 'application/pdf' }), 'application/pdf'); break;
@@ -1725,13 +1788,14 @@ document.addEventListener('click', e => {
   }
 });
 // drag and drop onto expense rows and stay cards
-const dropTarget = el => el.closest('.row[data-sec], .stay');
+const dropTarget = el => el.closest('.row[data-sec], .stay, #imp-drop, #sec-B');
 document.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); const t = dropTarget(e.target); $$('.dragover').forEach(r => r !== t && r.classList.remove('dragover')); if (t) t.classList.add('dragover'); } });
 document.addEventListener('dragleave', e => { const t = dropTarget(e.target); if (t && !t.contains(e.relatedTarget)) t.classList.remove('dragover'); });
 document.addEventListener('drop', e => {
   if (!e.dataTransfer || !e.dataTransfer.files.length) return; e.preventDefault();
   $$('.dragover').forEach(r => r.classList.remove('dragover'));
   const t = dropTarget(e.target);
+  if ((t && (t.id === 'sec-B' || t.id === 'imp-drop')) || (e.target.closest && e.target.closest('#imp'))) { impFiles([...e.dataTransfer.files]); return; }
   if (!t) { toast(T('Drop receipts onto the expense or stay they belong to.')); return; }
   ingest([...e.dataTransfer.files], t.dataset.sec, t.dataset.row);
 });
@@ -1764,6 +1828,155 @@ function fillStays() {
   S.lodging.stays.sort((a, b) => (a.checkin || '9').localeCompare(b.checkin || '9'));
   renderList('stays'); renderMeals(); refresh(); refreshPlaces();
   toast(added ? nPl(added, 'Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.', 'Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.') : T('Every overnight location already has a stay covering those dates.'));
+}
+
+/* ---------- itinerary import (Amex GBT) ---------- */
+// The PDF reader (pdf.js, Apache-2.0) sits in the page as inert text and only runs the first time
+// an itinerary is imported. It runs on this page with no worker and no network access.
+function pdfReader() {
+  if (window.pdfjsLib) return window.pdfjsLib;
+  for (const id of ['pdfjs-w', 'pdfjs-l']) { const src = document.getElementById(id); if (!src) throw new Error('reader'); const s = document.createElement('script'); s.textContent = src.textContent; document.head.appendChild(s); }
+  if (!window.pdfjsLib) throw new Error('reader');
+  return window.pdfjsLib;
+}
+// Text of a PDF as visual lines: items on the same baseline, left to right
+async function pdfLines(bytes) {
+  const lib = pdfReader();
+  const doc = await lib.getDocument({ data: bytes.slice(), isEvalSupported: false, disableFontFace: true, useSystemFonts: false, useWorkerFetch: false, stopAtErrors: false, verbosity: 0 }).promise;
+  const out = [];
+  try {
+    for (let p = 1; p <= doc.numPages; p++) {
+      const tc = await (await doc.getPage(p)).getTextContent(), rows = [];
+      for (const it of tc.items) { if (!it.str || !it.str.trim()) continue; const y = it.transform[5]; let r = rows.find(r => Math.abs(r.y - y) <= 2); if (!r) rows.push(r = { y, it: [] }); r.it.push(it); }
+      rows.sort((a, b) => b.y - a.y).forEach(r => out.push(r.it.sort((a, b) => a.transform[4] - b.transform[4]).map(i => i.str).join(' ')));
+    }
+    return { lines: out, pages: doc.numPages };
+  } finally { try { await doc.destroy(); } catch (e) {} }
+}
+// An HTML email body as lines. DOMParser documents are inert: no scripts, no images, no requests.
+function htmlLines(html) {
+  const d = new DOMParser().parseFromString(html, 'text/html');
+  d.querySelectorAll('script,style,head,title,noscript').forEach(e => e.remove());
+  d.querySelectorAll('br').forEach(e => e.replaceWith('\n'));
+  d.querySelectorAll('p,div,tr,li,h1,h2,h3,h4,h5,h6,table,section,header,footer,dt,dd').forEach(e => e.append('\n'));
+  d.querySelectorAll('td,th').forEach(e => e.append(' '));
+  return (d.body ? d.body.textContent : '').split('\n');
+}
+const binStr = buf => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return s; };
+let IMP = null; // { found, pdfs: [{ name, bytes, pages }], names: [] }
+async function readItinFiles(files) {
+  const found = [], pdfs = [], names = [], errs = [];
+  const fromPdf = async (name, bytes) => { const r = await pdfLines(bytes); const f = ITIN.parse(r.lines); if (f.segs.length || f.hotels.length) pdfs.push({ name, bytes, pages: r.pages }); return f; };
+  for (const file of files) {
+    const nm = file.name || T('Pasted text');
+    try {
+      if (/\.msg$/i.test(nm)) { errs.push(T('{0}: Outlook .msg files cannot be read. Drag the PDF attachment instead, or paste the email text.', nm)); continue; }
+      const buf = new Uint8Array(await file.arrayBuffer());
+      const head = binStr(buf.subarray(0, 5));
+      if (head === '%PDF-' || /\.pdf$/i.test(nm)) { found.push(await fromPdf(nm, buf)); names.push(nm); continue; }
+      const raw = binStr(buf);
+      if (/\.eml$/i.test(nm) || /^(?:[\w-]+:.*\r?\n)+/.test(raw.slice(0, 2000)) && /^(?:content-type|mime-version|received|from|subject):/im.test(raw.slice(0, 4000))) {
+        const parts = ITIN.mime(raw), got = [];
+        for (const p of parts.filter(ITIN.isPdf)) got.push(await fromPdf(p.name || nm.replace(/\.eml$/i, '.pdf'), p.bytes));
+        if (!got.some(f => f.segs.length || f.hotels.length)) {
+          const h = parts.find(p => p.type === 'text/html'), t = parts.find(p => p.type === 'text/plain');
+          if (h) got.push(ITIN.parse(htmlLines(ITIN.text(h))));
+          if (t && !got.some(f => f.segs.length)) got.push(ITIN.parse(ITIN.text(t).split(/\r?\n/)));
+        }
+        found.push(...got); names.push(nm); continue;
+      }
+      const txt = new TextDecoder().decode(buf);
+      found.push(ITIN.parse(/<\/(td|tr|div|p|table)>/i.test(txt) ? htmlLines(txt) : txt.split(/\r?\n/))); names.push(nm);
+    } catch (e) { errs.push(T('{0} could not be read.', nm)); }
+  }
+  return { found: ITIN.merge(found), pdfs, names, errs };
+}
+const hm = t => !t ? '' : fr() ? `${t.slice(0, 2)} h ${t.slice(2)}` : `${t.slice(0, 2)}:${t.slice(2)}`;
+const IMP_KIND = { air: 'Flight', rail: 'Train', bus: 'Bus', car: 'Rental car' };
+const IMP_MODE = { air: 'CAL', rail: 'Train', bus: 'Other', car: 'Rental Car' };
+function impStopName(s) {
+  if (s.how === 'home') return T('Residence');
+  const c = s.place.city || s.place.name || s.place.code;
+  if (s.how !== 'port') return c;
+  const code = s.place.code ? ` (${s.place.code})` : '', de = /^[aeiouyhàâéèêëîïôûü]/i.test(c) ? "d'" : 'de ';
+  if (s.kind === 'air') return fr() ? `Aéroport ${de}${c}${code}` : `${c} airport${code}`;
+  if (s.kind === 'rail') return fr() ? `Gare ${de}${c}` : `${c} train station`;
+  if (s.kind === 'bus') return fr() ? `Gare d'autocars ${de}${c}` : `${c} bus station`;
+  return c;
+}
+const impWhere = p => p ? (p.code ? `${p.city} (${p.code})` : p.city || p.name) : '';
+function impOpen() {
+  IMP = null; $('#imp-pick').hidden = false; $('#imp-review').hidden = true; $('#imp-err').hidden = true; $('#imp-busy').hidden = true;
+  $('#imp-apply').hidden = true; $('#imp-back').hidden = true; $('#imp-text').value = '';
+  const d = $('#imp'); if (!d.open) { try { d.showModal(); } catch (_) { d.setAttribute('open', ''); } }
+}
+function impClose() { const d = $('#imp'); try { d.close(); } catch (_) { d.removeAttribute('open'); } IMP = null; }
+async function impFiles(files) {
+  if (!$('#imp').open) impOpen();
+  const err = $('#imp-err'); err.hidden = true; $('#imp-busy').hidden = false;
+  let r; try { r = await readItinFiles(files); } finally { $('#imp-busy').hidden = true; }
+  const f = r.found;
+  if (!f.segs.length && !f.hotels.length) {
+    err.textContent = [...r.errs, T('No flights, trains, buses or rental cars were found. This reader knows the Amex GBT itinerary layout. For anything else, enter the stops by hand.')].join(' ');
+    err.hidden = false; return;
+  }
+  IMP = Object.assign(r, { res: true, fare: false, hotels: true });
+  impRender();
+}
+function impPlan() { return ITIN.plan(IMP.found, { residence: IMP.res }); }
+function impRender() {
+  const f = IMP.found, round = ITIN.roundTrip(f);
+  $('#imp-pick').hidden = true; $('#imp-review').hidden = false; $('#imp-back').hidden = false; $('#imp-apply').hidden = false;
+  $('#imp-src').textContent = [T('Read {0}.', IMP.names.join(', ')), f.locator.length ? T('Trip locator {0}.', f.locator.join(', ')) : '', ...IMP.errs].filter(Boolean).join(' ');
+  $('#imp-list').innerHTML = f.segs.map(s => {
+    const what = T(IMP_KIND[s.kind] || 'Travel') + (s.num ? ' ' + s.num : '') + (s.carrier && s.kind !== 'rail' && s.kind !== 'bus' ? `, ${s.carrier}` : '');
+    const arrD = s.arr.date && s.arr.date !== s.dep.date ? ` (${fmtDate(s.arr.date)})` : '';
+    return `<li><b>${esc(fmtDate(s.dep.date))}</b> ${esc(T('{0}: {1}', what, `${impWhere(s.from)} ${hm(s.dep.time)} → ${impWhere(s.to)} ${hm(s.arr.time)}${arrD}`))}</li>`;
+  }).concat(f.hotels.map(h => `<li><b>${esc(fmtDate(h.in))}</b> ${esc(T('{0}: {1}', T('Hotel'), [h.name, h.city, T('{0} to {1}', fmtDate(h.in), fmtDate(h.out))].filter(Boolean).join(', ')))}</li>`)).join('');
+  const opt = (id, on, label, sub) => `<label class="check"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span>${esc(label)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</span></label>`;
+  const money = f.fare + f.fee;
+  $('#imp-opts').innerHTML = opt('imp-res', IMP.res, round ? T('Start and finish at your residence') : T('Start at your residence'), T('Adds the trip between your residence and the first station or airport. Choose how you travelled.'))
+    + (money ? opt('imp-fare', IMP.fare, T('Add the fare and GBT service fee to transportation expenses ({0} {1})', fmtN(money), f.cur), T('Only if you paid them yourself. Leave this off when the fare was billed to the department. The itinerary is attached as the receipt.')) : '')
+    + (f.hotels.length ? opt('imp-hotels', IMP.hotels, nPl(f.hotels.length, 'Add the hotel stay to Lodging', 'Add the {0} hotel stays to Lodging'), '') : '');
+  const plan = impPlan(), n = plan.length;
+  $('#imp-plan').innerHTML = plan.map((s, i) => {
+    const when = [i ? `${T('arrive')} ${fmtDate(s.arrDate)} ${hm(s.arrTime)}`.trim() : '', i < n - 1 ? `${T('leave')} ${fmtDate(s.depDate)} ${hm(s.depTime)}`.trim() : ''].filter(Boolean).join(', ');
+    const md = i < n - 1 ? (s.mode ? `<span class="md">${esc(s.mode === 'bus' ? T('Bus') : modeLabel(IMP_MODE[s.mode]))}</span>` : `<span class="md need">${esc(T('Choose how you travelled'))}</span>`) : '';
+    return `<li><b>${esc(impStopName(s))}</b>${when ? `, ${esc(when)}` : ''}${md ? ` · ${md}` : ''}</li>`;
+  }).join('');
+  const gaps = plan.slice(0, -1).filter(s => !s.mode).length;
+  const note = $('#imp-note'); note.hidden = !gaps; note.textContent = T('Where it says "Choose how you travelled", the itinerary does not cover that part of the trip. Fill it in after the import.');
+  const has = hasData('B'), w = $('#imp-warn');
+  w.hidden = !has; w.textContent = nPl(S.stops.length, 'This replaces the {0} location now in section B. You can undo it right after.', 'This replaces the {0} locations now in section B. You can undo it right after.');
+  $('#imp-apply').textContent = has ? T('Replace section B') : T('Fill section B');
+}
+function impApply() {
+  if (!IMP) return;
+  const f = IMP.found, plan = impPlan();
+  if (plan.length < 2) return;
+  const before = JSON.stringify({ stops: S.stops, transport: S.transport, stays: S.lodging.stays });
+  S.stops = plan.map(s => Object.assign(newStop(impStopName(s)), { arrDate: s.arrDate, arrTime: s.arrTime, depDate: s.depDate, depTime: s.depTime,
+    mode: IMP_MODE[s.mode] || '', modeOther: s.mode === 'bus' ? T('Bus') : '' }));
+  S.touched.B = true;
+  const extra = [];
+  if (IMP.fare && f.fare + f.fee > 0) {
+    const legs = f.segs.filter(s => s.kind !== 'car').map(s => `${s.num ? s.num + ' ' : ''}${s.from.code || s.from.city}-${s.to.code || s.to.city}`).join(', ');
+    const rc = IMP.pdfs.map(p => { const id = uid(); R[id] = { id, name: p.name, kind: 'pdf', dataUrl: 'data:application/pdf;base64,' + bufToB64(p.bytes), pages: p.pages }; return id; });
+    const s0 = f.segs[0];
+    S.transport.push(Object.assign({ id: uid(), rc }, ROWNEW.transport(), { date: s0.dep.date, location: s0.from.city, desc: T('Fare and GBT service fee') + (legs ? ` (${legs})` : ''), cost: (f.fare + f.fee).toFixed(2), cur: f.cur }));
+    S.touched[DEFS.transport.L] = true; extra.push(T('Fare added to section C.'));
+  }
+  if (IMP.hotels && f.hotels.length) {
+    let n = 0; const overlaps = (a, b) => isoOk(b.checkin) && isoOk(b.checkout) && a.in < b.checkout && b.checkin < a.out;
+    f.hotels.forEach(h => { if (S.lodging.stays.some(r => overlaps(h, r))) return; S.lodging.stays.push(Object.assign({ id: uid(), rc: [] }, ROWNEW.stays(), { hotel: h.name, location: h.city, city: h.city, checkin: h.in, checkout: h.out })); n++; });
+    S.lodging.stays.sort((a, b) => (a.checkin || '9').localeCompare(b.checkin || '9'));
+    if (n) { S.touched[DEFS.stays.L] = true; extra.push(nPl(n, '{0} stay added to section D.', '{0} stays added to section D.')); }
+  }
+  impClose();
+  const redraw = () => { renderItin(); renderList('transport'); renderList('stays'); renderMeals(); refresh(); refreshPlaces(); };
+  redraw();
+  const el = $('#sec-B'); if (el) el.scrollIntoView({ block: 'start' });
+  toast(T('Itinerary imported: {0} locations.', S.stops.length) + (extra.length ? ' ' + extra.join(' ') : '') + ' ' + T('Check the times and how you travelled.'), { label: T('Undo'), fn: () => { const o = JSON.parse(before); S.stops = o.stops; S.transport = o.transport; S.lodging.stays = o.stays; redraw(); } });
 }
 
 /* ---------- drafts ---------- */

@@ -2,6 +2,7 @@ import sys, re, pathlib
 base = pathlib.Path(sys.argv[1])
 src = (base / "app/app.html").read_text()
 src = src.replace("/*I18N_FR*/", (base / "app/fr.js").read_text().strip())  # French text, see app/fr.js
+src = src.replace("/*ITIN*/", (base / "app/itin.js").read_text().strip())  # itinerary reader, see app/itin.js
 # Versions: production shows VERSION; beta shows the next minor and its own build number (BETA_BUILD),
 # which release.py raises on every beta publish and resets when the beta is promoted.
 import datetime, zoneinfo
@@ -16,7 +17,14 @@ src_beta = src.replace("__APP_VERSION__", f"{BETA_VERSION}-beta.{BETA_BUILD}").r
 src = src.replace("__APP_VERSION__", VERSION).replace("__APP_LABEL__", PROD_LABEL).replace("__APP_CHANNEL__", "production")
 pdflib = (base / "npm/node_modules/pdf-lib/dist/pdf-lib.min.js").read_text().replace("\ufffd", "\\ufffd")
 assert "</script" not in pdflib.lower()
-inl = src.replace("/*PDFLIB*/", "\n" + pdflib + "\n")
+# pdf.js (Apache-2.0) reads itinerary PDFs. It is stored as inert text and only run on first import.
+pdfjs = {k: (base / f"npm/node_modules/pdfjs-dist/build/{f}").read_text() for k, f in (("/*PDFJS*/", "pdf.min.js"), ("/*PDFJSW*/", "pdf.worker.min.js"))}
+for v in pdfjs.values(): assert "</script" not in v.lower() and "<!--" not in v and "\ufffd" not in v
+def libs(t):
+    t = t.replace("/*PDFLIB*/", "\n" + pdflib + "\n")
+    for k, v in pdfjs.items(): t = t.replace(k, v)
+    return t
+inl = libs(src)
 
 # Artifact version: page content only (the host adds the document skeleton)
 (base / "out").mkdir(exist_ok=True)
@@ -65,7 +73,7 @@ print("web ok", ver)
 # beta is easy to tell apart from production on a home screen.
 import json
 webb = base / "out/web-beta"; shutil.rmtree(webb, ignore_errors=True); shutil.copytree(web, webb)
-binl = src_beta.replace("/*PDFLIB*/", "\n" + pdflib + "\n")
+binl = libs(src_beta)
 bhead, bbody = binl.split("<!--BODY-->", 1)
 bhead = re.sub(r"<!--FONTS-->.*?<!--/FONTS-->", "", bhead, flags=re.S)
 beta_css = (base / "pwa/beta.css").read_text()

@@ -10,6 +10,8 @@ This branch holds the source, build tools and tests. GitHub Pages publishes `mai
 - `release.py beta "message"`: next beta build to `/beta/`. `release.py promote`: beta becomes production. Both check that nothing beta-only reaches production, then save this branch.
 - `test*.py`: Playwright tests (`python3 test_beta.py .` etc.).
 - pdf-lib 1.17.1 (MIT) is in `npm/node_modules/pdf-lib/dist/`.
+- `app/itin.js`: itinerary reader (Amex GBT layout). Pure functions, text lines in, segments and stops out; `test_itin.py` checks it with fictional itineraries built on the fly. Never commit a real itinerary.
+- pdf.js 3.11.174 (Apache-2.0) is in `npm/node_modules/pdfjs-dist/build/` (`pdf.min.js`, `pdf.worker.min.js`). build.py stores both in the page as inert text; the app runs them on first import, on the page, with no worker.
 
 To rebuild elsewhere: clone this branch, `pip install playwright pillow pypdf`, then `python3 build.py .`.
 

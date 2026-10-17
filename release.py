@@ -29,7 +29,7 @@ def push(msg):
     subprocess.run(["git", "push", "-q", "origin", "main"], cwd=R, capture_output=True)
     print(sh("git", "log", "--oneline", "-1").strip())
 SRC = pathlib.Path("/home/claude/tcp-source")
-KEEP = ["app/app.html", "app/fr.js", "build.py", "release.py", "VERSION", "BETA_BUILD", "pwa", "npm/node_modules/pdf-lib/dist/pdf-lib.min.js", "SOURCE.md"] + sorted(p.name for p in S.glob("test*.py"))
+KEEP = ["app/app.html", "app/fr.js", "build.py", "release.py", "VERSION", "BETA_BUILD", "pwa", "npm/node_modules/pdf-lib/dist/pdf-lib.min.js", "app/itin.js", "npm/node_modules/pdfjs-dist/build/pdf.min.js", "npm/node_modules/pdfjs-dist/build/pdf.worker.min.js", "npm/node_modules/pdfjs-dist/LICENSE", "SOURCE.md"] + sorted(p.name for p in S.glob("test*.py"))
 def save_source():
     """Snapshot the source, build tools and tests to the 'source' branch (not published by GitHub Pages)."""
     if not SRC.exists():

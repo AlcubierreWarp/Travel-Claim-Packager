@@ -4,6 +4,8 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.9 (beta, in progress)
 
+- Itinerary import: the beta note now says import is still under development, that results may vary and should be checked for accuracy, and to report errors with Send feedback at the bottom of the page or in the menu
+
 ## 1.8 (17 Oct 2026)
 
 - The Switch to beta / Switch to production item moves to the bottom of the menu, under Help and Send feedback

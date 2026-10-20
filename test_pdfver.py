@@ -1,4 +1,5 @@
-# The PDF package carries the app version on every page footer and in its file properties.
+# The PDF package carries the app version on every page footer and in its file properties, and its
+# header line gives the trip, its dates and any TAN or trip locator.
 import sys, pathlib, asyncio, re
 from playwright.async_api import async_playwright
 from pypdf import PdfReader
@@ -21,6 +22,9 @@ async def main():
             meta = r.metadata
             check(f"{ch}/{lang}: version in file properties", want.search(meta.get("/Keywords", "")) is not None and "Itinerary" in meta.get("/Creator", ""), (meta.get("/Keywords"), meta.get("/Creator")))
             print("  footer:", [l for l in texts[0].splitlines() if want.search(l)][:1])
+            head = texts[0].splitlines()[:4]; print("  header:", head)
+            dates = "02 Nov 26 to 06 Nov 26" if lang == "en" else "02 nov. 26 au 06 nov. 26"
+            check(f"{ch}/{lang}: header shows the trip dates, not a prepared date or receipt count", any(dates in l for l in head) and not any(re.search(r"Prepared|Préparé|attached|joint", l) for l in head), head)
             await c.close()
         print("errors:", errs); print("failures:", fails); await b.close()
 asyncio.run(main())

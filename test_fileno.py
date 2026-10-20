@@ -1,4 +1,5 @@
-# File number: 7209-1 by default in every file name, until the member changes or clears it.
+# File number: 7209-1 by default in every file name, until the member changes or clears it. With
+# Remember my details on, the member's file number and marking become their defaults.
 import sys, pathlib, asyncio, json
 from playwright.async_api import async_playwright
 base = pathlib.Path(sys.argv[1]); url = (base / "out/CAF_Digital_Travel_Itinerary.html").resolve().as_uri(); fx = base / "fixtures"; fx.mkdir(exist_ok=True)
@@ -32,5 +33,19 @@ async def main():
         check("older claim file gets 7209-1", await q.input_value("#pk-fileno") == "7209-1", await q.input_value("#pk-fileno"))
         await q.set_input_files("#file-draft", str(cleared)); await q.wait_for_timeout(600)
         check("claim file with the number cleared on purpose stays cleared", await q.input_value("#pk-fileno") == "", await q.input_value("#pk-fileno"))
+        # with Remember my details on, the file number and marking become the defaults for new claims
+        c2 = await b.new_context(); q = await c2.new_page(); q.on("pageerror", lambda e: errs.append(str(e)))
+        await q.goto(url); await q.wait_for_timeout(400); await q.click("[data-act=start-blank]"); await q.wait_for_timeout(200)
+        check("no default note while details are not remembered", not await q.is_visible("#fn-default"))
+        await q.click("#menu-btn"); await q.check("#opt-remember"); await q.keyboard.press("Escape"); await q.wait_for_timeout(200)
+        check("note shows once details are remembered", await q.is_visible("#fn-default"))
+        await q.fill("#pk-fileno", "5555-2"); await q.select_option("#pk-marking", "PB"); await q.wait_for_timeout(1300)
+        await q.click("#menu-btn"); await q.click("#clear-btn"); await q.click("#clear-btn"); await q.wait_for_timeout(600)
+        check("new claim starts with the remembered file number and marking", (await q.input_value("#pk-fileno"), await q.input_value("#pk-marking")) == ("5555-2", "PB"), (await q.input_value("#pk-fileno"), await q.input_value("#pk-marking")))
+        await q.reload(); await q.wait_for_timeout(600)
+        check("still the defaults after a reload", (await q.input_value("#pk-fileno"), await q.input_value("#pk-marking")) == ("5555-2", "PB"), (await q.input_value("#pk-fileno"), await q.input_value("#pk-marking")))
+        await q.click("#menu-btn"); await q.uncheck("#opt-remember"); await q.click("#menu-btn") if await q.is_visible("#menu") else None
+        await q.keyboard.press("Escape"); await q.click("#menu-btn"); await q.click("#clear-btn"); await q.click("#clear-btn"); await q.wait_for_timeout(600)
+        check("without remembering, a new claim is back to 7209-1 and Protected A", (await q.input_value("#pk-fileno"), await q.input_value("#pk-marking")) == ("7209-1", "PA"), (await q.input_value("#pk-fileno"), await q.input_value("#pk-marking")))
         print("errors:", errs); print("failures:", fails); await b.close()
 asyncio.run(main())

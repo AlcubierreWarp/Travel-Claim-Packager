@@ -4,6 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.9 (beta, in progress)
 
+- Crop now guesses where the receipt is when it opens (a pale sheet on a darker surface, angled or partly out of frame) and places the corners there to check and adjust. When it cannot tell, for example white paper on a white counter, it starts from the whole photo as before. Reset goes back to the whole photo
 - Receipt photos can be cropped on the device: drag the four corners to the receipt's edges (a magnifier helps on phones) and the photo is straightened to that shape, with Rotate and Reset. From the Add a receipt window, or later from an attached receipt's viewer, with Undo. No new library; the single file stays about 2.3 MB
 - PDF header: the line under the title now gives the trip name, the trip's start and end dates, and the TAN and trip locator when there are any. The date prepared and the receipt counts are gone from it
 - PDF tables: totals and subtotals stand out as a shaded band with a rule above and no cell lines, and the grand total has a double rule below. Ordinary rows are white again (every row had been shaded by mistake)

@@ -113,6 +113,7 @@ python test_split.py .
 python test_betatools.py .
 python test_theme.py .
 python test_crop.py .
+python test_autocrop.py .
 ```
 
 Each prints `errors: []`. Tests that check privacy also print `external requests: []`, and the newer ones print `failures: []`. `test_fr.py` also prints `missing: []` (no untranslated text). Delete the `fixtures/` and `shots/` folders afterwards.

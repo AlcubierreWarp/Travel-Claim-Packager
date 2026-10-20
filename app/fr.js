@@ -109,6 +109,7 @@ const FR = {
 "Cancel": "Annuler",
 "Change the reason": "Modifier la raison",
 "Check": "Vérifier",
+"Check the corners, then Apply.": "Vérifiez les coins, puis appliquez.",
 "Check the times and how you travelled.": "Vérifiez les heures et les moyens de transport.",
 "Check-in": "Arrivée",
 "Check-out": "Départ",

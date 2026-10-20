@@ -889,7 +889,7 @@ html{touch-action:manipulation}
 <dialog id="crop" aria-labelledby="crop-h">
   <div class="snap-head"><h3 id="crop-h">Crop the receipt</h3><button type="button" class="icon-btn" data-act="crop-cancel" aria-label="Close">×</button></div>
   <div class="crop-body">
-    <p class="crop-hint">Drag the corners to the edges of the receipt.</p>
+    <p class="crop-hint" id="crop-hint">Drag the corners to the edges of the receipt.</p>
     <div class="crop-stage" id="crop-stage"><canvas id="crop-cv"></canvas><svg id="crop-svg" aria-label="Crop area"></svg><canvas id="crop-loupe" width="120" height="120" hidden></canvas></div>
   </div>
   <div class="snap-foot crop-foot"><button type="button" class="btn" data-act="crop-rotate">Rotate</button><button type="button" class="btn" data-act="crop-reset">Reset</button><span class="crop-gap"></span><button type="button" class="btn" data-act="crop-cancel">Cancel</button><button type="button" class="btn primary" data-act="crop-apply" id="crop-apply">Apply</button></div>
@@ -1995,7 +1995,7 @@ document.addEventListener('click', e => {
     case 'snap-crop': if (snapRc && snapRc.kind === 'img') openCrop(snapRc, res => { Object.assign(snapRc, res); snapPreview(); }); break;
     case 'crop-cancel': closeCrop(); break;
     case 'crop-rotate': if (CROP) cropRotate(); break;
-    case 'crop-reset': if (CROP) { cropFull(); cropDraw(); } break;
+    case 'crop-reset': if (CROP) { cropFull(); $('#crop-hint').textContent = T('Drag the corners to the edges of the receipt.'); cropDraw(); } break;
     case 'crop-apply': if (CROP) cropApply(); break;
     case 'meal-all': { const k = b.dataset.meal, on = b.checked; (tripDates() || []).forEach(d => { const m = S.meals[d] = S.meals[d] || {}; m[k] = on; }); renderMeals(); refresh(); const a = $('#meal-all-' + k); if (a) a.focus(); break; }
     case 'add-stop': {
@@ -3328,12 +3328,79 @@ const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onlo
 async function openCrop(rc, done) {
   let img; try { img = await loadImg(rc.dataUrl); } catch (e) { toast(T('{0} could not be read.', rc.name)); return; }
   const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0);
-  CROP = { src: c, done, rot: false, drag: -1 }; cropFull();
+  CROP = { src: c, done, rot: false, drag: -1 }; cropGuess();
   const dlg = $('#crop'); try { dlg.showModal(); } catch (_) { dlg.setAttribute('open', ''); }
   requestAnimationFrame(cropLayout);
 }
 function closeCrop() { const d = $('#crop'); try { d.close(); } catch (_) { d.removeAttribute('open'); } CROP = null; }
 function cropFull() { const { width: w, height: h } = CROP.src; CROP.q = [[0, 0], [w, 0], [w, h], [0, h]]; }
+// place the corners on the receipt when it can be found, else on the whole photo; the member checks and adjusts either way
+function cropGuess() {
+  let q = null; try { q = findReceipt(CROP.src); } catch (e) {}
+  if (q) CROP.q = q; else cropFull();
+  $('#crop-hint').textContent = q ? T('Check the corners, then Apply.') : T('Drag the corners to the edges of the receipt.');
+}
+// Find a pale receipt on a darker surface: a small greyscale copy, split at the best brightness threshold (Otsu),
+// the largest pale patch, its outline, and the four-sided shape that best covers it. Returns null when unsure.
+function findReceipt(src) {
+  const S0 = 320, f = Math.min(1, S0 / Math.max(src.width, src.height)), w = Math.max(8, Math.round(src.width * f)), h = Math.max(8, Math.round(src.height * f));
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(src, 0, 0, w, h); const px = g.getImageData(0, 0, w, h).data, n = w * h;
+  let L = new Float32Array(n); for (let i = 0; i < n; i++) L[i] = .299 * px[4 * i] + .587 * px[4 * i + 1] + .114 * px[4 * i + 2];
+  for (let pass = 0; pass < 2; pass++) { // light blur, so paper texture and print do not break the patch up
+    const o = new Float32Array(n);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let s = 0, k = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < w && yy < h) { s += L[yy * w + xx]; k++; } } o[y * w + x] = s / k; }
+    L = o;
+  }
+  const hist = new Array(256).fill(0); for (let i = 0; i < n; i++) hist[Math.min(255, L[i] | 0)]++;
+  let sum = 0; for (let i = 0; i < 256; i++) sum += i * hist[i];
+  let sB = 0, wB = 0, best = -1, th = 128;
+  for (let i = 0; i < 256; i++) { wB += hist[i]; if (!wB) continue; const wF = n - wB; if (!wF) break; sB += i * hist[i]; const mB = sB / wB, mF = (sum - sB) / wF, v = wB * wF * (mB - mF) * (mB - mF); if (v > best) { best = v; th = i; } }
+  let lo = 0, hi = 0; for (let i = 0; i < 256; i++) { if (i <= th) lo += i * hist[i]; else hi += i * hist[i]; }
+  const nLo = hist.slice(0, th + 1).reduce((a, b) => a + b, 0), meanLo = lo / Math.max(1, nLo), meanHi = hi / Math.max(1, n - nLo);
+  if (meanHi - meanLo < 40) return null; // not enough contrast between paper and surface
+  // pale pixels, closed so thin dark print inside the paper does not split it
+  let M = new Uint8Array(n); for (let i = 0; i < n; i++) M[i] = L[i] > th ? 1 : 0;
+  const morph = (A, grow) => { const o = new Uint8Array(n); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let v = grow ? 0 : 1; for (let dy = -1; dy <= 1 && v === (grow ? 0 : 1); dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; const a = xx >= 0 && yy >= 0 && xx < w && yy < h ? A[yy * w + xx] : 0; if (grow ? a : !a) { v = grow ? 1 : 0; break; } } o[y * w + x] = v; } return o; };
+  M = morph(morph(M, true), false);
+  // the largest pale patch
+  const lab = new Int32Array(n), stack = new Int32Array(n); let bestId = 0, bestN = 0, id = 0;
+  for (let s = 0; s < n; s++) {
+    if (!M[s] || lab[s]) continue; id++; let top = 0, cnt = 0; stack[top++] = s; lab[s] = id;
+    while (top) { const p = stack[--top]; cnt++; const x = p % w, y = (p - x) / w;
+      if (x > 0 && M[p - 1] && !lab[p - 1]) { lab[p - 1] = id; stack[top++] = p - 1; } if (x < w - 1 && M[p + 1] && !lab[p + 1]) { lab[p + 1] = id; stack[top++] = p + 1; }
+      if (y > 0 && M[p - w] && !lab[p - w]) { lab[p - w] = id; stack[top++] = p - w; } if (y < h - 1 && M[p + w] && !lab[p + w]) { lab[p + w] = id; stack[top++] = p + w; } }
+    if (cnt > bestN) { bestN = cnt; bestId = id; }
+  }
+  if (bestN < n * .04 || bestN > n * .95) return null;
+  // its outline (left and right ends of each row), the convex hull of that, then the largest four-sided shape on the hull
+  const pts = [];
+  for (let y = 0; y < h; y++) { let a = -1, b = -1; for (let x = 0; x < w; x++) if (lab[y * w + x] === bestId) { if (a < 0) a = x; b = x; } if (a >= 0) { pts.push([a, y]); if (b !== a) pts.push([b + 1, y]); } }
+  pts.sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lower = [], upper = [];
+  for (const p of pts) { while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop(); lower.push(p); }
+  for (let i = pts.length - 1; i >= 0; i--) { const p = pts[i]; while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop(); upper.push(p); }
+  let hull = lower.slice(0, -1).concat(upper.slice(0, -1)); if (hull.length < 4) return null;
+  if (hull.length > 80) { const st = hull.length / 80; hull = Array.from({ length: 80 }, (_, i) => hull[Math.floor(i * st)]); }
+  const H = hull.length, tri = (a, b, c) => Math.abs(cross(hull[a], hull[b], hull[c])) / 2;
+  let bq = null, bA = 0;
+  for (let i = 0; i < H; i++) for (let k = i + 2; k < H; k++) {
+    let j = -1, aj = 0; for (let m = i + 1; m < k; m++) { const a = tri(i, m, k); if (a > aj) { aj = a; j = m; } }
+    let l = -1, al = 0; for (let m = k + 1; m < H + i; m++) { const mm = m % H; if (mm === i) continue; const a = tri(k, mm, i); if (a > al) { al = a; l = mm; } }
+    if (j >= 0 && l >= 0 && aj + al > bA) { bA = aj + al; bq = [hull[i], hull[j], hull[k], hull[l]]; }
+  }
+  if (!bq || bA < n * .05 || bA > n * .9) return null; // nothing found, or the paper already fills the photo
+  if (bestN / bA < .8) return null; // the patch is not shaped like a sheet of paper
+  const sides = bq.map((p, i) => Math.hypot(p[0] - bq[(i + 1) % 4][0], p[1] - bq[(i + 1) % 4][1]));
+  if (Math.min(...sides) < Math.min(w, h) * .08) return null;
+  // order: top left (smallest x + y) first, then clockwise on screen
+  const cx = bq.reduce((a, p) => a + p[0], 0) / 4, cy = bq.reduce((a, p) => a + p[1], 0) / 4;
+  bq.sort((a, b) => Math.atan2(a[1] - cy, a[0] - cx) - Math.atan2(b[1] - cy, b[0] - cx));
+  let s0 = 0; bq.forEach((p, i) => { if (p[0] + p[1] < bq[s0][0] + bq[s0][1]) s0 = i; });
+  const ord = [0, 1, 2, 3].map(i => bq[(s0 + i) % 4]);
+  return ord.map(([x, y]) => [Math.max(0, Math.min(src.width, x / f)), Math.max(0, Math.min(src.height, y / f))]);
+}
 function cropLayout() {
   if (!CROP) return;
   const st = $('#crop-stage'), cv = $('#crop-cv'), { width: w, height: h } = CROP.src;
@@ -3389,7 +3456,7 @@ function initCrop() {
 function cropRotate() {
   const s = CROP.src, c = document.createElement('canvas'); c.width = s.height; c.height = s.width;
   const g = c.getContext('2d'); g.translate(c.width, 0); g.rotate(Math.PI / 2); g.drawImage(s, 0, 0);
-  CROP.src = c; CROP.rot = true; cropFull(); $('#crop-svg').innerHTML = ''; cropLayout();
+  CROP.src = c; CROP.rot = true; cropGuess(); $('#crop-svg').innerHTML = ''; cropLayout();
 }
 // the projective map that takes the corners of the output rectangle to the four chosen corners of the photo
 function homography(from, to) {

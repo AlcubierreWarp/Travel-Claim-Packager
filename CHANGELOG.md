@@ -4,6 +4,9 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.9 (beta, in progress)
 
+- Menu regrouped by function: Claim file (New claim, Open claim file, Save claim file, Send claim file), On this device (Keep my work, Save now, Remember my details, PIN, Forget this device), Experimental, App (Download offline copy, local-only notice, switch channel) and Help. Install app stays at the top
+- New Experimental section with on/off switches for Itinerary import (on by default; off hides the import card) and Beautify export (off by default). Import is now labelled Experimental instead of Beta
+- On/off switches replace the small check boxes in the menu and for yes/no choices on the page, which are easier to tap on a phone. The meals grid keeps its check boxes
 - A built PDF is withdrawn as soon as anything changes what it would hold (the claim, a receipt, Beautify export, separate files or signing, the language), with "Changed since the last build. Build again for an up-to-date PDF.", so Save or Open never hands over an out-of-date file
 - Add stays from itinerary: each leave stop now gets a green leave card (place, dates, nights, "no lodging to claim") where it falls among the stays, with nothing to fill in. It can be removed (with Undo), is not added twice and is not in the PDF
 - Click an uploaded receipt photo (anywhere but its x) to open the crop editor

@@ -76,9 +76,18 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .menu .mi-sub{display:block;font-size:.74rem;line-height:1.3;color:var(--muted);margin-top:2px}
 .menu .menu-h:first-child{margin-top:6px}
 .menu-h{font:600 .64rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 10px 2px}
-.menu-check{display:flex;gap:10px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
+.menu-check{display:flex;gap:12px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
 .menu-check:hover{background:var(--accent-soft)}
+.menu-check>span{flex:1 1 auto;min-width:0}
+.menu-check>input{order:2}
 .menu-check input:disabled+*{opacity:.5}
+/* On/off switches in place of small check boxes: easier to hit and to read on a phone. The knob is a background
+   layer (no ::before), so it draws the same in every browser. The meals grid keeps its check boxes. */
+input[type=checkbox].sw,.check>input[type=checkbox]{-webkit-appearance:none;appearance:none;flex:none;box-sizing:border-box;width:2.5rem;height:1.5rem;margin:0;border-radius:999px;border:1px solid var(--line-strong);background-color:var(--line);background-image:radial-gradient(circle closest-side,#fff 0 calc(100% - 1.5px),rgba(0,0,0,.28) calc(100% - 1px),transparent 100%);background-size:1.2rem 1.2rem;background-repeat:no-repeat;background-position:.1rem 50%;cursor:pointer;transition:background-position .15s ease,background-color .15s ease}
+input[type=checkbox].sw:checked,.check>input[type=checkbox]:checked{background-color:var(--accent);border-color:var(--accent);background-position:calc(100% - .1rem) 50%}
+input[type=checkbox].sw:focus-visible,.check>input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=checkbox].sw:disabled,.check>input[type=checkbox]:disabled{opacity:.45;cursor:not-allowed}
+@media (prefers-reduced-motion: reduce){ input[type=checkbox].sw,.check>input[type=checkbox]{transition:none} }
 
 .menu-ver{font-family:var(--f-mono);font-size:.7rem!important;color:var(--muted)}
 .menu-note{font-size:.76rem;line-height:1.4;color:var(--muted);margin:6px 10px 4px}
@@ -145,7 +154,7 @@ dialog#lb .lb-acts{display:flex;gap:8px}
 .pretty-note{margin:0 0 10px}.pretty-note .pill-exp{margin:0 6px 0 0}
 .pill-beta{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid currentColor;border-radius:999px;font:700 .6rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;opacity:.85}
 .imp-betanote{display:flex;gap:8px;align-items:baseline;margin:0 0 12px;padding:8px 10px;border-radius:3px;background:var(--card);border:1px solid var(--line);font-size:.82rem;color:var(--muted)}
-.imp-betanote .pill-beta{margin-left:0;flex:none;color:var(--ink)}
+.imp-betanote .pill-exp{margin-left:0;flex:none}
 .imp-lead{margin:0 0 12px;font-size:.9rem}
 .imp-drop{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border:1px dashed var(--line-strong);border-radius:4px;padding:14px;background:var(--card);margin-bottom:14px}
 .imp-drop.dragover{border-color:var(--accent);background:var(--field)}
@@ -407,7 +416,7 @@ fieldset.tg.off input{opacity:.3}
 .imp-hero-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
 .imp-hero-t strong{font-size:.95rem}
 .imp-hero-t > span{font-size:.82rem;color:var(--muted)}
-.imp-hero .pill-beta{margin-left:4px}
+.imp-hero .pill-exp{margin-left:4px}
 @media (max-width: 560px){ .imp-hero .btn{width:100%} }
 .trip .sd-help{margin-top:6px}
 .leave-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px}
@@ -672,33 +681,38 @@ html{touch-action:manipulation}
         <div class="menu" id="menu" hidden>
           <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
           <hr id="install-hr" hidden>
-          <p class="menu-h">This claim</p>
-          <button data-act="save-now" id="save-now-menu">Save now</button>
+          <p class="menu-h">Claim file</p>
           <button data-act="clear" id="clear-btn">New claim</button>
-          <button data-act="open-draft">Import claim file…</button>
-          <button data-act="save-draft" id="save-draft"><span class="mi-t">Export claim file</span><span class="mi-sub">Your claim and receipts, to finish later or on another device.</span></button>
+          <button data-act="open-draft">Open claim file…</button>
+          <button data-act="save-draft" id="save-draft"><span class="mi-t">Save claim file</span><span class="mi-sub">Your claim and receipts, to finish later or on another device.</span></button>
           <button data-act="send-draft" id="send-draft" hidden>Send claim file</button>
           <hr>
-          <p class="menu-h">This tool</p>
-          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Export offline app</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
-          <label class="menu-check"><input type="checkbox" id="opt-pretty"> <span>Beautify export <span class="pill-exp">Experimental</span></span></label>
-          <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
-          <hr>
-          <p class="menu-h">This device</p>
-          <label class="menu-check"><input type="checkbox" id="opt-keep"> Keep my work on this device</label>
-          <label class="menu-check"><input type="checkbox" id="opt-remember"> Remember my details</label>
-          <label class="menu-check"><input type="checkbox" id="opt-pin"> Protect with a PIN</label>
+          <p class="menu-h">On this device</p>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-keep"><span><span class="mi-t">Keep my work on this device</span></span></label>
+          <button data-act="save-now" id="save-now-menu">Save now</button>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-remember"><span><span class="mi-t">Remember my details</span></span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pin"><span><span class="mi-t">Protect with a PIN</span></span></label>
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
+          <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
+          <hr>
+          <p class="menu-h">Experimental</p>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-imp"><span><span class="mi-t">Itinerary import</span><span class="mi-sub">Fill in stops from an Amex GBT itinerary PDF or email.</span></span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pretty"><span><span class="mi-t">Beautify export</span><span class="mi-sub">A designed layout for the PDF package.</span></span></label>
+          <p class="menu-note">Still being tested, so results may vary. Use Send feedback if something looks wrong.</p>
+          <hr>
+          <p class="menu-h">App</p>
+          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Download offline copy</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
+          <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
+          <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
           <hr>
           <p class="menu-h">Help</p>
           <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
           <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
+          <!--BETA-ONLY--><hr>
+          <p class="menu-h">Beta testing</p>
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
-          <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 10, built 21 Oct 2026 14:34 (production is 1.8)</p>
-          <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 11, built 21 Oct 2026 15:51 (production is 1.8)</p>
         </div>
       </div>
     </div>
@@ -734,7 +748,7 @@ html{touch-action:manipulation}
 
     <section class="sec trip" id="sec-T">
       <div class="imp-hero" id="imp-hero">
-        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times.</span></div>
+        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-exp">Experimental</span></strong><span>Import the PDF or email to fill in your stops, dates and times.</span></div>
         <button class="btn primary" data-act="imp-open">Import itinerary</button>
       </div>
       <div class="sec-b">
@@ -920,7 +934,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 10, built 21 Oct 2026 14:34 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 11, built 21 Oct 2026 15:51 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -970,11 +984,11 @@ html{touch-action:manipulation}
 
 <input type="file" id="file-itin" accept=".pdf,.msg,.eml,.txt,.htm,.html,application/pdf,application/vnd.ms-outlook,message/rfc822,text/plain,text/html" multiple hidden>
 <dialog id="imp" aria-labelledby="imp-h">
-  <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
+  <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-exp">Experimental</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
       <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.</p>
-      <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>Import is a beta feature under development, so results may vary. Check the imported stops, dates and times against your itinerary for accuracy. To report an error or issue and help improve the tool, use Send feedback at the bottom of the page or in the menu.</span></p>
+      <p class="imp-betanote"><span class="pill-exp">Experimental</span> <span>Import is experimental and still being developed, so results may vary. Check the imported stops, dates and times against your itinerary for accuracy. To report an error or issue and help improve the tool, use Send feedback at the bottom of the page or in the menu.</span></p>
       <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.</span></div>
       <label for="imp-text" class="imp-or">Or open the email, select all, copy, and paste it here</label>
       <textarea id="imp-text" rows="4" autocomplete="off" spellcheck="false"></textarea>
@@ -982,7 +996,7 @@ html{touch-action:manipulation}
     </div>
     <div id="imp-review" hidden>
       <p class="imp-src" id="imp-src"></p>
-      <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>Compare this with your itinerary before you fill section B.</span></p>
+      <p class="imp-betanote"><span class="pill-exp">Experimental</span> <span>Compare this with your itinerary before you fill section B.</span></p>
       <h4 class="imp-sub">Found</h4>
       <ul class="imp-list" id="imp-list"></ul>
       <p class="imp-added" id="imp-added" role="status" hidden></p>
@@ -1127,6 +1141,7 @@ const FR = {
 "A Commissioner for Oaths outside Alberta.": "Commissaire aux serments à l'extérieur de l'Alberta.",
 "A Commissioner for Oaths.": "Commissaire aux serments.",
 "A copy of this tool as one .html file that runs without internet. No claim data.": "Une copie de cet outil en un seul fichier .html, utilisable sans Internet. Aucune donnée de réclamation.",
+"A designed layout for the PDF package.": "Une mise en page soignée pour la trousse PDF.",
 "A missing receipt is replaced by a statutory declaration (page {1}). Declare it in person before an authorized officer, who completes and signs the jurat.": "Le reçu manquant est remplacé par une déclaration solennelle (page {1}). Faites-la en personne devant un officier autorisé, qui remplit et signe le constat d'assermentation.",
 "A statutory declaration for {0} replaces the receipt in the package.": "Une déclaration solennelle pour {0} remplace le reçu dans la trousse.",
 "Add a receipt": "Ajouter un reçu",
@@ -1165,6 +1180,7 @@ const FR = {
 "Also claimed, not converted": "Aussi réclamé, sans conversion",
 "Amount": "Montant",
 "Anything that is not transportation, lodging or meals": "Tout ce qui n'est pas du transport, de l'hébergement ou des repas",
+"App": "Application",
 "Apply": "Appliquer",
 "Army": "Armée de terre",
 "Arrival": "Arrivée",
@@ -1234,6 +1250,7 @@ const FR = {
 "City or base, e.g. Winnipeg": "Ville ou base, p. ex. Winnipeg",
 "City or town": "Ville ou municipalité",
 "Civilian": "Civil",
+"Claim file": "Fichier de réclamation",
 "Claim {0} every day": "Réclamer le {0} chaque jour",
 "Claimant and point of contact": "Réclamant et point de contact",
 "Claimant, no point of contact": "Réclamant, sans point de contact",
@@ -1333,6 +1350,7 @@ const FR = {
 "File {0}": "Dossier {0}",
 "File:": "Fichier :",
 "File: {0}": "Fichier : {0}",
+"Fill in stops from an Amex GBT itinerary PDF or email.": "Remplit les arrêts à partir du PDF ou du courriel d'itinéraire Amex GBT.",
 "Fill in your name: {0}": "Remplir votre nom : {0}",
 "Fill section B": "Remplir la section B",
 "Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.": "Remplit la section B à partir d'un itinéraire d'Amex GBT : vols, trains, autobus et voitures de location, avec leurs dates et heures. Remplit aussi le TAN et le code de réservation du voyage, ainsi que votre nom si vous le choisissez. Le fichier est lu sur cet appareil et n'est pas téléversé.",
@@ -1381,6 +1399,7 @@ const FR = {
 "Import an itinerary": "Importer un itinéraire",
 "Import claim file…": "Importer un fichier de réclamation…",
 "Import is a beta feature under development, so results may vary. Check the imported stops, dates and times against your itinerary for accuracy. To report an error or issue and help improve the tool, use Send feedback at the bottom of the page or in the menu.": "L'importation est une fonction bêta en cours de développement; les résultats peuvent varier. Vérifiez l'exactitude des arrêts, des dates et des heures importés par rapport à votre itinéraire. Pour signaler une erreur ou un problème et aider à améliorer l'outil, utilisez Envoyer des commentaires au bas de la page ou dans le menu.",
+"Import is experimental and still being developed, so results may vary. Check the imported stops, dates and times against your itinerary for accuracy. To report an error or issue and help improve the tool, use Send feedback at the bottom of the page or in the menu.": "L'importation est une fonction expérimentale en cours de développement; les résultats peuvent varier. Vérifiez l'exactitude des arrêts, des dates et des heures importés par rapport à votre itinéraire. Pour signaler une erreur ou un problème et aider à améliorer l'outil, utilisez Envoyer des commentaires au bas de la page ou dans le menu.",
 "Import itinerary": "Importer un itinéraire",
 "Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures, le TAN et le code de réservation du voyage.",
 "Import the PDF or email to fill in your stops, dates and times.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures.",
@@ -1398,6 +1417,9 @@ const FR = {
 "Installed. Open CAF Travel from your home screen or app list.": "Installée. Ouvrez CAF Travel à partir de votre écran d'accueil ou de votre liste d'applications.",
 "Internet": "Internet",
 "Itinerary": "Itinéraire",
+"Itinerary import": "Importation d'itinéraire",
+"Itinerary import is off. Turn it back on in the menu.": "L'importation d'itinéraire est désactivée. Réactivez-la dans le menu.",
+"Itinerary import is on.": "L'importation d'itinéraire est activée.",
 "Itinerary imported: {0} locations.": "Itinéraire importé : {0} endroits.",
 "Itinerary split over several emails? Add the others here or drop them on this window. New legs join the list; legs already listed are skipped.": "Itinéraire réparti sur plusieurs courriels? Ajoutez les autres ici ou déposez-les sur cette fenêtre. Les nouveaux trajets s'ajoutent à la liste; ceux qui y figurent déjà sont ignorés.",
 "Journey": "Trajet",
@@ -1489,6 +1511,7 @@ const FR = {
 "On leave": "En congé",
 "On leave at this stop": "En congé à cette escale",
 "On leave: no lodging to claim for these nights.": "En congé : aucun hébergement à réclamer pour ces nuits.",
+"On this device": "Sur cet appareil",
 "One PDF": "Un seul PDF",
 "One PDF, {0} page": "Un seul PDF, {0} page",
 "One PDF, {0} pages": "Un seul PDF, {0} pages",
@@ -1496,6 +1519,7 @@ const FR = {
 "One card per place you stayed overnight, with the dates filled in.": "Une fiche par endroit où vous avez passé la nuit, avec les dates déjà inscrites.",
 "Only if you paid them yourself. Leave this off when the fare was billed to the department. The itinerary is attached as the receipt.": "Seulement si vous les avez payés vous-même. Laissez cette case décochée si le tarif a été facturé au ministère. L'itinéraire est joint comme reçu.",
 "Open": "Ouvrir",
+"Open claim file…": "Ouvrir un fichier de réclamation…",
 "Open draft file": "Ouvrir un fichier brouillon",
 "Open in new tab": "Ouvrir dans un nouvel onglet",
 "Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.": "Ouvrez-le dans Adobe et signez le champ du réclamant à la page {0} avec votre certificat ICP.",
@@ -1647,6 +1671,7 @@ const FR = {
 "Save all": "Tout enregistrer",
 "Save and add another": "Enregistrer et en ajouter un autre",
 "Save cancelled.": "Enregistrement annulé.",
+"Save claim file": "Enregistrer le fichier de réclamation",
 "Save draft file": "Enregistrer le fichier brouillon",
 "Save now": "Enregistrer maintenant",
 "Save now (Ctrl+S)": "Enregistrer maintenant (Ctrl+S)",
@@ -1713,6 +1738,7 @@ const FR = {
 "Statutory declaration {0}": "Déclaration solennelle {0}",
 "Statutory declaration, page {1}": "Déclaration solennelle, page {1}",
 "Statutory declarations, pages {1}": "Déclarations solennelles, pages {1}",
+"Still being tested, so results may vary. Use Send feedback if something looks wrong.": "Encore à l'essai; les résultats peuvent varier. Utilisez Envoyer des commentaires si quelque chose semble incorrect.",
 "Stop {0}": "Escale {0}",
 "Stop {0} has no name.": "L'escale {0} n'a pas de nom.",
 "Stop {0} location": "Lieu de l'escale {0}",
@@ -1771,6 +1797,7 @@ const FR = {
 "This browser refused to save. Export a claim file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, exportez un fichier de réclamation.",
 "This browser refused to save. Save a draft file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, enregistrez un fichier brouillon.",
 "This browser view does not allow saving on the device. Use Export claim file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Exporter le fichier de réclamation.",
+"This browser view does not allow saving on the device. Use Save claim file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Enregistrer le fichier de réclamation.",
 "This browser view does not allow saving on the device. Use Save draft file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Enregistrer le fichier brouillon.",
 "This claim": "Cette réclamation",
 "This device": "Cet appareil",
@@ -1785,6 +1812,7 @@ const FR = {
 "Time & duration": "Heure et durée",
 "Time, length": "Heure, durée",
 "To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Importer un fichier de réclamation, et sélectionnez ce fichier.",
+"To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open claim file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Ouvrir un fichier de réclamation, et sélectionnez ce fichier.",
 "To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Ouvrir un fichier brouillon, et sélectionnez ce fichier.",
 "To do": "À faire",
 "To keep it longer, turn on Keep my work on this device, or export a claim file.": "Pour le conserver plus longtemps, activez Conserver mon travail sur cet appareil ou exportez un fichier de réclamation.",
@@ -3317,6 +3345,7 @@ document.addEventListener('change', e => {
   if (el.id === 'opt-keep') { setKeep(el.checked); return; }
   if (el.id === 'opt-remember') { setRemember(el.checked); return; }
   if (el.id === 'opt-pretty') { setPretty(el.checked); return; }
+  if (el.id === 'opt-imp') { setImport(el.checked); return; }
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
   if (el.name === 'pk-split') { S.split = el.value === 'split'; touch(el); persist(); syncOut(); return; }
@@ -3763,9 +3792,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.9-beta.10';
+const APP_VERSION = '1.9-beta.11';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.9 beta 10, built 21 Oct 2026 14:34 (production is 1.8)';
+const APP_LABEL = 'Version 1.9 beta 11, built 21 Oct 2026 15:51 (production is 1.8)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3793,7 +3822,7 @@ function sendDraft() {
   const title = sendTitle('Digital Itinerary File');
   const mb = payload.length / 1048576;
   if (mb > 20) toast(T('This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.', mb.toFixed(0)));
-  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
+  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
 }
 // All the separate files: one share sheet on phones (Save to Files takes them all), one download each on a computer
 async function saveAllParts(send) {
@@ -4436,6 +4465,15 @@ function setPretty(on) {
   syncPretty(); checkStale(); toast(on ? T('Beautify export is on. Build the PDF to see the new layout.') : T('Beautify export is off. PDFs use the standard layout.'));
 }
 function syncPretty() { const c = $('#opt-pretty'); if (c) c.checked = PRETTY; const n = $('#pretty-note'); if (n) n.hidden = !PRETTY; }
+// Itinerary import (experimental): on unless the member turns it off in the menu. Off hides the import card.
+const IMPORT_KEY = 'caf-dti-import-off' + CH;
+let IMPORT_ON = (() => { try { return localStorage.getItem(IMPORT_KEY) !== '1'; } catch (e) { return true; } })();
+function setImport(on) {
+  IMPORT_ON = !!on; try { on ? localStorage.removeItem(IMPORT_KEY) : localStorage.setItem(IMPORT_KEY, '1'); } catch (e) {}
+  syncImport(); toast(on ? T('Itinerary import is on.') : T('Itinerary import is off. Turn it back on in the menu.'));
+}
+function syncImport() { const c = $('#opt-imp'); if (c) c.checked = IMPORT_ON; const h = $('#imp-hero'); if (h) h.hidden = !IMPORT_ON; }
+syncImport();
 const PSEC = { A: ['Personal information', 'Renseignements personnels'], B: ['Travel itinerary', 'Itinéraire de voyage'], C: ['Transportation', 'Frais de transport'], D: ['Lodging', 'Hébergement'], E: ['Meals', 'Repas'], F: ['General expenses', 'Frais généraux'], G: ['Currency exchange', 'Reçus de change'], H: ['Calls register', 'Registre des appels'] };
 const PSHORT = { C: 'Transportation', D: 'Lodging', F: 'General', G: 'Exchange fees', H: 'Calls' };
 const dShort = d => fmtDate(d).replace(/ \d\d$/, '').replace(/^0/, '');
@@ -5162,7 +5200,7 @@ async function betaReset(b) {
   try { if (DEV.db) DEV.db.close(); } catch (e) {} DEV.db = null;
   await new Promise(res => { try { const r = indexedDB.deleteDatabase(IS_BETA ? 'caf-dti' : 'caf-dti-main'); r.onsuccess = r.onerror = r.onblocked = () => res(); setTimeout(res, 3000); } catch (e) { res(); } });
   try { sessionStorage.removeItem(STORE); sessionStorage.removeItem(PTR_KEY); } catch (e) {}
-  try { [SEEN, LO_KEY, LANG_KEY + CH, PRETTY_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  try { [SEEN, LO_KEY, LANG_KEY + CH, PRETTY_KEY, IMPORT_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
   try { if (window.caches) { const scope = new URL('./', location.href).pathname; for (const k of await caches.keys()) if (k.includes(scope)) await caches.delete(k); } } catch (e) {}
   try { if (navigator.serviceWorker) for (const r of await navigator.serviceWorker.getRegistrations()) if (new URL(r.scope).pathname === new URL('./', location.href).pathname) await r.unregister(); } catch (e) {}
   try { sessionStorage.setItem('caf-dti-beta-reset', '1'); } catch (e) {}
@@ -5559,7 +5597,7 @@ async function saveNow() {
     catch (e) { try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: {}, noR: true })); tab = 'noR'; } catch (_) {} }
     if (tab !== 'none') { try { const back = JSON.parse(sessionStorage.getItem(STORE)); if (!back || JSON.stringify(back.S) !== json) tab = 'none'; } catch (e) { tab = 'none'; } }
     if (DEV.db && DEV.settings.remember && !DEV.locked && !S.example) { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }
-    const exportBtn = { label: T('Export claim file'), fn: () => saveDraft() };
+    const exportBtn = { label: T('Save claim file'), fn: () => saveDraft() };
     if (DEV.db && DEV.settings.keep && !DEV.locked) {
       await devSave();
       let ok = !DEV.failed;
@@ -5586,14 +5624,14 @@ function saveChip() {
 // file number and marking are part of the remembered details, so they become the defaults for new claims
 function syncFnDefault() { const el = $('#fn-default'); if (el) el.hidden = !(DEV.db && DEV.settings.remember && !DEV.locked && !S.example && !S.test); }
 function syncMenu() {
-  syncFnDefault(); syncPretty();
+  syncFnDefault(); syncPretty(); syncImport();
   const ok = !!DEV.db;
   [['#opt-keep', 'keep'], ['#opt-remember', 'remember'], ['#opt-pin', 'pin']].forEach(([id, k]) => { const el = $(id); el.checked = !!DEV.settings[k]; el.disabled = !ok || DEV.locked; });
   $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
   $('#forget-btn').disabled = !ok;
   $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
   syncSwitch();
-  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Export claim file instead.');
+  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save claim file instead.');
   saveChip();
 }
 function setMenu(open) { const m = $('#menu'), b = $('#menu-btn'); m.hidden = !open; b.setAttribute('aria-expanded', String(open)); }

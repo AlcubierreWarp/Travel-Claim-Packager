@@ -686,7 +686,7 @@ html{touch-action:manipulation}
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 4, built 20 Oct 2026 18:13 (production is 1.8)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 5, built 21 Oct 2026 00:50 (production is 1.8)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -908,7 +908,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 4, built 20 Oct 2026 18:13 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 5, built 21 Oct 2026 00:50 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1637,7 +1637,7 @@ const FR = {
 "Stop {0} has no name.": "L'escale {0} n'a pas de nom.",
 "Stop {0} location": "Lieu de l'escale {0}",
 "Street address": "Adresse municipale",
-"Subtotal {0}": "Sous-total {0}",
+"Subtotal": "Sous-total",
 "Summary of amounts claimed": "Sommaire des montants réclamés",
 "Summary of amounts entered": "Sommaire des montants inscrits",
 "Supplies": "Fournitures",
@@ -3623,9 +3623,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.9-beta.4';
+const APP_VERSION = '1.9-beta.5';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.9 beta 4, built 20 Oct 2026 18:13 (production is 1.8)';
+const APP_LABEL = 'Version 1.9 beta 5, built 21 Oct 2026 00:50 (production is 1.8)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3966,7 +3966,7 @@ function painter(doc, F, B, I) {
     };
     const list = rows.length ? rows : [{ nil: true }];
     const lays = list.map(r => {
-      if (r.nil) return { h: lh + 2 * pad };
+      if (r.nil || r.band) return { h: lh + 2 * pad };
       const cells = (r.cells || r).map(c => (c && typeof c === 'object') ? c : { t: c });
       const lines = cells.map((c, i) => P.wrap(c.t ?? '', (c.b || r.bold) ? B : F, fs, ws[i] - 2 * pad));
       return { cells, lines, h: Math.max(1, ...lines.map(l => l.length)) * lh + 2 * pad };
@@ -3987,6 +3987,12 @@ function painter(doc, F, B, I) {
         const last = ri === list.length - 1 || !isTot(list[ri + 1]);
         if (last && r.grand) { [0, 2.2].forEach(d => P.page.drawLine({ start: { x: M, y: y - d }, end: { x: M + tw, y: y - d }, thickness: .7, color: C.ink })); }
         else if (last) P.page.drawLine({ start: { x: M, y }, end: { x: M + tw, y }, thickness: .5, color: C.line });
+      }
+      if (r.band) { // label, currency and amount at the same places in every table: under the summary's currency and amount columns
+        const [lab, cur, amt] = r.band.map(s => clean(String(s))), ty = P.y - pad - fs * .86, aw = 1.1 / 5.9 * tw, cw = .8 / 5.9 * tw;
+        const xa = M + tw - pad, xc = M + tw - aw - cw / 2, xl = M + tw - aw - cw - 120;
+        P.text(lab, xl, ty, { size: fs, font: B }); P.text(cur, xc - B.widthOfTextAtSize(cur, fs) / 2, ty, { size: fs, font: B }); P.text(amt, xa - B.widthOfTextAtSize(amt, fs), ty, { size: fs, font: B });
+        P.y = y; return;
       }
       L.cells.forEach((c, i) => {
         const bg = c.shade ? C.shade : null;
@@ -4025,7 +4031,7 @@ function painter(doc, F, B, I) {
   return P;
 }
 function subtotalRows(arr, k, ck, colCount, labelIdx, amtIdx, curIdx) {
-  const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => { const cells = Array(colCount).fill(''); cells[labelIdx] = T('Subtotal {0}', c); cells[amtIdx] = fmtN(t[c]); if (curIdx != null) cells[curIdx] = c; return { cells, bold: true, fill: true }; });
+  const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => ({ band: [T('Subtotal'), c, fmtN(t[c])], bold: true, fill: true }));
 }
 const fullName = () => [rankAbbr(S.member.rank), S.member.given, S.member.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
 function drawWorksheet(P, items, wsPages, inFile) {
@@ -4076,7 +4082,7 @@ function drawWorksheet(P, items, wsPages, inFile) {
   P.bar('', 'Summary of amounts entered');
   const srows = [];
   GROUPS().forEach(([L, nm, arr, k, ck]) => { const t = sumBy(arr, k, ck); Object.keys(t).sort().forEach(c => srows.push([`${L} - ${T(nm)}`, c, fmtN(t[c])])); });
-  const gt = grandTotals(); Object.keys(gt).sort().forEach(c => srows.push({ cells: [T('Total'), c, fmtN(gt[c])], bold: true, fill: true, grand: true }));
+  const gt = grandTotals(); Object.keys(gt).sort().forEach(c => srows.push({ band: [T('Total'), c, fmtN(gt[c])], bold: true, fill: true, grand: true }));
   P.table([{ l: 'Section', w: 4 }, { l: 'Currency', w: .8, a: 'c' }, { l: 'Amount', w: 1.1, a: 'r' }], srows);
   // Receipt index
   P.bar('', 'Receipt index', 'SD = statutory declaration for a missing receipt, signed by the member');

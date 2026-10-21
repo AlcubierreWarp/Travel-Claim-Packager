@@ -23,6 +23,11 @@ async def main():
             check(f"{ch}/{lang}: version in file properties", want.search(meta.get("/Keywords", "")) is not None and "Itinerary" in meta.get("/Creator", ""), (meta.get("/Keywords"), meta.get("/Creator")))
             print("  footer:", [l for l in texts[0].splitlines() if want.search(l)][:1])
             head = texts[0].splitlines()[:4]; print("  header:", head)
+            xs = []
+            for pg in r.pages[:3]:
+                pg.extract_text(visitor_text=lambda s, cm, tm, fd, fs: xs.append((s.strip(), round(tm[4] * cm[0] + cm[4], 1))) if s.strip() in ("Subtotal", "Sous-total", "Total") else None)
+            print("  total labels:", xs)
+            check(f"{ch}/{lang}: subtotals and the total start at the same place on the page", len(xs) >= 3 and len({x for _, x in xs}) == 1, xs)
             dates = "02 Nov 26 to 06 Nov 26" if lang == "en" else "02 nov. 26 au 06 nov. 26"
             check(f"{ch}/{lang}: header shows the trip dates, not a prepared date or receipt count", any(dates in l for l in head) and not any(re.search(r"Prepared|Préparé|attached|joint", l) for l in head), head)
             await c.close()

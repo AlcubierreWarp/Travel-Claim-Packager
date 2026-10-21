@@ -2714,7 +2714,7 @@ function painter(doc, F, B, I) {
     };
     const list = rows.length ? rows : [{ nil: true }];
     const lays = list.map(r => {
-      if (r.nil) return { h: lh + 2 * pad };
+      if (r.nil || r.band) return { h: lh + 2 * pad };
       const cells = (r.cells || r).map(c => (c && typeof c === 'object') ? c : { t: c });
       const lines = cells.map((c, i) => P.wrap(c.t ?? '', (c.b || r.bold) ? B : F, fs, ws[i] - 2 * pad));
       return { cells, lines, h: Math.max(1, ...lines.map(l => l.length)) * lh + 2 * pad };
@@ -2735,6 +2735,12 @@ function painter(doc, F, B, I) {
         const last = ri === list.length - 1 || !isTot(list[ri + 1]);
         if (last && r.grand) { [0, 2.2].forEach(d => P.page.drawLine({ start: { x: M, y: y - d }, end: { x: M + tw, y: y - d }, thickness: .7, color: C.ink })); }
         else if (last) P.page.drawLine({ start: { x: M, y }, end: { x: M + tw, y }, thickness: .5, color: C.line });
+      }
+      if (r.band) { // label, currency and amount at the same places in every table: under the summary's currency and amount columns
+        const [lab, cur, amt] = r.band.map(s => clean(String(s))), ty = P.y - pad - fs * .86, aw = 1.1 / 5.9 * tw, cw = .8 / 5.9 * tw;
+        const xa = M + tw - pad, xc = M + tw - aw - cw / 2, xl = M + tw - aw - cw - 120;
+        P.text(lab, xl, ty, { size: fs, font: B }); P.text(cur, xc - B.widthOfTextAtSize(cur, fs) / 2, ty, { size: fs, font: B }); P.text(amt, xa - B.widthOfTextAtSize(amt, fs), ty, { size: fs, font: B });
+        P.y = y; return;
       }
       L.cells.forEach((c, i) => {
         const bg = c.shade ? C.shade : null;
@@ -2773,7 +2779,7 @@ function painter(doc, F, B, I) {
   return P;
 }
 function subtotalRows(arr, k, ck, colCount, labelIdx, amtIdx, curIdx) {
-  const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => { const cells = Array(colCount).fill(''); cells[labelIdx] = T('Subtotal {0}', c); cells[amtIdx] = fmtN(t[c]); if (curIdx != null) cells[curIdx] = c; return { cells, bold: true, fill: true }; });
+  const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => ({ band: [T('Subtotal'), c, fmtN(t[c])], bold: true, fill: true }));
 }
 const fullName = () => [rankAbbr(S.member.rank), S.member.given, S.member.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
 function drawWorksheet(P, items, wsPages, inFile) {
@@ -2824,7 +2830,7 @@ function drawWorksheet(P, items, wsPages, inFile) {
   P.bar('', 'Summary of amounts entered');
   const srows = [];
   GROUPS().forEach(([L, nm, arr, k, ck]) => { const t = sumBy(arr, k, ck); Object.keys(t).sort().forEach(c => srows.push([`${L} - ${T(nm)}`, c, fmtN(t[c])])); });
-  const gt = grandTotals(); Object.keys(gt).sort().forEach(c => srows.push({ cells: [T('Total'), c, fmtN(gt[c])], bold: true, fill: true, grand: true }));
+  const gt = grandTotals(); Object.keys(gt).sort().forEach(c => srows.push({ band: [T('Total'), c, fmtN(gt[c])], bold: true, fill: true, grand: true }));
   P.table([{ l: 'Section', w: 4 }, { l: 'Currency', w: .8, a: 'c' }, { l: 'Amount', w: 1.1, a: 'r' }], srows);
   // Receipt index
   P.bar('', 'Receipt index', 'SD = statutory declaration for a missing receipt, signed by the member');

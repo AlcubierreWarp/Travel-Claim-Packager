@@ -559,7 +559,7 @@ const FR = {
 "Stop {0} has no name.": "L'escale {0} n'a pas de nom.",
 "Stop {0} location": "Lieu de l'escale {0}",
 "Street address": "Adresse municipale",
-"Subtotal {0}": "Sous-total {0}",
+"Subtotal": "Sous-total",
 "Summary of amounts claimed": "Sommaire des montants réclamés",
 "Summary of amounts entered": "Sommaire des montants inscrits",
 "Supplies": "Fournitures",

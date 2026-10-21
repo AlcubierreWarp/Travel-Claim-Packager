@@ -8,7 +8,7 @@ srv = subprocess.Popen([sys.executable, str(base / "serve_cached.py"), str(site)
 U = "http://localhost:8769/Travel-Claim-Packager/"
 fails = []
 def check(n, ok, got=None): print(("ok   " if ok else "FAIL ") + n + ("" if ok else f"  (got {got!r})")); ok or fails.append(n)
-MENU = "() => [...document.querySelectorAll('#menu > *')].filter(e => !e.hidden && e.tagName !== 'HR' && !e.classList.contains('menu-note')).map(e => (e.querySelector('.mi-t') || e).textContent.trim()).slice(-6)"
+MENU = "() => [...document.querySelectorAll('#menu > :not(.menu-row), #menu > .menu-row > *')].filter(e => !e.hidden && e.tagName !== 'HR' && !e.classList.contains('menu-note')).map(e => (e.querySelector('.mi-t') || e).textContent.trim()).slice(-6)"
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(); errs = []

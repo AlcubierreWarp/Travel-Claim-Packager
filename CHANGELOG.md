@@ -4,6 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.9 (beta, in progress)
 
+- Add stays from itinerary: each leave stop now gets a green leave card (place, dates, nights, "no lodging to claim") where it falls among the stays, with nothing to fill in. It can be removed (with Undo), is not added twice and is not in the PDF
 - Click an uploaded receipt photo (anywhere but its x) to open the crop editor
 - The travel mode "No travel (same location)" is now just "No travel", in the app and the PDF
 - Beautify export: the journey is centred on the page, section titles are in the claim's language only, and the week grids drop the date range under each week and show the month on each day instead

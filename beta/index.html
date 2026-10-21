@@ -378,6 +378,11 @@ fieldset.tg.off input{opacity:.3}
 
 /* lodging stays */
 .stays{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.leave-card{display:flex;gap:12px;align-items:center;border:1px dashed color-mix(in srgb,var(--ok) 55%,transparent);background:var(--ok-soft);border-radius:4px;padding:10px 12px}
+.leave-card .lv-tag{flex:none;font:700 .66rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ok);border:1px solid currentColor;border-radius:999px;padding:1px 7px}
+.leave-card .lv-b{flex:1;min-width:0;font-size:.88rem;display:flex;flex-direction:column;gap:2px}
+.leave-card .lv-note{font-size:.8rem;color:var(--muted)}
+.leave-card .icon-btn{flex:none}
 .stay{border:1px solid var(--line);background:var(--card);border-radius:4px;padding:10px 12px 12px;container-type:inline-size;min-width:0}
 .stay-head{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-bottom:10px}
 .stay-head .del{margin-left:auto}
@@ -692,7 +697,7 @@ html{touch-action:manipulation}
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 8, built 21 Oct 2026 12:32 (production is 1.8)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 9, built 21 Oct 2026 13:05 (production is 1.8)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -915,7 +920,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 8, built 21 Oct 2026 12:32 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 9, built 21 Oct 2026 13:05 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1407,6 +1412,8 @@ const FR = {
 "Leave": "Congé",
 "Leave blank for the officer": "Laisser en blanc pour l'officier",
 "Leave days {0}: meals unticked, no lodging needed.": "Jours de congé {0} : repas décochés, aucun hébergement requis.",
+"Leave nights are marked as leave, with nothing to claim.": "Les nuits en congé sont indiquées comme congé, sans rien à réclamer.",
+"Leave note removed.": "Note de congé retirée.",
 "Leave these blank and the officer can type them into the PDF before signing.": "Laissez ces champs en blanc et l'officier pourra les remplir dans le PDF avant de signer.",
 "Lines to sign on paper.": "Lignes à signer sur papier.",
 "Linux or ChromeOS": "Linux ou ChromeOS",
@@ -1480,6 +1487,7 @@ const FR = {
 "Officer's service": "Service de l'officier",
 "On leave": "En congé",
 "On leave at this stop": "En congé à cette escale",
+"On leave: no lodging to claim for these nights.": "En congé : aucun hébergement à réclamer pour ces nuits.",
 "One PDF": "Un seul PDF",
 "One PDF, {0} page": "Un seul PDF, {0} page",
 "One PDF, {0} pages": "Un seul PDF, {0} pages",
@@ -1607,6 +1615,7 @@ const FR = {
 "Remove": "Supprimer",
 "Remove receipt {0}": "Retirer le reçu {0}",
 "Remove stay {0}": "Retirer le séjour {0}",
+"Remove the leave note for {0}": "Retirer la note de congé pour {0}",
 "Remove this stop": "Retirer cette escale",
 "Remove {0}": "Retirer {0}",
 "Removed {0}.": "{0} retiré.",
@@ -2456,7 +2465,7 @@ function blank() {
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
-    transport: [], lodging: { stays: [] }, meals: {},
+    transport: [], lodging: { stays: [], leave: [] }, meals: {},
     general: [], exchange: [], calls: [], sd: blankSD(), touched: {}, pki: true };
 }
 const blankSD = () => ({ declDate: '', declDateSet: false, name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
@@ -2505,7 +2514,7 @@ function normalize(s) {
   o.poc = Object.assign(blank().poc, o.poc);
   for (const who of [o.member, o.poc]) if (OLDRANK[who.rank]) who.rank = OLDRANK[who.rank];
   const oldL = o.lodging || {};
-  o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays : [] };
+  o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays : [], leave: Array.isArray(oldL.leave) ? oldL.leave.filter(l => l && isoOk(l.checkin) && isoOk(l.checkout)) : [] };
   o.sd = Object.assign(blankSD(), o.sd || {});
   o.touched = (o.touched && typeof o.touched === 'object') ? o.touched : {};
   o.pki = o.pki !== false;
@@ -2613,6 +2622,19 @@ function stayField(r, k, label, o = {}) {
   const input = `<input type="${t}" id="${id}" data-sec="stays" data-row="${r.id}" data-k="${k}" value="${esc(r[k])}"${cls}${o.ph ? ` placeholder="${esc(T(o.ph))}"` : ''}${o.list ? ` list="${o.list}"` : ''} autocomplete="off">`;
   return `<div class="field ${o.w || ''}"><label for="${id}">${T(label)}</label>${o.t === 'date' ? dateWrap(input, r[k]) : input}</div>`;
 }
+// Leave nights need no lodging. Adding stays from the itinerary puts a card where each leave stop falls, so the gap
+// reads as intended: nothing to fill in, removable, never in the PDF.
+function leaveHTML(l) {
+  const n = Math.round((Date.parse(l.checkout) - Date.parse(l.checkin)) / 864e5);
+  return `<div class="leave-card" data-leave="${l.id}"><span class="lv-tag">${esc(T('Leave'))}</span><div class="lv-b"><div><b>${esc(l.city)}</b>  ·  ${esc(rangeText([l.checkin, l.checkout]))}  ·  ${esc(nPl(n, '{0} night', '{0} nights'))}</div><div class="lv-note">${esc(T('On leave: no lodging to claim for these nights.'))}</div></div><button class="icon-btn del" data-act="del-leave" data-id="${l.id}" aria-label="${esc(T('Remove the leave note for {0}', l.city))}">×</button></div>`;
+}
+function staysHTML() {
+  const arr = S.lodging.stays, lv = (S.lodging.leave || []).slice().sort((a, b) => a.checkin.localeCompare(b.checkin)), out = [];
+  let j = 0;
+  arr.forEach((r, i) => { while (j < lv.length && isoOk(r.checkin) && lv[j].checkin < r.checkin) out.push(leaveHTML(lv[j++])); out.push(stayHTML(r, i)); });
+  while (j < lv.length) out.push(leaveHTML(lv[j++]));
+  return out.length ? out.join('') : `<p class="empty">${esc(T(DEFS.stays.empty))}</p>`;
+}
 function stayHTML(r, i) {
   const fields = r.priv
     ? [stayField(r, 'street', 'Street address', { w: 'w2', ph: 'Number and street, unit' }), stayField(r, 'city', 'City', { list: 'dl-places' }), stayField(r, 'prov', 'Province / state', { list: 'dl-prov' }), stayField(r, 'postal', 'Postal code', { ph: 'A1A 1A1' }), stayField(r, 'country', 'Country')]
@@ -2637,8 +2659,8 @@ function stayHTML(r, i) {
 }
 function renderList(sec) {
   const d = DEFS[sec], arr = getArr(sec), box = $('#rows-' + sec);
+  if (sec === 'stays') { box.innerHTML = staysHTML(); return; }
   if (!arr.length) { box.innerHTML = `<p class="empty">${esc(T(d.empty))}</p>`; return; }
-  if (sec === 'stays') { box.innerHTML = arr.map(stayHTML).join(''); return; }
   const head = `<div class="row-head g-${d.grid}" aria-hidden="true"><span>${T('Ref')}</span>${d.cols.map(c => `<span class="${c.t === 'money' || c.t === 'rate' ? 'r' : ''}${c.t === 'cur' ? 'c' : ''}">${esc(T(c.l))}</span>`).join('')}<span></span></div>`;
   box.innerHTML = head + arr.map((r, i) => rowHTML(sec, r, i)).join('');
 }
@@ -3334,6 +3356,12 @@ document.addEventListener('click', e => {
       const f = $(sec === 'stays' ? `#stays-${r.id}-hotel` : `#${sec}-${r.id}-${DEFS[sec].cols[1].k}`); if (f) f.focus();
       break;
     }
+    case 'del-leave': {
+      const lv = S.lodging.leave || [], i = lv.findIndex(l => l.id === b.dataset.id); if (i < 0) break;
+      const [l] = lv.splice(i, 1); renderList('stays'); refresh(); persist();
+      toast(T('Leave note removed.'), { label: T('Undo'), fn: () => { lv.splice(i, 0, l); renderList('stays'); refresh(); persist(); } });
+      break;
+    }
     case 'del': {
       const arr = getArr(sec), i = arr.findIndex(r => r.id === rowId); if (i < 0) break;
       const [row] = arr.splice(i, 1); undo = { sec, i, row }; renderList(sec); refresh();
@@ -3460,9 +3488,12 @@ function overnightStays() {
   });
   return out;
 }
+function leaveStays() {
+  return S.stops.slice(1, -1).filter(s => s.leave && isoOk(s.arrDate) && isoOk(s.depDate) && s.depDate > s.arrDate).map(s => ({ city: s.city.trim() || T('Leave'), checkin: s.arrDate, checkout: s.depDate }));
+}
 function fillStays() {
-  const want = overnightStays();
-  if (!want.length) { toast(T('No overnight stays found. A stop needs a departure date later than its arrival date (section B).')); return; }
+  const want = overnightStays(), lvWant = leaveStays();
+  if (!want.length && !lvWant.length) { toast(T('No overnight stays found. A stop needs a departure date later than its arrival date (section B).')); return; }
   const overlaps = (a, b) => isoOk(b.checkin) && isoOk(b.checkout) && a.checkin < b.checkout && b.checkin < a.checkout;
   let added = 0;
   want.forEach(w => {
@@ -3470,8 +3501,11 @@ function fillStays() {
     S.lodging.stays.push(Object.assign({ id: uid(), rc: [] }, ROWNEW.stays(), { location: w.city, checkin: w.checkin, checkout: w.checkout })); added++;
   });
   S.lodging.stays.sort((a, b) => (a.checkin || '9').localeCompare(b.checkin || '9'));
+  const lv = S.lodging.leave = S.lodging.leave || []; let lvAdded = 0;
+  lvWant.forEach(w => { if (lv.some(l => l.checkin < w.checkout && w.checkin < l.checkout)) return; lv.push(Object.assign({ id: uid() }, w)); lvAdded++; });
   renderList('stays'); renderMeals(); refresh(); refreshPlaces();
-  toast(added ? nPl(added, 'Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.', 'Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.') : T('Every overnight location already has a stay covering those dates.'));
+  const lvMsg = lvAdded ? ' ' + T('Leave nights are marked as leave, with nothing to claim.') : '';
+  toast(((added ? nPl(added, 'Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.', 'Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.') : lvAdded ? '' : T('Every overnight location already has a stay covering those dates.')) + lvMsg).trim());
 }
 
 /* ---------- dialogs hold the screen ---------- */
@@ -3727,9 +3761,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.9-beta.8';
+const APP_VERSION = '1.9-beta.9';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.9 beta 8, built 21 Oct 2026 12:32 (production is 1.8)';
+const APP_LABEL = 'Version 1.9 beta 9, built 21 Oct 2026 13:05 (production is 1.8)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }

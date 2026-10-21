@@ -1,5 +1,5 @@
 # Receipt photos can be cropped on the device: drag four corners (mouse, touch or arrow keys), the
-# photo is straightened to that shape, from the snap dialog or later from an attached receipt (with Undo).
+# photo is straightened to that shape, from the snap dialog or later by clicking an attached photo (with Undo).
 import sys, pathlib, asyncio, base64, io
 from playwright.async_api import async_playwright
 from PIL import Image, ImageDraw
@@ -49,10 +49,9 @@ async def main():
             check(f"{lang}: the table around the receipt is gone", all(min(px) > 200 for px in corners), corners)
             await q.click("#snap-types label:first-child"); await q.click("[data-act=snap-save]"); await q.wait_for_timeout(400)
             # crop again later, from the attached receipt's viewer, and undo it
-            await q.click("#rows-transport .thumb >> nth=-1"); await q.wait_for_selector("#lb[open]")
-            check(f"{lang}: the receipt viewer offers Crop", await q.is_visible("#lb-crop"))
             before = await q.get_attribute("#rows-transport .thumb >> nth=-1 >> img", "src")
-            await q.click("#lb-crop"); await q.wait_for_selector("#crop[open]"); await q.wait_for_timeout(200)
+            await q.click("#rows-transport .chip-open >> nth=-1"); await q.wait_for_selector("#crop[open]"); await q.wait_for_timeout(200)
+            check(f"{lang}: clicking an uploaded photo opens the crop editor", await q.is_visible("#crop-stage"))
             await drag(q, 0, (0, 0)); await drag(q, 2, (W0 * 0.3, H0 * 0.3))  # in the cropped photo's own scale; any smaller area will do
             await q.click("[data-act=crop-rotate]"); await q.wait_for_timeout(200)
             await q.click("#crop-apply"); await q.wait_for_timeout(600)
@@ -63,7 +62,7 @@ async def main():
             await q.click("#toast button"); await q.wait_for_timeout(400)
             check(f"{lang}: Undo puts the earlier photo back", await q.get_attribute("#rows-transport .thumb >> nth=-1 >> img", "src") == before)
             # Cancel leaves the photo as it was
-            await q.click("#rows-transport .thumb >> nth=-1"); await q.click("#lb-crop"); await q.wait_for_selector("#crop[open]")
+            await q.click("#rows-transport .chip-open >> nth=-1"); await q.wait_for_selector("#crop[open]")
             await drag(q, 1, (100, 100)); await q.click("#crop [data-act=crop-cancel] >> nth=-1"); await q.wait_for_timeout(300)
             check(f"{lang}: Cancel changes nothing", await q.get_attribute("#rows-transport .thumb >> nth=-1 >> img", "src") == before)
             if lang == "fr": check("FR: no untranslated strings", await q.evaluate("() => [...window.__i18nMissing]") == [], await q.evaluate("() => [...window.__i18nMissing]"))

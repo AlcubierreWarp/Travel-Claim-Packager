@@ -95,7 +95,7 @@ async def main():
             f = await build(q, f"pretty-test-{lang}.pdf"); t = texts(f)
             print(f"  test claim ({lang}):", len(t), "pages")
             if lang == "en":
-                check("busy claim: journey shows overnight places, all stops on page 2", "All 9 stops on page 2" in t[0] and "Digby" in t[0] and "Leave" in t[0] and "Enter in this order" not in t[0], t[0][-700:])
+                check("busy claim: journey shows overnight places, all stops on page 2", "All 9 stops on page 2" in t[0] and "Digby" in t[0] and "Leave" in t[0] and "Renseignements" not in " ".join(t) and "Enter in this order" not in t[0], t[0][-700:])
                 check("busy claim: four declarations in one step", "Declare 4 missing receipts" in t[0])
                 check("busy claim: long title kept to two lines", t[0].count("Beta test, Exercise SAMPLE") + t[0].count("TIDE") >= 1)
             check(f"{lang}: subtotals and totals start at the same place", len(set(xs_of(f, ("Subtotal", "Sous-total", "Total")))) == 1, xs_of(f, ("Subtotal", "Sous-total", "Total")))

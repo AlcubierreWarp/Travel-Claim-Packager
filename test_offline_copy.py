@@ -46,7 +46,7 @@ async def main():
         # French file name
         c = await b.new_context(accept_downloads=True); q = await c.new_page()
         await q.add_init_script("localStorage.setItem('caf-dti-lang','fr')"); await q.goto((base / "out/web/index.html").resolve().as_uri()); await q.wait_for_timeout(400)
-        await q.click("#menu-btn"); check("FR: menu item translated", (await q.inner_text("#dl-offline .mi-t")) == "Exporter l'application hors ligne")
+        await q.click("#menu-btn"); check("FR: menu item translated", (await q.inner_text("#dl-offline .mi-t")) == "Télécharger une copie hors ligne")
         async with q.expect_download() as dl: await q.click("#dl-offline")
         check("FR: French file name", (await dl.value).suggested_filename.startswith("Itineraire-voyage-numerique-FAC_v"))
         print("errors:", errs); print("external requests:", reqs); print("failures:", fails); await b.close()

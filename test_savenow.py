@@ -26,7 +26,7 @@ async def main():
         # a browser that refuses to store: Save now says so and offers the export
         await q.evaluate("() => { IDBObjectStore.prototype.put = function () { throw new DOMException('full', 'QuotaExceededError'); }; }")
         await q.fill("#trip-ref", "Save test four"); await q.click("#save-now"); await q.wait_for_timeout(300); t = await toast(q); print("  refused:", t)
-        check("refused: warns and offers Export claim file", "did not save" in t and "Export claim file" in t, t)
+        check("refused: warns and offers Export claim file", "did not save" in t and "Save claim file" in t, t)
         check("refused: header shows Not saved", await q.inner_text("#savechip") == "Not saved", await q.inner_text("#savechip"))
         await c.close()
         # phones: no header button, Save now in the menu

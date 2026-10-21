@@ -4,6 +4,7 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.9 (beta, in progress)
 
+- Menu made more compact: each section opens with a tinted band, description lines are gone, labels are shorter (Keep my work, Local-only notice), Get help and Send feedback share a row, and Save now sits above Keep my work
 - Menu regrouped by function: Claim file (New claim, Open claim file, Save claim file, Send claim file), On this device (Keep my work, Save now, Remember my details, PIN, Forget this device), Experimental, App (Download offline copy, local-only notice, switch channel) and Help. Install app stays at the top
 - New Experimental section with on/off switches for Itinerary import (on by default; off hides the import card) and Beautify export (off by default). Import is now labelled Experimental instead of Beta
 - On/off switches replace the small check boxes in the menu and for yes/no choices on the page, which are easier to tap on a phone. The meals grid keeps its check boxes

@@ -64,7 +64,7 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .savechip.off{color:var(--warn)}
 .menu-wrap{position:relative}
 .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:18rem;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line-strong);border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column;max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
-.menu>button{all:unset;box-sizing:border-box;padding:10px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
+.menu>button{all:unset;box-sizing:border-box;padding:8px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
 .menu>button:hover,.menu>button:focus-visible{background:var(--accent-soft)}
 .menu>button.danger{color:var(--bad)}
 .menu>button.install{font-weight:700;color:var(--accent)}
@@ -74,9 +74,16 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .menu hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
 .menu .mi-t{display:block}
 .menu .mi-sub{display:block;font-size:.74rem;line-height:1.3;color:var(--muted);margin-top:2px}
-.menu .menu-h:first-child{margin-top:6px}
-.menu-h{font:600 .64rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 10px 2px}
-.menu-check{display:flex;gap:12px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
+/* Each section opens with a tinted band in the accent colour, so the groups read apart at a glance */
+.menu-h{font:700 .66rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--accent);background:var(--accent-soft);border-left:3px solid var(--accent);margin:8px -6px 2px;padding:6px 13px}
+.menu hr{display:none}
+.menu p.menu-h:first-of-type{margin-top:6px}
+.menu #install-btn[hidden]~p.menu-h:first-of-type{margin-top:-6px}
+.menu .menu-ver{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.menu-row{display:flex;gap:4px}
+.menu-row>a.menu-link{flex:1 1 0;display:block;padding:8px 10px;border-radius:3px;color:var(--ink);text-decoration:none;font-size:.9rem}
+.menu-row>a.menu-link:hover,.menu-row>a.menu-link:focus-visible{background:var(--accent-soft)}
+.menu-check{display:flex;gap:12px;align-items:center;padding:6px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
 .menu-check:hover{background:var(--accent-soft)}
 .menu-check>span{flex:1 1 auto;min-width:0}
 .menu-check>input{order:2}
@@ -90,7 +97,7 @@ input[type=checkbox].sw:disabled,.check>input[type=checkbox]:disabled{opacity:.4
 @media (prefers-reduced-motion: reduce){ input[type=checkbox].sw,.check>input[type=checkbox]{transition:none} }
 
 .menu-ver{font-family:var(--f-mono);font-size:.7rem!important;color:var(--muted)}
-.menu-note{font-size:.76rem;line-height:1.4;color:var(--muted);margin:6px 10px 4px}
+.menu-note{font-size:.74rem;line-height:1.35;color:var(--muted);margin:2px 10px 4px}
 .banner.device{background:var(--accent-soft);border-color:var(--accent)}
 .banner-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pin-in{width:7rem;font-family:var(--f-mono);letter-spacing:.2em}
@@ -684,35 +691,32 @@ html{touch-action:manipulation}
           <p class="menu-h">Claim file</p>
           <button data-act="clear" id="clear-btn">New claim</button>
           <button data-act="open-draft">Open claim file…</button>
-          <button data-act="save-draft" id="save-draft"><span class="mi-t">Save claim file</span><span class="mi-sub">Your claim and receipts, to finish later or on another device.</span></button>
+          <button data-act="save-draft" id="save-draft"><span class="mi-t">Save claim file</span></button>
           <button data-act="send-draft" id="send-draft" hidden>Send claim file</button>
-          <hr>
           <p class="menu-h">On this device</p>
-          <label class="menu-check"><input type="checkbox" class="sw" id="opt-keep"><span><span class="mi-t">Keep my work on this device</span></span></label>
           <button data-act="save-now" id="save-now-menu">Save now</button>
-          <label class="menu-check"><input type="checkbox" class="sw" id="opt-remember"><span><span class="mi-t">Remember my details</span></span></label>
-          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pin"><span><span class="mi-t">Protect with a PIN</span></span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-keep"><span class="mi-t">Keep my work</span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-remember"><span class="mi-t">Remember my details</span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pin"><span class="mi-t">Protect with a PIN</span></label>
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
-          <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
-          <hr>
+          <p class="menu-note" id="menu-note">Never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
           <p class="menu-h">Experimental</p>
-          <label class="menu-check"><input type="checkbox" class="sw" id="opt-imp"><span><span class="mi-t">Itinerary import</span><span class="mi-sub">Fill in stops from an Amex GBT itinerary PDF or email.</span></span></label>
-          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pretty"><span><span class="mi-t">Beautify export</span><span class="mi-sub">A designed layout for the PDF package.</span></span></label>
-          <p class="menu-note">Still being tested, so results may vary. Use Send feedback if something looks wrong.</p>
-          <hr>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-imp"><span class="mi-t">Itinerary import</span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pretty"><span class="mi-t">Beautify export</span></label>
+          <p class="menu-note">Still in testing, so results may vary.</p>
           <p class="menu-h">App</p>
-          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Download offline copy</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
-          <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
+          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Download offline copy</span></button>
+          <button data-act="show-notice" id="show-notice" hidden>Local-only notice</button>
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <hr>
           <p class="menu-h">Help</p>
-          <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
-          <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          <!--BETA-ONLY--><hr>
-          <p class="menu-h">Beta testing</p>
-          <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
-          <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 11, built 21 Oct 2026 15:51 (production is 1.8)</p>
+          <div class="menu-row">
+            <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
+            <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
+          </div>
+          <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
+          <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span></button>
+          <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span></button><!--/BETA-ONLY-->
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 12, built 21 Oct 2026 16:49 (production is 1.8)</p>
         </div>
       </div>
     </div>
@@ -934,7 +938,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 11, built 21 Oct 2026 15:51 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 12, built 21 Oct 2026 16:49 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1315,6 +1319,7 @@ const FR = {
 "EXAMPLE": "EXEMPLE",
 "Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or in ink (set under Build the package).": "Chaque reçu manquant a sa propre déclaration, préremplie à partir de cette réclamation. Vous la faites en personne devant un officier autorisé, qui remplit le constat d'assermentation. Vous la signez tous les deux, avec un certificat ICP ou à l'encre (choix sous Créer la trousse).",
 "Each missing receipt has a statutory declaration in its own file. Declare each in person before an authorized officer, who completes and signs the jurat.": "Chaque reçu manquant a une déclaration solennelle dans son propre fichier. Faites chacune en personne devant un officier autorisé, qui remplit et signe le constat d'assermentation.",
+"Each version keeps its own claims.": "Chaque version conserve ses propres réclamations.",
 "Edit": "Modifier",
 "Edit or crop": "Modifier ou rogner",
 "Edit or crop receipt {0}": "Modifier ou rogner le reçu {0}",
@@ -1425,6 +1430,7 @@ const FR = {
 "Journey": "Trajet",
 "Jurat": "Constat d'assermentation",
 "Keep mine": "Garder le mien",
+"Keep my work": "Conserver mon travail",
 "Keep my work on this device": "Conserver mon travail sur cet appareil",
 "Keep on this device": "Conserver sur cet appareil",
 "Keep your work on this device?": "Conserver votre travail sur cet appareil?",
@@ -1441,6 +1447,7 @@ const FR = {
 "Lines to sign on paper.": "Lignes à signer sur papier.",
 "Linux or ChromeOS": "Linux ou ChromeOS",
 "Load test data": "Charger les données d'essai",
+"Local-only notice": "Avis « Local seulement »",
 "Location": "Lieu",
 "Locked": "Verrouillé",
 "Lodging": "Hébergement",
@@ -1472,6 +1479,7 @@ const FR = {
 "Name, in full": "Nom, au complet",
 "Names on a statutory declaration must be in full, without initials in brackets.": "Les noms dans une déclaration solennelle doivent être au complet, sans initiales entre parenthèses.",
 "Navy": "Marine",
+"Never uploaded. A saved claim deletes itself 30 days after you build its PDF.": "Jamais téléversé. Une réclamation enregistrée se supprime 30 jours après la création de son PDF.",
 "New": "Nouveau",
 "New PIN": "Nouveau NIP",
 "New blank claim ready.": "Nouvelle réclamation vierge prête.",
@@ -1739,6 +1747,7 @@ const FR = {
 "Statutory declaration, page {1}": "Déclaration solennelle, page {1}",
 "Statutory declarations, pages {1}": "Déclarations solennelles, pages {1}",
 "Still being tested, so results may vary. Use Send feedback if something looks wrong.": "Encore à l'essai; les résultats peuvent varier. Utilisez Envoyer des commentaires si quelque chose semble incorrect.",
+"Still in testing, so results may vary.": "Encore à l'essai; les résultats peuvent varier.",
 "Stop {0}": "Escale {0}",
 "Stop {0} has no name.": "L'escale {0} n'a pas de nom.",
 "Stop {0} location": "Lieu de l'escale {0}",
@@ -3792,9 +3801,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.9-beta.11';
+const APP_VERSION = '1.9-beta.12';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.9 beta 11, built 21 Oct 2026 15:51 (production is 1.8)';
+const APP_LABEL = 'Version 1.9 beta 12, built 21 Oct 2026 16:49 (production is 1.8)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -5475,7 +5484,7 @@ function syncSwitch() {
   let seen = false; try { if (IS_BETA) localStorage.setItem(BETA_SEEN, '1'); seen = !!localStorage.getItem(BETA_SEEN); } catch (e) {}
   b.hidden = !(/^https?:$/.test(location.protocol) && !inViewer && (IS_BETA || seen));
   $('#switch-t').textContent = IS_BETA ? T('Switch to production') : T('Switch to beta');
-  $('#switch-sub').textContent = IS_BETA ? T('The released version. Each version keeps its own claims.') : T('The test version. Each version keeps its own claims.');
+  $('#switch-sub').textContent = IS_BETA ? T('Each version keeps its own claims.') : T('Each version keeps its own claims.');
 }
 async function switchChannel() {
   await flushSave(); // the claim stays where it is, in this version
@@ -5631,7 +5640,7 @@ function syncMenu() {
   $('#forget-btn').disabled = !ok;
   $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
   syncSwitch();
-  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save claim file instead.');
+  $('#menu-note').textContent = ok ? T('Never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save claim file instead.');
   saveChip();
 }
 function setMenu(open) { const m = $('#menu'), b = $('#menu-btn'); m.hidden = !open; b.setAttribute('aria-expanded', String(open)); }

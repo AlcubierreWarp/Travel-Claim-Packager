@@ -324,7 +324,10 @@ fieldset.tg.off input{opacity:.3}
 .rownum{font:600 .76rem var(--f-mono);color:var(--muted)}
 .rc{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-left:calc(3rem + 6px);min-width:0}
 .chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:3px;padding:2px;background:var(--card);max-width:100%;min-width:0}
-.thumb{all:unset;cursor:zoom-in;display:block;flex:none}
+.thumb{display:block;flex:none}
+.chip-open{all:unset;display:inline-flex;align-items:center;gap:7px;min-width:0;cursor:pointer;border-radius:2px}
+.chip-open:hover .fn{color:var(--accent);text-decoration:underline}
+.chip-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .thumb img,.pdfbadge{width:30px;height:30px;object-fit:cover;border-radius:2px;display:block}
 .pdfbadge{display:grid;place-items:center;font:700 .58rem/1 var(--f-mono);background:var(--bad-soft);color:var(--bad)}
 .chip .ref{font:600 .74rem var(--f-mono)}
@@ -689,7 +692,7 @@ html{touch-action:manipulation}
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 7, built 21 Oct 2026 12:10 (production is 1.8)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 8, built 21 Oct 2026 12:32 (production is 1.8)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -912,7 +915,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 7, built 21 Oct 2026 12:10 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 8, built 21 Oct 2026 12:32 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1290,6 +1293,8 @@ const FR = {
 "Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or in ink (set under Build the package).": "Chaque reçu manquant a sa propre déclaration, préremplie à partir de cette réclamation. Vous la faites en personne devant un officier autorisé, qui remplit le constat d'assermentation. Vous la signez tous les deux, avec un certificat ICP ou à l'encre (choix sous Créer la trousse).",
 "Each missing receipt has a statutory declaration in its own file. Declare each in person before an authorized officer, who completes and signs the jurat.": "Chaque reçu manquant a une déclaration solennelle dans son propre fichier. Faites chacune en personne devant un officier autorisé, qui remplit et signe le constat d'assermentation.",
 "Edit": "Modifier",
+"Edit or crop": "Modifier ou rogner",
+"Edit or crop receipt {0}": "Modifier ou rogner le reçu {0}",
 "Edited": "Modifié",
 "Email": "Courriel",
 "Enter it to continue where you left off.": "Entrez-le pour reprendre là où vous étiez.",
@@ -1457,7 +1462,6 @@ const FR = {
 "No stays yet. Add one card for each place you slept. A three-night hotel stay is one card.": "Aucun séjour pour l'instant. Ajoutez une fiche pour chaque endroit où vous avez dormi. Un séjour de trois nuits à l'hôtel compte pour une fiche.",
 "No transportation expenses yet. Tolls, parking, fuel, taxis, rentals and airfare go here.": "Aucuns frais de transport pour l'instant. Les péages, le stationnement, le carburant, les taxis, les locations et les billets d'avion vont ici.",
 "No travel": "Aucun déplacement",
-"No travel (same location)": "Aucun déplacement (même endroit)",
 "None": "Aucune",
 "Not applicable": "Sans objet",
 "Not claimed": "Non réclamé",
@@ -1810,7 +1814,6 @@ const FR = {
 "Use the built wording": "Utiliser le libellé tiré de la réclamation",
 "Use the new built wording": "Utiliser le nouveau libellé",
 "Version: {0} ({1})": "Version : {0} ({1})",
-"View receipt {0}": "Voir le reçu {0}",
 "Visa fee": "Frais de visa",
 "Week": "Semaine",
 "Week {0}": "Semaine {0}",
@@ -2345,7 +2348,7 @@ const STORE = 'beta' === 'beta' ? 'caf-dti-v1-beta' : 'caf-dti-v1';
 const inViewer = !!(window.claude && typeof window.claude.use === 'function');
 const MODES = ['CAL', 'Train', 'PMV', 'PMV Pax', 'Rental Car', 'Shuttle', 'Other', 'No travel'];
 const NOTRAVEL = 'No travel';
-const modeLabel = m => m === NOTRAVEL ? T('No travel (same location)') : T(m);
+const modeLabel = m => m === NOTRAVEL ? T('No travel') : T(m);
 const MEALS = [['b', 'Breakfast'], ['l', 'Lunch'], ['d', 'Dinner']];
 // CAF ranks; RCN junior ranks use the 2020 Sailor designations (S1, S2, S3)
 const RANKS = [
@@ -2586,9 +2589,10 @@ function rcHTML(sec, row, i) {
   const chips = row.rc.map((rid, j) => {
     const r = R[rid]; if (!r) return '';
     const vis = r.kind === 'img'
-      ? `<button class="thumb" data-act="view" data-rid="${rid}" aria-label="${esc(T('View receipt {0}', refs[j]))}"><img src="${r.dataUrl}" alt=""></button>`
+      ? `<span class="thumb"><img src="${r.dataUrl}" alt=""></span>`
       : `<span class="pdfbadge" aria-hidden="true">PDF</span>`;
-    return `<span class="chip">${vis}<span class="ref">${refs[j]}</span><span class="fn" title="${esc(r.name)}">${esc(r.name)}${r.pages > 1 ? ` (${T('{0} pp', r.pages)})` : ''}</span><button class="x" data-act="rmrc" data-sec="${sec}" data-row="${row.id}" data-rid="${rid}" aria-label="${esc(T('Remove receipt {0}', refs[j]))}">×</button></span>`;
+    const lab = `${vis}<span class="ref">${refs[j]}</span><span class="fn" title="${esc(r.name)}">${esc(r.name)}${r.pages > 1 ? ` (${T('{0} pp', r.pages)})` : ''}</span>`;
+    return `<span class="chip">${r.kind === 'img' ? `<button class="chip-open" data-act="edit-rc" data-rid="${rid}" aria-label="${esc(T('Edit or crop receipt {0}', refs[j]))}" title="${esc(T('Edit or crop'))}">${lab}</button>` : lab}<button class="x" data-act="rmrc" data-sec="${sec}" data-row="${row.id}" data-rid="${rid}" aria-label="${esc(T('Remove receipt {0}', refs[j]))}">×</button></span>`;
   }).join('');
   return `${chips}<button class="attach" data-act="attach" data-sec="${sec}" data-row="${row.id}">${T('+ Attach receipt')}</button>`
     + (row.rc.length ? '' : `<span class="drophint">${T('or drop a photo or PDF here.')}</span><button class="link-btn lose" data-act="lose" data-sec="${sec}" data-row="${row.id}">${T('Missing receipt?')}</button>`);
@@ -3343,6 +3347,7 @@ document.addEventListener('click', e => {
     case 'view': { const r = R[b.dataset.rid]; if (r) { $('#lb-img').src = r.dataUrl; $('#lb-cap').textContent = r.name; $('#lb').dataset.rid = b.dataset.rid; $('#lb-crop').hidden = r.kind !== 'img'; const d = $('#lb'); try { d.showModal(); } catch (_) { d.setAttribute('open', ''); } } break; }
     case 'lb-close': $('#lb').close(); break;
     case 'lb-crop': cropReceipt($('#lb').dataset.rid); break;
+    case 'edit-rc': cropReceipt(b.dataset.rid); break;
     case 'snap-crop': if (snapRc && snapRc.kind === 'img') openCrop(snapRc, res => { Object.assign(snapRc, res); snapPreview(); }); break;
     case 'crop-cancel': closeCrop(); break;
     case 'crop-rotate': if (CROP) cropRotate(); break;
@@ -3722,9 +3727,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.9-beta.7';
+const APP_VERSION = '1.9-beta.8';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.9 beta 7, built 21 Oct 2026 12:10 (production is 1.8)';
+const APP_LABEL = 'Version 1.9 beta 8, built 21 Oct 2026 12:32 (production is 1.8)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4424,11 +4429,10 @@ function prettify(P) {
   // section heading: lettered tile, title in the claim's language, the other language beside it
   P.sec = (L, keep, nil) => {
     P.ensure(34 + (keep || 60));
-    const [en, frn] = PSEC[L], title = fr() ? frn : en, sub = fr() ? en : frn, y = P.y - 25.5;
+    const [en, frn] = PSEC[L], title = fr() ? frn : en, y = P.y - 25.5;
     P.rr(M, y, 25.5, 25.5, 4.5, { color: nil ? K.nilBg : K.navy });
     P.tc(L, M + 12.75, y + 8, 13.5, B, nil ? K.mid : K.white);
     P.text(title, M + 35, y + 8.5, { size: 13.5, font: B, color: K.navy });
-    const x = M + 35 + P.tw(title, 13.5, B) + 8; P.text(P.fit(sub, F, 9, M + CW - x), x, y + 9, { size: 9, color: K.mid });
     P.y = y - 8;
   };
   // the three trailing columns every money table shares, so amounts line up down the page
@@ -4586,9 +4590,9 @@ function prettyCover(P, items, ctx) {
   blocks.push({ h: 58, gap: 16, draw: y => {
     P.text(T('Journey'), M, y - 11, { size: 11.25, font: B, color: K.navy });
     if (collapsed) P.tr(T('All {0} stops on page {1}', n, ctx.secPage && ctx.secPage.B || 2), M + CW, y - 11, 9, F, K.mid);
-    const cnt = nodes.length, wEnd = 92, step = (CW - wEnd) / Math.max(1, cnt - 1), ly = y - 28;
+    const cnt = nodes.length, slot = CW / cnt, ly = y - 28;
     nodes.forEach((ix, k) => {
-      const x = M + 4.5 + k * step, nx = M + 4.5 + (k + 1) * step, s = ix >= 0 ? st[ix] : null;
+      const x = M + slot * (k + .5), nx = x + slot, s = ix >= 0 ? st[ix] : null;
       if (k < cnt - 1) {
         P.line(x + 5, ly, nx - 5, ly, 1.5, K.navy);
         const ic = ix >= 0 && nodes[k + 1] >= 0 ? legIcons(ix, nodes[k + 1]) : [];
@@ -4596,11 +4600,11 @@ function prettyCover(P, items, ctx) {
       }
       const stay = s && stays.includes(s), leave = s && s.leave;
       P.page.drawCircle({ x, y: ly, size: 4.5, color: stay && !leave ? K.navy : K.white, borderColor: K.navy, borderWidth: 1.5, borderDashArray: leave ? [1.5, 1.5] : undefined });
-      const tw = (k === cnt - 1 ? wEnd : step) - 8;
+      const tw = slot - 8;
       const city = s ? s.city.trim() : T('+{0} more', more);
       const when = !s ? '' : leave ? T('Leave') : k === 0 ? [dShort(s.depDate), s.depTime].filter(Boolean).join(' ') : k === cnt - 1 ? [dShort(s.arrDate), s.arrTime].filter(Boolean).join(' ') : stay ? dRange(s.arrDate, s.depDate) : dShort(s.arrDate);
-      P.text(P.fit(city, B, 9.75, tw), x - 4.5, ly - 18, { size: 9.75, font: B });
-      if (when) P.text(P.fit(when, F, 9, tw), x - 4.5, ly - 30, { size: 9, color: K.mid });
+      const cf = P.fit(city, B, 9.75, tw); P.tc(cf, x, ly - 18, 9.75, B);
+      if (when) P.tc(P.fit(when, F, 9, tw), x, ly - 30, 9, F, K.mid);
     });
   } });
   // what is left to do
@@ -4626,7 +4630,7 @@ function prettyWorksheet(P, items, ctx, rec) {
     if (!nilCards.length) return;
     for (let i = 0; i < nilCards.length; i += 2) {
       P.ensure(48); const y = P.y - 40, cw = (CW - 9) / 2;
-      nilCards.slice(i, i + 2).forEach((L, j) => { const x = M + j * (cw + 9); mark(L); P.rr(x, y, cw, 40, 4.5, { borderColor: K.rule, borderWidth: 1.1, borderDashArray: [3, 2.5] }); P.rr(x + 9, y + 7.5, 25.5, 25.5, 4.5, { color: K.nilBg }); P.tc(L, x + 21.75, y + 15.5, 13.5, B, K.mid); const [en, frn] = PSEC[L]; P.text(fr() ? frn : en, x + 43, y + 22, { size: 11.25, font: B, color: K.soft }); P.text(fr() ? en : frn, x + 43, y + 10, { size: 9, color: K.mid }); P.tr(T('NIL'), x + cw - 12, y + 16, 9.75, B, K.mid); });
+      nilCards.slice(i, i + 2).forEach((L, j) => { const x = M + j * (cw + 9); mark(L); P.rr(x, y, cw, 40, 4.5, { borderColor: K.rule, borderWidth: 1.1, borderDashArray: [3, 2.5] }); P.rr(x + 9, y + 7.5, 25.5, 25.5, 4.5, { color: K.nilBg }); P.tc(L, x + 21.75, y + 15.5, 13.5, B, K.mid); const [en, frn] = PSEC[L]; P.text(P.fit(fr() ? frn : en, B, 11.25, cw - 95), x + 43, y + 16, { size: 11.25, font: B, color: K.soft }); P.tr(T('NIL'), x + cw - 12, y + 16, 9.75, B, K.mid); });
       P.y = y - 14;
     }
     nilCards.length = 0;
@@ -4711,8 +4715,8 @@ function prettyMeals(P, days) {
     let wk = mon(days[0]), i = 1; const last = days[nd - 1];
     while (wk <= last) {
       P.ensure(90); let y = P.y; const wd = Array.from({ length: 7 }, (_, k) => addDays(wk, k)), inT = d => d >= days[0] && d <= last, real = wd.filter(inT);
-      P.text(T('Week {0}', i), M, y - 9, { size: 9.75, font: B }); P.text(P.fit(real.length > 1 ? T('{0} to {1}', dShort(real[0]), dShort(real[real.length - 1])) : dShort(real[0]), F, 9, lw - 3), M, y - 20, { size: 9, color: K.mid });
-      wd.forEach((d, k) => { if (!inT(d)) return; const x = M + lw + g + k * (dw + g), we = k >= 5; P.text(P.fit(`${dow(d)} ${+d.slice(8)}`, B, 9, dw), x, y - 18, { size: 9, font: B, color: we ? K.blue : K.ink }); });
+      P.text(T('Week {0}', i), M, y - 18, { size: 9.75, font: B });
+      wd.forEach((d, k) => { if (!inT(d)) return; const x = M + lw + g + k * (dw + g), we = k >= 5; P.text(P.fit(`${dow(d)} ${dShort(d)}`, B, 9, dw), x, y - 18, { size: 9, font: B, color: we ? K.blue : K.ink }); });
       P.line(M, y - 23, M + CW, y - 23, 1.1, K.ink); P.tr(T('Week'), M + CW, y - 18, 9, F, K.mid); y -= 27;
       MK.forEach(([k, nm]) => { P.text(nm, M, y - 12, { size: 9, color: K.soft }); wd.forEach((d, j) => { if (inT(d)) cell(M + lw + g + j * (dw + g), y - 16.5, dw, 16.5, kind(d, k), false); }); P.tr(String(real.filter(d => mealVal(d, k)).length), M + CW, y - 12.5, 9.75, B); y -= 19.5; });
       P.y = y - 9; wk = addDays(wk, 7); i++;

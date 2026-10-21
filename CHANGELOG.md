@@ -4,6 +4,9 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.9 (beta, in progress)
 
+- Click an uploaded receipt photo (anywhere but its x) to open the crop editor
+- The travel mode "No travel (same location)" is now just "No travel", in the app and the PDF
+- Beautify export: the journey is centred on the page, section titles are in the claim's language only, and the week grids drop the date range under each week and show the month on each day instead
 - Beautify export: PDF receipts without a page background now show on a white sheet instead of the grey panel. In the meals grid, leave days are green and labelled, and meals not claimed are plain white cells. The first page's section table is now a plain "Sections" overview, and the journey uses travel icons (plane, car, train, bus) with one short line per place
 - Beautify export (experimental, in the menu): builds the same package in a designed layout. A first page with the claim at a glance (claimant, total by section, sections in claim-form order with their pages, the journey by overnight places, what is left to do), sections with lettered tiles and French or English beside, every amount in one column, meals as a day grid or by week, nil sections as small cards, a page map on the index page, labelled receipt pages and a matching footer. Turned off, PDFs are unchanged
 - Crop now guesses where the receipt is when it opens (a pale sheet on a darker surface, angled or partly out of frame) and places the corners there to check and adjust. When it cannot tell, for example white paper on a white counter, it starts from the whole photo as before. Reset goes back to the whole photo

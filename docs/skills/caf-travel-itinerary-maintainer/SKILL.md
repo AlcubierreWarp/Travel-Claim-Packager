@@ -62,6 +62,12 @@ If the Claude account or workspace is gone, follow `REBUILD.md` on the `source` 
 - Paragraphs come from `sdParts()`: 1 and 2 built (`sdParagraphs`/`sdParagraphsFr`) unless the member rewrote them (`sdP1`/`sdP2`, with the built text they replaced in `sdB1`/`sdB2` to flag later changes), an optional `sdMore` paragraph, then the reason and the two standard paragraphs (locked).
 - Each editable paragraph is one paragraph (line breaks joined, typed numbers dropped), capped at 400 characters; the reason is capped at 200. `drawDeclaration` shrinks the paragraph text (to 7.5 pt at most) so the declaration stays on one page; `test_sdx.py` checks the longest case in both languages.
 
+## Beautify export (experimental)
+- Menu option `#opt-pretty`, a device preference (`caf-dti-pretty` + `CH`). When on, `build()` lays the package out with `prettyDraw()` (first page, sections, index and certification), `prettyRcHeader()` for receipt and declaration pages and `prettyFinish()` for the footer and marking. Off, nothing changes.
+- The first page and index refer to later pages, so `build()` lays the designed worksheet out until its page count settles (up to 4 passes).
+- Money tables share three trailing columns (`P.TRAIL`) and `P.band()`, so every subtotal and total lines up. Fallbacks: journey shows overnight places only (6 dots at most), meals by day (up to 7), by week (up to 35 days) or one row per day, second currencies listed apart, the page map is one mark per page. `test_pretty.py` covers them.
+- Plain table cells are strings: test `typeof c === 'object'` before reading a cell option (`'x'.sub` is a String method).
+
 ## Gotchas
 - Production and beta share an origin.
   - IndexedDB: `caf-dti-main` for production, `caf-dti` for beta.

@@ -123,6 +123,7 @@ const FR = {
 "Cancel": "Annuler",
 "Certification": "Attestation",
 "Change the reason": "Modifier la raison",
+"Changed since the last build. Build again for an up-to-date PDF.": "Modifié depuis la dernière création. Créez de nouveau le PDF pour qu'il soit à jour.",
 "Check": "Vérifier",
 "Check the corners, then Apply.": "Vérifiez les coins, puis appliquez.",
 "Check the times and how you travelled.": "Vérifiez les heures et les moyens de transport.",

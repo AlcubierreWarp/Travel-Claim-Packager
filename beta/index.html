@@ -697,7 +697,7 @@ html{touch-action:manipulation}
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span><span class="mi-sub">Replaces the claim with a full test claim that uses every section and feature. Undo is offered.</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span><span class="mi-sub">Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.</span></button><!--/BETA-ONLY-->
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 9, built 21 Oct 2026 13:05 (production is 1.8)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 10, built 21 Oct 2026 14:34 (production is 1.8)</p>
           <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
         </div>
       </div>
@@ -920,7 +920,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 9, built 21 Oct 2026 13:05 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 10, built 21 Oct 2026 14:34 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1213,6 +1213,7 @@ const FR = {
 "Cancel": "Annuler",
 "Certification": "Attestation",
 "Change the reason": "Modifier la raison",
+"Changed since the last build. Build again for an up-to-date PDF.": "Modifié depuis la dernière création. Créez de nouveau le PDF pour qu'il soit à jour.",
 "Check": "Vérifier",
 "Check the corners, then Apply.": "Vérifiez les coins, puis appliquez.",
 "Check the times and how you travelled.": "Vérifiez les heures et les moyens de transport.",
@@ -3102,6 +3103,7 @@ function fileBase() {
 /* ---------- persistence (this tab only) ---------- */
 let pT;
 function persist() {
+  checkStale();
   clearTimeout(pT);
   pT = setTimeout(() => {
     try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: liveReceipts() })); }
@@ -3761,9 +3763,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.9-beta.9';
+const APP_VERSION = '1.9-beta.10';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.9 beta 9, built 21 Oct 2026 13:05 (production is 1.8)';
+const APP_LABEL = 'Version 1.9 beta 10, built 21 Oct 2026 14:34 (production is 1.8)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3994,7 +3996,7 @@ function setLang(l) {
   if (wasExample && !DEV.locked) loadExample(); else renderAll();
   syncMenu(); syncInstall();
   if (!$('#install-banner').hidden) installApp();
-  if (lastPdf) $('#result').hidden = true;
+  checkStale();
   toast(fr() ? 'Affichage en français. Le PDF et les fichiers seront aussi en français.' : 'Showing in English. The PDF and files will also be in English.');
 }
 function initExtras() {
@@ -4019,6 +4021,15 @@ async function openDraft(f) {
 
 /* ---------- PDF ---------- */
 let lastPdf = null, lastParts = null; // the last build: one PDF, or the separate files
+// What the last build was made from. Anything that changes the output (the claim, a receipt, the layout, the
+// language) withdraws the built result, so Save or Open can never hand over an out-of-date PDF.
+let lastSig = '';
+const outSig = () => [JSON.stringify(S), PRETTY ? 1 : 0, LANG, Object.keys(R).map(k => k + ':' + String((R[k] && R[k].dataUrl) || '').length).join(',')].join('|');
+function checkStale() {
+  if (building || (!lastPdf && !lastParts) || outSig() === lastSig) return;
+  lastPdf = null; lastParts = null; lastSig = ''; const r = $('#result'); if (r) r.hidden = true;
+  const st = $('#build-status'); if (st) st.textContent = T('Changed since the last build. Build again for an up-to-date PDF.');
+}
 const meals = m => MEALS.filter(([k]) => m && m[k]).map(([k]) => k.toUpperCase()).join(' ');
 const amt = (v, c) => { const m = money(v); return m ? `${m} ${curOf(c)}`.trim() : ''; };
 function rowDesc(sec, r) {
@@ -4422,7 +4433,7 @@ const PRETTY_KEY = 'caf-dti-pretty' + CH;
 let PRETTY = (() => { try { return localStorage.getItem(PRETTY_KEY) === '1'; } catch (e) { return false; } })();
 function setPretty(on) {
   PRETTY = !!on; try { on ? localStorage.setItem(PRETTY_KEY, '1') : localStorage.removeItem(PRETTY_KEY); } catch (e) {}
-  syncPretty(); toast(on ? T('Beautify export is on. Build the PDF to see the new layout.') : T('Beautify export is off. PDFs use the standard layout.'));
+  syncPretty(); checkStale(); toast(on ? T('Beautify export is on. Build the PDF to see the new layout.') : T('Beautify export is off. PDFs use the standard layout.'));
 }
 function syncPretty() { const c = $('#opt-pretty'); if (c) c.checked = PRETTY; const n = $('#pretty-note'); if (n) n.hidden = !PRETTY; }
 const PSEC = { A: ['Personal information', 'Renseignements personnels'], B: ['Travel itinerary', 'Itinéraire de voyage'], C: ['Transportation', 'Frais de transport'], D: ['Lodging', 'Hébergement'], E: ['Meals', 'Repas'], F: ['General expenses', 'Frais généraux'], G: ['Currency exchange', 'Reçus de change'], H: ['Calls register', 'Registre des appels'] };
@@ -5014,12 +5025,12 @@ async function build() {
       res.innerHTML = `<div><strong>${esc(nPl(lastParts.length, '{0} file ready', '{0} files ready'))}</strong><span>${esc(T('Separate PDFs, {0} in all. Sign each where it asks: the worksheet, and each declaration in front of the officer.', size))}${iosHint ? ' ' + esc(T('Save or send all of them at once, then choose Save to Files, OneDrive, Teams or Mail.')) : ''}</span></div>
         <ol class="part-list">${lastParts.map(one).join('')}</ol>
         <div class="acts"><button class="btn primary" data-act="save-all">${esc(IOS_PWA && SEND.pdf ? T('Save or send all') : T('Save all'))}</button>${SEND.pdf && !IOS_PWA ? `<button class="btn" data-act="send-all">${esc(T('Send all'))}</button>` : ''}</div>`;
-      res.classList.add('split'); res.hidden = false; res.scrollIntoView({ block: 'center' });
+      res.classList.add('split'); res.hidden = false; res.scrollIntoView({ block: 'center' }); lastSig = outSig();
       return;
     }
     res.classList.remove('split');
     res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${nPl(total, '{0} page', '{0} pages')}, ${size}. ${howTo}${iosHint}</span></div><div class="acts">${IOS_PWA && SEND.pdf ? `<button class="btn primary" data-act="send-pdf">${T('Save or send PDF')}</button>` : `<button class="btn primary" data-act="save-pdf">${T('Save PDF')}</button>${SEND.pdf ? `<button class="btn" data-act="send-pdf">${T('Send PDF')}</button>` : ''}`}${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-pdf">${T('Open in new tab')}</button>`}</div>`;
-    res.hidden = false;
+    res.hidden = false; lastSig = outSig();
     if (!IOS_PWA) offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
     else res.scrollIntoView({ block: 'center' });
   } catch (e) {

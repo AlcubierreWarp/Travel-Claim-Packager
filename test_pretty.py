@@ -1,7 +1,7 @@
 # Beautify export (experimental): a menu option that builds the same package in the designed layout. Checks the
 # option itself, the first page and its fallbacks (long trips, many stops, two currencies), that amounts line up,
 # that nothing falls off a page, separate files, ink signatures, and that the French text is complete.
-import sys, pathlib, asyncio, json, re
+import sys, pathlib, asyncio, json, re, shutil, subprocess
 from playwright.async_api import async_playwright
 from pypdf import PdfReader
 base = pathlib.Path(sys.argv[1]); fx = base / "fixtures"; fx.mkdir(exist_ok=True)
@@ -33,7 +33,7 @@ async def main():
         c = await b.new_context(accept_downloads=True); q = await c.new_page(); q.on("pageerror", lambda e: errs.append(str(e)))
         await q.goto((base / "out/web/index.html").resolve().as_uri()); await q.wait_for_timeout(500)
         f0 = await build(q, "standard.pdf")
-        check("off by default: the standard layout", "CAF DIGITAL TRAVEL ITINERARY" in texts(f0)[0] and "Enter in this order" not in texts(f0)[0])
+        check("off by default: the standard layout", "CAF DIGITAL TRAVEL ITINERARY" in texts(f0)[0] and "TEMPORARY DUTY CLAIM" not in texts(f0)[0])
         await q.click("#menu-btn"); check("menu offers Beautify export, marked experimental", "Beautify export" in await q.inner_text("#menu") and "EXPERIMENTAL" in (await q.inner_text("#menu")).upper())
         await q.check("#opt-pretty"); await q.keyboard.press("Escape"); await q.wait_for_timeout(200)
         check("a note in the Package section says it is on", await q.is_visible("#pretty-note"))
@@ -42,7 +42,7 @@ async def main():
         f1 = await build(q, "pretty-example.pdf"); t1 = texts(f1)
         print("  example:", len(t1), "pages")
         check("example: same page count story (summary, worksheet, index, 5 receipts)", len(t1) == 9, len(t1))
-        check("example: first page is the summary", all(w in t1[0] for w in ("TEMPORARY DUTY CLAIM", "Enter in this order", "Journey", "Total", "475.25", "Page 1 of 9")), t1[0][:400])
+        check("example: first page is the summary", all(w in t1[0] for w in ("TEMPORARY DUTY CLAIM", "Sections", "Journey", "Total", "475.25", "Page 1 of 9")), t1[0][:400])
         check("example: first page points at the right pages", "PKI signature, page 4" in t1[0] and "Before an officer, page 6" in t1[0] and "One PDF, 9 pages" in t1[0], t1[0])
         check("example: index page with the page map and the certification", "What is in this package" in t1[3] and "Receipt index" in t1[3] and "Certification" in t1[3], t1[3][:300])
         check("example: receipt pages are labelled", "RECEIPT" in t1[4] and "C-1" in t1[4] and "listed on page 4" in t1[4], t1[4][:200])
@@ -95,11 +95,20 @@ async def main():
             f = await build(q, f"pretty-test-{lang}.pdf"); t = texts(f)
             print(f"  test claim ({lang}):", len(t), "pages")
             if lang == "en":
-                check("busy claim: journey shows overnight places, all stops on page 2", "Overnight places only. All 9 stops: p. 2" in t[0] and "Digby (leave)" in t[0], t[0][-700:])
+                check("busy claim: journey shows overnight places, all stops on page 2", "All 9 stops on page 2" in t[0] and "Digby" in t[0] and "Leave" in t[0] and "Enter in this order" not in t[0], t[0][-700:])
                 check("busy claim: four declarations in one step", "Declare 4 missing receipts" in t[0])
                 check("busy claim: long title kept to two lines", t[0].count("Beta test, Exercise SAMPLE") + t[0].count("TIDE") >= 1)
             check(f"{lang}: subtotals and totals start at the same place", len(set(xs_of(f, ("Subtotal", "Sous-total", "Total")))) == 1, xs_of(f, ("Subtotal", "Sous-total", "Total")))
             check(f"{lang}: nothing runs off a page", on_page(f) == [], on_page(f)[:5])
+            if lang == "en":
+                # a PDF receipt with no page background of its own still shows on white, not the grey panel
+                pg = next(i for i, x in enumerate(t) if "eticket-test.pdf" in x) + 1
+                if shutil.which("pdftoppm"):
+                    from PIL import Image
+                    subprocess.run(["pdftoppm", "-r", "30", "-f", str(pg), "-l", str(pg), "-png", str(f), str(fx / "rcpage")], check=True)
+                    im = Image.open(next(fx.glob("rcpage*.png"))).convert("RGB"); w, h = im.size; px = im.getpixel((w // 2, int(h * .7)))
+                    check("PDF receipt sits on a white sheet", min(px) >= 250, px)
+                else: print("  (pdftoppm not installed: white-sheet check skipped)")
             if lang == "fr": check("FR: no untranslated strings", await q.evaluate("() => [...window.__i18nMissing]") == [], await q.evaluate("() => [...window.__i18nMissing]"))
             await c.close()
         print("errors:", errs); print("failures:", fails); await b.close()

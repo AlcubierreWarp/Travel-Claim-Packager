@@ -78,8 +78,9 @@ python build.py .
 
 It writes:
 
-- `out/web/` production site (copied to the root of `main` on promotion)
-- `out/web-beta/` beta site (copied to `beta/` on `main`)
+- `out/web/` production site (copied to the root of `main` on promotion), with its offline file
+- `out/web-beta/` beta site (copied to `beta/` on `main`), with its own offline file
+- `out/checksums.json` the SHA-256 of each offline file. Each page shows its own offline file's checksum in the menu; the offline files show none, since a file cannot hold its own checksum
 - `out/CAF_Digital_Travel_Itinerary.html` offline single file
 - `out/travel-claim-packager.html` copy for a claude.ai artifact (optional)
 
@@ -117,6 +118,7 @@ python test_autocrop.py .
 python test_pretty.py .
 python test_leave.py .
 python test_menu.py .
+python test_checksum.py .
 ```
 
 Each prints `errors: []`. Tests that check privacy also print `external requests: []`, and the newer ones print `failures: []`. `test_fr.py` also prints `missing: []` (no untranslated text). Delete the `fixtures/` and `shots/` folders afterwards.
@@ -140,7 +142,7 @@ Beta:
 3. Add a line under the "in progress" heading of `site/CHANGELOG.md`.
 4. `python release.py beta "Beta X.Y build N: what changed"`
 
-   It raises `BETA_BUILD`, builds, checks that nothing beta-only reaches production, copies the beta into `site/beta/`, commits and pushes `main`, then saves the working copy to the `source` branch. It prints a WARNING if a push did not reach GitHub.
+   It raises `BETA_BUILD`, builds, checks that nothing beta-only reaches production, copies the beta into `site/beta/`, writes the offline files' checksums into the Checksums table of `site/README.md` (between the `<!--CHECKSUMS-->` markers), commits and pushes `main`, then saves the working copy to the `source` branch. It prints a WARNING if a push did not reach GitHub.
 
 Production ("push to production"):
 
@@ -148,7 +150,7 @@ Production ("push to production"):
 2. In `site/CHANGELOG.md`, date the beta heading and add a new "in progress" heading for the next version.
 3. `python release.py promote`
 
-   It raises the minor version in `VERSION`, resets `BETA_BUILD` to 1, copies production, the single file and the beta into `site`, pushes `main`, creates the restore branch `release-vX.Y` and saves the source branch.
+   It raises the minor version in `VERSION`, resets `BETA_BUILD` to 1, copies production, the single file and the beta into `site`, updates the README checksums, adds the offline file's checksum under the release's changelog heading, pushes `main`, creates the restore branch `release-vX.Y` and saves the source branch.
 4. Optional: publish `out/travel-claim-packager.html` as a claude.ai artifact. The original artifact link belongs to the old Claude account, so a new account gets a new link.
 
 Version labels: production shows `Version X.Y, updated DD Mon YYYY`; the beta shows `Version X.(Y+1) beta N, built ... (production is X.Y)`. The minor number goes up only on promotion; the owner decides major versions.

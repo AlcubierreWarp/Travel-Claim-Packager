@@ -45,7 +45,7 @@ inl = libs(src)
 
 # Artifact version: page content only (the host adds the document skeleton)
 (base / "out").mkdir(exist_ok=True)
-(base / "out/travel-claim-packager.html").write_text(inl)
+(base / "out/travel-claim-packager.html").write_text(inl.replace("__OFFLINE_SHA__", ""))
 
 # Standalone version: full document, no web fonts, strict policy that blocks all network access
 head, body = inl.split("<!--BODY-->", 1)
@@ -56,16 +56,19 @@ doc = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
        f'<meta http-equiv="Content-Security-Policy" content="{csp}">\n'
        '<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. This page cannot make network requests. -->\n'
        + head + "</head>\n<body>\n" + body + "\n</body>\n</html>\n")
+doc = doc.replace("__OFFLINE_SHA__", "")
 (base / "out/CAF_Digital_Travel_Itinerary.html").write_text(doc)
-print("ok", len(inl), len(doc))
+import hashlib
+sha_prod = hashlib.sha256(doc.encode()).hexdigest()
+print("ok", len(inl), len(doc), "sha256", sha_prod[:12])
 
 # Hosted web build (GitHub Pages or a unit server): same page, installable as an app.
-# The policy differs from the single file only in letting the page load its own manifest,
-# icons and offline helper from the same site. connect-src stays 'none'.
+# The policy differs from the single file only in letting the page load its own manifest, icons and
+# offline helper, and read its own published offline file, from the same site. Nothing outside the site.
 import hashlib, shutil
 web = base / "out/web"; web.mkdir(parents=True, exist_ok=True)
 csp_web = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
-           "img-src 'self' data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; "
+           "img-src 'self' data: blob:; font-src 'none'; connect-src 'self'; media-src 'none'; "
            "object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'")
 pwa_head = ('<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" href="favicon.ico" sizes="any">\n'
             '<link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">\n'
@@ -76,8 +79,10 @@ webdoc = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
           '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
           f'<meta http-equiv="Content-Security-Policy" content="{csp_web}">\n' + pwa_head +
           '<!-- CAF Digital Travel Itinerary. Runs entirely in the browser. The page itself cannot make network requests. -->\n'
-          + head + "</head>\n<body>\n" + body + "\n</body>\n</html>\n")
+          + head + "</head>\n<body>\n" + body + "\n</body>\n</html>\n").replace("__OFFLINE_SHA__", sha_prod)
 (web / "index.html").write_text(webdoc)
+# the published offline file sits next to the page, so Download offline copy hands over these exact bytes
+shutil.copy(base / "out/CAF_Digital_Travel_Itinerary.html", web / "CAF_Digital_Travel_Itinerary.html")
 ver = hashlib.sha256(webdoc.encode()).hexdigest()[:10]
 (web / "sw.js").write_text((base / "pwa/sw.js").read_text().replace("__VERSION__", ver))
 shutil.copy(base / "pwa/manifest.webmanifest", web / "manifest.webmanifest")
@@ -93,11 +98,19 @@ bhead, bbody = binl.split("<!--BODY-->", 1)
 bhead = re.sub(r"<!--FONTS-->.*?<!--/FONTS-->", "", bhead, flags=re.S)
 beta_css = (base / "pwa/beta.css").read_text()
 bhead = bhead + '<style id="beta-only">\n' + beta_css + '\n</style>\n'
+# beta offline file: the beta page with the strict no-network policy, like the production one
+bsingle = ('<!doctype html>\n<html lang="en" data-channel="beta">\n<head>\n<meta charset="utf-8">\n'
+           '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+           f'<meta http-equiv="Content-Security-Policy" content="{OFFLINE_CSP}">\n'
+           '<!-- CAF Digital Travel Itinerary (beta). Runs entirely in the browser. This page cannot make network requests. -->\n'
+           + bhead + "</head>\n<body>\n" + bbody + "\n</body>\n</html>\n").replace("__OFFLINE_SHA__", "")
+(webb / "CAF_Digital_Travel_Itinerary.html").write_text(bsingle)
+sha_beta = hashlib.sha256(bsingle.encode()).hexdigest()
 bdoc = ('<!doctype html>\n<html lang="en" data-channel="beta">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<meta http-equiv="Content-Security-Policy" content="{csp_web}">\n' + pwa_head.replace('content="CAF Travel"', 'content="CAF Travel Beta"').replace('content="#052748"', 'content="#2b2b2b"') +
         '<!-- CAF Digital Travel Itinerary (beta). Runs entirely in the browser. The page itself cannot make network requests. -->\n'
-        + bhead + "</head>\n<body>\n" + bbody + "\n</body>\n</html>\n")
+        + bhead + "</head>\n<body>\n" + bbody + "\n</body>\n</html>\n").replace("__OFFLINE_SHA__", sha_beta)
 (webb / "index.html").write_text(bdoc)
 bver = hashlib.sha256(bdoc.encode()).hexdigest()[:10]
 (webb / "sw.js").write_text((base / "pwa/sw.js").read_text().replace("__VERSION__", bver))
@@ -112,4 +125,5 @@ m = json.loads((base / "pwa/manifest.webmanifest").read_text())
 m["name"] = "CAF Digital Travel Itinerary (Beta)"; m["short_name"] = "CAF Travel Beta"
 m["theme_color"] = m["background_color"] = "#2b2b2b"
 (webb / "manifest.webmanifest").write_text(json.dumps(m, indent=2) + "\n")
+(base / "out/checksums.json").write_text(json.dumps({"production": {"label": PROD_LABEL, "sha256": sha_prod}, "beta": {"label": BETA_LABEL, "sha256": sha_beta}}, indent=2) + "\n")
 print("beta ok |", PROD_LABEL, "|", BETA_LABEL, "|", bver)

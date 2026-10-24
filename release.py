@@ -37,6 +37,26 @@ def check():
     print("channel check ok")
 def copy_beta():
     shutil.rmtree(R / "beta", ignore_errors=True); shutil.copytree(S / "out/web-beta", R / "beta")
+def checksums(new_release=None):
+    """Write the SHA-256 of the published offline files into the README (and, on promotion, the changelog),
+    computed from the files as they will be published, so the listed value always matches."""
+    import hashlib, re
+    sha = lambda f: hashlib.sha256(f.read_bytes()).hexdigest() if f.exists() else None
+    prod, beta = sha(R / "CAF_Digital_Travel_Itinerary.html"), sha(R / "beta/CAF_Digital_Travel_Itinerary.html")
+    ver = (S / "VERSION").read_text().strip(); maj, mi = ver.split(".")
+    rows = ["| Channel | Version | File | SHA-256 |", "| --- | --- | --- | --- |",
+            f"| Production | {ver} | `CAF_Digital_Travel_Itinerary.html` | `{prod}` |"]
+    if beta: rows.append(f"| Beta | {maj}.{int(mi) + 1} beta {(S / 'BETA_BUILD').read_text().strip()} | `beta/CAF_Digital_Travel_Itinerary.html` | `{beta}` |")
+    rd = R / "README.md"; txt = rd.read_text()
+    assert "<!--CHECKSUMS-->" in txt and "<!--/CHECKSUMS-->" in txt, "README.md has no checksum markers"
+    txt = re.sub(r"<!--CHECKSUMS-->.*?<!--/CHECKSUMS-->", "<!--CHECKSUMS-->\n" + "\n".join(rows) + "\n<!--/CHECKSUMS-->", txt, flags=re.S)
+    rd.write_text(txt)
+    if new_release and prod:
+        cl = R / "CHANGELOG.md"; c = cl.read_text(); m = re.search(r"^## " + re.escape(new_release) + r" \([^)]*\)\n\n", c, flags=re.M)
+        assert m, f"CHANGELOG.md has no dated heading for {new_release}"
+        line = f"- Offline file SHA-256: `{prod}`\n"
+        if line not in c: cl.write_text(c[:m.end()] + line + c[m.end():])
+    print("checksums:", (prod or "-")[:12], (beta or "-")[:12])
 def push(msg):
     sh("git", "add", "-A"); sh("git", "commit", "-q", "-m", msg + ATTR)
     pushed("main", R)
@@ -71,7 +91,7 @@ def save_source():
 mode = sys.argv[1]
 if mode == "beta":
     n = int((S / "BETA_BUILD").read_text().strip() or 0) + 1; (S / "BETA_BUILD").write_text(f"{n}\n")
-    build(); check(); copy_beta(); push(sys.argv[2] if len(sys.argv) > 2 else f"Beta build {n}"); save_source()
+    build(); check(); copy_beta(); checksums(); push(sys.argv[2] if len(sys.argv) > 2 else f"Beta build {n}"); save_source()
 elif mode == "check":
     build(); check()
 elif mode == "source":
@@ -82,7 +102,7 @@ elif mode == "promote":
     build(); check()
     for f in (S / "out/web").iterdir(): shutil.copy(f, R / f.name)
     shutil.copy(S / "out/CAF_Digital_Travel_Itinerary.html", R / "CAF_Digital_Travel_Itinerary.html")
-    copy_beta(); push(f"Release {new} to production")
+    copy_beta(); checksums(new); push(f"Release {new} to production")
     sh("git", "branch", "-f", f"release-v{new}", "HEAD")
     r = subprocess.run(["git", "push", "-q", "origin", f"release-v{new}"], cwd=R, capture_output=True, text=True)
     if r.returncode: print(f"WARNING: restore point release-v{new} was not pushed. {r.stderr.strip()}")

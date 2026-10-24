@@ -35,7 +35,7 @@ async def main():
             check(f"{tag}: Save now sits above Keep my work", order == ["save-now-menu", "opt-keep"], order)
             hgt = await q.evaluate("() => document.getElementById('menu').scrollHeight")
             print(f"  {tag}: menu height {hgt}px")
-            check(f"{tag}: menu is compact", hgt < (1000 if ch == "beta" else 800), hgt)
+            check(f"{tag}: menu is compact", hgt < (1050 if ch == "beta" else 860), hgt)
             check(f"{tag}: no description lines except the version switch", await q.evaluate("() => [...document.querySelectorAll('#menu .mi-sub')].filter(e => e.offsetParent && e.id !== 'switch-sub').length") == 0)
             mb = await q.locator("#menu").bounding_box()
             check(f"{tag}: menu fits the screen width", mb["x"] >= 0 and mb["x"] + mb["width"] <= vp["width"], mb)

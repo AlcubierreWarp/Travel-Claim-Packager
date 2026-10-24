@@ -2,8 +2,15 @@
 
 Versioning: the minor number goes up by one only when the beta is promoted to production (1.1, 1.2, 1.3...). The beta shows the number the next production release will have plus its own build number, which goes up with every beta publish and starts again at 1 after a promotion, for example "Version 1.3 beta 3, built 17 Oct 2026 10:42 (production is 1.2)". The major number changes only when the owner decides a release is a major one.
 
-## 1.9 (beta, in progress)
+## 1.10 (beta, in progress)
 
+## 1.9 (24 Oct 2026)
+
+- Offline file SHA-256: `3dbc034ea8af90fbc138028b3f204cc50b1841cbe35e94f44526185d8962c5d5`
+- Offline copy checksums: the menu shows the SHA-256 of this version's offline file under Download offline copy, and the README lists the checksums for production and the beta, with how to check a file on Windows, macOS and Linux. An offline copy links to that list instead
+- Download offline copy now hands over the published offline file itself, so its checksum matches. Only when that file cannot be read (offline before it was saved, or inside an offline copy) is a copy built on the device, and the message says its checksum will not match
+- The beta now has its own published offline file, at beta/CAF_Digital_Travel_Itinerary.html
+- Fixed: opening the offline file from the website could replace the installed app's saved copy with that file
 - Menu made more compact: each section opens with a tinted band, description lines are gone, labels are shorter (Keep my work, Local-only notice), Get help and Send feedback share a row, and Save now sits above Keep my work
 - Menu regrouped by function: Claim file (New claim, Open claim file, Save claim file, Send claim file), On this device (Keep my work, Save now, Remember my details, PIN, Forget this device), Experimental, App (Download offline copy, local-only notice, switch channel) and Help. Install app stays at the top
 - New Experimental section with on/off switches for Itinerary import (on by default; off hides the import card) and Beautify export (off by default). Import is now labelled Experimental instead of Beta

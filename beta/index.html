@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'none'; connect-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
@@ -79,6 +79,8 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .menu hr{display:none}
 .menu p.menu-h:first-of-type{margin-top:6px}
 .menu #install-btn[hidden]~p.menu-h:first-of-type{margin-top:-6px}
+.menu-sha code{display:block;margin-top:2px;font:500 .68rem/1.35 var(--f-mono);color:var(--ink);word-break:break-all;-webkit-user-select:all;user-select:all}
+.menu-sha a{color:var(--accent)}
 .menu .menu-ver{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
 .menu-row{display:flex;gap:4px}
 .menu-row>a.menu-link{flex:1 1 0;display:block;padding:8px 10px;border-radius:3px;color:var(--ink);text-decoration:none;font-size:.9rem}
@@ -706,6 +708,7 @@ html{touch-action:manipulation}
           <p class="menu-note">Still in testing, so results may vary.</p>
           <p class="menu-h">App</p>
           <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Download offline copy</span></button>
+          <p class="menu-note menu-sha" id="offline-sha"></p>
           <button data-act="show-notice" id="show-notice" hidden>Local-only notice</button>
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
           <p class="menu-h">Help</p>
@@ -716,7 +719,7 @@ html{touch-action:manipulation}
           <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span></button><!--/BETA-ONLY-->
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9 beta 12, built 21 Oct 2026 16:49 (production is 1.8)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 1, built 24 Oct 2026 10:35 (production is 1.9)</p>
         </div>
       </div>
     </div>
@@ -938,7 +941,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9 beta 12, built 21 Oct 2026 16:49 (production is 1.8)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 1, built 24 Oct 2026 10:35 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1147,6 +1150,7 @@ const FR = {
 "A copy of this tool as one .html file that runs without internet. No claim data.": "Une copie de cet outil en un seul fichier .html, utilisable sans Internet. Aucune donnée de réclamation.",
 "A designed layout for the PDF package.": "Une mise en page soignée pour la trousse PDF.",
 "A missing receipt is replaced by a statutory declaration (page {1}). Declare it in person before an authorized officer, who completes and signs the jurat.": "Le reçu manquant est remplacé par une déclaration solennelle (page {1}). Faites-la en personne devant un officier autorisé, qui remplit et signe le constat d'assermentation.",
+"A newer version is on the site. Reload the app, then download the offline copy again.": "Une version plus récente est en ligne. Rechargez l'application, puis téléchargez de nouveau la copie hors ligne.",
 "A statutory declaration for {0} replaces the receipt in the package.": "Une déclaration solennelle pour {0} remplace le reçu dans la trousse.",
 "Add a receipt": "Ajouter un reçu",
 "Add a short description.": "Ajoutez une courte description.",
@@ -1237,8 +1241,10 @@ const FR = {
 "Check": "Vérifier",
 "Check the corners, then Apply.": "Vérifiez les coins, puis appliquez.",
 "Check the times and how you travelled.": "Vérifiez les heures et les moyens de transport.",
+"Check this copy against the SHA-256 checksums on GitHub:": "Vérifiez cette copie à l'aide des sommes de contrôle SHA-256 publiées sur GitHub :",
 "Check-in": "Arrivée",
 "Check-out": "Départ",
+"Checksums": "Sommes de contrôle",
 "Choose": "Choisir",
 "Choose a PIN": "Choisissez un NIP",
 "Choose and confirm": "Choisir et confirmer",
@@ -1421,6 +1427,7 @@ const FR = {
 "Install cancelled. You can install any time from the menu.": "Installation annulée. Vous pouvez l'installer en tout temps à partir du menu.",
 "Installed. Open CAF Travel from your home screen or app list.": "Installée. Ouvrez CAF Travel à partir de votre écran d'accueil ou de votre liste d'applications.",
 "Internet": "Internet",
+"It was built on this device, so its checksum will not match the published one.": "Elle a été créée sur cet appareil; sa somme de contrôle ne correspondra donc pas à celle qui est publiée.",
 "Itinerary": "Itinéraire",
 "Itinerary import": "Importation d'itinéraire",
 "Itinerary import is off. Turn it back on in the menu.": "L'importation d'itinéraire est désactivée. Réactivez-la dans le menu.",
@@ -1672,6 +1679,7 @@ const FR = {
 "SD": "DS",
 "SD = statutory declaration for a missing receipt": "DS = déclaration solennelle pour un reçu manquant",
 "SD = statutory declaration for a missing receipt, signed by the member": "DS = déclaration solennelle pour un reçu manquant, signée par le membre",
+"SHA-256 of the offline copy:": "SHA-256 de la copie hors ligne :",
 "STATUTORY DECLARATION": "DÉCLARATION SOLENNELLE",
 "Same location, no travel": "Même endroit, aucun déplacement",
 "Save": "Enregistrer",
@@ -3779,14 +3787,40 @@ const OFFLINE_CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src '
 function offlineHtml() {
   const h = PRISTINE
     .replace(/<meta http-equiv="Content-Security-Policy" content="[^"]*">/, `<meta http-equiv="Content-Security-Policy" content="${OFFLINE_CSP}">`)
+    .replace(/const OFFLINE_SHA = '[0-9a-f]{64}'/, "const OFFLINE_SHA = ''")
     .replace(/<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\s*/g, '')
     .replace(/<meta name="(?:theme-color|mobile-web-app-capable|apple-mobile-web-app-capable|apple-mobile-web-app-title)"[^>]*>\s*/g, '');
   return '<!doctype html>\n' + h + '\n';
 }
 const offlineName = () => `${fr() ? 'Itineraire-voyage-numerique-FAC' : 'CAF_Digital_Travel_Itinerary'}_v${APP_VERSION}.html`;
+// SHA-256 of this version's published offline file, filled in by build.py. It is empty inside the offline file itself,
+// because a file cannot carry its own checksum. Members compare a copy they were sent against it, or against the README.
+const OFFLINE_SHA = 'f747ba945195a906106c93ba39952facacb7c985354ec81f853fff674491079a';
+const OFFLINE_FILE = 'CAF_Digital_Travel_Itinerary.html';
+const SUMS_URL = 'https://github.com/AlcubierreWarp/Travel-Claim-Packager#checksums';
+async function sha256hex(buf) { const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
+function syncSha() {
+  const el = $('#offline-sha'); if (!el) return;
+  el.innerHTML = OFFLINE_SHA
+    ? `${esc(T('SHA-256 of the offline copy:'))}<code>${esc(OFFLINE_SHA)}</code>`
+    : `${esc(T('Check this copy against the SHA-256 checksums on GitHub:'))} <a href="${SUMS_URL}" target="_blank" rel="noopener">${esc(T('Checksums'))}</a>`;
+}
+// Download offline copy hands over the published file itself, byte for byte, so its checksum matches the one shown.
+// Only when that file cannot be read (no connection and not saved yet, or inside an offline copy) is a copy built from this page.
 async function downloadOffline() {
-  const name = offlineName(), ok = await offerFile(name, new Blob([offlineHtml()], { type: 'text/html' }), 'text/html');
-  if (ok !== false) toast(T('{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.', name));
+  const name = offlineName(); let blob = null, newer = false;
+  if (OFFLINE_SHA && /^https?:$/.test(location.protocol)) {
+    try {
+      const r = await fetch(new URL(OFFLINE_FILE, location.href), { cache: 'no-cache', credentials: 'same-origin' });
+      if (r.ok) { const buf = await r.arrayBuffer(); if (await sha256hex(buf) === OFFLINE_SHA) blob = new Blob([buf], { type: 'text/html' }); else newer = true; }
+    } catch (e) {}
+  }
+  if (newer) { toast(T('A newer version is on the site. Reload the app, then download the offline copy again.')); return; }
+  const built = !blob;
+  if (built) blob = new Blob([offlineHtml()], { type: 'text/html' });
+  const ok = await offerFile(name, blob, 'text/html');
+  if (ok !== false) toast(T('{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.', name)
+    + (built && OFFLINE_SHA ? ' ' + T('It was built on this device, so its checksum will not match the published one.') : ''));
 }
 
 /* ---------- drafts ---------- */
@@ -3801,9 +3835,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.9-beta.12';
+const APP_VERSION = '1.10-beta.1';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.9 beta 12, built 21 Oct 2026 16:49 (production is 1.8)';
+const APP_LABEL = 'Version 1.10 beta 1, built 24 Oct 2026 10:35 (production is 1.9)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4001,6 +4035,7 @@ function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motio
 // Text that code sets on fixed elements, refreshed when the language changes
 function relabel() {
   const hh = helpHref(), fh = feedbackHref();
+  syncSha();
   if (typeof syncSwitch === 'function') syncSwitch();
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
   const sd = $('#send-draft'); if (sd) sd.textContent = IOS_PWA && SEND.draft ? T('Save or send claim file') : T('Send claim file');

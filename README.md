@@ -15,9 +15,28 @@ By default a claim lasts only as long as the browser tab. In the menu you can ch
 ## Use
 
 - **Website:** open the published page. On a phone, use **Install app** in the menu (or Add to Home Screen on iPhone) to use it like an app, including offline.
-- **Single file:** choose **Export offline app** in the menu, or download `CAF_Digital_Travel_Itinerary.html`, and open it in any browser. It works with no internet connection and cannot make network requests at all.
+- **Single file:** choose **Download offline copy** in the menu, or download `CAF_Digital_Travel_Itinerary.html` from this repository, and open it in any browser. It works with no internet connection and cannot make network requests at all.
 
 The page opens with a fictional example claim; choose **Start a blank claim** to begin your own.
+
+## Checksums
+
+Only use an offline copy that you downloaded yourself from the published site or this repository. If someone sends you one, check it first: its SHA-256 checksum must match the one below for its version, or the one shown in the app's menu under **Download offline copy**. A file that does not match may have been changed and should not be opened.
+
+<!--CHECKSUMS-->
+| Channel | Version | File | SHA-256 |
+| --- | --- | --- | --- |
+| Production | 1.9 | `CAF_Digital_Travel_Itinerary.html` | `3dbc034ea8af90fbc138028b3f204cc50b1841cbe35e94f44526185d8962c5d5` |
+| Beta | 1.10 beta 1 | `beta/CAF_Digital_Travel_Itinerary.html` | `f747ba945195a906106c93ba39952facacb7c985354ec81f853fff674491079a` |
+<!--/CHECKSUMS-->
+
+To get a file's checksum:
+
+- **Windows (PowerShell):** `Get-FileHash .\CAF_Digital_Travel_Itinerary.html`
+- **macOS (Terminal):** `shasum -a 256 CAF_Digital_Travel_Itinerary.html`
+- **Linux:** `sha256sum CAF_Digital_Travel_Itinerary.html`
+
+The checksum of each production release is also listed in `CHANGELOG.md`.
 
 ## Beta
 

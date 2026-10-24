@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'none'; connect-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
@@ -64,7 +64,7 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .savechip.off{color:var(--warn)}
 .menu-wrap{position:relative}
 .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:18rem;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line-strong);border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column;max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
-.menu>button{all:unset;box-sizing:border-box;padding:10px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
+.menu>button{all:unset;box-sizing:border-box;padding:8px 10px;border-radius:3px;cursor:pointer;font-size:.9rem}
 .menu>button:hover,.menu>button:focus-visible{background:var(--accent-soft)}
 .menu>button.danger{color:var(--bad)}
 .menu>button.install{font-weight:700;color:var(--accent)}
@@ -74,14 +74,32 @@ h1{font:750 1.5rem/1.05 var(--f-display);font-stretch:82%;margin:0;letter-spacin
 .menu hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
 .menu .mi-t{display:block}
 .menu .mi-sub{display:block;font-size:.74rem;line-height:1.3;color:var(--muted);margin-top:2px}
-.menu .menu-h:first-child{margin-top:6px}
-.menu-h{font:600 .64rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 10px 2px}
-.menu-check{display:flex;gap:10px;align-items:center;padding:9px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
+/* Each section opens with a tinted band in the accent colour, so the groups read apart at a glance */
+.menu-h{font:700 .66rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--accent);background:var(--accent-soft);border-left:3px solid var(--accent);margin:8px -6px 2px;padding:6px 13px}
+.menu hr{display:none}
+.menu p.menu-h:first-of-type{margin-top:6px}
+.menu #install-btn[hidden]~p.menu-h:first-of-type{margin-top:-6px}
+.menu-sha code{display:block;margin-top:2px;font:500 .68rem/1.35 var(--f-mono);color:var(--ink);word-break:break-all;-webkit-user-select:all;user-select:all}
+.menu-sha a{color:var(--accent)}
+.menu .menu-ver{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.menu-row{display:flex;gap:4px}
+.menu-row>a.menu-link{flex:1 1 0;display:block;padding:8px 10px;border-radius:3px;color:var(--ink);text-decoration:none;font-size:.9rem}
+.menu-row>a.menu-link:hover,.menu-row>a.menu-link:focus-visible{background:var(--accent-soft)}
+.menu-check{display:flex;gap:12px;align-items:center;padding:6px 10px;font-size:.9rem;cursor:pointer;border-radius:3px}
 .menu-check:hover{background:var(--accent-soft)}
+.menu-check>span{flex:1 1 auto;min-width:0}
+.menu-check>input{order:2}
 .menu-check input:disabled+*{opacity:.5}
+/* On/off switches in place of small check boxes: easier to hit and to read on a phone. The knob is a background
+   layer (no ::before), so it draws the same in every browser. The meals grid keeps its check boxes. */
+input[type=checkbox].sw,.check>input[type=checkbox]{-webkit-appearance:none;appearance:none;flex:none;box-sizing:border-box;width:2.5rem;height:1.5rem;margin:0;border-radius:999px;border:1px solid var(--line-strong);background-color:var(--line);background-image:radial-gradient(circle closest-side,#fff 0 calc(100% - 1.5px),rgba(0,0,0,.28) calc(100% - 1px),transparent 100%);background-size:1.2rem 1.2rem;background-repeat:no-repeat;background-position:.1rem 50%;cursor:pointer;transition:background-position .15s ease,background-color .15s ease}
+input[type=checkbox].sw:checked,.check>input[type=checkbox]:checked{background-color:var(--accent);border-color:var(--accent);background-position:calc(100% - .1rem) 50%}
+input[type=checkbox].sw:focus-visible,.check>input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=checkbox].sw:disabled,.check>input[type=checkbox]:disabled{opacity:.45;cursor:not-allowed}
+@media (prefers-reduced-motion: reduce){ input[type=checkbox].sw,.check>input[type=checkbox]{transition:none} }
 
 .menu-ver{font-family:var(--f-mono);font-size:.7rem!important;color:var(--muted)}
-.menu-note{font-size:.76rem;line-height:1.4;color:var(--muted);margin:6px 10px 4px}
+.menu-note{font-size:.74rem;line-height:1.35;color:var(--muted);margin:2px 10px 4px}
 .banner.device{background:var(--accent-soft);border-color:var(--accent)}
 .banner-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pin-in{width:7rem;font-family:var(--f-mono);letter-spacing:.2em}
@@ -108,14 +126,29 @@ fieldset.tg.off .dshow{display:none}
 .bar-acts .sm{display:none}
 .totalbar .btn.bar-snap{background:transparent;color:var(--bar-ink);border-color:var(--bar-ink)}
 /* snap dialog */
-dialog#snap,dialog#imp{border:0;border-radius:6px;padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.35)}
-dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
+dialog#snap,dialog#imp,dialog#crop{border:0;border-radius:6px;padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+dialog#snap::backdrop,dialog#imp::backdrop,dialog#crop::backdrop{background:rgba(5,8,7,.6)}
 .snap-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bar);color:var(--bar-ink)}
 .snap-head h3{margin:0;color:inherit}
 .snap-head .icon-btn{color:var(--bar-ink)}
 .snap-body{padding:14px;overflow:auto;max-height:calc(100vh - 170px)}
 .snap-prev{display:flex;justify-content:center;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:8px;margin-bottom:12px}
 .snap-prev img{max-height:170px;max-width:100%;object-fit:contain;background:#fff}
+.snap-crop{display:flex;justify-content:center;margin:-4px 0 12px}
+.crop-body{padding:10px 14px 4px}
+.crop-hint{margin:0 0 8px;font-size:.84rem;color:var(--muted);text-align:center}
+.crop-stage{position:relative;margin:0 auto;padding:16px;touch-action:none;user-select:none;-webkit-user-select:none;background:#2a2d2c;border-radius:4px;box-sizing:content-box}
+.crop-stage canvas#crop-cv{display:block}
+.crop-stage svg{position:absolute;left:16px;top:16px;overflow:visible;touch-action:none}
+.crop-stage svg .hit{fill:transparent;cursor:grab}
+.crop-stage svg .knob{fill:#fff;stroke:var(--accent);stroke-width:3;pointer-events:none}
+.crop-stage svg .hit:focus-visible+.knob,.crop-stage svg .hit:focus+.knob{stroke:#000;stroke-width:4}
+.crop-stage svg .hit:focus{outline:none}
+.crop-stage svg .edge{fill:none;stroke:#fff;stroke-width:2;pointer-events:none}
+.crop-stage svg .dim{fill:rgba(0,0,0,.5);fill-rule:evenodd;pointer-events:none}
+#crop-loupe{position:absolute;width:120px;height:120px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.5);pointer-events:none;background:#fff}
+.crop-gap{flex:1 1 auto}
+dialog#lb .lb-acts{display:flex;gap:8px}
 .snap-prev .pdfbadge{width:auto;height:auto;padding:16px 20px;font-size:.8rem}
 .snap-types{border:0;margin:0 0 12px;padding:0;min-width:0}
 .snap-types legend{font:600 .68rem/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;padding:0}
@@ -126,9 +159,11 @@ dialog#snap::backdrop,dialog#imp::backdrop{background:rgba(5,8,7,.6)}
 .chip-r input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .chip-r input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
 /* itinerary import */
+.pill-exp{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid currentColor;border-radius:999px;font:700 .6rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;color:var(--warn)}
+.pretty-note{margin:0 0 10px}.pretty-note .pill-exp{margin:0 6px 0 0}
 .pill-beta{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid currentColor;border-radius:999px;font:700 .6rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;opacity:.85}
 .imp-betanote{display:flex;gap:8px;align-items:baseline;margin:0 0 12px;padding:8px 10px;border-radius:3px;background:var(--card);border:1px solid var(--line);font-size:.82rem;color:var(--muted)}
-.imp-betanote .pill-beta{margin-left:0;flex:none;color:var(--ink)}
+.imp-betanote .pill-exp{margin-left:0;flex:none}
 .imp-lead{margin:0 0 12px;font-size:.9rem}
 .imp-drop{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border:1px dashed var(--line-strong);border-radius:4px;padding:14px;background:var(--card);margin-bottom:14px}
 .imp-drop.dragover{border-color:var(--accent);background:var(--field)}
@@ -307,7 +342,10 @@ fieldset.tg.off input{opacity:.3}
 .rownum{font:600 .76rem var(--f-mono);color:var(--muted)}
 .rc{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-left:calc(3rem + 6px);min-width:0}
 .chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:3px;padding:2px;background:var(--card);max-width:100%;min-width:0}
-.thumb{all:unset;cursor:zoom-in;display:block;flex:none}
+.thumb{display:block;flex:none}
+.chip-open{all:unset;display:inline-flex;align-items:center;gap:7px;min-width:0;cursor:pointer;border-radius:2px}
+.chip-open:hover .fn{color:var(--accent);text-decoration:underline}
+.chip-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .thumb img,.pdfbadge{width:30px;height:30px;object-fit:cover;border-radius:2px;display:block}
 .pdfbadge{display:grid;place-items:center;font:700 .58rem/1 var(--f-mono);background:var(--bad-soft);color:var(--bad)}
 .chip .ref{font:600 .74rem var(--f-mono)}
@@ -358,6 +396,11 @@ fieldset.tg.off input{opacity:.3}
 
 /* lodging stays */
 .stays{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.leave-card{display:flex;gap:12px;align-items:center;border:1px dashed color-mix(in srgb,var(--ok) 55%,transparent);background:var(--ok-soft);border-radius:4px;padding:10px 12px}
+.leave-card .lv-tag{flex:none;font:700 .66rem/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ok);border:1px solid currentColor;border-radius:999px;padding:1px 7px}
+.leave-card .lv-b{flex:1;min-width:0;font-size:.88rem;display:flex;flex-direction:column;gap:2px}
+.leave-card .lv-note{font-size:.8rem;color:var(--muted)}
+.leave-card .icon-btn{flex:none}
 .stay{border:1px solid var(--line);background:var(--card);border-radius:4px;padding:10px 12px 12px;container-type:inline-size;min-width:0}
 .stay-head{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-bottom:10px}
 .stay-head .del{margin-left:auto}
@@ -382,7 +425,7 @@ fieldset.tg.off input{opacity:.3}
 .imp-hero-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
 .imp-hero-t strong{font-size:.95rem}
 .imp-hero-t > span{font-size:.82rem;color:var(--muted)}
-.imp-hero .pill-beta{margin-left:4px}
+.imp-hero .pill-exp{margin-left:4px}
 @media (max-width: 560px){ .imp-hero .btn{width:100%} }
 .trip .sd-help{margin-top:6px}
 .leave-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px}
@@ -603,30 +646,34 @@ html{touch-action:manipulation}
         <div class="menu" id="menu" hidden>
           <button data-act="install" id="install-btn" class="install" hidden>Install app</button>
           <hr id="install-hr" hidden>
-          <p class="menu-h">This claim</p>
-          <button data-act="save-now" id="save-now-menu">Save now</button>
+          <p class="menu-h">Claim file</p>
           <button data-act="clear" id="clear-btn">New claim</button>
-          <button data-act="open-draft">Import claim file…</button>
-          <button data-act="save-draft" id="save-draft"><span class="mi-t">Export claim file</span><span class="mi-sub">Your claim and receipts, to finish later or on another device.</span></button>
+          <button data-act="open-draft">Open claim file…</button>
+          <button data-act="save-draft" id="save-draft"><span class="mi-t">Save claim file</span></button>
           <button data-act="send-draft" id="send-draft" hidden>Send claim file</button>
-          <hr>
-          <p class="menu-h">This tool</p>
-          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Export offline app</span><span class="mi-sub">A copy of this tool as one .html file that runs without internet. No claim data.</span></button>
-          <button data-act="show-notice" id="show-notice" hidden>Show local-only notice</button>
-          <hr>
-          <p class="menu-h">This device</p>
-          <label class="menu-check"><input type="checkbox" id="opt-keep"> Keep my work on this device</label>
-          <label class="menu-check"><input type="checkbox" id="opt-remember"> Remember my details</label>
-          <label class="menu-check"><input type="checkbox" id="opt-pin"> Protect with a PIN</label>
+          <p class="menu-h">On this device</p>
+          <button data-act="save-now" id="save-now-menu">Save now</button>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-keep"><span class="mi-t">Keep my work</span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-remember"><span class="mi-t">Remember my details</span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pin"><span class="mi-t">Protect with a PIN</span></label>
           <button data-act="forget" id="forget-btn" class="danger">Forget this device</button>
-          <hr>
-          <p class="menu-h">Help</p>
-          <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
-          <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
-          
+          <p class="menu-note" id="menu-note">Never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
+          <p class="menu-h">Experimental</p>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-imp"><span class="mi-t">Itinerary import</span></label>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-pretty"><span class="mi-t">Beautify export</span></label>
+          <p class="menu-note">Still in testing, so results may vary.</p>
+          <p class="menu-h">App</p>
+          <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Download offline copy</span></button>
+          <p class="menu-note menu-sha" id="offline-sha"></p>
+          <button data-act="show-notice" id="show-notice" hidden>Local-only notice</button>
           <button data-act="switch-channel" id="switch-channel" hidden><span class="mi-t" id="switch-t"></span><span class="mi-sub" id="switch-sub"></span></button>
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.8, updated 17 Oct 2026</p>
-          <p class="menu-note" id="menu-note">Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.</p>
+          <p class="menu-h">Help</p>
+          <div class="menu-row">
+            <a class="menu-link" id="help-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Get help</a>
+            <a class="menu-link" id="fb-menu" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a>
+          </div>
+          
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.9, updated 24 Oct 2026</p>
         </div>
       </div>
     </div>
@@ -662,13 +709,12 @@ html{touch-action:manipulation}
 
     <section class="sec trip" id="sec-T">
       <div class="imp-hero" id="imp-hero">
-        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-beta">Beta</span></strong><span>Import the PDF or email to fill in your stops, dates and times.</span></div>
+        <div class="imp-hero-t"><strong>Have an Amex GBT itinerary? <span class="pill-exp">Experimental</span></strong><span>Import the PDF or email to fill in your stops, dates and times.</span></div>
         <button class="btn primary" data-act="imp-open">Import itinerary</button>
       </div>
       <div class="sec-b">
         <label for="trip-ref">Trip name</label>
         <input id="trip-ref" class="trip-in" data-bind="tripRef" autocomplete="off" placeholder="e.g. Winnipeg course or Exercise SAMPLE">
-        <p class="sd-help">Shown at the top of the PDF and used in the file name.</p>
         <div class="trip-refs" id="trip-refs" hidden>
           <div class="field"><label for="trip-tan">TAN</label><input id="trip-tan" data-bind="tan" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
           <div class="field"><label for="trip-loc">Trip locator</label><input id="trip-loc" data-bind="locator" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
@@ -816,6 +862,7 @@ html{touch-action:manipulation}
               <div class="field"><label for="pk-fileno">File number <span class="opt">optional</span></label><input id="pk-fileno" data-bind="fileNo" autocomplete="off" placeholder="No file number"></div>
               <div class="field"><label for="pk-marking">Security marking</label><select id="pk-marking" data-bind="marking"><option value="UNCLAS">UNCLASSIFIED</option><option value="PA">PROTECTED A</option><option value="PB">PROTECTED B</option><option value="">None</option></select></div>
             </div>
+            <p class="sd-help fn-default" id="fn-default" hidden>Remembered as your default for new claims.</p>
             <p class="fname">File: <code id="fname"></code></p>
             <h3 style="margin-top:18px">What goes in</h3>
             <ul class="contents" id="contents"></ul>
@@ -839,6 +886,7 @@ html{touch-action:manipulation}
           <span class="pk-out-hint" id="pk-sign-hint"></span>
         </div>
         </div>
+        <p class="sd-help pretty-note" id="pretty-note" hidden><span class="pill-exp">Experimental</span> Beautify export is on: the PDF uses the new layout. Turn it off in the menu.</p>
         <div class="build-row">
           <button class="btn primary big" data-act="build" id="build-btn">Build PDF package</button>
           <span id="build-status" role="status" aria-live="polite"></span>
@@ -847,7 +895,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.8, updated 17 Oct 2026</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.9, updated 24 Oct 2026</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -864,7 +912,7 @@ html{touch-action:manipulation}
 </footer>
 
 <div id="toast" role="status" aria-live="polite" hidden></div>
-<dialog id="lb"><div class="lb-bar"><span id="lb-cap"></span><button data-act="lb-close">Close</button></div><img id="lb-img" alt=""></dialog>
+<dialog id="lb"><div class="lb-bar"><span id="lb-cap"></span><span class="lb-acts"><button data-act="lb-crop" id="lb-crop" hidden>Crop</button><button data-act="lb-close">Close</button></span></div><img id="lb-img" alt=""></dialog>
 <input type="file" id="file-rc" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple hidden>
 <input type="file" id="file-draft" accept=".json,.txt,application/json,text/plain" hidden>
 <input type="file" id="file-snap" accept="image/*,application/pdf,.pdf,.heic,.heif" hidden>
@@ -872,6 +920,7 @@ html{touch-action:manipulation}
   <div class="snap-head"><h3 id="snap-h">Add a receipt</h3><button type="button" class="icon-btn" data-act="snap-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div class="snap-prev" id="snap-prev"></div>
+    <div class="snap-crop" id="snap-crop-row" hidden><button type="button" class="btn sm" data-act="snap-crop">Crop</button></div>
     <fieldset class="snap-types"><legend>What is it?</legend><div id="snap-types"></div></fieldset>
     <div class="sd-grid snap-grid">
       <div class="field"><label for="snap-amt" id="snap-amt-l">Amount</label><input id="snap-amt" class="num" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>
@@ -885,13 +934,22 @@ html{touch-action:manipulation}
   <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and add another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
 </dialog>
 
+<dialog id="crop" aria-labelledby="crop-h">
+  <div class="snap-head"><h3 id="crop-h">Crop the receipt</h3><button type="button" class="icon-btn" data-act="crop-cancel" aria-label="Close">×</button></div>
+  <div class="crop-body">
+    <p class="crop-hint" id="crop-hint">Drag the corners to the edges of the receipt.</p>
+    <div class="crop-stage" id="crop-stage"><canvas id="crop-cv"></canvas><svg id="crop-svg" aria-label="Crop area"></svg><canvas id="crop-loupe" width="120" height="120" hidden></canvas></div>
+  </div>
+  <div class="snap-foot crop-foot"><button type="button" class="btn" data-act="crop-rotate">Rotate</button><button type="button" class="btn" data-act="crop-reset">Reset</button><span class="crop-gap"></span><button type="button" class="btn" data-act="crop-cancel">Cancel</button><button type="button" class="btn primary" data-act="crop-apply" id="crop-apply">Apply</button></div>
+</dialog>
+
 <input type="file" id="file-itin" accept=".pdf,.msg,.eml,.txt,.htm,.html,application/pdf,application/vnd.ms-outlook,message/rfc822,text/plain,text/html" multiple hidden>
 <dialog id="imp" aria-labelledby="imp-h">
-  <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-beta">Beta</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
+  <div class="snap-head"><h3 id="imp-h">Import an itinerary <span class="pill-exp">Experimental</span></h3><button type="button" class="icon-btn" data-act="imp-cancel" aria-label="Close">×</button></div>
   <div class="snap-body">
     <div id="imp-pick">
       <p class="imp-lead">Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.</p>
-      <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.</span></p>
+      <p class="imp-betanote"><span class="pill-exp">Experimental</span> <span>Import is experimental and still being developed, so results may vary. Check the imported stops, dates and times against your itinerary for accuracy. To report an error or issue and help improve the tool, use Send feedback at the bottom of the page or in the menu.</span></p>
       <div class="imp-drop" id="imp-drop"><button type="button" class="btn primary" data-act="imp-choose">Choose itinerary files</button><span class="drophint">The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.</span></div>
       <label for="imp-text" class="imp-or">Or open the email, select all, copy, and paste it here</label>
       <textarea id="imp-text" rows="4" autocomplete="off" spellcheck="false"></textarea>
@@ -899,7 +957,7 @@ html{touch-action:manipulation}
     </div>
     <div id="imp-review" hidden>
       <p class="imp-src" id="imp-src"></p>
-      <p class="imp-betanote"><span class="pill-beta">Beta</span> <span>Compare this with your itinerary before you fill section B.</span></p>
+      <p class="imp-betanote"><span class="pill-exp">Experimental</span> <span>Compare this with your itinerary before you fill section B.</span></p>
       <h4 class="imp-sub">Found</h4>
       <ul class="imp-list" id="imp-list"></ul>
       <p class="imp-added" id="imp-added" role="status" hidden></p>
@@ -1008,6 +1066,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 // French (Government of Canada usage). Keys are the English text used in app.html.
 const FR = {
 " (LEAVE)": " (CONGÉ)",
+" (leave)": " (congé)",
 " + rations": " + rations",
 "\"No travel\" is selected between {0} and {1}, which are different places.": "« Aucun déplacement » est choisi entre {0} et {1}, qui sont des endroits différents.",
 "\"{0}\" is not a 24-hour time. Use HHMM, e.g. 1830.": "« {0} » n'est pas une heure de 24 h. Utilisez HHMM, p. ex. 1830.",
@@ -1020,6 +1079,7 @@ const FR = {
 "+ Add a stop here": "+ Ajouter une escale ici",
 "+ Attach receipt": "+ Joindre un reçu",
 "+ Receipt": "+ Reçu",
+"+{0} more": "+{0} autres",
 ", installed app": ", application installée",
 ". Unofficial tool, not endorsed by DND or the CAF.": ". Outil non officiel, non approuvé par le MDN ni les FAC.",
 "1. Overall, how useful was it? (1 = not useful, 5 = very useful):": "1. Dans l'ensemble, quelle a été son utilité? (1 = pas utile, 5 = très utile) :",
@@ -1042,6 +1102,9 @@ const FR = {
 "A Commissioner for Oaths outside Alberta.": "Commissaire aux serments à l'extérieur de l'Alberta.",
 "A Commissioner for Oaths.": "Commissaire aux serments.",
 "A copy of this tool as one .html file that runs without internet. No claim data.": "Une copie de cet outil en un seul fichier .html, utilisable sans Internet. Aucune donnée de réclamation.",
+"A designed layout for the PDF package.": "Une mise en page soignée pour la trousse PDF.",
+"A missing receipt is replaced by a statutory declaration (page {1}). Declare it in person before an authorized officer, who completes and signs the jurat.": "Le reçu manquant est remplacé par une déclaration solennelle (page {1}). Faites-la en personne devant un officier autorisé, qui remplit et signe le constat d'assermentation.",
+"A newer version is on the site. Reload the app, then download the offline copy again.": "Une version plus récente est en ligne. Rechargez l'application, puis téléchargez de nouveau la copie hors ligne.",
 "A statutory declaration for {0} replaces the receipt in the package.": "Une déclaration solennelle pour {0} remplace le reçu dans la trousse.",
 "Add a receipt": "Ajouter un reçu",
 "Add a short description.": "Ajoutez une courte description.",
@@ -1074,10 +1137,15 @@ const FR = {
 "Again": "Encore",
 "Air Force": "Force aérienne",
 "Airfare": "Billet d'avion",
+"All {0} stops on page {1}": "Les {0} arrêts à la page {1}",
 "Already up to date: version {0}.": "Déjà à jour : version {0}.",
+"Also claimed, not converted": "Aussi réclamé, sans conversion",
 "Amount": "Montant",
 "Anything that is not transportation, lodging or meals": "Tout ce qui n'est pas du transport, de l'hébergement ou des repas",
+"App": "Application",
+"Apply": "Appliquer",
 "Army": "Armée de terre",
+"Arrival": "Arrivée",
 "Arrival at {0} is earlier than the departure from {1}.": "L'arrivée à {0} est antérieure au départ de {1}.",
 "Arrival date": "Date d'arrivée",
 "Arrival time": "Heure d'arrivée",
@@ -1089,13 +1157,22 @@ const FR = {
 "Bank or exchange office": "Banque ou bureau de change",
 "Bank or exchange office, city": "Banque ou bureau de change, ville",
 "Base or location": "Base ou lieu",
+"Beautify export": "Embellir l'exportation",
+"Beautify export is off. PDFs use the standard layout.": "Embellir l'exportation est désactivé. Les PDF utilisent la mise en page standard.",
+"Beautify export is on. Build the PDF to see the new layout.": "Embellir l'exportation est activé. Créez le PDF pour voir la nouvelle mise en page.",
+"Beautify export is on: the PDF uses the new layout. Turn it off in the menu.": "Embellir l'exportation est activé : le PDF utilise la nouvelle mise en page. Désactivez-le dans le menu.",
+"Before an officer, in its own file": "Devant un officier, dans son propre fichier",
+"Before an officer, page {0}": "Devant un officier, page {0}",
 "Before you build": "Avant de créer",
 "Beta": "Bêta",
 "Beta testing": "Essais de la version bêta",
 "Blank claim ready. Start with the trip name and section A.": "Réclamation vierge prête. Commencez par le nom du voyage et la section A.",
+"Bottom left corner": "Coin inférieur gauche",
+"Bottom right corner": "Coin inférieur droit",
 "Bought": "Acheté",
 "Breakfast": "Déjeuner",
 "Breakfast (short)": "Déj.",
+"Breakfasts {0}  ·  lunches {1}  ·  dinners {2}": "Déjeuners {0}  ·  dîners {1}  ·  soupers {2}",
 "Build": "Créer",
 "Build PDF files": "Créer les fichiers PDF",
 "Build PDF package": "Créer la trousse PDF",
@@ -1108,14 +1185,20 @@ const FR = {
 "C - Transportation": "C - Transport",
 "CAF Digital Travel Itinerary": "Itinéraire de voyage numérique des FAC",
 "CAL": "Vol commercial",
+"CLAIMANT": "RÉCLAMANT",
 "Calls": "Appels",
 "Canadian Army and Royal Canadian Air Force": "Armée canadienne et Aviation royale canadienne",
 "Cancel": "Annuler",
+"Certification": "Attestation",
 "Change the reason": "Modifier la raison",
+"Changed since the last build. Build again for an up-to-date PDF.": "Modifié depuis la dernière création. Créez de nouveau le PDF pour qu'il soit à jour.",
 "Check": "Vérifier",
+"Check the corners, then Apply.": "Vérifiez les coins, puis appliquez.",
 "Check the times and how you travelled.": "Vérifiez les heures et les moyens de transport.",
+"Check this copy against the SHA-256 checksums on GitHub:": "Vérifiez cette copie à l'aide des sommes de contrôle SHA-256 publiées sur GitHub :",
 "Check-in": "Arrivée",
 "Check-out": "Départ",
+"Checksums": "Sommes de contrôle",
 "Choose": "Choisir",
 "Choose a PIN": "Choisissez un NIP",
 "Choose and confirm": "Choisir et confirmer",
@@ -1131,7 +1214,11 @@ const FR = {
 "City or base, e.g. Winnipeg": "Ville ou base, p. ex. Winnipeg",
 "City or town": "Ville ou municipalité",
 "Civilian": "Civil",
+"Claim file": "Fichier de réclamation",
 "Claim {0} every day": "Réclamer le {0} chaque jour",
+"Claimant and point of contact": "Réclamant et point de contact",
+"Claimant, no point of contact": "Réclamant, sans point de contact",
+"Claimed": "Réclamé",
 "Claude artifact": "artefact Claude",
 "Clear form": "Effacer le formulaire",
 "Clears everything the beta keeps on this device: claims, details, settings, PIN and offline copy. Production is not affected.": "Efface tout ce que la version bêta conserve sur cet appareil : réclamations, renseignements, paramètres, NIP et copie hors ligne. La version de production n'est pas touchée.",
@@ -1146,6 +1233,9 @@ const FR = {
 "Could not refresh. Check your connection and try again.": "Impossible d'actualiser. Vérifiez votre connexion et réessayez.",
 "Could not save the file ({0}).": "Impossible d'enregistrer le fichier ({0}).",
 "Country": "Pays",
+"Crop": "Rogner",
+"Crop area": "Zone à rogner",
+"Crop the receipt": "Rogner le reçu",
 "Cur": "Dev.",
 "Currency": "Devise",
 "Currency bought": "Devise achetée",
@@ -1155,14 +1245,21 @@ const FR = {
 "Currency sold": "Devise vendue",
 "D - Lodging": "D - Hébergement",
 "DAOD 7000-1 does not allow abbreviations of names, ranks, units or places. Spell them out in full.": "La DOAD 7000-1 n'autorise aucune abréviation de noms, de grades, d'unités ou de lieux. Écrivez-les au complet.",
+"DECLARATION": "DÉCLARATION",
 "DO SOLEMNLY DECLARE THAT:": "DÉCLARE SOLENNELLEMENT QUE :",
 "Date": "Date",
 "Date declared": "Date de la déclaration",
+"Date: recorded by the signature": "Date : consignée par la signature",
 "Dates TBD": "Dates à déterminer",
+"Day trip": "Voyage d'une journée",
 "Declarant": "Déclarant",
 "Declarations to be generated": "Déclarations à produire",
+"Declare {0}": "Déclarer {0}",
+"Declare {0} missing receipt": "Déclarer {0} reçu manquant",
+"Declare {0} missing receipts": "Déclarer {0} reçus manquants",
 "Declared outside Canada": "Déclaration faite à l'extérieur du Canada",
 "Depart": "Départ",
+"Departure": "Départ",
 "Departure date": "Date de départ",
 "Departure time": "Heure de départ",
 "Describe the \"Other\" way you travelled from {0}.": "Décrivez l'« autre » moyen utilisé pour voyager depuis {0}.",
@@ -1175,13 +1272,19 @@ const FR = {
 "Dinner (short)": "Soup.",
 "Done": "Terminé",
 "Download offline copy": "Télécharger une copie hors ligne",
+"Drag the corners to the edges of the receipt.": "Faites glisser les coins jusqu'aux bords du reçu.",
 "Drop receipts onto the expense or stay they belong to.": "Déposez les reçus sur la dépense ou le séjour auquel ils se rapportent.",
 "Déj.": "Déj.",
 "Dîn.": "Dîn.",
 "EXAMPLE": "EXEMPLE",
 "Each missing receipt gets its own declaration, pre-filled from this claim. You declare it in person before an authorized officer, who completes the jurat. You both sign it, with a PKI certificate or in ink (set under Build the package).": "Chaque reçu manquant a sa propre déclaration, préremplie à partir de cette réclamation. Vous la faites en personne devant un officier autorisé, qui remplit le constat d'assermentation. Vous la signez tous les deux, avec un certificat ICP ou à l'encre (choix sous Créer la trousse).",
+"Each missing receipt has a statutory declaration in its own file. Declare each in person before an authorized officer, who completes and signs the jurat.": "Chaque reçu manquant a une déclaration solennelle dans son propre fichier. Faites chacune en personne devant un officier autorisé, qui remplit et signe le constat d'assermentation.",
+"Each version keeps its own claims.": "Chaque version conserve ses propres réclamations.",
 "Edit": "Modifier",
+"Edit or crop": "Modifier ou rogner",
+"Edit or crop receipt {0}": "Modifier ou rogner le reçu {0}",
 "Edited": "Modifié",
+"Email": "Courriel",
 "Enter it to continue where you left off.": "Entrez-le pour reprendre là où vous étiez.",
 "Enter your PIN to open your saved claim.": "Entrez votre NIP pour ouvrir votre réclamation enregistrée.",
 "Every overnight location already has a stay covering those dates.": "Chaque endroit de nuitée a déjà un séjour qui couvre ces dates.",
@@ -1193,7 +1296,9 @@ const FR = {
 "Example data only. Not a real receipt.": "Données d'exemple seulement. Ce n'est pas un vrai reçu.",
 "Exch. rate": "Taux de change",
 "Exchange": "Change",
+"Exchange fees": "Frais de change",
 "Expense lines": "Lignes de dépenses",
+"Experimental": "Expérimental",
 "Export claim file": "Exporter le fichier de réclamation",
 "Export offline app": "Exporter l'application hors ligne",
 "Ext": "Poste",
@@ -1202,11 +1307,15 @@ const FR = {
 "F - General expenses": "F - Frais généraux",
 "Fare added to section C.": "Tarif ajouté à la section C.",
 "Fare and GBT service fee": "Tarif et frais de service de GBT",
+"Fee": "Frais",
 "Feedback": "Commentaires",
 "Ferry": "Traversier",
+"File": "Fichier",
 "File number": "Numéro de dossier",
+"File {0}": "Dossier {0}",
 "File:": "Fichier :",
 "File: {0}": "Fichier : {0}",
+"Fill in stops from an Amex GBT itinerary PDF or email.": "Remplit les arrêts à partir du PDF ou du courriel d'itinéraire Amex GBT.",
 "Fill in your name: {0}": "Remplir votre nom : {0}",
 "Fill section B": "Remplir la section B",
 "Fills section B from an Amex GBT itinerary: flights, trains, buses and rental cars, with their dates and times. It also fills in the TAN and trip locator, and your name if you choose. The file is read on this device and is not uploaded.": "Remplit la section B à partir d'un itinéraire d'Amex GBT : vols, trains, autobus et voitures de location, avec leurs dates et heures. Remplit aussi le TAN et le code de réservation du voyage, ainsi que votre nom si vous le choisissez. Le fichier est lu sur cet appareil et n'est pas téléversé.",
@@ -1254,24 +1363,35 @@ const FR = {
 "IN THE MATTER OF": "EN CE QUI CONCERNE",
 "Import an itinerary": "Importer un itinéraire",
 "Import claim file…": "Importer un fichier de réclamation…",
+"Import is a beta feature under development, so results may vary. Check the imported stops, dates and times against your itinerary for accuracy. To report an error or issue and help improve the tool, use Send feedback at the bottom of the page or in the menu.": "L'importation est une fonction bêta en cours de développement; les résultats peuvent varier. Vérifiez l'exactitude des arrêts, des dates et des heures importés par rapport à votre itinéraire. Pour signaler une erreur ou un problème et aider à améliorer l'outil, utilisez Envoyer des commentaires au bas de la page ou dans le menu.",
+"Import is experimental and still being developed, so results may vary. Check the imported stops, dates and times against your itinerary for accuracy. To report an error or issue and help improve the tool, use Send feedback at the bottom of the page or in the menu.": "L'importation est une fonction expérimentale en cours de développement; les résultats peuvent varier. Vérifiez l'exactitude des arrêts, des dates et des heures importés par rapport à votre itinéraire. Pour signaler une erreur ou un problème et aider à améliorer l'outil, utilisez Envoyer des commentaires au bas de la page ou dans le menu.",
 "Import itinerary": "Importer un itinéraire",
 "Import the PDF or email to fill in your stops, dates and times, the TAN and the trip locator.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures, le TAN et le code de réservation du voyage.",
 "Import the PDF or email to fill in your stops, dates and times.": "Importez le PDF ou le courriel pour remplir vos arrêts, vos dates et vos heures.",
+"In": "Arrivée",
 "In file": "Fichier",
 "In progress": "En cours",
 "Include every city. Enter each place once, with the date and time you arrive and leave.": "Incluez chaque ville. Inscrivez chaque endroit une seule fois, avec la date et l'heure d'arrivée et de départ.",
 "Include rental vehicle info, gas, taxis, bus, train, air, PMV and parking etc.": "Inclure véhicule de location, essence, taxis, autobus, train, avion, VP, stationnement, etc.",
+"Index": "Index",
 "Ink signature": "Signature à l'encre",
 "Ink signature lines": "Lignes de signature à l'encre",
+"Ink signature, page {0}": "Signature à l'encre, page {0}",
 "Install app": "Installer l'application",
 "Install cancelled. You can install any time from the menu.": "Installation annulée. Vous pouvez l'installer en tout temps à partir du menu.",
 "Installed. Open CAF Travel from your home screen or app list.": "Installée. Ouvrez CAF Travel à partir de votre écran d'accueil ou de votre liste d'applications.",
 "Internet": "Internet",
+"It was built on this device, so its checksum will not match the published one.": "Elle a été créée sur cet appareil; sa somme de contrôle ne correspondra donc pas à celle qui est publiée.",
 "Itinerary": "Itinéraire",
+"Itinerary import": "Importation d'itinéraire",
+"Itinerary import is off. Turn it back on in the menu.": "L'importation d'itinéraire est désactivée. Réactivez-la dans le menu.",
+"Itinerary import is on.": "L'importation d'itinéraire est activée.",
 "Itinerary imported: {0} locations.": "Itinéraire importé : {0} endroits.",
 "Itinerary split over several emails? Add the others here or drop them on this window. New legs join the list; legs already listed are skipped.": "Itinéraire réparti sur plusieurs courriels? Ajoutez les autres ici ou déposez-les sur cette fenêtre. Les nouveaux trajets s'ajoutent à la liste; ceux qui y figurent déjà sont ignorés.",
+"Journey": "Trajet",
 "Jurat": "Constat d'assermentation",
 "Keep mine": "Garder le mien",
+"Keep my work": "Conserver mon travail",
 "Keep my work on this device": "Conserver mon travail sur cet appareil",
 "Keep on this device": "Conserver sur cet appareil",
 "Keep your work on this device?": "Conserver votre travail sur cet appareil?",
@@ -1282,10 +1402,13 @@ const FR = {
 "Leave": "Congé",
 "Leave blank for the officer": "Laisser en blanc pour l'officier",
 "Leave days {0}: meals unticked, no lodging needed.": "Jours de congé {0} : repas décochés, aucun hébergement requis.",
+"Leave nights are marked as leave, with nothing to claim.": "Les nuits en congé sont indiquées comme congé, sans rien à réclamer.",
+"Leave note removed.": "Note de congé retirée.",
 "Leave these blank and the officer can type them into the PDF before signing.": "Laissez ces champs en blanc et l'officier pourra les remplir dans le PDF avant de signer.",
 "Lines to sign on paper.": "Lignes à signer sur papier.",
 "Linux or ChromeOS": "Linux ou ChromeOS",
 "Load test data": "Charger les données d'essai",
+"Local-only notice": "Avis « Local seulement »",
 "Location": "Lieu",
 "Locked": "Verrouillé",
 "Lodging": "Hébergement",
@@ -1302,22 +1425,28 @@ const FR = {
 "Missing Telephone Call Receipt": "Reçu d'appel téléphonique manquant",
 "Missing receipt declaration: ": "Déclaration de reçu manquant : ",
 "Missing receipt declarations": "Déclarations de reçus manquants",
+"Missing receipt: {0}": "Reçu manquant : {0}",
 "Missing receipt?": "Reçu manquant?",
+"Missing receipts are replaced by statutory declarations (pages {1}). Declare each in person before an authorized officer, who completes and signs the jurat.": "Les reçus manquants sont remplacés par des déclarations solennelles (pages {1}). Faites chacune en personne devant un officier autorisé, qui remplit et signe le constat d'assermentation.",
 "Missing, declared": "Manquants, déclarés",
+"Mode": "Mode",
 "Mode of transportation": "Moyen de transport",
 "More": "Plus",
 "Must record all telephone calls requested for reimbursement": "Consigner tous les appels dont on demande le remboursement",
 "N/A": "S.O.",
 "NIL": "NÉANT",
 "Name filled in from the itinerary.": "Nom rempli à partir de l'itinéraire.",
+"Name not entered": "Nom non saisi",
 "Name, in full": "Nom, au complet",
 "Names on a statutory declaration must be in full, without initials in brackets.": "Les noms dans une déclaration solennelle doivent être au complet, sans initiales entre parenthèses.",
 "Navy": "Marine",
+"Never uploaded. A saved claim deletes itself 30 days after you build its PDF.": "Jamais téléversé. Une réclamation enregistrée se supprime 30 jours après la création de son PDF.",
 "New": "Nouveau",
 "New PIN": "Nouveau NIP",
 "New blank claim ready.": "Nouvelle réclamation vierge prête.",
 "New claim": "Nouvelle réclamation",
 "Nights": "Nuits",
+"Nil": "Néant",
 "No calls to claim.": "Aucun appel à réclamer.",
 "No cost or receipt needed. Quarters are billed directly to the unit.": "Aucun coût ni reçu requis. Les quartiers sont facturés directement à l'unité.",
 "No currency exchanges. Add one for each exchange receipt you have.": "Aucune opération de change. Ajoutez-en une pour chaque reçu de change que vous avez.",
@@ -1332,9 +1461,9 @@ const FR = {
 "No stays yet. Add one card for each place you slept. A three-night hotel stay is one card.": "Aucun séjour pour l'instant. Ajoutez une fiche pour chaque endroit où vous avez dormi. Un séjour de trois nuits à l'hôtel compte pour une fiche.",
 "No transportation expenses yet. Tolls, parking, fuel, taxis, rentals and airfare go here.": "Aucuns frais de transport pour l'instant. Les péages, le stationnement, le carburant, les taxis, les locations et les billets d'avion vont ici.",
 "No travel": "Aucun déplacement",
-"No travel (same location)": "Aucun déplacement (même endroit)",
 "None": "Aucune",
 "Not applicable": "Sans objet",
+"Not claimed": "Non réclamé",
 "Not now": "Pas maintenant",
 "Not saved": "Non enregistré",
 "Not started": "Non commencé",
@@ -1343,17 +1472,23 @@ const FR = {
 "Nothing you type or attach leaves this browser.": "Rien de ce que vous saisissez ou joignez ne quitte ce navigateur.",
 "Notice hidden. You can show it again from the menu.": "Avis masqué. Vous pouvez l'afficher de nouveau à partir du menu.",
 "Now: {0}. Your saved details change too if Remember my details is on.": "Actuellement : {0}. Vos renseignements enregistrés changent aussi si l'option Mémoriser mes renseignements est activée.",
+"Number": "Numéro",
 "Number and street, unit": "Numéro et rue, unité",
 "Number called": "Numéro composé",
 "Officer taking the declaration (if known)": "Officier qui reçoit la déclaration (s'il est connu)",
 "Officer's service": "Service de l'officier",
 "On leave": "En congé",
 "On leave at this stop": "En congé à cette escale",
+"On leave: no lodging to claim for these nights.": "En congé : aucun hébergement à réclamer pour ces nuits.",
+"On this device": "Sur cet appareil",
 "One PDF": "Un seul PDF",
+"One PDF, {0} page": "Un seul PDF, {0} page",
+"One PDF, {0} pages": "Un seul PDF, {0} pages",
 "One card for each place you slept: hotel, private accommodation or quarters": "Une fiche pour chaque endroit où vous avez dormi : hôtel, logement privé ou quartiers",
 "One card per place you stayed overnight, with the dates filled in.": "Une fiche par endroit où vous avez passé la nuit, avec les dates déjà inscrites.",
 "Only if you paid them yourself. Leave this off when the fare was billed to the department. The itinerary is attached as the receipt.": "Seulement si vous les avez payés vous-même. Laissez cette case décochée si le tarif a été facturé au ministère. L'itinéraire est joint comme reçu.",
 "Open": "Ouvrir",
+"Open claim file…": "Ouvrir un fichier de réclamation…",
 "Open draft file": "Ouvrir un fichier brouillon",
 "Open in new tab": "Ouvrir dans un nouvel onglet",
 "Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.": "Ouvrez-le dans Adobe et signez le champ du réclamant à la page {0} avec votre certificat ICP.",
@@ -1367,6 +1502,7 @@ const FR = {
 "Other": "Autre",
 "Other expense": "Autre dépense",
 "Other way of travelling": "Autre moyen de transport",
+"Out": "Départ",
 "Output": "Sortie",
 "Own file": "Fichier distinct",
 "PIN": "NIP",
@@ -1374,6 +1510,7 @@ const FR = {
 "PIN set. Your saved work is now encrypted.": "NIP défini. Votre travail enregistré est maintenant chiffré.",
 "PKI": "ICP",
 "PKI signature fields": "Champs de signature ICP",
+"PKI signature, page {0}": "Signature ICP, page {0}",
 "PMV": "VP",
 "PMV Pax": "Passager VP",
 "PMV kilometres": "Kilomètres en VP",
@@ -1399,6 +1536,7 @@ const FR = {
 "Pasted email text": "Texte du courriel collé",
 "Pasted text": "Texte collé",
 "Person / section": "Personne / section",
+"Person called": "Personne appelée",
 "Person or section called": "Personne ou section appelée",
 "Personal": "Personnel",
 "Personal and business calls": "Appels personnels et d'affaires",
@@ -1416,8 +1554,10 @@ const FR = {
 "Please do not include your PRI, receipts or draft files. If a screenshot helps, attach one with personal details covered.": "Veuillez ne pas inclure votre CIDP, vos reçus ni vos fichiers brouillons. Si une capture d'écran peut aider, joignez-en une en masquant les renseignements personnels.",
 "Please include all cities": "Veuillez inclure toutes les villes",
 "Please indicate only meals that you are claiming": "Veuillez indiquer seulement les repas réclamés",
+"Point of contact": "Point de contact",
 "Point of contact / Point de contact (if applicable)": "Point de contact / Point of contact (s'il y a lieu)",
 "Point of contact is ticked but has no surname.": "Le point de contact est coché, mais n'a pas de nom de famille.",
+"Point of contact: not applicable": "Point de contact : sans objet",
 "Postal code": "Code postal",
 "Prepared {0}": "Préparé le {0}",
 "Print it, then sign and date page {0}.": "Imprimez-le, puis signez et datez la page {0}.",
@@ -1434,11 +1574,15 @@ const FR = {
 "Purpose of the temporary duty (optional)": "Objet du service temporaire (facultatif)",
 "Quarters": "Quartiers",
 "Quarters are billed to the unit, so no receipt is needed.": "Les quartiers sont facturés à l'unité, donc aucun reçu n'est requis.",
+"R": "R",
+"RECEIPT": "REÇU",
 "RECEIPT {0}": "REÇU {0}",
 "RECEIPT {0}  |  MISSING RECEIPT": "REÇU {0}  |  REÇU MANQUANT",
 "Rank": "Grade",
 "Rank, in full": "Grade, au complet",
+"Rate": "Taux",
 "Rations": "Rations",
+"Rations booked": "Rations réservées",
 "Rations booked ({0})": "Rations réservées ({0})",
 "Rations booked at stay {0}": "Rations réservées au séjour {0}",
 "Rations booked: meals from {0} to {1} are now unticked.": "Rations réservées : les repas du {0} au {1} sont maintenant décochés.",
@@ -1448,9 +1592,12 @@ const FR = {
 "Read {0}.": "Fichier lu : {0}.",
 "Reading the itinerary…": "Lecture de l'itinéraire…",
 "Ready": "Prêt",
+"Receipt": "Reçu",
+"Receipt cropped.": "Reçu rogné.",
 "Receipt index": "Index des reçus",
 "Receipt missing": "Reçu manquant",
 "Receipt photo": "Photo du reçu",
+"Receipt {0} of {1}": "Reçu {0} de {1}",
 "Receipts": "Reçus",
 "Receipts p. {0}": "Reçus p. {0}",
 "Receipts, labelled": "Reçus, identifiés",
@@ -1458,9 +1605,11 @@ const FR = {
 "Ref": "Réf.",
 "Remarks": "Remarques",
 "Remember my details": "Mémoriser mes renseignements",
+"Remembered as your default for new claims.": "Retenus par défaut pour vos prochaines réclamations.",
 "Remove": "Supprimer",
 "Remove receipt {0}": "Retirer le reçu {0}",
 "Remove stay {0}": "Retirer le séjour {0}",
+"Remove the leave note for {0}": "Retirer la note de congé pour {0}",
 "Remove this stop": "Retirer cette escale",
 "Remove {0}": "Retirer {0}",
 "Removed {0}.": "{0} retiré.",
@@ -1472,15 +1621,19 @@ const FR = {
 "Replace section B": "Remplacer la section B",
 "Replace your name with the one on the itinerary: {0}": "Remplacer votre nom par celui de l'itinéraire : {0}",
 "Replaces the claim with a full test claim that uses every section and feature. Undo is offered.": "Remplace la réclamation par une réclamation d'essai complète qui utilise chaque section et fonction. Vous pouvez annuler.",
+"Reset": "Réinitialiser",
 "Reset the beta": "Réinitialiser la version bêta",
 "Resetting the beta...": "Réinitialisation de la version bêta...",
 "Residence": "Résidence",
 "Review and build": "Vérifier et créer",
 "Rideshare": "Covoiturage",
+"Rotate": "Pivoter",
 "Royal Canadian Navy": "Marine royale canadienne",
 "SAMPLE RECEIPT": "REÇU FICTIF",
 "SD": "DS",
+"SD = statutory declaration for a missing receipt": "DS = déclaration solennelle pour un reçu manquant",
 "SD = statutory declaration for a missing receipt, signed by the member": "DS = déclaration solennelle pour un reçu manquant, signée par le membre",
+"SHA-256 of the offline copy:": "SHA-256 de la copie hors ligne :",
 "STATUTORY DECLARATION": "DÉCLARATION SOLENNELLE",
 "Same location, no travel": "Même endroit, aucun déplacement",
 "Save": "Enregistrer",
@@ -1488,6 +1641,7 @@ const FR = {
 "Save all": "Tout enregistrer",
 "Save and add another": "Enregistrer et en ajouter un autre",
 "Save cancelled.": "Enregistrement annulé.",
+"Save claim file": "Enregistrer le fichier de réclamation",
 "Save draft file": "Enregistrer le fichier brouillon",
 "Save now": "Enregistrer maintenant",
 "Save now (Ctrl+S)": "Enregistrer maintenant (Ctrl+S)",
@@ -1511,6 +1665,7 @@ const FR = {
 "Section A and the statutory declaration.": "Section A et déclaration solennelle.",
 "Section B will list": "La section B contiendra",
 "Section {0}: ": "Section {0} : ",
+"Sections": "Sections",
 "Sections A to H, totals and receipt index. You sign it.": "Sections A à H, totaux et index des reçus. Vous la signez.",
 "Security marking": "Marque de sécurité",
 "See or edit the wording": "Voir ou modifier le libellé",
@@ -1519,6 +1674,7 @@ const FR = {
 "Send claim file": "Envoyer le fichier de réclamation",
 "Send draft file": "Envoyer le fichier brouillon",
 "Send feedback": "Envoyer des commentaires",
+"Send the package": "Envoyer la trousse",
 "Sending is not available right now. Saving the file instead.": "L'envoi n'est pas disponible pour l'instant. Le fichier est enregistré à la place.",
 "Separate PDFs": "PDF distincts",
 "Separate PDFs, {0} in all. Sign each where it asks: the worksheet, and each declaration in front of the officer.": "PDF distincts, {0} au total. Signez chacun là où c'est demandé : la feuille de travail, et chaque déclaration devant l'officier.",
@@ -1528,8 +1684,8 @@ const FR = {
 "Set PIN": "Définir le NIP",
 "Show": "Afficher",
 "Show local-only notice": "Afficher l'avis « Local seulement »",
-"Shown at the top of the PDF and used in the file name.": "Affiché en haut du PDF et utilisé dans le nom du fichier.",
 "Shuttle": "Navette",
+"Sign the worksheet": "Signer la feuille de travail",
 "Signature fields for your PKI certificate in Adobe.": "Champs de signature pour votre certificat ICP dans Adobe.",
 "Signature of Claimant": "Signature du réclamant",
 "Signature of Claimant (PKI digital signature)": "Signature du réclamant (signature numérique ICP)",
@@ -1550,11 +1706,17 @@ const FR = {
 "Stat dec": "Décl. sol.",
 "Statutory declaration": "Déclaration solennelle",
 "Statutory declaration {0}": "Déclaration solennelle {0}",
+"Statutory declaration, page {1}": "Déclaration solennelle, page {1}",
+"Statutory declarations, pages {1}": "Déclarations solennelles, pages {1}",
+"Still being tested, so results may vary. Use Send feedback if something looks wrong.": "Encore à l'essai; les résultats peuvent varier. Utilisez Envoyer des commentaires si quelque chose semble incorrect.",
+"Still in testing, so results may vary.": "Encore à l'essai; les résultats peuvent varier.",
 "Stop {0}": "Escale {0}",
 "Stop {0} has no name.": "L'escale {0} n'a pas de nom.",
 "Stop {0} location": "Lieu de l'escale {0}",
 "Street address": "Adresse municipale",
-"Subtotal {0}": "Sous-total {0}",
+"Subtotal": "Sous-total",
+"Summary": "Sommaire",
+"Summary of amounts": "Sommaire des montants",
 "Summary of amounts claimed": "Sommaire des montants réclamés",
 "Summary of amounts entered": "Sommaire des montants inscrits",
 "Supplies": "Fournitures",
@@ -1566,7 +1728,10 @@ const FR = {
 "TAN filled in.": "TAN rempli.",
 "TAN {0}.": "TAN {0}.",
 "TAN: {0}": "TAN : {0}",
+"TD claim package": "Trousse de réclamation de ST",
+"TEMPORARY DUTY CLAIM": "RÉCLAMATION DE SERVICE TEMPORAIRE",
 "TO WIT:": "À SAVOIR :",
+"TOTAL CLAIMED": "TOTAL RÉCLAMÉ",
 "Tab only": "Onglet seulement",
 "Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.": "Touchez Enregistrer ou envoyer le PDF, puis choisissez Enregistrer dans Fichiers, OneDrive, Teams ou Mail.",
 "Tap again to erase this claim": "Touchez de nouveau pour effacer cette réclamation",
@@ -1575,9 +1740,11 @@ const FR = {
 "Telephone": "Téléphone",
 "Telephone \"{0}\" must be ###-###-#### or ###-####.": "Le téléphone « {0} » doit être au format ###-###-#### ou ###-####.",
 "Telephone and ext.": "Téléphone et poste",
+"Temporary duty claim": "Réclamation de service temporaire",
 "Temporary duty itinerary worksheet and receipts, compiled into one PDF for the Orderly Room.": "Feuille de travail de l'itinéraire de service temporaire et reçus, réunis en un seul PDF pour la salle des rapports.",
 "Test data loaded: every section is filled in, with four missing receipts and one edited declaration.": "Données d'essai chargées : chaque section est remplie, avec quatre reçus manquants et une déclaration modifiée.",
 "That PIN is not right. Try again, or forget this device to start over.": "Ce NIP n'est pas le bon. Essayez de nouveau, ou oubliez cet appareil pour recommencer.",
+"That area is too small. Drag the corners further apart.": "Cette zone est trop petite. Éloignez davantage les coins.",
 "That file is not a draft from this tool.": "Ce fichier n'est pas un brouillon de cet outil.",
 "The PDF engine did not load. Reload the page and try again.": "Le moteur PDF ne s'est pas chargé. Rechargez la page et réessayez.",
 "The PDF itinerary, or the email itself (an Outlook .msg file, or .eml). You can choose more than one, for example a return trip booked separately.": "L'itinéraire en PDF, ou le courriel lui-même (fichier .msg d'Outlook, ou .eml). Vous pouvez en choisir plusieurs, par exemple un retour réservé séparément.",
@@ -1601,23 +1768,28 @@ const FR = {
 "This browser refused to save. Export a claim file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, exportez un fichier de réclamation.",
 "This browser refused to save. Save a draft file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, enregistrez un fichier brouillon.",
 "This browser view does not allow saving on the device. Use Export claim file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Exporter le fichier de réclamation.",
+"This browser view does not allow saving on the device. Use Save claim file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Enregistrer le fichier de réclamation.",
 "This browser view does not allow saving on the device. Use Save draft file instead.": "Cet affichage du navigateur ne permet pas d'enregistrer sur l'appareil. Utilisez plutôt Enregistrer le fichier brouillon.",
 "This claim": "Cette réclamation",
 "This device": "Cet appareil",
 "This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.": "Ce brouillon fait {0} Mo à cause des photos de reçus. Le courriel pourrait le refuser; OneDrive ou Teams l'accepteront.",
-"This feature is new. Check every stop, date and time against your itinerary before you build the package, and use Send feedback if something is read wrong.": "Cette fonction est nouvelle. Vérifiez chaque arrêt, chaque date et chaque heure par rapport à votre itinéraire avant de créer le dossier, et utilisez Envoyer des commentaires si un élément est mal lu.",
 "This is an example claim.": "Ceci est un exemple de réclamation.",
 "This replaces the {0} location now in section B. You can undo it right after.": "Ceci remplace le {0} endroit qui figure dans la section B. Vous pourrez annuler juste après.",
 "This replaces the {0} locations now in section B. You can undo it right after.": "Ceci remplace les {0} endroits qui figurent dans la section B. Vous pourrez annuler juste après.",
 "This tool": "Cet outil",
 "This view cannot save in the browser. Export a claim file to keep your work.": "Cet affichage ne peut pas enregistrer dans le navigateur. Exportez un fichier de réclamation pour conserver votre travail.",
 "Tick only the meals you are claiming": "Cochez seulement les repas que vous réclamez",
+"Time": "Heure",
 "Time & duration": "Heure et durée",
+"Time, length": "Heure, durée",
 "To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Importer un fichier de réclamation, et sélectionnez ce fichier.",
+"To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open claim file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Ouvrir un fichier de réclamation, et sélectionnez ce fichier.",
 "To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open draft file, and select this file.": "Pour continuer sur un autre appareil, ouvrez l'Itinéraire de voyage numérique des FAC sur cet appareil, choisissez Menu, puis Ouvrir un fichier brouillon, et sélectionnez ce fichier.",
 "To do": "À faire",
 "To keep it longer, turn on Keep my work on this device, or export a claim file.": "Pour le conserver plus longtemps, activez Conserver mon travail sur cet appareil ou exportez un fichier de réclamation.",
 "Toll": "Péage",
+"Top left corner": "Coin supérieur gauche",
+"Top right corner": "Coin supérieur droit",
 "Total": "Total",
 "Total cost": "Coût total",
 "Total {0}": "Total {0}",
@@ -1651,9 +1823,11 @@ const FR = {
 "Use the built wording": "Utiliser le libellé tiré de la réclamation",
 "Use the new built wording": "Utiliser le nouveau libellé",
 "Version: {0} ({1})": "Version : {0} ({1})",
-"View receipt {0}": "Voir le reçu {0}",
 "Visa fee": "Frais de visa",
+"Week": "Semaine",
+"Week {0}": "Semaine {0}",
 "What goes in": "Contenu",
+"What is in this package": "Contenu de la trousse",
 "What is it?": "De quoi s'agit-il?",
 "Where": "Où",
 "Where exchanged": "Lieu de l'échange",
@@ -1662,6 +1836,7 @@ const FR = {
 "Where you finish, e.g. Residence": "Où vous terminez, p. ex. Résidence",
 "Where you leave from, e.g. Residence or unit lines": "D'où vous partez, p. ex. Résidence ou lignes de l'unité",
 "Worksheet": "Feuille de travail",
+"Worksheet and index": "Feuille de travail et index",
 "Worksheet sections": "Sections de la feuille de travail",
 "Worksheet, receipts and each declaration as their own files.": "Feuille de travail, reçus et chaque déclaration dans des fichiers distincts.",
 "Worksheet, sections A to H": "Feuille de travail, sections A à H",
@@ -1682,6 +1857,7 @@ const FR = {
 "and {0} more": "et {0} de plus",
 "arrive": "arrivée",
 "auto": "auto",
+"before an officer": "devant un officier",
 "confirm": "confirmer",
 "done": "terminé",
 "e.g. 7209-1": "p. ex. 7209-1",
@@ -1701,12 +1877,14 @@ const FR = {
 "in form order": "dans l'ordre du formulaire",
 "incomplete": "incomplet",
 "leave": "départ",
+"listed on page {0}": "inscrit à la page {0}",
 "name, in full": "nom au complet",
 "nil": "néant",
 "not started": "non commencé",
 "of 4 to 12 digits. Your saved claim, receipts and details are encrypted with it. If you forget it, the only option is to forget this device.": "de 4 à 12 chiffres. Votre réclamation, vos reçus et vos renseignements enregistrés sont chiffrés avec ce NIP. Si vous l'oubliez, la seule option est d'oublier cet appareil.",
 "optional": "facultatif",
 "or drop a photo or PDF here.": "ou déposez une photo ou un PDF ici.",
+"p. {0}": "p. {0}",
 "rank, in full": "grade au complet",
 "single-file copy": "copie en un seul fichier",
 "stop {0}": "l'escale {0}",
@@ -1722,10 +1900,14 @@ const FR = {
 "website, beta": "site Web, bêta",
 "{0} SD, paragraph {1}: the claim changed after you rewrote it. Check it still matches.": "{0} DS, paragraphe {1} : la réclamation a changé depuis que vous l'avez réécrit. Vérifiez qu'il correspond toujours.",
 "{0} and {1} overlap. Check the dates.": "{0} et {1} se chevauchent. Vérifiez les dates.",
+"{0} calls: {1} business, {2} personal": "{0} appels : {1} d'affaires, {2} personnels",
 "{0} cost \"{1}\" is not a number.": "Le coût « {1} » de {0} n'est pas un nombre.",
 "{0} could not be read.": "Impossible de lire {0}.",
 "{0} date": "{0}, date",
 "{0} dates fall outside the trip ({1}).": "Les dates de {0} sont en dehors du voyage ({1}).",
+"{0} days, {1} nights": "{0} jours, {1} nuits",
+"{0} exchange, service charge only": "{0} échange, frais de service seulement",
+"{0} exchanges, service charges only": "{0} échanges, frais de service seulement",
 "{0} file ready": "{0} fichier prêt",
 "{0} files ready": "{0} fichiers prêts",
 "{0} has no city.": "{0} n'a pas de ville.",
@@ -1736,18 +1918,27 @@ const FR = {
 "{0} is dated {1}, outside the trip ({2}).": "{0} est daté du {1}, en dehors du voyage ({2}).",
 "{0} is empty.": "{0} : champ vide.",
 "{0} is missing an arrival or departure date.": "Il manque une date d'arrivée ou de départ pour {0}.",
+"{0} leave stop": "{0} arrêt en congé",
+"{0} leave stops": "{0} arrêts en congé",
+"{0} line": "{0} ligne",
+"{0} lines": "{0} lignes",
 "{0} location": "{0} lieu",
 "{0} locations": "{0} lieux",
 "{0} marked as leave: meals unticked.": "{0} marqué comme congé : repas décochés.",
 "{0} may be damaged or password-protected. It is attached, but check the package.": "{0} est peut-être endommagé ou protégé par un mot de passe. Il est joint, mais vérifiez la trousse.",
+"{0} meals: {1} breakfasts, {2} lunches, {3} dinners": "{0} repas : {1} déjeuners, {2} dîners, {3} soupers",
+"{0} missing receipt ({1})": "{0} reçu manquant ({1})",
 "{0} missing receipt declaration": "{0} déclaration de reçu manquant",
 "{0} missing receipt declarations": "{0} déclarations de reçus manquants",
+"{0} missing receipts ({1})": "{0} reçus manquants ({1})",
 "{0} needs check-in and check-out dates.": "{0} doit avoir une date d'arrivée et une date de départ.",
 "{0} night": "{0} nuit",
 "{0} nights": "{0} nuits",
 "{0} no longer leave: meals ticked again.": "{0} n'est plus un congé : repas cochés de nouveau.",
 "{0} page": "{0} page",
+"{0} page, one PDF": "{0} page, un seul PDF",
 "{0} pages": "{0} pages",
+"{0} pages, one PDF": "{0} pages, un seul PDF",
 "{0} pp": "{0} p.",
 "{0} receipt added as {1}.": "Reçu ({0}) ajouté sous {1}.",
 "{0} receipt attached": "{0} reçu joint",
@@ -1757,8 +1948,12 @@ const FR = {
 "{0} receipts were too large to keep after the reload. Please attach them again.": "{0} reçus étaient trop volumineux pour être conservés après le rechargement. Veuillez les joindre de nouveau.",
 "{0} receipts, each labelled with its reference.": "{0} reçus, chacun identifié par sa référence.",
 "{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.": "{0} enregistré. Double-cliquez dessus pour l'ouvrir dans n'importe quel navigateur. Il fonctionne sans connexion Internet et se partage comme tout autre fichier (Teams, OneDrive, clé USB). Certains systèmes de courriel bloquent les pièces jointes .html.",
+"{0} separate file": "{0} fichier distinct",
+"{0} separate files": "{0} fichiers distincts",
 "{0} stay added to section D.": "{0} séjour ajouté à la section D.",
 "{0} stays added to section D.": "{0} séjours ajoutés à la section D.",
+"{0} stop": "{0} arrêt",
+"{0} stops": "{0} arrêts",
 "{0} time, 24 hour": "{0}, heure (24 h)",
 "{0} to check": "{0} à vérifier",
 "{0} to fix": "{0} à corriger",
@@ -2162,7 +2357,7 @@ const STORE = 'production' === 'beta' ? 'caf-dti-v1-beta' : 'caf-dti-v1';
 const inViewer = !!(window.claude && typeof window.claude.use === 'function');
 const MODES = ['CAL', 'Train', 'PMV', 'PMV Pax', 'Rental Car', 'Shuttle', 'Other', 'No travel'];
 const NOTRAVEL = 'No travel';
-const modeLabel = m => m === NOTRAVEL ? T('No travel (same location)') : T(m);
+const modeLabel = m => m === NOTRAVEL ? T('No travel') : T(m);
 const MEALS = [['b', 'Breakfast'], ['l', 'Lunch'], ['d', 'Dinner']];
 // CAF ranks; RCN junior ranks use the 2020 Sailor designations (S1, S2, S3)
 const RANKS = [
@@ -2270,7 +2465,7 @@ function blank() {
     member: { pri: '', rank: '', surname: '', given: '', section: '', tel: '', ext: '' },
     poc: { on: false, rank: '', surname: '', given: '', email: '', tel: '', ext: '' },
     stops: [newStop(), newStop()],
-    transport: [], lodging: { stays: [] }, meals: {},
+    transport: [], lodging: { stays: [], leave: [] }, meals: {},
     general: [], exchange: [], calls: [], sd: blankSD(), touched: {}, pki: true };
 }
 const blankSD = () => ({ declDate: '', declDateSet: false, name: '', rank: '', street: '', city: '', prov: '', postal: '', purpose: '', juris: '', place: '', env: 'military', abroad: false, abroadPlace: '', offName: '', offRank: '', offUnit: '' });
@@ -2295,7 +2490,7 @@ function leaveDays() {
 function updateLeave() { LEAVE = leaveDays(); }
 const leaveNights = () => { const set = new Set(); S.stops.slice(1, -1).forEach(s => { if (s.leave && isoOk(s.arrDate) && isoOk(s.depDate)) for (let d = s.arrDate; d < s.depDate; d = addDays(d, 1)) set.add(d); }); return set; };
 function mealVal(d, k) { const m = S.meals[d]; return (m && typeof m[k] === 'boolean') ? m[k] : (rationsStay(d) < 0 && !LEAVE.has(d)); }
-function rangeText(list) { if (!list.length) return ''; const a = list[0], b = list[list.length - 1]; return a === b ? fmtDate(a) : `${fmtDate(a)} to ${fmtDate(b)}`; }
+function rangeText(list) { if (!list.length) return ''; const a = list[0], b = list[list.length - 1]; return a === b ? fmtDate(a) : T('{0} to {1}', fmtDate(a), fmtDate(b)); }
 function resetMealsFor(r) {
   if (!isoOk(r.checkin) || !isoOk(r.checkout) || r.checkout < r.checkin) return 0;
   let n = 0; for (let d = r.checkin; d <= r.checkout; d = addDays(d, 1)) { const m = S.meals[d]; if (m) { delete m.b; delete m.l; delete m.d; } n++; }
@@ -2319,7 +2514,7 @@ function normalize(s) {
   o.poc = Object.assign(blank().poc, o.poc);
   for (const who of [o.member, o.poc]) if (OLDRANK[who.rank]) who.rank = OLDRANK[who.rank];
   const oldL = o.lodging || {};
-  o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays : [] };
+  o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays : [], leave: Array.isArray(oldL.leave) ? oldL.leave.filter(l => l && isoOk(l.checkin) && isoOk(l.checkout)) : [] };
   o.sd = Object.assign(blankSD(), o.sd || {});
   o.touched = (o.touched && typeof o.touched === 'object') ? o.touched : {};
   o.pki = o.pki !== false;
@@ -2403,9 +2598,10 @@ function rcHTML(sec, row, i) {
   const chips = row.rc.map((rid, j) => {
     const r = R[rid]; if (!r) return '';
     const vis = r.kind === 'img'
-      ? `<button class="thumb" data-act="view" data-rid="${rid}" aria-label="${esc(T('View receipt {0}', refs[j]))}"><img src="${r.dataUrl}" alt=""></button>`
+      ? `<span class="thumb"><img src="${r.dataUrl}" alt=""></span>`
       : `<span class="pdfbadge" aria-hidden="true">PDF</span>`;
-    return `<span class="chip">${vis}<span class="ref">${refs[j]}</span><span class="fn" title="${esc(r.name)}">${esc(r.name)}${r.pages > 1 ? ` (${T('{0} pp', r.pages)})` : ''}</span><button class="x" data-act="rmrc" data-sec="${sec}" data-row="${row.id}" data-rid="${rid}" aria-label="${esc(T('Remove receipt {0}', refs[j]))}">×</button></span>`;
+    const lab = `${vis}<span class="ref">${refs[j]}</span><span class="fn" title="${esc(r.name)}">${esc(r.name)}${r.pages > 1 ? ` (${T('{0} pp', r.pages)})` : ''}</span>`;
+    return `<span class="chip">${r.kind === 'img' ? `<button class="chip-open" data-act="edit-rc" data-rid="${rid}" aria-label="${esc(T('Edit or crop receipt {0}', refs[j]))}" title="${esc(T('Edit or crop'))}">${lab}</button>` : lab}<button class="x" data-act="rmrc" data-sec="${sec}" data-row="${row.id}" data-rid="${rid}" aria-label="${esc(T('Remove receipt {0}', refs[j]))}">×</button></span>`;
   }).join('');
   return `${chips}<button class="attach" data-act="attach" data-sec="${sec}" data-row="${row.id}">${T('+ Attach receipt')}</button>`
     + (row.rc.length ? '' : `<span class="drophint">${T('or drop a photo or PDF here.')}</span><button class="link-btn lose" data-act="lose" data-sec="${sec}" data-row="${row.id}">${T('Missing receipt?')}</button>`);
@@ -2425,6 +2621,19 @@ function stayField(r, k, label, o = {}) {
   const cls = o.t === 'money' ? ` class="num${r[k] !== '' && isNaN(num(r[k])) ? ' bad' : ''}" inputmode="decimal"` : o.t === 'cur' ? ' class="cur" maxlength="3" list="dl-cur"' : '';
   const input = `<input type="${t}" id="${id}" data-sec="stays" data-row="${r.id}" data-k="${k}" value="${esc(r[k])}"${cls}${o.ph ? ` placeholder="${esc(T(o.ph))}"` : ''}${o.list ? ` list="${o.list}"` : ''} autocomplete="off">`;
   return `<div class="field ${o.w || ''}"><label for="${id}">${T(label)}</label>${o.t === 'date' ? dateWrap(input, r[k]) : input}</div>`;
+}
+// Leave nights need no lodging. Adding stays from the itinerary puts a card where each leave stop falls, so the gap
+// reads as intended: nothing to fill in, removable, never in the PDF.
+function leaveHTML(l) {
+  const n = Math.round((Date.parse(l.checkout) - Date.parse(l.checkin)) / 864e5);
+  return `<div class="leave-card" data-leave="${l.id}"><span class="lv-tag">${esc(T('Leave'))}</span><div class="lv-b"><div><b>${esc(l.city)}</b>  ·  ${esc(rangeText([l.checkin, l.checkout]))}  ·  ${esc(nPl(n, '{0} night', '{0} nights'))}</div><div class="lv-note">${esc(T('On leave: no lodging to claim for these nights.'))}</div></div><button class="icon-btn del" data-act="del-leave" data-id="${l.id}" aria-label="${esc(T('Remove the leave note for {0}', l.city))}">×</button></div>`;
+}
+function staysHTML() {
+  const arr = S.lodging.stays, lv = (S.lodging.leave || []).slice().sort((a, b) => a.checkin.localeCompare(b.checkin)), out = [];
+  let j = 0;
+  arr.forEach((r, i) => { while (j < lv.length && isoOk(r.checkin) && lv[j].checkin < r.checkin) out.push(leaveHTML(lv[j++])); out.push(stayHTML(r, i)); });
+  while (j < lv.length) out.push(leaveHTML(lv[j++]));
+  return out.length ? out.join('') : `<p class="empty">${esc(T(DEFS.stays.empty))}</p>`;
 }
 function stayHTML(r, i) {
   const fields = r.priv
@@ -2450,8 +2659,8 @@ function stayHTML(r, i) {
 }
 function renderList(sec) {
   const d = DEFS[sec], arr = getArr(sec), box = $('#rows-' + sec);
+  if (sec === 'stays') { box.innerHTML = staysHTML(); return; }
   if (!arr.length) { box.innerHTML = `<p class="empty">${esc(T(d.empty))}</p>`; return; }
-  if (sec === 'stays') { box.innerHTML = arr.map(stayHTML).join(''); return; }
   const head = `<div class="row-head g-${d.grid}" aria-hidden="true"><span>${T('Ref')}</span>${d.cols.map(c => `<span class="${c.t === 'money' || c.t === 'rate' ? 'r' : ''}${c.t === 'cur' ? 'c' : ''}">${esc(T(c.l))}</span>`).join('')}<span></span></div>`;
   box.innerHTML = head + arr.map((r, i) => rowHTML(sec, r, i)).join('');
 }
@@ -2867,6 +3076,7 @@ function refresh() {
     ['Receipts, labelled', `${ev.n}`]];
   if (ev.lost) rows.push(['Missing receipt declarations', `${ev.lost}`]);
   rows.push(S.pki ? ['PKI signature fields', `${1 + ev.lost * 2}`] : ['Ink signature lines', `${1 + ev.lost * 2}`]);
+  syncFnDefault();
   $('#contents').innerHTML = rows.map(([a, b]) => `<li><span>${esc(T(a))}</span><span>${esc(b)}</span></li>`).join('');
   persist();
 }
@@ -2892,6 +3102,7 @@ function fileBase() {
 /* ---------- persistence (this tab only) ---------- */
 let pT;
 function persist() {
+  checkStale();
   clearTimeout(pT);
   pT = setTimeout(() => {
     try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: liveReceipts() })); }
@@ -3104,6 +3315,8 @@ document.addEventListener('change', e => {
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
   if (el.id === 'opt-keep') { setKeep(el.checked); return; }
   if (el.id === 'opt-remember') { setRemember(el.checked); return; }
+  if (el.id === 'opt-pretty') { setPretty(el.checked); return; }
+  if (el.id === 'opt-imp') { setImport(el.checked); return; }
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
   if (el.name === 'pk-split') { S.split = el.value === 'split'; touch(el); persist(); syncOut(); return; }
@@ -3145,6 +3358,12 @@ document.addEventListener('click', e => {
       const f = $(sec === 'stays' ? `#stays-${r.id}-hotel` : `#${sec}-${r.id}-${DEFS[sec].cols[1].k}`); if (f) f.focus();
       break;
     }
+    case 'del-leave': {
+      const lv = S.lodging.leave || [], i = lv.findIndex(l => l.id === b.dataset.id); if (i < 0) break;
+      const [l] = lv.splice(i, 1); renderList('stays'); refresh(); persist();
+      toast(T('Leave note removed.'), { label: T('Undo'), fn: () => { lv.splice(i, 0, l); renderList('stays'); refresh(); persist(); } });
+      break;
+    }
     case 'del': {
       const arr = getArr(sec), i = arr.findIndex(r => r.id === rowId); if (i < 0) break;
       const [row] = arr.splice(i, 1); undo = { sec, i, row }; renderList(sec); refresh();
@@ -3155,8 +3374,15 @@ document.addEventListener('click', e => {
     case 'lose': { const r = rowOf(); if (r) { r.lost = true; renderList(sec); refresh(); const f = $(`#${sec}-${r.id}-lostReason`); if (f) f.focus(); } break; }
     case 'unlose': { const r = rowOf(); if (r) { r.lost = false; renderList(sec); refresh(); } break; }
     case 'rmrc': { const r = rowOf(); if (r) { r.rc = r.rc.filter(x => x !== b.dataset.rid); renderList(sec); refresh(); } break; }
-    case 'view': { const r = R[b.dataset.rid]; if (r) { $('#lb-img').src = r.dataUrl; $('#lb-cap').textContent = r.name; const d = $('#lb'); try { d.showModal(); } catch (_) { d.setAttribute('open', ''); } } break; }
+    case 'view': { const r = R[b.dataset.rid]; if (r) { $('#lb-img').src = r.dataUrl; $('#lb-cap').textContent = r.name; $('#lb').dataset.rid = b.dataset.rid; $('#lb-crop').hidden = r.kind !== 'img'; const d = $('#lb'); try { d.showModal(); } catch (_) { d.setAttribute('open', ''); } } break; }
     case 'lb-close': $('#lb').close(); break;
+    case 'lb-crop': cropReceipt($('#lb').dataset.rid); break;
+    case 'edit-rc': cropReceipt(b.dataset.rid); break;
+    case 'snap-crop': if (snapRc && snapRc.kind === 'img') openCrop(snapRc, res => { Object.assign(snapRc, res); snapPreview(); }); break;
+    case 'crop-cancel': closeCrop(); break;
+    case 'crop-rotate': if (CROP) cropRotate(); break;
+    case 'crop-reset': if (CROP) { cropFull(); $('#crop-hint').textContent = T('Drag the corners to the edges of the receipt.'); cropDraw(); } break;
+    case 'crop-apply': if (CROP) cropApply(); break;
     case 'meal-all': { const k = b.dataset.meal, on = b.checked; (tripDates() || []).forEach(d => { const m = S.meals[d] = S.meals[d] || {}; m[k] = on; }); renderMeals(); refresh(); const a = $('#meal-all-' + k); if (a) a.focus(); break; }
     case 'add-stop': {
       const i = +b.dataset.i, ns = newStop(); ns.mode = S.stops[i].mode; ns.modeOther = S.stops[i].modeOther;
@@ -3263,9 +3489,12 @@ function overnightStays() {
   });
   return out;
 }
+function leaveStays() {
+  return S.stops.slice(1, -1).filter(s => s.leave && isoOk(s.arrDate) && isoOk(s.depDate) && s.depDate > s.arrDate).map(s => ({ city: s.city.trim() || T('Leave'), checkin: s.arrDate, checkout: s.depDate }));
+}
 function fillStays() {
-  const want = overnightStays();
-  if (!want.length) { toast(T('No overnight stays found. A stop needs a departure date later than its arrival date (section B).')); return; }
+  const want = overnightStays(), lvWant = leaveStays();
+  if (!want.length && !lvWant.length) { toast(T('No overnight stays found. A stop needs a departure date later than its arrival date (section B).')); return; }
   const overlaps = (a, b) => isoOk(b.checkin) && isoOk(b.checkout) && a.checkin < b.checkout && b.checkin < a.checkout;
   let added = 0;
   want.forEach(w => {
@@ -3273,8 +3502,11 @@ function fillStays() {
     S.lodging.stays.push(Object.assign({ id: uid(), rc: [] }, ROWNEW.stays(), { location: w.city, checkin: w.checkin, checkout: w.checkout })); added++;
   });
   S.lodging.stays.sort((a, b) => (a.checkin || '9').localeCompare(b.checkin || '9'));
+  const lv = S.lodging.leave = S.lodging.leave || []; let lvAdded = 0;
+  lvWant.forEach(w => { if (lv.some(l => l.checkin < w.checkout && w.checkin < l.checkout)) return; lv.push(Object.assign({ id: uid() }, w)); lvAdded++; });
   renderList('stays'); renderMeals(); refresh(); refreshPlaces();
-  toast(added ? nPl(added, 'Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.', 'Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.') : T('Every overnight location already has a stay covering those dates.'));
+  const lvMsg = lvAdded ? ' ' + T('Leave nights are marked as leave, with nothing to claim.') : '';
+  toast(((added ? nPl(added, 'Added {0} stay, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.', 'Added {0} stays, one per overnight location. Add the hotel name, total cost and folio, or tick Quarters or Private.') : lvAdded ? '' : T('Every overnight location already has a stay covering those dates.')) + lvMsg).trim());
 }
 
 /* ---------- dialogs hold the screen ---------- */
@@ -3508,14 +3740,40 @@ const OFFLINE_CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src '
 function offlineHtml() {
   const h = PRISTINE
     .replace(/<meta http-equiv="Content-Security-Policy" content="[^"]*">/, `<meta http-equiv="Content-Security-Policy" content="${OFFLINE_CSP}">`)
+    .replace(/const OFFLINE_SHA = '[0-9a-f]{64}'/, "const OFFLINE_SHA = ''")
     .replace(/<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\s*/g, '')
     .replace(/<meta name="(?:theme-color|mobile-web-app-capable|apple-mobile-web-app-capable|apple-mobile-web-app-title)"[^>]*>\s*/g, '');
   return '<!doctype html>\n' + h + '\n';
 }
 const offlineName = () => `${fr() ? 'Itineraire-voyage-numerique-FAC' : 'CAF_Digital_Travel_Itinerary'}_v${APP_VERSION}.html`;
+// SHA-256 of this version's published offline file, filled in by build.py. It is empty inside the offline file itself,
+// because a file cannot carry its own checksum. Members compare a copy they were sent against it, or against the README.
+const OFFLINE_SHA = '3dbc034ea8af90fbc138028b3f204cc50b1841cbe35e94f44526185d8962c5d5';
+const OFFLINE_FILE = 'CAF_Digital_Travel_Itinerary.html';
+const SUMS_URL = 'https://github.com/AlcubierreWarp/Travel-Claim-Packager#checksums';
+async function sha256hex(buf) { const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
+function syncSha() {
+  const el = $('#offline-sha'); if (!el) return;
+  el.innerHTML = OFFLINE_SHA
+    ? `${esc(T('SHA-256 of the offline copy:'))}<code>${esc(OFFLINE_SHA)}</code>`
+    : `${esc(T('Check this copy against the SHA-256 checksums on GitHub:'))} <a href="${SUMS_URL}" target="_blank" rel="noopener">${esc(T('Checksums'))}</a>`;
+}
+// Download offline copy hands over the published file itself, byte for byte, so its checksum matches the one shown.
+// Only when that file cannot be read (no connection and not saved yet, or inside an offline copy) is a copy built from this page.
 async function downloadOffline() {
-  const name = offlineName(), ok = await offerFile(name, new Blob([offlineHtml()], { type: 'text/html' }), 'text/html');
-  if (ok !== false) toast(T('{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.', name));
+  const name = offlineName(); let blob = null, newer = false;
+  if (OFFLINE_SHA && /^https?:$/.test(location.protocol)) {
+    try {
+      const r = await fetch(new URL(OFFLINE_FILE, location.href), { cache: 'no-cache', credentials: 'same-origin' });
+      if (r.ok) { const buf = await r.arrayBuffer(); if (await sha256hex(buf) === OFFLINE_SHA) blob = new Blob([buf], { type: 'text/html' }); else newer = true; }
+    } catch (e) {}
+  }
+  if (newer) { toast(T('A newer version is on the site. Reload the app, then download the offline copy again.')); return; }
+  const built = !blob;
+  if (built) blob = new Blob([offlineHtml()], { type: 'text/html' });
+  const ok = await offerFile(name, blob, 'text/html');
+  if (ok !== false) toast(T('{0} saved. Double-click it to open it in any browser. It works with no internet connection and can be shared like any file (Teams, OneDrive, a USB key). Some email systems block .html attachments.', name)
+    + (built && OFFLINE_SHA ? ' ' + T('It was built on this device, so its checksum will not match the published one.') : ''));
 }
 
 /* ---------- drafts ---------- */
@@ -3530,9 +3788,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.8';
+const APP_VERSION = '1.9';
 const APP_CHANNEL = 'production'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.8, updated 17 Oct 2026';
+const APP_LABEL = 'Version 1.9, updated 24 Oct 2026';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -3560,7 +3818,7 @@ function sendDraft() {
   const title = sendTitle('Digital Itinerary File');
   const mb = payload.length / 1048576;
   if (mb > 20) toast(T('This draft is {0} MB because of the receipt photos. Mail may refuse it; OneDrive or Teams will not.', mb.toFixed(0)));
-  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Import claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
+  shareFile(file, title, title + '\n\n' + T('To continue on another device, open the CAF Digital Travel Itinerary there, choose Menu, then Open claim file, and select this file.'), () => offerFile(base + '.json', payload, 'application/json'));
 }
 // All the separate files: one share sheet on phones (Save to Files takes them all), one download each on a computer
 async function saveAllParts(send) {
@@ -3730,6 +3988,7 @@ function toTop() { let rm = false; try { rm = matchMedia('(prefers-reduced-motio
 // Text that code sets on fixed elements, refreshed when the language changes
 function relabel() {
   const hh = helpHref(), fh = feedbackHref();
+  syncSha();
   if (typeof syncSwitch === 'function') syncSwitch();
   [['#help-foot', hh], ['#help-menu', hh], ['#fb-foot', fh], ['#fb-menu', fh]].forEach(([id, h]) => { const el = $(id); if (el) el.href = h; });
   const sd = $('#send-draft'); if (sd) sd.textContent = IOS_PWA && SEND.draft ? T('Save or send claim file') : T('Send claim file');
@@ -3763,7 +4022,7 @@ function setLang(l) {
   if (wasExample && !DEV.locked) loadExample(); else renderAll();
   syncMenu(); syncInstall();
   if (!$('#install-banner').hidden) installApp();
-  if (lastPdf) $('#result').hidden = true;
+  checkStale();
   toast(fr() ? 'Affichage en français. Le PDF et les fichiers seront aussi en français.' : 'Showing in English. The PDF and files will also be in English.');
 }
 function initExtras() {
@@ -3788,6 +4047,15 @@ async function openDraft(f) {
 
 /* ---------- PDF ---------- */
 let lastPdf = null, lastParts = null; // the last build: one PDF, or the separate files
+// What the last build was made from. Anything that changes the output (the claim, a receipt, the layout, the
+// language) withdraws the built result, so Save or Open can never hand over an out-of-date PDF.
+let lastSig = '';
+const outSig = () => [JSON.stringify(S), PRETTY ? 1 : 0, LANG, Object.keys(R).map(k => k + ':' + String((R[k] && R[k].dataUrl) || '').length).join(',')].join('|');
+function checkStale() {
+  if (building || (!lastPdf && !lastParts) || outSig() === lastSig) return;
+  lastPdf = null; lastParts = null; lastSig = ''; const r = $('#result'); if (r) r.hidden = true;
+  const st = $('#build-status'); if (st) st.textContent = T('Changed since the last build. Build again for an up-to-date PDF.');
+}
 const meals = m => MEALS.filter(([k]) => m && m[k]).map(([k]) => k.toUpperCase()).join(' ');
 const amt = (v, c) => { const m = money(v); return m ? `${m} ${curOf(c)}`.trim() : ''; };
 function rowDesc(sec, r) {
@@ -3840,10 +4108,13 @@ function painter(doc, F, B, I) {
   };
   P.para = (t, x, y, w, o = {}) => { const size = o.size || 9.5, lh = o.lh || size * 1.45; const lines = P.wrap(t, o.font || F, size, w); lines.forEach((l, i) => P.text(l, x, y - i * lh, { size, font: o.font || F, color: o.color })); return y - lines.length * lh; };
   P.fit = (t, font, size, maxW) => { t = clean(t); if (font.widthOfTextAtSize(t, size) <= maxW) return t; while (t.length && font.widthOfTextAtSize(t + '...', size) > maxW) t = t.slice(0, -1); return t + '...'; };
-  P.title = (t, sub, refs) => {
-    const s = 13; P.center(t, P.y - s, { size: s, font: B }); P.y -= s + 6;
-    if (refs) { P.center(refs, P.y - 8, { size: 8.5, font: B }); P.y -= 13; }
-    if (sub) { P.center(sub, P.y - 8, { size: 8, color: C.mid }); P.y -= 20; }
+  P.title = (t, parts) => {
+    // the title, then the trip details on one centred line (two when they do not fit)
+    const s = 13, sz = 8.5, sep = '   |   '; P.center(t, P.y - s, { size: s, font: B }); P.y -= s + 6;
+    const one = parts.filter(Boolean).join(sep);
+    const lines = !one ? [] : F.widthOfTextAtSize(clean(one), sz) <= W - 2 * M ? [one] : [parts.slice(0, 2).filter(Boolean).join(sep), parts.slice(2).filter(Boolean).join(sep)].filter(Boolean);
+    lines.forEach(l => { P.center(l, P.y - sz, { size: sz, color: C.mid }); P.y -= 12; });
+    P.y -= 8;
   };
   P.bar = (L, title, note) => {
     P.ensure(15 + 44); const h = 15, y = P.y - h;
@@ -3870,7 +4141,7 @@ function painter(doc, F, B, I) {
     };
     const list = rows.length ? rows : [{ nil: true }];
     const lays = list.map(r => {
-      if (r.nil) return { h: lh + 2 * pad };
+      if (r.nil || r.band) return { h: lh + 2 * pad };
       const cells = (r.cells || r).map(c => (c && typeof c === 'object') ? c : { t: c });
       const lines = cells.map((c, i) => P.wrap(c.t ?? '', (c.b || r.bold) ? B : F, fs, ws[i] - 2 * pad));
       return { cells, lines, h: Math.max(1, ...lines.map(l => l.length)) * lh + 2 * pad };
@@ -3882,9 +4153,25 @@ function painter(doc, F, B, I) {
       const y = P.y - L.h;
       if (r.nil) { P.page.drawRectangle({ x: M, y, width: tw, height: L.h, borderColor: C.line, borderWidth: .5 }); P.text(nil, M + pad, y + pad + 2, { size: fs, font: I, color: C.mid }); P.y = y; return; }
       let x = M;
+      // totals and subtotals: one shaded band with a rule above, no cell lines; a grand total gets a double rule below.
+      // (plain rows are arrays, whose .fill is a method, so test for the flag itself)
+      const isTot = x => !!x && !Array.isArray(x) && x.fill === true, tot = isTot(r), prevTot = ri > 0 && isTot(list[ri - 1]);
+      if (tot) {
+        P.page.drawRectangle({ x: M, y, width: tw, height: L.h, color: C.fill });
+        P.page.drawLine({ start: { x: M, y: y + L.h }, end: { x: M + tw, y: y + L.h }, thickness: prevTot ? .4 : 1.1, color: prevTot ? C.line : C.ink });
+        const last = ri === list.length - 1 || !isTot(list[ri + 1]);
+        if (last && r.grand) { [0, 2.2].forEach(d => P.page.drawLine({ start: { x: M, y: y - d }, end: { x: M + tw, y: y - d }, thickness: .7, color: C.ink })); }
+        else if (last) P.page.drawLine({ start: { x: M, y }, end: { x: M + tw, y }, thickness: .5, color: C.line });
+      }
+      if (r.band) { // label, currency and amount at the same places in every table: under the summary's currency and amount columns
+        const [lab, cur, amt] = r.band.map(s => clean(String(s))), ty = P.y - pad - fs * .86, aw = 1.1 / 5.9 * tw, cw = .8 / 5.9 * tw;
+        const xa = M + tw - pad, xc = M + tw - aw - cw / 2, xl = M + tw - aw - cw - 120;
+        P.text(lab, xl, ty, { size: fs, font: B }); P.text(cur, xc - B.widthOfTextAtSize(cur, fs) / 2, ty, { size: fs, font: B }); P.text(amt, xa - B.widthOfTextAtSize(amt, fs), ty, { size: fs, font: B });
+        P.y = y; return;
+      }
       L.cells.forEach((c, i) => {
-        const bg = c.shade ? C.shade : (r.fill ? C.fill : null);
-        P.page.drawRectangle(Object.assign({ x, y, width: ws[i], height: L.h, borderColor: C.line, borderWidth: .5 }, bg ? { color: bg } : {}));
+        const bg = c.shade ? C.shade : null;
+        if (!tot) P.page.drawRectangle(Object.assign({ x, y, width: ws[i], height: L.h, borderColor: C.line, borderWidth: .5 }, bg ? { color: bg } : {}));
         const font = (c.b || r.bold) ? B : F;
         L.lines[i].forEach((ln, k) => { const lw = font.widthOfTextAtSize(ln, fs); const a = cols[i].a; const tx = a === 'r' ? x + ws[i] - pad - lw : a === 'c' ? x + (ws[i] - lw) / 2 : x + pad; P.text(ln, tx, P.y - pad - fs * .86 - k * lh, { size: fs, font }); });
         x += ws[i];
@@ -3919,17 +4206,15 @@ function painter(doc, F, B, I) {
   return P;
 }
 function subtotalRows(arr, k, ck, colCount, labelIdx, amtIdx, curIdx) {
-  const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => { const cells = Array(colCount).fill(''); cells[labelIdx] = T('Subtotal {0}', c); cells[amtIdx] = fmtN(t[c]); if (curIdx != null) cells[curIdx] = c; return { cells, bold: true, fill: true }; });
+  const t = sumBy(arr, k, ck); return Object.keys(t).sort().map(c => ({ band: [T('Subtotal'), c, fmtN(t[c])], bold: true, fill: true }));
 }
 const fullName = () => [rankAbbr(S.member.rank), S.member.given, S.member.surname].map(x => String(x || '').trim()).filter(Boolean).join(' ');
 function drawWorksheet(P, items, wsPages, inFile) {
   updateLeave();
-  const m = S.member, today = new Date();
-  const todayStr = fmtDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
-  const nDecl = items.filter(i => i.decl).length, nRc = items.length - nDecl;
+  const m = S.member, td = tripDates();
   P.newPage();
-  P.title(T('CAF Digital Travel Itinerary').toUpperCase(), [S.tripRef ? T('Trip: {0}', S.tripRef) : '', T('Prepared {0}', todayStr), nPl(nRc, '{0} receipt attached', '{0} receipts attached'), nDecl ? nPl(nDecl, '{0} missing receipt declaration', '{0} missing receipt declarations') : ''].filter(Boolean).join('   |   '),
-    [S.tan.trim() ? T('TAN: {0}', S.tan.trim()) : '', S.locator.trim() ? T('Trip locator: {0}', S.locator.trim()) : ''].filter(Boolean).join('   |   '));
+  P.title(T('CAF Digital Travel Itinerary').toUpperCase(), [S.tripRef ? T('Trip: {0}', S.tripRef) : '', td ? rangeText([td[0], td[td.length - 1]]) : '',
+    S.tan.trim() ? T('TAN: {0}', S.tan.trim()) : '', S.locator.trim() ? T('Trip locator: {0}', S.locator.trim()) : '']);
   // A
   P.bar('A', 'Personal information / Information personnel');
   P.table([{ l: 'PRI / SN', w: 1.2 }, { l: 'Rank', w: .7 }, { l: 'Surname', w: 1.3 }, { l: 'Given name and initials', w: 1.6 }, { l: 'Section', w: 1.1 }, { l: 'Telephone', w: 1.4 }], [[m.pri, rankAbbr(m.rank), m.surname, m.given, m.section, telStr(m)]]);
@@ -3972,7 +4257,7 @@ function drawWorksheet(P, items, wsPages, inFile) {
   P.bar('', 'Summary of amounts entered');
   const srows = [];
   GROUPS().forEach(([L, nm, arr, k, ck]) => { const t = sumBy(arr, k, ck); Object.keys(t).sort().forEach(c => srows.push([`${L} - ${T(nm)}`, c, fmtN(t[c])])); });
-  const gt = grandTotals(); Object.keys(gt).sort().forEach(c => srows.push({ cells: [T('Total'), c, fmtN(gt[c])], bold: true, fill: true }));
+  const gt = grandTotals(); Object.keys(gt).sort().forEach(c => srows.push({ band: [T('Total'), c, fmtN(gt[c])], bold: true, fill: true, grand: true }));
   P.table([{ l: 'Section', w: 4 }, { l: 'Currency', w: .8, a: 'c' }, { l: 'Amount', w: 1.1, a: 'r' }], srows);
   // Receipt index
   P.bar('', 'Receipt index', 'SD = statutory declaration for a missing receipt, signed by the member');
@@ -4101,7 +4386,7 @@ function drawDeclaration(P, it) {
   const { M, W, F, B, C } = P, key = it.ref.replace(/[^A-Za-z0-9]/g, ''), sd = S.sd, m = S.member;
   const j = sd.juris, prov = provName(j), terr = ['NT', 'NU', 'YT'].includes(j);
   P.newPage();
-  let y = receiptHeader(P, T('RECEIPT {0}  |  MISSING RECEIPT', it.ref), itemMeta(it)) - 24;
+  let y = (P.pretty ? prettyRcHeader(P, it, itemMeta(it)) : receiptHeader(P, T('RECEIPT {0}  |  MISSING RECEIPT', it.ref), itemMeta(it))) - 24;
   P.center(T('STATUTORY DECLARATION'), y, { size: 13, font: B }); y -= 30;
   // heading block (DAOD 7000-1, s. 6)
   const half = (W - 2 * M) / 2, rx = M + half + 12;
@@ -4166,6 +4451,469 @@ function drawDeclaration(P, it) {
   P.text(sdName(), rx, sigTop - 40 - 12, { size: 9.5, font: B });
   P.text(T('(declarant)'), rx, sigTop - 40 - 25, { size: 8.4, color: C.mid });
 }
+/* ---------- Beautify export (experimental): a designed layout for the same PDF package ---------- */
+// Same content and order as the standard layout, laid out to be read at a glance and entered in claim-form order:
+// a summary first page, sections with lettered tiles, every amount in one column down the page, a page map,
+// and fallbacks for long trips, many stops, several currencies and big packages. Helvetica only (no added size).
+const PRETTY_KEY = 'caf-dti-pretty' + CH;
+let PRETTY = (() => { try { return localStorage.getItem(PRETTY_KEY) === '1'; } catch (e) { return false; } })();
+function setPretty(on) {
+  PRETTY = !!on; try { on ? localStorage.setItem(PRETTY_KEY, '1') : localStorage.removeItem(PRETTY_KEY); } catch (e) {}
+  syncPretty(); checkStale(); toast(on ? T('Beautify export is on. Build the PDF to see the new layout.') : T('Beautify export is off. PDFs use the standard layout.'));
+}
+function syncPretty() { const c = $('#opt-pretty'); if (c) c.checked = PRETTY; const n = $('#pretty-note'); if (n) n.hidden = !PRETTY; }
+// Itinerary import (experimental): on unless the member turns it off in the menu. Off hides the import card.
+const IMPORT_KEY = 'caf-dti-import-off' + CH;
+let IMPORT_ON = (() => { try { return localStorage.getItem(IMPORT_KEY) !== '1'; } catch (e) { return true; } })();
+function setImport(on) {
+  IMPORT_ON = !!on; try { on ? localStorage.removeItem(IMPORT_KEY) : localStorage.setItem(IMPORT_KEY, '1'); } catch (e) {}
+  syncImport(); toast(on ? T('Itinerary import is on.') : T('Itinerary import is off. Turn it back on in the menu.'));
+}
+function syncImport() { const c = $('#opt-imp'); if (c) c.checked = IMPORT_ON; const h = $('#imp-hero'); if (h) h.hidden = !IMPORT_ON; }
+syncImport();
+const PSEC = { A: ['Personal information', 'Renseignements personnels'], B: ['Travel itinerary', 'Itinéraire de voyage'], C: ['Transportation', 'Frais de transport'], D: ['Lodging', 'Hébergement'], E: ['Meals', 'Repas'], F: ['General expenses', 'Frais généraux'], G: ['Currency exchange', 'Reçus de change'], H: ['Calls register', 'Registre des appels'] };
+const PSHORT = { C: 'Transportation', D: 'Lodging', F: 'General', G: 'Exchange fees', H: 'Calls' };
+const dShort = d => fmtDate(d).replace(/ \d\d$/, '').replace(/^0/, '');
+const dRange = (a, b) => isoOk(a) && isoOk(b) && a.slice(0, 7) === b.slice(0, 7) ? `${+a.slice(8)}-${dShort(b)}` : `${dShort(a)} - ${dShort(b)}`;
+// small travel icons (10 x 10, drawn as shapes so they need no font)
+const modeIcon = m => ({ CAL: 'plane', Train: 'train', PMV: 'car', 'PMV Pax': 'car', 'Rental Car': 'car', Shuttle: 'bus', Other: 'other' })[m] || '';
+const dDow = d => `${dow(d)} ${dShort(d)}`;
+function prettify(P) {
+  const { rgb } = PDFLib, hx = s => rgb(parseInt(s.slice(1, 3), 16) / 255, parseInt(s.slice(3, 5), 16) / 255, parseInt(s.slice(5, 7), 16) / 255);
+  const K = { navy: hx('#052748'), blue: hx('#0b4f8c'), ink: hx('#17202a'), mid: hx('#4a5563'), soft: hx('#2d3744'), panel: hx('#f1f4f8'), rule: hx('#c3ccd8'), hair: hx('#e1e6ec'), chip: hx('#e6eef7'), sdBg: hx('#fbefd5'), sdInk: hx('#7a4b00'), sdLine: hx('#d9a441'), nilBg: hx('#e7ebf0'), white: rgb(1, 1, 1), pale: hx('#c9d8ea'), faint: hx('#9aa4b1'), wsTick: hx('#b9cde4'), rcLine: hx('#8f9bab'), amber: hx('#f3c76b'), sig: hx('#f3f7fc'), leaveBg: hx('#e2f0e6'), leaveLine: hx('#8cc29d'), leaveInk: hx('#1f5c33'), bar: ['#ffffff', '#b7d2ef', '#7fb2e8', '#4f86c0', '#2c5f94', '#1d4a7a'].map(hx) };
+  const { M, W, H, F, B } = P, CW = W - 2 * M;
+  Object.assign(P, { pretty: true, K, CW, TOP: H - 33, BOT: 58 });
+  P.rr = (x, y, w, h, r, o = {}) => { r = Math.max(0, Math.min(r, w / 2, h / 2)); P.page.drawSvgPath(`M ${r} 0 H ${w - r} Q ${w} 0 ${w} ${r} V ${h - r} Q ${w} ${h} ${w - r} ${h} H ${r} Q 0 ${h} 0 ${h - r} V ${r} Q 0 0 ${r} 0 Z`, Object.assign({ x, y: y + h }, o)); };
+  P.line = (x1, y1, x2, y2, t, c, dash) => P.page.drawLine(Object.assign({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 }, thickness: t, color: c }, dash ? { dashArray: dash } : {}));
+  P.tw = (t, s, f) => (f || F).widthOfTextAtSize(P.clean(t), s);
+  P.tr = (t, xr, y, s, f, c) => P.text(t, xr - P.tw(t, s, f), y, { size: s, font: f || F, color: c || K.ink });
+  P.tc = (t, xc, y, s, f, c) => P.text(t, xc - P.tw(t, s, f) / 2, y, { size: s, font: f || F, color: c || K.ink });
+  P.check = (cx, cy, s, c) => P.page.drawSvgPath(`M 0 ${s * .55} L ${s * .38} ${s * .9} L ${s} ${s * .1}`, { x: cx - s / 2, y: cy + s / 2, borderColor: c, borderWidth: 1.5 });
+  P.icon = (name, x, cy, s, c) => {
+    const k = s / 10, at = (d, col) => P.page.drawSvgPath(d, { x, y: cy + s / 2, scale: k, color: col });
+    if (name === 'plane') at('M5 0.4 C5.7 0.4 6 1.1 6 1.8 L6 3.9 L9.7 6.1 L9.7 7.2 L6 6.1 L6 8.1 L7.2 9 L7.2 9.7 L5 9.1 L2.8 9.7 L2.8 9 L4 8.1 L4 6.1 L0.3 7.2 L0.3 6.1 L4 3.9 L4 1.8 C4 1.1 4.3 0.4 5 0.4 Z', c);
+    else if (name === 'car') { at('M0.6 5.8 L1.7 3.1 C1.9 2.6 2.3 2.3 2.9 2.3 L7.1 2.3 C7.7 2.3 8.1 2.6 8.3 3.1 L9.4 5.8 L9.4 8 L0.6 8 Z', c); at('M2.4 3.3 L7.6 3.3 L8.3 5.2 L1.7 5.2 Z', K.white); at('M1.5 8 a1.2 1.2 0 1 0 2.4 0 a1.2 1.2 0 1 0 -2.4 0 Z M6.1 8 a1.2 1.2 0 1 0 2.4 0 a1.2 1.2 0 1 0 -2.4 0 Z', c); }
+    else if (name === 'bus') { at('M1.6 0.8 L8.4 0.8 Q9.4 0.8 9.4 1.8 L9.4 8.2 L0.6 8.2 L0.6 1.8 Q0.6 0.8 1.6 0.8 Z', c); at('M1.6 2 L8.4 2 L8.4 5 L1.6 5 Z', K.white); at('M1.6 8.2 a1.1 1.1 0 1 0 2.2 0 a1.1 1.1 0 1 0 -2.2 0 Z M6.2 8.2 a1.1 1.1 0 1 0 2.2 0 a1.1 1.1 0 1 0 -2.2 0 Z', c); }
+    else if (name === 'train') { at('M2.6 0.5 L7.4 0.5 Q9 0.5 9 2.1 L9 7 Q9 8 8 8 L2 8 Q1 8 1 7 L1 2.1 Q1 0.5 2.6 0.5 Z', c); at('M2.2 1.8 L7.8 1.8 L7.8 4.6 L2.2 4.6 Z', K.white); at('M2.3 8 L3.5 8 L2.4 9.8 L1.2 9.8 Z M6.5 8 L7.7 8 L8.8 9.8 L7.6 9.8 Z', c); }
+    else at('M0.8 4.2 L6.2 4.2 L6.2 2 L9.4 5 L6.2 8 L6.2 5.8 L0.8 5.8 Z', c);
+  };
+  P.chip = (t, x, cy, kind) => { const s = 9, w = P.tw(t, s, B) + 9, bg = kind === 'sd' ? K.sdBg : kind === 'na' ? K.nilBg : K.chip, ink = kind === 'sd' ? K.sdInk : kind === 'na' ? K.mid : K.blue; P.rr(x, cy - 6.5, w, 13, 2.25, { color: bg }); P.text(t, x + 4.5, cy - 3.1, { size: s, font: B, color: ink }); return w; };
+  const runHead = () => {
+    const td = tripDates(), t = [S.tripRef.trim(), td ? rangeText([td[0], td[td.length - 1]]) : '', fullName()].filter(Boolean).join('  ·  ');
+    P.text(P.fit(t, F, 9, CW - 130), M, P.TOP - 12, { size: 9, color: K.mid });
+    P.line(M, P.TOP - 22, M + CW, P.TOP - 22, 1.5, K.navy); P.y = P.TOP - 38;
+  };
+  const plainNew = P.newPage;
+  P.newPage = cover => { plainNew(); if (cover) P.y = P.TOP; else runHead(); };
+  P.ensure = h => { if (P.y - h < P.BOT) P.newPage(); };
+  // section heading: lettered tile, title in the claim's language, the other language beside it
+  P.sec = (L, keep, nil) => {
+    P.ensure(34 + (keep || 60));
+    const [en, frn] = PSEC[L], title = fr() ? frn : en, y = P.y - 25.5;
+    P.rr(M, y, 25.5, 25.5, 4.5, { color: nil ? K.nilBg : K.navy });
+    P.tc(L, M + 12.75, y + 8, 13.5, B, nil ? K.mid : K.white);
+    P.text(title, M + 35, y + 8.5, { size: 13.5, font: B, color: K.navy });
+    P.y = y - 8;
+  };
+  // the three trailing columns every money table shares, so amounts line up down the page
+  const G = 7.5, RW = 48, CWc = 30, AW = 63, LW = 90;
+  P.TRAIL = [{ l: 'Amount', w: AW, a: 'r' }, { l: 'Cur', w: CWc }, { l: 'Receipt', w: RW }];
+  const xRef = M + CW - RW, xCur = xRef - G - CWc, xAmt = xCur - G, xLab = xAmt - AW - G - LW;
+  // a table: header row, wrapped cells, chips, checks, a rail for the itinerary; breaks onto new pages with its header
+  P.pt = (cols, rows, o = {}) => {
+    const fixed = cols.reduce((a, c) => a + (c.w || 0), 0), flex = cols.reduce((a, c) => a + (c.f || 0), 0), free = CW - fixed - G * (cols.length - 1);
+    const ws = cols.map(c => c.w || (c.f / flex) * free), xs = []; let xx = M; ws.forEach(w => { xs.push(xx); xx += w + G; });
+    const fs = 9.75, lh = 12, pad = 5.5;
+    const hl = cols.map((c, i) => P.wrap(!c.l ? '' : c.raw ? c.l : T(c.l), B, 9, ws[i]));
+    const hh = Math.max(1, ...hl.map(l => l.length)) * 11 + 5;
+    const header = () => { const y0 = P.y; hl.forEach((ls, i) => ls.forEach((ln, k) => { const y = y0 - 9 - k * 11, a = cols[i].a; if (a === 'r') P.tr(ln, xs[i] + ws[i], y, 9, B, K.mid); else if (a === 'c') P.tc(ln, xs[i] + ws[i] / 2, y, 9, B, K.mid); else P.text(ln, xs[i], y, { size: 9, font: B, color: K.mid }); })); P.y = y0 - hh; P.line(M, P.y, M + CW, P.y, 1.1, K.ink); };
+    const lay = r => { const cells = r.cells || r; const lines = cells.map((c, i) => (c && typeof c === 'object' && (c.chip || c.check || c.rail || c.tile)) ? [''] : P.wrap((c && typeof c === 'object') ? (c.t ?? '') : (c ?? ''), (c && c.b) || r.bold ? B : F, fs, ws[i] - (cols[i].tile ? 0 : 0))); return { cells, lines, h: Math.max(o.minH || 24, Math.max(1, ...lines.map(l => l.length)) * lh + 2 * pad) }; };
+    const list = rows.map(lay);
+    P.ensure(hh + (list[0] ? list[0].h : 24) + 6); header();
+    list.forEach((L, ri) => {
+      if (P.y - L.h - (ri === list.length - 1 ? (o.tail || 0) : 0) < P.BOT) { P.newPage(); header(); }
+      const top = P.y, y = top - L.h, cy = y + L.h / 2;
+      L.cells.forEach((c, i) => {
+        const x = xs[i], w = ws[i], a = cols[i].a;
+        if (c && typeof c === 'object' && c.rail) { const lx = x + 8; if (!c.rail.first) P.line(lx, top, lx, cy, 1.5, K.navy); if (!c.rail.last) P.line(lx, cy, lx, y, 1.5, K.navy); P.page.drawCircle({ x: lx, y: cy, size: 4.5, color: c.rail.stay ? K.navy : K.white, borderColor: K.navy, borderWidth: 1.5, borderDashArray: c.rail.leave ? [1.5, 1.5] : undefined }); return; }
+        if (c && typeof c === 'object' && c.chip) { if (a === 'r') P.chip(c.chip, x + w - P.tw(c.chip, 9, B) - 9, cy, c.kind); else P.chip(c.chip, x, cy, c.kind); return; }
+        if (c && typeof c === 'object' && c.check) { P.check(x + w / 2, cy, 8, K.navy); return; }
+        if (c && typeof c === 'object' && c.tile) { P.rr(x, cy - 7.5, 16.5, 15, 3, { color: K.chip }); P.tc(c.tile, x + 8.25, cy - 3.2, 9, B, K.blue); P.text(P.fit(c.t, F, fs, w - 24), x + 24, cy - 3.4, { size: fs }); return; }
+        const obj = c && typeof c === 'object', font = (obj && c.b) || r_b(rows[ri]) ? B : F, color = (obj && c.c) || K.ink;
+        if (c && typeof c === 'object' && c.sub && L.lines[i].length === 1) { const ty = top - pad - fs * .8 - ((L.h - 2 * pad - lh) / 2); P.text(L.lines[i][0], x, ty, { size: fs, font, color }); const sx = x + P.tw(L.lines[i][0], fs, font) + 6; P.text(P.fit(c.sub, F, 9, x + w - sx), sx, ty, { size: 9, color: K.mid }); return; }
+        L.lines[i].forEach((ln, k) => { const ty = top - pad - fs * .8 - k * lh - ((L.h - 2 * pad - L.lines[i].length * lh) / 2); if (a === 'r') P.tr(ln, x + w, ty, fs, font, color); else if (a === 'c') P.tc(ln, x + w / 2, ty, fs, font, color); else P.text(ln, x, ty, { size: fs, font, color }); });
+      });
+      P.y = y; P.line(M, y, M + CW, y, .75, K.hair);
+    });
+    P.y -= o.after ?? 0;
+  };
+  const r_b = r => r && !Array.isArray(r) && r.bold;
+  // a subtotal or total band: label, amount and currency at the same places on every page
+  P.band = (label, amount, cur, o = {}) => {
+    const h = o.grand ? 26 : 23; P.ensure(h + 4); const top = P.y, y = top - h;
+    P.page.drawRectangle({ x: M, y, width: CW, height: h, color: K.panel });
+    P.line(M, top, M + CW, top, o.first === false ? .6 : 1.1, o.first === false ? K.hair : K.ink);
+    const s = o.grand ? 11.25 : 9.75, ty = y + h / 2 - s * .35;
+    if (o.left) P.text(P.fit(o.left, F, 9, xLab - M - 16), M + 7.5, ty, { size: 9, color: K.mid });
+    P.text(label, xLab, ty, { size: s, font: B }); P.tr(amount, xAmt, ty, s, B); if (cur) P.text(cur, xCur, ty, { size: 9, font: B });
+    if (o.last && o.grand) { P.line(M, y, M + CW, y, .75, K.ink); P.line(M, y - 2.5, M + CW, y - 2.5, .75, K.ink); P.y = y - 3; }
+    else P.y = y;
+  };
+  P.money = (label, sums, o = {}) => { const cs = Object.keys(sums).sort((a, b) => a === 'CAD' ? -1 : b === 'CAD' ? 1 : a.localeCompare(b)); cs.forEach((c, i) => P.band(label, fmtN(sums[c]), c, Object.assign({}, o, { first: i === 0, last: i === cs.length - 1 }))); };
+  return P;
+}
+// what each section holds, for the first page and the nil cards
+function prettyFacts() {
+  const L = {}, n = (k, a, b) => nPl(k, a, b);
+  const miss = arr => { const refs = []; arr.forEach((r, i) => { if (r.lost) refs.push(`${arr === S.lodging.stays ? 'D' : arr === S.transport ? 'C' : arr === S.general ? 'F' : arr === S.exchange ? 'G' : 'H'}-${i + 1}`); }); return refs; };
+  const withMiss = (base, arr) => { const m = miss(arr); return m.length ? base + ', ' + nPl(m.length, '{0} missing receipt ({1})', '{0} missing receipts ({1})', m.join(', ')) : base; };
+  const leaves = S.stops.slice(1, -1).filter(s => s.leave).length, td = tripDates();
+  L.A = S.poc.on ? T('Claimant and point of contact') : T('Claimant, no point of contact');
+  L.B = [n(S.stops.length, '{0} stop', '{0} stops'), td ? rangeText([td[0], td[td.length - 1]]) : '', leaves ? n(leaves, '{0} leave stop', '{0} leave stops') : ''].filter(Boolean).join(', ');
+  L.C = S.transport.length ? withMiss(n(S.transport.length, '{0} line', '{0} lines'), S.transport) : '';
+  const st = S.lodging.stays, kinds = [['Commercial', st.filter(r => isStd(r)).length], ['Quarters', st.filter(r => r.quarters).length], ['Private', st.filter(r => r.priv).length]].filter(k => k[1]);
+  L.D = st.length ? withMiss(kinds.map(([k, c]) => `${c} ${T(k).toLowerCase()}`).join(', '), st) : '';
+  const mc = mealCounts().c, tot = mc.b + mc.l + mc.d;
+  L.E = tot ? T('{0} meals: {1} breakfasts, {2} lunches, {3} dinners', tot, mc.b, mc.l, mc.d) : '';
+  L.F = S.general.length ? withMiss(n(S.general.length, '{0} line', '{0} lines'), S.general) : '';
+  L.G = S.exchange.length ? withMiss(n(S.exchange.length, '{0} exchange, service charge only', '{0} exchanges, service charges only'), S.exchange) : '';
+  const bus = S.calls.filter(c => c.kind === 'Business').length;
+  L.H = S.calls.length ? withMiss(T('{0} calls: {1} business, {2} personal', S.calls.length, bus, S.calls.length - bus), S.calls) : '';
+  return L;
+}
+const primaryCur = gt => { const cs = Object.keys(gt); if (!cs.length) return 'CAD'; return cs.includes('CAD') ? 'CAD' : cs.sort((a, b) => gt[b] - gt[a])[0]; };
+// first page: the claim at a glance. Fixed to one page: every block has a size limit.
+function prettyCover(P, items, ctx) {
+  const { M, CW, K, F, B } = P; P.newPage(true);
+  const td = tripDates(), m = S.member, gt = grandTotals(), pc = primaryCur(gt), facts = prettyFacts(), pg = L => ctx.secPage && ctx.secPage[L] ? T('p. {0}', ctx.secPage[L]) : '';
+  const blocks = [];
+  // header row
+  blocks.push({ h: 27, gap: 0, draw: y => {
+    if (ctx.logo) P.page.drawImage(ctx.logo, { x: M, y: y - 21, width: 21, height: 21 });
+    else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.navy }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
+    P.text(P.fit([T('CAF Digital Travel Itinerary'), T('TD claim package'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
+    P.line(M, y - 27, M + CW, y - 27, 1.5, K.navy);
+  } });
+  // title: shrinks to fit two lines, then is cut
+  const refs = [S.tan.trim() ? [T('TAN'), S.tan.trim()] : null, S.locator.trim() ? [T('Trip locator'), S.locator.trim()] : null].filter(Boolean);
+  const refW = refs.length ? Math.max(...refs.map(([a, b]) => P.tw(a, 9) + P.tw(b, 9, B))) + 12 : 0, tW = CW - (refW ? refW + 18 : 0);
+  const title = S.tripRef.trim() || T('Temporary duty claim');
+  let ts = 30, tl = P.wrap(title, B, ts, tW); while (tl.length > 2 && ts > 20) { ts -= 2; tl = P.wrap(title, B, ts, tW); }
+  if (tl.length > 2) { tl = tl.slice(0, 2); tl[1] = P.fit(tl[1] + '...', B, ts, tW); }
+  const stays = S.stops.slice(1, -1).filter(s => isoOk(s.arrDate) && isoOk(s.depDate) && s.depDate > s.arrDate);
+  const places = [...new Set(stays.map(s => s.city.trim()).filter(Boolean))];
+  const nd = td ? td.length : 0;
+  const subl = [td ? rangeText([td[0], td[td.length - 1]]) : '', nd ? (nd === 1 ? T('Day trip') : T('{0} days, {1} nights', nd, nd - 1)) : '', places.length ? (places.length > 3 ? places.slice(0, 3).join(', ') + ' ' + T('and {0} more', places.length - 3) : places.join(', ')) : ''].filter(Boolean).join('  ·  ');
+  blocks.push({ h: 15 + tl.length * ts * 1.08 + 18, gap: 18, draw: y => {
+    P.text(T('TEMPORARY DUTY CLAIM'), M, y - 9, { size: 9, font: B, color: K.blue });
+    tl.forEach((l, i) => P.text(l, M, y - 15 - ts * .82 - i * ts * 1.08, { size: ts, font: B, color: K.navy }));
+    P.text(P.fit(subl, F, 12, CW), M, y - 15 - tl.length * ts * 1.08 - 13, { size: 12, color: K.soft });
+    refs.forEach(([a, b], i) => { const yy = y - 22 - i * 13; P.tr(b, M + CW, yy, 9, B); P.tr(a, M + CW - P.tw(b, 9, B) - 8, yy, 9, F, K.mid); });
+  } });
+  // two cards: claimant, and the total in the main currency (others listed, never added together)
+  const others = Object.keys(gt).filter(c => c !== pc).sort();
+  const segs = GROUPS().map(([L, , arr, k, ck]) => ({ L, v: sumBy(arr, k, ck)[pc] || 0 })).filter(s => s.v > 0).sort((a, b) => b.v - a.v);
+  const legendRows = segs.length > 3 ? Math.ceil(segs.length / 2) : segs.length;
+  const cardH = Math.max(118, 13.5 + 9 + 33 + 12 + (segs.length ? 7.5 + 10 : 0) + legendRows * 12.5 + others.slice(0, 2).length * 16 + 14);
+  blocks.push({ h: cardH, gap: 16, draw: y => {
+    const cw = (CW - 12) / 2, x2 = M + cw + 12, yb = y - cardH;
+    P.rr(M, yb, cw, cardH, 4.5, { color: K.panel });
+    P.text(T('CLAIMANT'), M + 15, y - 22, { size: 9, font: B, color: K.mid });
+    { const nm = fullName() || T('Name not entered'), ns = [15.75, 14.25, 12.75, 11.25].find(s => P.tw(nm, s, B) <= cw - 30) || 11.25; P.text(P.fit(nm, B, ns, cw - 30), M + 15, y - 42, { size: ns, font: B, color: K.navy }); }
+    const fld = (l, v, i) => { const cx = M + 15 + (i % 2) * (cw - 30) / 2, cy = y - 62 - Math.floor(i / 2) * 28; P.text(l, cx, cy, { size: 9, color: K.mid }); P.text(P.fit(v || '-', B, 10.5, (cw - 30) / 2 - 6), cx, cy - 12, { size: 10.5, font: B }); };
+    fld(T('PRI / SN'), m.pri, 0); fld(T('Section'), m.section, 1); fld(T('Telephone'), telStr(m), 2);
+    fld(T('Point of contact'), S.poc.on ? [rankAbbr(S.poc.rank), S.poc.given, S.poc.surname].filter(Boolean).join(' ') : T('Not applicable'), 3);
+    P.rr(x2, yb, cw, cardH, 4.5, { color: K.navy });
+    P.text(T('TOTAL CLAIMED'), x2 + 15, y - 22, { size: 9, font: B, color: K.pale });
+    const big = fmtN(gt[pc] || 0); P.text(big, x2 + 15, y - 52, { size: 30, font: B, color: K.white }); P.text(pc, x2 + 15 + P.tw(big, 30, B) + 6, y - 52, { size: 12, font: B, color: K.pale });
+    let yy = y - 66;
+    if (segs.length) {
+      const bw = cw - 30, sum = segs.reduce((a, s) => a + s.v, 0); let bx = x2 + 15;
+      segs.forEach((s, i) => { const w = Math.max(3.75, (s.v / sum) * (bw - 1.5 * (segs.length - 1))); P.page.drawRectangle({ x: bx, y: yy - 7.5, width: Math.min(w, x2 + 15 + bw - bx), height: 7.5, color: K.bar[i] }); bx += w + 1.5; });
+      yy -= 22;
+      const cols2 = segs.length > 3, colW = cols2 ? (bw - 12) / 2 : bw;
+      segs.forEach((s, i) => { const cx = x2 + 15 + (cols2 ? (i % 2) * (colW + 12) : 0), cy = yy - (cols2 ? Math.floor(i / 2) : i) * 12.5; P.page.drawRectangle({ x: cx, y: cy - 1, width: 7.5, height: 7.5, color: K.bar[i], borderColor: K.pale, borderWidth: .5 }); const av = fmtN(s.v), ls = cols2 ? 8.25 : 9; P.text(P.fit(`${s.L}  ${T(PSHORT[s.L])}`, F, ls, colW - 12 - P.tw(av, ls, B) - 5), cx + 12, cy, { size: ls, color: K.white }); P.tr(av, cx + colW, cy, ls, B, K.white); });
+      yy -= legendRows * 12.5;
+    }
+    others.slice(0, 2).forEach((c, i) => { const cy = yy - 6 - i * 16; if (i === 0) P.line(x2 + 15, cy + 11, x2 + cw - 15, cy + 11, .75, K.blue); P.text(T('Also claimed, not converted'), x2 + 15, cy, { size: 9, color: K.pale }); P.tr(c, x2 + cw - 15, cy, 9, B, K.pale); P.tr(fmtN(gt[c]), x2 + cw - 15 - P.tw(c, 9, B) - 5, cy, 11.25, B, K.white); });
+  } });
+  // sections: one row per section of the claim form, what it holds, its amount in the main currency and its page
+  const secs = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], gsum = {}; GROUPS().forEach(([L, , arr, k, ck]) => { gsum[L] = sumBy(arr, k, ck); });
+  const tcs = [pc, ...others].filter(c => gt[c] !== undefined).slice(0, 3); if (!tcs.length) tcs.push(pc);
+  const rh = 21, eh = 20 + 8 * rh + tcs.length * rh + 3;
+  const xA = M + CW - 39 - 7.5 - 30 - 7.5, xC = xA + 7.5;
+  blocks.push({ h: eh, gap: 16, draw: y => {
+    P.text(T('Sections'), M, y - 11, { size: 11.25, font: B, color: K.navy });
+    let yy = y - 20; P.line(M, yy, M + CW, yy, 1.1, K.ink);
+    secs.forEach(L => {
+      const s = gsum[L] || {}, a = s[pc], oth = Object.keys(s).filter(c => c !== pc), det = facts[L] + (oth.length ? (facts[L] ? ', ' : '') + oth.map(c => `${fmtN(s[c])} ${c}`).join(', ') : ''), nil = !det && L !== 'A' && L !== 'B';
+      const cy = yy - rh / 2;
+      P.rr(M, cy - 8.25, 18, 16.5, 3, { color: nil ? K.nilBg : K.navy }); P.tc(L, M + 9, cy - 3.2, 9, B, nil ? K.mid : K.white);
+      P.text(P.fit(fr() ? PSEC[L][1] : PSEC[L][0], B, 9.75, 136), M + 25.5, cy - 3.4, { size: 9.75, font: B, color: nil ? K.mid : K.ink });
+      P.text(P.fit(nil ? T('Nil') : det, F, 9.75, xA - 63 - (M + 168) - 10), M + 168, cy - 3.4, { size: 9.75, color: K.mid });
+      if (a !== undefined) { P.tr(fmtN(a), xA, cy - 3.4, 9.75, B); P.text(pc, xC, cy - 3.4, { size: 9, color: K.mid }); }
+      P.tr(pg(L), M + CW, cy - 3.4, 9, F, K.mid);
+      yy -= rh; P.line(M, yy, M + CW, yy, .75, K.hair);
+    });
+    tcs.forEach((c, i) => {
+      const last = i === tcs.length - 1; P.page.drawRectangle({ x: M, y: yy - rh, width: CW, height: rh, color: K.panel });
+      P.text(T('Total'), M + 25.5, yy - rh / 2 - 3.4, { size: 9.75, font: B }); P.tr(fmtN(gt[c] || 0), xA, yy - rh / 2 - 3.4, 9.75, B); P.text(c, xC, yy - rh / 2 - 3.4, { size: 9, font: B });
+      yy -= rh; if (last) { P.line(M, yy, M + CW, yy, .75, K.ink); P.line(M, yy - 2.5, M + CW, yy - 2.5, .75, K.ink); }
+    });
+  } });
+  // journey: the places stayed overnight as dots, how each leg was travelled as icons, one short line per place
+  const st = S.stops, n = st.length;
+  let nodes = stays.length ? [0, ...stays.map(s => st.indexOf(s)), n - 1] : st.map((s, i) => i);
+  let more = 0; if (nodes.length > 6) { more = nodes.length - 5; nodes = [...nodes.slice(0, 4), -1, n - 1]; }
+  const legIcons = (a, b) => [...new Set(st.slice(a, b).map(s => modeIcon(s.mode)).filter(Boolean))].slice(0, 3);
+  const collapsed = n > nodes.length;
+  blocks.push({ h: 58, gap: 16, draw: y => {
+    P.text(T('Journey'), M, y - 11, { size: 11.25, font: B, color: K.navy });
+    if (collapsed) P.tr(T('All {0} stops on page {1}', n, ctx.secPage && ctx.secPage.B || 2), M + CW, y - 11, 9, F, K.mid);
+    const cnt = nodes.length, slot = CW / cnt, ly = y - 28;
+    nodes.forEach((ix, k) => {
+      const x = M + slot * (k + .5), nx = x + slot, s = ix >= 0 ? st[ix] : null;
+      if (k < cnt - 1) {
+        P.line(x + 5, ly, nx - 5, ly, 1.5, K.navy);
+        const ic = ix >= 0 && nodes[k + 1] >= 0 ? legIcons(ix, nodes[k + 1]) : [];
+        if (ic.length) { const w = ic.length * 13 + 6, cx = (x + nx) / 2; P.rr(cx - w / 2, ly - 8, w, 16, 8, { color: K.white, borderColor: K.rule, borderWidth: 1 }); ic.forEach((name, j) => P.icon(name, cx - w / 2 + 4.5 + j * 13, ly, 10, K.navy)); }
+      }
+      const stay = s && stays.includes(s), leave = s && s.leave;
+      P.page.drawCircle({ x, y: ly, size: 4.5, color: stay && !leave ? K.navy : K.white, borderColor: K.navy, borderWidth: 1.5, borderDashArray: leave ? [1.5, 1.5] : undefined });
+      const tw = slot - 8;
+      const city = s ? s.city.trim() : T('+{0} more', more);
+      const when = !s ? '' : leave ? T('Leave') : k === 0 ? [dShort(s.depDate), s.depTime].filter(Boolean).join(' ') : k === cnt - 1 ? [dShort(s.arrDate), s.arrTime].filter(Boolean).join(' ') : stay ? dRange(s.arrDate, s.depDate) : dShort(s.arrDate);
+      const cf = P.fit(city, B, 9.75, tw); P.tc(cf, x, ly - 18, 9.75, B);
+      if (when) P.tc(P.fit(when, F, 9, tw), x, ly - 30, 9, F, K.mid);
+    });
+  } });
+  // what is left to do
+  const sds = items.filter(i => i.decl), todo = [];
+  todo.push({ n: '1', t: T('Sign the worksheet'), s: (S.pki ? T('PKI signature, page {0}', ctx.certPage || '') : T('Ink signature, page {0}', ctx.certPage || '')), bg: K.navy, ink: K.white });
+  if (sds.length) todo.push({ n: String(todo.length + 1), t: sds.length === 1 ? T('Declare {0}', sds[0].ref) : nPl(sds.length, 'Declare {0} missing receipt', 'Declare {0} missing receipts'), s: sds.length === 1 ? (ctx.split ? T('Before an officer, in its own file') : T('Before an officer, page {0}', ctx.pageOf ? ctx.pageOf(sds[0]) : '')) : sds.map(i => i.ref).join(', ') + ', ' + T('before an officer'), bg: K.sdBg, ink: K.sdInk });
+  todo.push({ n: String(todo.length + 1), t: T('Send the package'), s: ctx.split ? nPl(ctx.files || 1, '{0} separate file', '{0} separate files') : nPl(ctx.total || 0, 'One PDF, {0} page', 'One PDF, {0} pages'), bg: K.chip, ink: K.blue });
+  blocks.push({ h: 40, gap: 14, draw: y => {
+    const cw = (CW - 9 * (todo.length - 1)) / todo.length;
+    todo.forEach((t, i) => { const x = M + i * (cw + 9); P.rr(x, y - 40, cw, 40, 4.5, { borderColor: K.rule, borderWidth: 1.1 }); P.page.drawCircle({ x: x + 17, y: y - 15, size: 8.25, color: t.bg }); P.tc(t.n, x + 17, y - 18.3, 9, B, t.ink); P.text(P.fit(t.t, B, 9.75, cw - 40), x + 31, y - 18, { size: 9.75, font: B }); P.text(P.fit(t.s, F, 9, cw - 40), x + 31, y - 30, { size: 9, color: K.mid }); });
+  } });
+  // spread the blocks over the page, never past the footer
+  const sum = blocks.reduce((a, b) => a + b.h, 0), gaps = blocks.reduce((a, b) => a + b.gap, 0), room = P.TOP - P.BOT - 6;
+  const k = Math.max(.45, Math.min(1.6, (room - sum) / Math.max(1, gaps)));
+  let y = P.TOP; blocks.forEach(b => { y -= b.gap * k; b.draw(y); y -= b.h; });
+}
+// sections A to H and the summary, in claim-form order
+function prettyWorksheet(P, items, ctx, rec) {
+  const { M, CW, K, F, B } = P, m = S.member, mark = L => { rec.secPage[L] = P.doc.getPageCount(); };
+  const rcp = (sec, i, row) => row.lost ? { chip: `${DEFS[sec].L}-${i + 1} ${T('SD')}`, kind: 'sd' } : (() => { const r = refsFor(sec, i, row.rc.filter(id => R[id]).length).join(', '); return r ? { chip: r } : ''; })();
+  const TR = P.TRAIL, nilCards = [], tail = (arr, k, ck) => Object.keys(sumBy(arr, k, ck)).length * 23 + 4;
+  const flushNil = () => {
+    if (!nilCards.length) return;
+    for (let i = 0; i < nilCards.length; i += 2) {
+      P.ensure(48); const y = P.y - 40, cw = (CW - 9) / 2;
+      nilCards.slice(i, i + 2).forEach((L, j) => { const x = M + j * (cw + 9); mark(L); P.rr(x, y, cw, 40, 4.5, { borderColor: K.rule, borderWidth: 1.1, borderDashArray: [3, 2.5] }); P.rr(x + 9, y + 7.5, 25.5, 25.5, 4.5, { color: K.nilBg }); P.tc(L, x + 21.75, y + 15.5, 13.5, B, K.mid); const [en, frn] = PSEC[L]; P.text(P.fit(fr() ? frn : en, B, 11.25, cw - 95), x + 43, y + 16, { size: 11.25, font: B, color: K.soft }); P.tr(T('NIL'), x + cw - 12, y + 16, 9.75, B, K.mid); });
+      P.y = y - 14;
+    }
+    nilCards.length = 0;
+  };
+  const section = (L, empty, body) => { if (empty) { nilCards.push(L); return; } flushNil(); P.sec(L); mark(L); body(); P.y -= 16; };
+  P.newPage();
+  // A
+  flushNil(); P.sec('A', 90); mark('A');
+  const fields = [[T('PRI / SN'), m.pri], [T('Rank'), rankAbbr(m.rank)], [T('Surname'), m.surname], [T('Given name and initials'), m.given], [T('Section'), m.section], [T('Telephone'), telStr(m)]];
+  const grid = (fs, cols) => { const cw = (CW - 15 * (cols - 1)) / cols; for (let i = 0; i < fs.length; i += cols) { P.ensure(34); const y = P.y; fs.slice(i, i + cols).forEach(([l, v], j) => { const x = M + j * (cw + 15); P.text(l, x, y - 9, { size: 9, color: K.mid }); P.text(P.fit(v || '-', B, 11.25, cw), x, y - 23, { size: 11.25, font: B }); P.line(x, y - 29, x + cw, y - 29, 1.1, K.rule); }); P.y = y - 38; } };
+  grid(fields, 3);
+  if (S.poc.on) { P.text(T('Point of contact'), M, P.y - 9, { size: 9, font: B, color: K.mid }); P.y -= 14; grid([[T('Rank'), rankAbbr(S.poc.rank)], [T('Surname'), S.poc.surname], [T('Given name and initials'), S.poc.given], [T('Email'), S.poc.email], [T('Telephone'), telStr(S.poc)]], 3); }
+  else { P.text(T('Point of contact: not applicable'), M, P.y - 9, { size: 9.75, color: K.mid }); P.y -= 16; }
+  P.y -= 12;
+  // B
+  const n = S.stops.length;
+  section('B', false, () => {
+    P.pt([{ l: '', w: 16.5 }, { l: 'Arrival', w: 60 }, { l: 'Time', w: 33 }, { l: 'City', f: 1 }, { l: 'Departure', w: 60 }, { l: 'Time', w: 33 }, { l: 'Mode', w: 84 }],
+      S.stops.map((s, i) => { const f = i === 0, l = i === n - 1, stay = !f && !l && isoOk(s.arrDate) && isoOk(s.depDate) && s.depDate > s.arrDate, nn = stay ? Math.round((Date.parse(s.depDate) - Date.parse(s.arrDate)) / 864e5) : 0, dash = { t: '-', c: K.faint };
+        return [{ rail: { first: f, last: l, stay: stay && !s.leave, leave: !!s.leave && !f && !l } }, f ? dash : fmtDate(s.arrDate), f ? '' : s.arrTime, { t: s.city + (s.leave && !f && !l ? T(' (leave)') : ''), sub: nn ? nPl(nn, '{0} night', '{0} nights') : '' }, l ? dash : fmtDate(s.depDate), l ? '' : s.depTime, l ? '' : (modeText(s) ? { chip: P.fit(modeText(s), P.B, 9, 75) } : '')]; }), { minH: 24 });
+  });
+  // C
+  const ccols = [{ l: 'Date', w: 54 }, { l: 'Location', f: 1 }, { l: 'Description', f: 1.5 }, ...TR];
+  section('C', !S.transport.length, () => { P.pt(ccols, S.transport.map((r, i) => [fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcp('transport', i, r)]), { tail: tail(S.transport, 'cost', 'cur') }); P.money(T('Subtotal'), sumBy(S.transport, 'cost', 'cur')); });
+  // D
+  const stays = S.lodging.stays;
+  section('D', !stays.length, () => {
+    P.pt([{ l: 'Type', w: 63 }, { l: 'Where', f: 1.2 }, { l: 'City or base', f: 1 }, { l: 'In', w: 51 }, { l: 'Out', w: 51 }, { l: 'Nights', w: 33, a: 'c' }, ...TR],
+      stays.map((r, i) => [T(stayKind(r)) + (r.rations ? T(' + rations') : ''), { t: r.priv ? privAddr(r) : r.quarters ? T('Quarters') : r.hotel, b: true }, r.priv ? r.city : r.location, fmtDate(r.checkin), fmtDate(r.checkout), nights(r) > 0 ? String(nights(r)) : '', isStd(r) ? (money(r.cost) || r.cost) : '', isStd(r) && r.cost !== '' ? curOf(r.cur) : '', isStd(r) ? rcp('stays', i, r) : { chip: T('N/A'), kind: 'na' }]), { tail: tail(stays.filter(isStd), 'cost', 'cur') });
+    if (stays.some(isStd)) P.money(T('Subtotal'), sumBy(stays.filter(isStd), 'cost', 'cur'));
+  });
+  // E
+  const days = tripDates() || [];
+  section('E', !days.length, () => prettyMeals(P, days));
+  // F
+  section('F', !S.general.length, () => { P.pt(ccols, S.general.map((r, i) => [fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcp('general', i, r)]), { tail: tail(S.general, 'cost', 'cur') }); P.money(T('Subtotal'), sumBy(S.general, 'cost', 'cur')); });
+  // G: the service charge is the amount claimed, so it takes the aligned amount column
+  section('G', !S.exchange.length, () => {
+    P.pt([{ l: 'Date', w: 54 }, { l: 'Where exchanged', f: 1 }, { l: 'Sold', w: 69, a: 'r' }, { l: 'Bought', w: 69, a: 'r' }, { l: 'Rate', w: 42, a: 'r' }, { l: 'Fee', w: 63, a: 'r' }, { l: 'Cur', w: 30 }, { l: 'Receipt', w: 48 }],
+      S.exchange.map((r, i) => [fmtDate(r.date), r.location, amt(r.soldAmt, r.soldCur), amt(r.boughtAmt, r.boughtCur), r.rate || autoRate(r), money(r.charge), money(r.charge) ? curOf(r.chargeCur) : '', rcp('exchange', i, r)]), { tail: tail(S.exchange, 'charge', 'chargeCur') });
+    P.money(T('Subtotal'), sumBy(S.exchange, 'charge', 'chargeCur'));
+  });
+  // H
+  section('H', !S.calls.length, () => {
+    P.pt([{ l: 'Date', w: 54 }, { l: 'Location', f: .8 }, { l: 'Time, length', w: 54 }, { l: 'Number', w: 63 }, { l: 'Person called', f: 1 }, { l: 'Type', w: 48 }, ...TR],
+      S.calls.map((r, i) => [fmtDate(r.date), r.location, r.timeDur, r.number, r.person, { chip: T(r.kind), kind: 'na' }, money(r.cost) || r.cost, r.cost !== '' ? curOf(r.cur) : '', rcp('calls', i, r)]), { tail: tail(S.calls, 'cost', 'cur') });
+    P.money(T('Subtotal'), sumBy(S.calls, 'cost', 'cur'));
+  });
+  flushNil();
+  // Summary
+  P.ensure(120); const y = P.y - 25.5;
+  P.rr(M, y, 25.5, 25.5, 4.5, { color: K.blue }); [0, 1, 2].forEach(k => P.line(M + 7, y + 17 - k * 4.5, M + 18.5, y + 17 - k * 4.5, 1.5, K.white));
+  P.text(T('Summary of amounts'), M + 35, y + 8.5, { size: 13.5, font: B, color: K.navy }); P.y = y - 8;
+  const srows = []; GROUPS().forEach(([L, nm, arr, k, ck]) => { const t = sumBy(arr, k, ck); Object.keys(t).sort().forEach(c => srows.push([{ tile: L, t: T(nm) }, '', fmtN(t[c]), c, ''])); });
+  if (srows.length) P.pt([{ l: 'Section', f: 1 }, { l: '', w: 90 }, ...TR.slice(0, 2), { l: '', w: 48 }], srows, { tail: Object.keys(grandTotals()).length * 26 + 6 });
+  P.money(T('Total'), grandTotals(), { grand: true });
+  P.y -= 6;
+}
+function prettyMeals(P, days) {
+  const { M, CW, K, F, B } = P, kind = (d, k) => mealVal(d, k) ? 'y' : LEAVE.has(d) ? 'lv' : rationsStay(d) >= 0 ? 'r' : 'n';
+  const MK = [['b', T('Breakfast')], ['l', T('Lunch')], ['d', T('Dinner')]], seen = new Set();
+  const cell = (x, y, w, h, kd, big) => {
+    seen.add(kd);
+    if (kd === 'y') { P.rr(x, y, w, h, 3, { color: K.navy }); P.check(x + w / 2, y + h / 2, Math.min(9, h * .5), K.white); }
+    else if (kd === 'r') { P.rr(x, y, w, h, 3, { color: K.panel, borderColor: K.rule, borderWidth: 1 }); P.tc(big ? T('Rations') : T('R'), x + w / 2, y + h / 2 - 3, 9, B, K.mid); }
+    else if (kd === 'lv') { P.rr(x, y, w, h, 3, { color: K.leaveBg, borderColor: K.leaveLine, borderWidth: 1 }); if (h >= 12) P.tc(T('Leave'), x + w / 2, y + h / 2 - 3, big ? 9 : 8.25, B, K.leaveInk); }
+    else P.rr(x, y, w, h, 3, { color: K.white, borderColor: K.rule, borderWidth: 1 });
+  };
+  const nd = days.length;
+  if (nd <= 7) {
+    const lw = 72, cnt = 42, g = 4.5, dw = (CW - lw - cnt - g * (nd + 1)) / nd;
+    P.ensure(30 + 3 * 31);
+    let y = P.y; P.line(M + lw + g, y - 24, M + CW, y - 24, 1.1, K.ink);
+    days.forEach((d, i) => { const x = M + lw + g + i * (dw + g); P.text(P.fit(dDow(d), B, 9.75, dw), x, y - 9, { size: 9.75, font: B }); P.text(P.fit(locFor(d), F, 9, dw), x, y - 20, { size: 9, color: K.mid }); });
+    P.tr(T('Claimed'), M + CW, y - 20, 9, B, K.mid); y -= 29;
+    MK.forEach(([k, nm]) => { P.text(nm, M, y - 16, { size: 9.75, font: B }); days.forEach((d, i) => cell(M + lw + g + i * (dw + g), y - 27, dw, 27, kind(d, k), true)); P.tr(String(days.filter(d => mealVal(d, k)).length), M + CW, y - 17, 12, B); y -= 31; });
+    P.y = y;
+  } else if (nd <= 35) {
+    // calendar weeks, Monday to Sunday
+    const lw = 63, cnt = 30, g = 3.75, dw = (CW - lw - cnt - g * 8) / 7;
+    const mon = d => { const w = new Date(d + 'T12:00:00Z').getUTCDay(); return addDays(d, -((w + 6) % 7)); };
+    let wk = mon(days[0]), i = 1; const last = days[nd - 1];
+    while (wk <= last) {
+      P.ensure(90); let y = P.y; const wd = Array.from({ length: 7 }, (_, k) => addDays(wk, k)), inT = d => d >= days[0] && d <= last, real = wd.filter(inT);
+      P.text(T('Week {0}', i), M, y - 18, { size: 9.75, font: B });
+      wd.forEach((d, k) => { if (!inT(d)) return; const x = M + lw + g + k * (dw + g), we = k >= 5; P.text(P.fit(`${dow(d)} ${dShort(d)}`, B, 9, dw), x, y - 18, { size: 9, font: B, color: we ? K.blue : K.ink }); });
+      P.line(M, y - 23, M + CW, y - 23, 1.1, K.ink); P.tr(T('Week'), M + CW, y - 18, 9, F, K.mid); y -= 27;
+      MK.forEach(([k, nm]) => { P.text(nm, M, y - 12, { size: 9, color: K.soft }); wd.forEach((d, j) => { if (inT(d)) cell(M + lw + g + j * (dw + g), y - 16.5, dw, 16.5, kind(d, k), false); }); P.tr(String(real.filter(d => mealVal(d, k)).length), M + CW, y - 12.5, 9.75, B); y -= 19.5; });
+      P.y = y - 9; wk = addDays(wk, 7); i++;
+    }
+  } else {
+    // long stays: one row per day, as on the form
+    P.pt([{ l: 'Date', w: 72 }, { l: 'Location', f: 1 }, { l: fr() ? 'Déj.' : 'B', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Dîn.' : 'L', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Soup.' : 'D', raw: true, w: 33, a: 'c' }, { l: 'Remarks', f: 1.3 }],
+      days.map(d => [dDow(d), locFor(d), ...MK.map(([k]) => mealVal(d, k) ? { check: true } : kind(d, k) === 'r' ? { t: T('R'), c: K.mid } : ''), [LEAVE.has(d) ? T('Leave') : '', (S.meals[d] || {}).note || ''].filter(Boolean).join('. ')]), { minH: 20 });
+    seen.add('y'); if (days.some(d => rationsStay(d) >= 0)) seen.add('r');
+  }
+  // legend, then remarks
+  const leg = [['y', T('Claimed')], ['r', T('Rations booked')], ['lv', T('Leave')], ['n', T('Not claimed')]].filter(([k]) => seen.has(k));
+  P.ensure(16); let x = M; leg.forEach(([k, t]) => { cell(x, P.y - 12, 10.5, 10.5, k, false); seen.add(k); P.text(t, x + 15, P.y - 9.5, { size: 9, color: K.mid }); x += 15 + P.tw(t, 9) + 15; }); P.y -= 20;
+  const rem = []; const byStay = {}; days.forEach(d => { const r = rationsStay(d); if (r >= 0) (byStay[r] = byStay[r] || []).push(d); });
+  Object.keys(byStay).forEach(r => rem.push([rangeText([byStay[r][0], byStay[r][byStay[r].length - 1]]), T('Rations booked ({0})', 'D-' + (+r + 1))]));
+  const lv = days.filter(d => LEAVE.has(d)); if (lv.length) rem.push([rangeText([lv[0], lv[lv.length - 1]]), T('Leave')]);
+  if (nd <= 35) days.forEach(d => { const nt = (S.meals[d] || {}).note; if (nt) rem.push([dDow(d), nt]); });
+  if (rem.length) { P.ensure(14 + rem.length * 12); P.text(T('Remarks'), M, P.y - 9, { size: 9, font: B, color: K.mid }); P.y -= 13; rem.forEach(([a, b]) => { P.ensure(12); P.text(P.fit(a, B, 9.75, 120), M, P.y - 9.5, { size: 9.75, font: B }); P.para(b, M + 126, P.y - 9.5, CW - 126, { size: 9.75, lh: 12 }); P.y -= 12 * Math.max(1, P.wrap(b, F, 9.75, CW - 126).length); }); P.y -= 6; }
+  const mc = mealCounts().c; P.band(T('Meals claimed'), String(mc.b + mc.l + mc.d), '', { left: T('Breakfasts {0}  ·  lunches {1}  ·  dinners {2}', mc.b, mc.l, mc.d) });
+}
+// receipt index page: the page map, the index, missing receipts, then the certification
+function prettyIndex(P, items, ctx, rec) {
+  const { M, CW, K, F, B } = P; P.newPage(); rec.indexPage = P.doc.getPageCount();
+  const total = ctx.total || 0;
+  if (!ctx.split && total) {
+    P.text(T('What is in this package'), M, P.y - 11, { size: 13.5, font: B, color: K.navy }); P.tr(nPl(total, '{0} page, one PDF', '{0} pages, one PDF'), M + CW, P.y - 11, 9, F, K.mid); P.y -= 24;
+    const groups = [{ label: T('Summary'), kind: 'sum', pages: [1] }, { label: T('Worksheet'), kind: 'ws', pages: Array.from({ length: Math.max(0, (ctx.indexPage || 2) - 2) }, (_, i) => i + 2) }, { label: T('Index'), kind: 'ws', pages: Array.from({ length: Math.max(1, (ctx.wsPages || 3) - (ctx.indexPage || 2) + 1) }, (_, i) => i + (ctx.indexPage || 2)) }];
+    let pg = (ctx.wsPages || 0) + 1, cur = null;
+    items.forEach(it => { const L = DEFS[it.sec].L; if (!cur || cur.L !== L) { cur = { L, label: `${L}  ${T(PSHORT[L])}`, short: L, kind: 'rc', pages: [], sd: [] }; groups.push(cur); } for (let k = 0; k < it.pages; k++) { cur.pages.push(pg); if (it.decl) cur.sd.push(pg); pg++; } });
+    const gs = groups.filter(g => g.pages.length), gap = 6, tick = Math.max(2, Math.min(8.25, (CW - gap * (gs.length - 1)) / total - 1.5));
+    let x = M; const y = P.y;
+    gs.forEach(g => {
+      const w = g.pages.length * (tick + 1.5) - 1.5;
+      g.pages.forEach((p, k) => { const sd = g.sd && g.sd.includes(p); P.rr(x + k * (tick + 1.5), y - 40, tick, 25.5, Math.min(1.5, tick / 3), { color: g.kind === 'sum' ? K.navy : g.kind === 'ws' ? K.wsTick : sd ? K.amber : K.white, borderColor: g.kind === 'rc' ? (sd ? K.sdLine : K.rcLine) : undefined, borderWidth: g.kind === 'rc' ? .6 : undefined }); });
+      // receipt groups are labelled when the label fits over their marks; the legend explains the rest
+      if (g.kind === 'rc') {
+        const lab = P.tw(g.label, 9, B) <= w + gap - 2 ? g.label : P.tw(g.short, 9, B) <= w + gap - 2 ? g.short : '';
+        if (lab) P.text(lab, x, y - 9, { size: 9, font: B });
+        const rng = g.pages.length > 1 ? `${g.pages[0]}-${g.pages[g.pages.length - 1]}` : String(g.pages[0]);
+        if (P.tw(rng, 9) <= w + gap - 2) P.text(rng, x, y - 51, { size: 9, color: K.mid });
+      }
+      x += w + gap;
+    });
+    P.y = y - 62;
+    const sdp = []; gs.forEach(g => (g.sd || []).forEach(p => sdp.push(p)));
+    const leg = [[K.navy, null, T('Summary')], [K.wsTick, null, T('Worksheet and index')], [K.white, K.rcLine, T('Receipt')]].concat(sdp.length ? [[K.amber, K.sdLine, nPl(sdp.length, 'Statutory declaration, page {1}', 'Statutory declarations, pages {1}', sdp.join(', '))]] : []);
+    let lx = M; leg.forEach(([c, bc, t]) => { P.rr(lx, P.y - 11, 7.5, 10.5, 1.5, { color: c, borderColor: bc || undefined, borderWidth: bc ? .6 : undefined }); const tt = P.fit(t, F, 9, M + CW - lx - 12); P.text(tt, lx + 12, P.y - 9, { size: 9, color: K.mid }); lx += 12 + P.tw(tt, 9) + 15; }); P.y -= 30;
+  }
+  // index
+  P.text(T('Receipt index'), M, P.y - 11, { size: 13.5, font: B, color: K.navy }); P.tr(T('SD = statutory declaration for a missing receipt'), M + CW, P.y - 11, 9, F, K.mid); P.y -= 22;
+  let pg = (ctx.wsPages || 0) + 1;
+  const val = it => it.sec === 'exchange' ? [money(it.row.charge), money(it.row.charge) ? curOf(it.row.chargeCur) : ''] : [money(it.row.cost), it.row.cost !== '' ? curOf(it.row.cur) : ''];
+  if (items.length) P.pt([{ l: 'Ref', w: 52.5 }, { l: 'Section', w: 96 }, { l: 'Date', w: 54 }, { l: 'Description', f: 1 }, ...P.TRAIL.slice(0, 2), { l: ctx.split ? 'In file' : 'Page', w: 48, a: 'r' }],
+    items.map(it => { const p = ctx.split ? (ctx.where ? ctx.where.get(it) : '') : ctx.wsPages ? (it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : `${pg}`) : ''; pg += it.pages; const [a, c] = val(it); return [{ chip: it.decl ? it.ref + ' ' + T('SD') : it.ref, kind: it.decl ? 'sd' : '' }, T(SECNAME[it.sec]).replace(/^[A-H] - /, ''), fmtDate(rowDate(it.sec, it.row)), (it.decl ? T('Missing receipt declaration: ') : '') + [rowLoc(it.sec, it.row), rowDesc(it.sec, it.row)].filter(Boolean).join(', '), a, c, { t: String(p), b: true }]; }));
+  else { P.text(T('No receipts attached'), M, P.y - 12, { size: 9.75, color: K.mid }); P.y -= 20; }
+  // missing receipts
+  const sds = items.filter(i => i.decl);
+  if (sds.length) {
+    P.y -= 10; const txt = ctx.split ? T('Each missing receipt has a statutory declaration in its own file. Declare each in person before an authorized officer, who completes and signs the jurat.') : nPl(sds.length, 'A missing receipt is replaced by a statutory declaration (page {1}). Declare it in person before an authorized officer, who completes and signs the jurat.', 'Missing receipts are replaced by statutory declarations (pages {1}). Declare each in person before an authorized officer, who completes and signs the jurat.', sds.map(i => ctx.pageOf ? ctx.pageOf(i) : '').join(', '));
+    const chipsW = Math.min(150, sds.reduce((a, i) => a + P.tw(i.ref + ' ' + T('SD'), 9, B) + 13, 0)), lines = P.wrap(txt, F, 9.75, CW - chipsW - 33), h = Math.max(30, lines.length * 12 + 16);
+    P.ensure(h + 6); const y = P.y - h; P.rr(M, y, CW, h, 4.5, { color: K.sdBg });
+    let cx = M + 10.5, cy = P.y - 15; sds.forEach(i => { const t = i.ref + ' ' + T('SD'), w = P.tw(t, 9, B) + 9; if (cx + w > M + 10.5 + chipsW) { cx = M + 10.5; cy -= 16; } P.rr(cx, cy - 6.5, w, 13, 2.25, { color: K.white }); P.text(t, cx + 4.5, cy - 3.1, { size: 9, font: B, color: K.sdInk }); cx += w + 4; });
+    lines.forEach((l, k) => P.text(l, M + chipsW + 24, P.y - 14 - k * 12, { size: 9.75, color: K.sdInk }));
+    P.y = y - 6;
+  }
+  // certification
+  P.y -= 12; P.ensure(118); rec.certPage = P.doc.getPageCount();
+  const top = P.y, h = 106, y = top - h;
+  P.rr(M, y, CW, h, 4.5, { borderColor: K.ink, borderWidth: 1.1 });
+  P.text(T('Certification'), M + 15, top - 22, { size: 13.5, font: B, color: K.navy });
+  P.text(T('I certify that the information on this worksheet is correct and complete.'), M + 15, top - 39, { size: 10.5 });
+  const sw = (CW - 30) * .6, sx = M + 15, sy = y + 22;
+  if (S.pki) P.sigField('Claimant_Signature', sx, sy, sw, 38, T('Signature of Claimant (PKI digital signature)'));
+  else { P.sigLine(sx, sy + 6, sw, T('Signature of Claimant')); P.sigLine(sx + sw + 18, sy + 6, CW - 30 - sw - 18, T('Date')); }
+  if (S.pki) { P.text(T('Date: recorded by the signature'), sx + sw + 18, sy + 18, { size: 9, color: K.mid }); }
+  P.y = y - 10;
+}
+function prettyDraw(P, items, ctx) {
+  const rec = { secPage: {} };
+  prettyCover(P, items, ctx);
+  prettyWorksheet(P, items, ctx, rec);
+  prettyIndex(P, items, ctx, rec);
+  return rec;
+}
+// receipt and declaration pages: a labelled header strip
+function prettyRcHeader(P, it, meta, opts = {}) {
+  const { M, CW, K, F, B } = P, y = P.y, decl = !!it.decl, th = decl ? 33 : 46.5;
+  P.rr(M, y - th, 72, th, 4.5, { color: decl ? K.sdBg : K.navy });
+  P.tc(decl ? T('DECLARATION') : T('RECEIPT'), M + 36, y - (decl ? 12 : 14), decl ? 7.5 : 8.25, B, decl ? K.sdInk : K.pale);
+  P.tc(it.ref, M + 36, y - th + (decl ? 7 : 10), decl ? 15 : 21, B, decl ? K.sdInk : K.white);
+  const x = M + 84, w = CW - 84, title = (decl ? T('Missing receipt: {0}', rowDesc(it.sec, it.row) || T(SECNAME[it.sec])) : (rowDesc(it.sec, it.row) || T(SECNAME[it.sec]))) + (opts.k ? '  ' + T('(page {0} of {1})', opts.k, opts.n) : '');
+  const right = opts.idx ? T('Receipt {0} of {1}', opts.idx, opts.of) + (opts.listed ? '  ·  ' + T('listed on page {0}', opts.listed) : '') : '', rw = right ? P.tw(right, 9) : 0;
+  P.text(P.fit(title, B, decl ? 12 : 15, w - rw - 12), x, y - (decl ? 11 : 13), { size: decl ? 12 : 15, font: B, color: K.navy });
+  if (right) P.tr(right, M + CW, y - 12, 9, F, K.mid);
+  const cells = [[T('Section'), T(SECNAME[it.sec]).replace(/^[A-H] - /, '')], [T('Date'), fmtDate(rowDate(it.sec, it.row))], [T('Location'), rowLoc(it.sec, it.row)], [T('Amount'), rowAmt(it.sec, it.row)]].concat(it.r ? [[T('File'), it.r.name]] : []);
+  const cw = (w - 10.5 * (cells.length - 1)) / cells.length;
+  cells.forEach(([l, v], i) => { const cx = x + i * (cw + 10.5), cy = y - (decl ? 20 : 25); P.line(cx, cy, cx + cw, cy, 1.1, K.rule); P.text(l, cx, cy - 9.5, { size: 8.25, color: K.mid }); if (!decl) P.text(P.fit(v || '-', B, 9.75, cw), cx, cy - 20.5, { size: 9.75, font: B }); else P.text(P.fit(v || '-', B, 9, cw - P.tw(l, 8.25) - 6), cx + P.tw(l, 8.25) + 5, cy - 9.5, { size: 9, font: B }); });
+  return y - th - 12;
+}
+// footer and security marking for the designed layout
+function prettyFinish(P, doc, ver, part) {
+  const { K, F, B, M, W, H } = P, mark = markText(S.marking), pages = doc.getPages(), total = pages.length;
+  const left = P.clean([ver, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef, part].filter(Boolean).join('  ·  '));
+  pages.forEach((p, i) => {
+    const r = T('Page {0} of {1}', i + 1, total), rw = F.widthOfTextAtSize(r, 8.25);
+    p.drawLine({ start: { x: M, y: 42 }, end: { x: W - M, y: 42 }, thickness: .75, color: K.rule });
+    p.drawText(P.fit(left, F, 8.25, W / 2 - M - rw / 2 - 12), { x: M, y: 30, size: 8.25, font: F, color: K.mid });
+    p.drawText(r, { x: (W - rw) / 2, y: 30, size: 8.25, font: F, color: K.mid });
+    if (mark) {
+      const mw = B.widthOfTextAtSize(mark, 8.25); p.drawText(mark, { x: W - M - mw, y: 30, size: 8.25, font: B, color: K.ink });
+      const bw = B.widthOfTextAtSize(mark, 9.75) + 15, by = H - 33 - 18;
+      p.drawRectangle({ x: W - M - bw, y: by, width: bw, height: 18, color: K.white, borderColor: K.ink, borderWidth: 1.5 });
+      p.drawText(mark, { x: W - M - bw + 7.5, y: by + 5.5, size: 9.75, font: B, color: K.ink });
+    }
+  });
+}
+
 function fitBox(P, w, h, top) {
   const bw = P.W - 2 * P.M, bh = top - P.BOT - 4, s = Math.min(bw / w, bh / h);
   const dw = w * s, dh = h * s; return { x: P.M + (bw - dw) / 2, y: top - dh, width: dw, height: dh };
@@ -4189,16 +4937,25 @@ async function build() {
       it.pages = 1;
       if (it.r && it.r.kind === 'pdf') { try { it.src = await PDFDocument.load(dataUrlToBytes(it.r.dataUrl), { ignoreEncryption: true }); it.pages = it.src.getPageCount() || 1; } catch (e) { it.err = true; } }
     }
-    const mk = async () => { const doc = await PDFDocument.create(); const P = painter(doc, await doc.embedFont(StandardFonts.Helvetica), await doc.embedFont(StandardFonts.HelveticaBold), await doc.embedFont(StandardFonts.HelveticaOblique)); return { doc, P }; };
+    const pretty = PRETTY; items.forEach((it, i) => { it.idx = i + 1; });
+    const logoSrc = (($('img.mark') || {}).src || '');
+    const mk = async () => {
+      const doc = await PDFDocument.create(); const P = painter(doc, await doc.embedFont(StandardFonts.Helvetica), await doc.embedFont(StandardFonts.HelveticaBold), await doc.embedFont(StandardFonts.HelveticaOblique));
+      if (pretty) { prettify(P); if (/^data:image\/png;base64,/.test(logoSrc)) { try { P.logo = await doc.embedPng(dataUrlToBytes(logoSrc)); } catch (e) {} } }
+      return { doc, P };
+    };
+    // receipt page header, and the box the receipt image or page goes in
+    const rcHead = (P, it, title, meta, k, n) => P.pretty ? prettyRcHeader(P, it, meta, { k: n > 1 ? k : 0, n, idx: it.idx, of: items.length, listed: P.listed }) : receiptHeader(P, title, meta);
+    const place = (P, w, h, top) => { if (!P.pretty) return fitBox(P, w, h, top); P.rr(P.M, P.BOT, P.CW, top - P.BOT, 4.5, { color: P.K.panel }); const bw = P.CW - 27, bh = top - P.BOT - 27, s = Math.min(bw / w, bh / h), dw = w * s, dh = h * s; const box = { x: P.M + 13.5 + (bw - dw) / 2, y: P.BOT + 13.5 + (bh - dh) / 2, width: dw, height: dh }; P.page.drawRectangle(Object.assign({}, box, { color: P.K.white })); return box; };
     // one receipt or declaration onto the document being built
     const drawItem = async (doc, P, it) => {
       status.textContent = it.decl ? T('Adding declaration {0}...', it.ref) : T('Adding receipt {0}...', it.ref);
       if (it.decl) { drawDeclaration(P, it); return; }
       const title = T('RECEIPT {0}', it.ref), meta = itemMeta(it);
       if (it.r.kind === 'img') {
-        P.newPage(); const top = receiptHeader(P, title, meta);
+        P.newPage(); const top = rcHead(P, it, title, meta);
         const img = await doc.embedJpg(dataUrlToBytes(it.r.dataUrl));
-        const box = fitBox(P, img.width, img.height, top); P.page.drawImage(img, box);
+        const box = place(P, img.width, img.height, top); P.page.drawImage(img, box);
         P.page.drawRectangle(Object.assign({}, box, { borderColor: P.C.line, borderWidth: .5 }));
         return;
       }
@@ -4207,8 +4964,8 @@ async function build() {
         try {
           const emb = await doc.embedPdf(it.src, it.src.getPageIndices());
           emb.forEach((ep, k) => {
-            P.newPage(); const top = receiptHeader(P, title + (emb.length > 1 ? '  ' + T('(page {0} of {1})', k + 1, emb.length) : ''), meta);
-            const box = fitBox(P, ep.width, ep.height, top); P.page.drawPage(ep, box);
+            P.newPage(); const top = rcHead(P, it, title + (emb.length > 1 ? '  ' + T('(page {0} of {1})', k + 1, emb.length) : ''), meta, k + 1, emb.length);
+            const box = place(P, ep.width, ep.height, top); P.page.drawPage(ep, box);
             P.page.drawRectangle(Object.assign({}, box, { borderColor: P.C.line, borderWidth: .5 }));
           });
           ok = true;
@@ -4216,7 +4973,7 @@ async function build() {
       }
       if (!ok) {
         for (let k = 0; k < it.pages; k++) {
-          P.newPage(); const top = receiptHeader(P, title, meta);
+          P.newPage(); const top = rcHead(P, it, title, meta);
           if (k === 0) P.wrap(T('This PDF could not be added to the package. It may be password-protected or damaged. Submit "{0}" separately with this claim.', it.r.name), P.F, 10, P.W - 2 * P.M).forEach((l, j) => P.text(l, P.M, top - 20 - j * 14, { size: 10 }));
         }
       }
@@ -4231,7 +4988,7 @@ async function build() {
       const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, part, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
       const mark = markText(S.marking), MS = 12;
       const stamp = (p, x, y) => { const w = P.B.widthOfTextAtSize(mark, MS); p.drawRectangle({ x: x - 3, y: y - 3, width: w + 6, height: MS + 4, color: P.C.white }); p.drawText(mark, { x, y, size: MS, font: P.B, color: P.C.ink }); };
-      pages.forEach((p, i) => {
+      if (P.pretty) prettyFinish(P, doc, ver, part); else pages.forEach((p, i) => {
         const { width: pw, height: ph } = p.getSize();
         const r = T('Page {0} of {1}', i + 1, total), rw = Ff.widthOfTextAtSize(r, 7);
         if (mark) {
@@ -4257,17 +5014,31 @@ async function build() {
     // where each item sits: a page of this PDF, or (separate files) a page of the receipts file or its own file
     let where = null;
     if (split) { let pg = 1; where = new Map(items.map(it => { if (it.decl) return [it, T('Own file')]; const w = T('Receipts p. {0}', it.pages > 1 ? `${pg}-${pg + it.pages - 1}` : pg); pg += it.pages; return [it, w]; })); }
-    const probe = await mk(); drawWorksheet(probe.P, items, null, where); const wsPages = probe.doc.getPageCount();
+    // the designed layout's first page and index refer to pages further on, so it is laid out until the page count settles
+    let wsPages, pctx = null;
+    if (pretty) {
+      const itemPages = items.reduce((a, it) => a + it.pages, 0), files = 1 + (rcItems.length ? 1 : 0) + sdItems.length;
+      pctx = { split, where, files };
+      for (let pass = 0; pass < 4; pass++) {
+        const pr = await mk(); const rec = prettyDraw(pr.P, items, pctx), n = pr.doc.getPageCount();
+        const next = Object.assign({}, pctx, { wsPages: n, indexPage: rec.indexPage, certPage: rec.certPage, secPage: rec.secPage, total: n + itemPages });
+        const same = pctx.wsPages === n && pctx.certPage === rec.certPage && pctx.indexPage === rec.indexPage; pctx = next; if (same) break;
+      }
+      wsPages = pctx.wsPages;
+      pctx.pageOf = it => { let p = wsPages + 1; for (const x of items) { if (x === it) return p; p += x.pages; } return ''; };
+    } else { const probe = await mk(); drawWorksheet(probe.P, items, null, where); wsPages = probe.doc.getPageCount(); }
+    const drawWS = (P, w) => { if (!pretty) return drawWorksheet(P, items, wsPages, w); prettyDraw(P, items, pctx); P.listed = split ? 0 : pctx.indexPage; };
+    const signPage = pretty ? pctx.certPage : wsPages;
     const base = fileBase(), part = k => base + '_' + k, parts = [];
     let total;
     if (!split) {
-      const { doc, P } = await mk(); drawWorksheet(P, items, wsPages);
+      const { doc, P } = await mk(); drawWS(P);
       for (const it of items) await drawItem(doc, P, it);
       const out = await finish(doc, P, '');
       total = out.pages; lastPdf = { name: base + '.pdf', bytes: out.bytes, pages: total }; lastParts = null;
     } else {
       const fn = k => String(k).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      { const { doc, P } = await mk(); drawWorksheet(P, items, wsPages, where); const o = await finish(doc, P, T('Worksheet')); parts.push({ name: part('1-' + fn(T('Worksheet'))) + '.pdf', label: T('Worksheet'), what: T('Sections A to H, totals and receipt index. You sign it.'), ...o }); }
+      { const { doc, P } = await mk(); drawWS(P, where); const o = await finish(doc, P, T('Worksheet')); parts.push({ name: part('1-' + fn(T('Worksheet'))) + '.pdf', label: T('Worksheet'), what: T('Sections A to H, totals and receipt index. You sign it.'), ...o }); }
       if (rcItems.length) { const { doc, P } = await mk(); for (const it of rcItems) await drawItem(doc, P, it); const o = await finish(doc, P, T('Receipts')); parts.push({ name: part('2-' + fn(T('Receipts'))) + '.pdf', label: T('Receipts'), what: nPl(rcItems.length, '{0} receipt, labelled with its reference.', '{0} receipts, each labelled with its reference.'), ...o }); }
       for (const it of sdItems) { const { doc, P } = await mk(); await drawItem(doc, P, it); const lbl = `${T('SD')} ${it.ref}`; const o = await finish(doc, P, lbl); parts.push({ name: part('3-' + fn(T('SD')) + '-' + fn(it.ref)) + '.pdf', label: T('Statutory declaration {0}', it.ref), what: T('Signed by you and the officer, in person.'), ...o }); }
       total = parts.reduce((t, x) => t + x.pages, 0); lastParts = parts;
@@ -4282,19 +5053,19 @@ async function build() {
     const res = $('#result');
     const iosHint = IOS_PWA ? ' ' + T('Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.') : '';
     const howTo = S.pki
-      ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the claimant field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the claimant field on page {1} and the {0} declarations with your PKI certificate.', wsPages) : T('Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.', wsPages))
-      : (nDecl ? nPl(nDecl, 'Print it, then sign and date page {1} and sign the {0} declaration in front of the officer.', 'Print it, then sign and date page {1} and sign the {0} declarations in front of the officer.', wsPages) : T('Print it, then sign and date page {0}.', wsPages));
+      ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the claimant field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the claimant field on page {1} and the {0} declarations with your PKI certificate.', signPage) : T('Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.', signPage))
+      : (nDecl ? nPl(nDecl, 'Print it, then sign and date page {1} and sign the {0} declaration in front of the officer.', 'Print it, then sign and date page {1} and sign the {0} declarations in front of the officer.', signPage) : T('Print it, then sign and date page {0}.', signPage));
     if (split) {
       const one = (x, i) => `<li><div><strong>${esc(x.label)}</strong><span class="pf-name">${esc(x.name)}</span><span>${esc(x.what)} ${esc(nPl(x.pages, '{0} page', '{0} pages'))}, ${esc(sizeOf(x.bytes.length))}.</span></div><div class="acts"><button class="btn" data-act="save-part" data-i="${i}">${esc(IOS_PWA && SEND.pdf ? T('Save or send') : T('Save'))}</button>${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-part" data-i="${i}">${esc(T('Open'))}</button>`}</div></li>`;
       res.innerHTML = `<div><strong>${esc(nPl(lastParts.length, '{0} file ready', '{0} files ready'))}</strong><span>${esc(T('Separate PDFs, {0} in all. Sign each where it asks: the worksheet, and each declaration in front of the officer.', size))}${iosHint ? ' ' + esc(T('Save or send all of them at once, then choose Save to Files, OneDrive, Teams or Mail.')) : ''}</span></div>
         <ol class="part-list">${lastParts.map(one).join('')}</ol>
         <div class="acts"><button class="btn primary" data-act="save-all">${esc(IOS_PWA && SEND.pdf ? T('Save or send all') : T('Save all'))}</button>${SEND.pdf && !IOS_PWA ? `<button class="btn" data-act="send-all">${esc(T('Send all'))}</button>` : ''}</div>`;
-      res.classList.add('split'); res.hidden = false; res.scrollIntoView({ block: 'center' });
+      res.classList.add('split'); res.hidden = false; res.scrollIntoView({ block: 'center' }); lastSig = outSig();
       return;
     }
     res.classList.remove('split');
     res.innerHTML = `<div><strong>${esc(lastPdf.name)}</strong><span>${nPl(total, '{0} page', '{0} pages')}, ${size}. ${howTo}${iosHint}</span></div><div class="acts">${IOS_PWA && SEND.pdf ? `<button class="btn primary" data-act="send-pdf">${T('Save or send PDF')}</button>` : `<button class="btn primary" data-act="save-pdf">${T('Save PDF')}</button>${SEND.pdf ? `<button class="btn" data-act="send-pdf">${T('Send PDF')}</button>` : ''}`}${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-pdf">${T('Open in new tab')}</button>`}</div>`;
-    res.hidden = false;
+    res.hidden = false; lastSig = outSig();
     if (!IOS_PWA) offerFile(lastPdf.name, new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
     else res.scrollIntoView({ block: 'center' });
   } catch (e) {
@@ -4374,12 +5145,194 @@ async function openSnap(file) {
   const err = $('#snap-err'); err.hidden = true;
   try { snapRc = await fileToReceipt(file); } catch (e) { toast(/\.(heic|heif)$/i.test(file.name) ? T('This browser cannot read iPhone HEIC photos. Set the camera to "Most Compatible".') : T('{0} could not be read.', file.name)); return; }
   if (!snapRc) { toast(T('{0}: attach a photo or a PDF.', file.name)); return; }
-  $('#snap-prev').innerHTML = snapRc.kind === 'img' ? `<img src="${snapRc.dataUrl}" alt="${T('Receipt photo')}">` : `<span class="pdfbadge">${fr() ? 'PDF :' : 'PDF:'} ${esc(snapRc.name)}</span>`;
+  snapPreview();
   $$('input[name="snap-type"]').forEach(r => { r.checked = false; });
   const d = snapDefaultDate(); $('#snap-date').value = d; syncDate($('#snap-date'));
   $('#snap-amt').value = ''; $('#snap-cur').value = 'CAD'; $('#snap-desc').value = ''; $('#snap-loc').value = tripDates() ? locFor(d) : '';
   snapLabels();
   const dlg = $('#snap'); try { dlg.showModal(); } catch (_) { dlg.setAttribute('open', ''); }
+}
+function snapPreview() {
+  $('#snap-prev').innerHTML = snapRc.kind === 'img' ? `<img src="${snapRc.dataUrl}" alt="${T('Receipt photo')}">` : `<span class="pdfbadge">${fr() ? 'PDF :' : 'PDF:'} ${esc(snapRc.name)}</span>`;
+  $('#snap-crop-row').hidden = snapRc.kind !== 'img';
+}
+
+/* ---------- crop a receipt photo (on this device): drag four corners, the photo is straightened to that shape ---------- */
+let CROP = null;
+const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+async function openCrop(rc, done) {
+  let img; try { img = await loadImg(rc.dataUrl); } catch (e) { toast(T('{0} could not be read.', rc.name)); return; }
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0);
+  CROP = { src: c, done, rot: false, drag: -1 }; cropGuess();
+  const dlg = $('#crop'); try { dlg.showModal(); } catch (_) { dlg.setAttribute('open', ''); }
+  requestAnimationFrame(cropLayout);
+}
+function closeCrop() { const d = $('#crop'); try { d.close(); } catch (_) { d.removeAttribute('open'); } CROP = null; }
+function cropFull() { const { width: w, height: h } = CROP.src; CROP.q = [[0, 0], [w, 0], [w, h], [0, h]]; }
+// place the corners on the receipt when it can be found, else on the whole photo; the member checks and adjusts either way
+function cropGuess() {
+  let q = null; try { q = findReceipt(CROP.src); } catch (e) {}
+  if (q) CROP.q = q; else cropFull();
+  $('#crop-hint').textContent = q ? T('Check the corners, then Apply.') : T('Drag the corners to the edges of the receipt.');
+}
+// Find a pale receipt on a darker surface: a small greyscale copy, split at the best brightness threshold (Otsu),
+// the largest pale patch, its outline, and the four-sided shape that best covers it. Returns null when unsure.
+function findReceipt(src) {
+  const S0 = 320, f = Math.min(1, S0 / Math.max(src.width, src.height)), w = Math.max(8, Math.round(src.width * f)), h = Math.max(8, Math.round(src.height * f));
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(src, 0, 0, w, h); const px = g.getImageData(0, 0, w, h).data, n = w * h;
+  let L = new Float32Array(n); for (let i = 0; i < n; i++) L[i] = .299 * px[4 * i] + .587 * px[4 * i + 1] + .114 * px[4 * i + 2];
+  for (let pass = 0; pass < 2; pass++) { // light blur, so paper texture and print do not break the patch up
+    const o = new Float32Array(n);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let s = 0, k = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < w && yy < h) { s += L[yy * w + xx]; k++; } } o[y * w + x] = s / k; }
+    L = o;
+  }
+  const hist = new Array(256).fill(0); for (let i = 0; i < n; i++) hist[Math.min(255, L[i] | 0)]++;
+  let sum = 0; for (let i = 0; i < 256; i++) sum += i * hist[i];
+  let sB = 0, wB = 0, best = -1, th = 128;
+  for (let i = 0; i < 256; i++) { wB += hist[i]; if (!wB) continue; const wF = n - wB; if (!wF) break; sB += i * hist[i]; const mB = sB / wB, mF = (sum - sB) / wF, v = wB * wF * (mB - mF) * (mB - mF); if (v > best) { best = v; th = i; } }
+  let lo = 0, hi = 0; for (let i = 0; i < 256; i++) { if (i <= th) lo += i * hist[i]; else hi += i * hist[i]; }
+  const nLo = hist.slice(0, th + 1).reduce((a, b) => a + b, 0), meanLo = lo / Math.max(1, nLo), meanHi = hi / Math.max(1, n - nLo);
+  if (meanHi - meanLo < 40) return null; // not enough contrast between paper and surface
+  // pale pixels, closed so thin dark print inside the paper does not split it
+  let M = new Uint8Array(n); for (let i = 0; i < n; i++) M[i] = L[i] > th ? 1 : 0;
+  const morph = (A, grow) => { const o = new Uint8Array(n); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let v = grow ? 0 : 1; for (let dy = -1; dy <= 1 && v === (grow ? 0 : 1); dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; const a = xx >= 0 && yy >= 0 && xx < w && yy < h ? A[yy * w + xx] : 0; if (grow ? a : !a) { v = grow ? 1 : 0; break; } } o[y * w + x] = v; } return o; };
+  M = morph(morph(M, true), false);
+  // the largest pale patch
+  const lab = new Int32Array(n), stack = new Int32Array(n); let bestId = 0, bestN = 0, id = 0;
+  for (let s = 0; s < n; s++) {
+    if (!M[s] || lab[s]) continue; id++; let top = 0, cnt = 0; stack[top++] = s; lab[s] = id;
+    while (top) { const p = stack[--top]; cnt++; const x = p % w, y = (p - x) / w;
+      if (x > 0 && M[p - 1] && !lab[p - 1]) { lab[p - 1] = id; stack[top++] = p - 1; } if (x < w - 1 && M[p + 1] && !lab[p + 1]) { lab[p + 1] = id; stack[top++] = p + 1; }
+      if (y > 0 && M[p - w] && !lab[p - w]) { lab[p - w] = id; stack[top++] = p - w; } if (y < h - 1 && M[p + w] && !lab[p + w]) { lab[p + w] = id; stack[top++] = p + w; } }
+    if (cnt > bestN) { bestN = cnt; bestId = id; }
+  }
+  if (bestN < n * .04 || bestN > n * .95) return null;
+  // its outline (left and right ends of each row), the convex hull of that, then the largest four-sided shape on the hull
+  const pts = [];
+  for (let y = 0; y < h; y++) { let a = -1, b = -1; for (let x = 0; x < w; x++) if (lab[y * w + x] === bestId) { if (a < 0) a = x; b = x; } if (a >= 0) { pts.push([a, y]); if (b !== a) pts.push([b + 1, y]); } }
+  pts.sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lower = [], upper = [];
+  for (const p of pts) { while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop(); lower.push(p); }
+  for (let i = pts.length - 1; i >= 0; i--) { const p = pts[i]; while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop(); upper.push(p); }
+  let hull = lower.slice(0, -1).concat(upper.slice(0, -1)); if (hull.length < 4) return null;
+  if (hull.length > 80) { const st = hull.length / 80; hull = Array.from({ length: 80 }, (_, i) => hull[Math.floor(i * st)]); }
+  const H = hull.length, tri = (a, b, c) => Math.abs(cross(hull[a], hull[b], hull[c])) / 2;
+  let bq = null, bA = 0;
+  for (let i = 0; i < H; i++) for (let k = i + 2; k < H; k++) {
+    let j = -1, aj = 0; for (let m = i + 1; m < k; m++) { const a = tri(i, m, k); if (a > aj) { aj = a; j = m; } }
+    let l = -1, al = 0; for (let m = k + 1; m < H + i; m++) { const mm = m % H; if (mm === i) continue; const a = tri(k, mm, i); if (a > al) { al = a; l = mm; } }
+    if (j >= 0 && l >= 0 && aj + al > bA) { bA = aj + al; bq = [hull[i], hull[j], hull[k], hull[l]]; }
+  }
+  if (!bq || bA < n * .05 || bA > n * .9) return null; // nothing found, or the paper already fills the photo
+  if (bestN / bA < .8) return null; // the patch is not shaped like a sheet of paper
+  const sides = bq.map((p, i) => Math.hypot(p[0] - bq[(i + 1) % 4][0], p[1] - bq[(i + 1) % 4][1]));
+  if (Math.min(...sides) < Math.min(w, h) * .08) return null;
+  // order: top left (smallest x + y) first, then clockwise on screen
+  const cx = bq.reduce((a, p) => a + p[0], 0) / 4, cy = bq.reduce((a, p) => a + p[1], 0) / 4;
+  bq.sort((a, b) => Math.atan2(a[1] - cy, a[0] - cx) - Math.atan2(b[1] - cy, b[0] - cx));
+  let s0 = 0; bq.forEach((p, i) => { if (p[0] + p[1] < bq[s0][0] + bq[s0][1]) s0 = i; });
+  const ord = [0, 1, 2, 3].map(i => bq[(s0 + i) % 4]);
+  return ord.map(([x, y]) => [Math.max(0, Math.min(src.width, x / f)), Math.max(0, Math.min(src.height, y / f))]);
+}
+function cropLayout() {
+  if (!CROP) return;
+  const st = $('#crop-stage'), cv = $('#crop-cv'), { width: w, height: h } = CROP.src;
+  const avail = Math.max(120, Math.min(st.parentElement.clientWidth - 32 - 28, 760)), maxH = Math.max(160, window.innerHeight - 250);
+  const k = Math.min(avail / w, maxH / h), dw = Math.round(w * k), dh = Math.round(h * k), dpr = window.devicePixelRatio || 1;
+  CROP.k = k; st.style.width = dw + 'px'; st.style.height = dh + 'px';
+  cv.style.width = dw + 'px'; cv.style.height = dh + 'px'; cv.width = Math.round(dw * dpr); cv.height = Math.round(dh * dpr);
+  const g = cv.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(CROP.src, 0, 0, cv.width, cv.height);
+  const svg = $('#crop-svg'); svg.setAttribute('width', dw); svg.setAttribute('height', dh); svg.setAttribute('viewBox', `0 0 ${dw} ${dh}`);
+  cropDraw();
+}
+const CORNERS = ['Top left corner', 'Top right corner', 'Bottom right corner', 'Bottom left corner'];
+function cropDraw() {
+  const { k, q } = CROP, { width: w, height: h } = CROP.src, P = q.map(([x, y]) => [x * k, y * k]), pts = P.map(p => p.join(',')).join(' ');
+  const W = w * k, H = h * k, svg = $('#crop-svg');
+  if (!svg.querySelector('.edge')) {
+    svg.innerHTML = `<path class="dim"></path><polygon class="edge"></polygon>` + CORNERS.map((l, i) => `<circle class="hit" r="24" data-i="${i}" tabindex="0" role="slider" aria-label="${esc(T(l))}"></circle><circle class="knob" r="10"></circle>`).join('');
+  }
+  svg.querySelector('.dim').setAttribute('d', `M0 0H${W}V${H}H0Z M${P.map(p => p.join(' ')).join(' L')} Z`);
+  svg.querySelector('.edge').setAttribute('points', pts);
+  $$('.hit', svg).forEach((c, i) => { c.setAttribute('cx', P[i][0]); c.setAttribute('cy', P[i][1]); c.setAttribute('aria-valuetext', `${Math.round(q[i][0] / w * 100)}%, ${Math.round(q[i][1] / h * 100)}%`); });
+  $$('.knob', svg).forEach((c, i) => { c.setAttribute('cx', P[i][0]); c.setAttribute('cy', P[i][1]); });
+}
+function cropMove(i, x, y) { const { width: w, height: h } = CROP.src; CROP.q[i] = [Math.max(0, Math.min(w, x)), Math.max(0, Math.min(h, y))]; cropDraw(); }
+function cropLoupe(i) {
+  const lp = $('#crop-loupe'); if (i < 0) { lp.hidden = true; return; }
+  const { k, q, src } = CROP, [x, y] = q[i], z = 2.5, r = 60 / (k * z), g = lp.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 120, 120); g.drawImage(src, x - r, y - r, 2 * r, 2 * r, 0, 0, 120, 120);
+  g.strokeStyle = '#e5392f'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(60, 48); g.lineTo(60, 72); g.moveTo(48, 60); g.lineTo(72, 60); g.stroke();
+  const st = $('#crop-stage'), sw = st.clientWidth, px = x * k + 16, py = y * k + 16;
+  lp.style.left = Math.max(0, Math.min(sw - 120, px - 60)) + 'px'; lp.style.top = (py > 150 ? py - 150 : py + 40) + 'px'; lp.hidden = false;
+}
+function initCrop() {
+  const svg = $('#crop-svg');
+  const at = e => { const b = svg.getBoundingClientRect(); return [(e.clientX - b.left) / CROP.k, (e.clientY - b.top) / CROP.k]; };
+  svg.addEventListener('pointerdown', e => {
+    if (!CROP) return; const [x, y] = at(e), q = CROP.q, reach = 40 / CROP.k;
+    let best = -1, bd = Infinity; q.forEach(([qx, qy], i) => { const d = Math.hypot(qx - x, qy - y); if (d < bd) { bd = d; best = i; } });
+    if (best < 0 || bd > reach) return;
+    e.preventDefault(); CROP.drag = best; CROP.off = [q[best][0] - x, q[best][1] - y]; svg.setPointerCapture(e.pointerId); cropLoupe(best);
+  });
+  svg.addEventListener('pointermove', e => { if (!CROP || CROP.drag < 0) return; e.preventDefault(); const [x, y] = at(e); cropMove(CROP.drag, x + CROP.off[0], y + CROP.off[1]); cropLoupe(CROP.drag); });
+  const end = () => { if (!CROP) return; CROP.drag = -1; cropLoupe(-1); };
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+  svg.addEventListener('keydown', e => {
+    const h = e.target.closest && e.target.closest('.hit'); if (!h || !CROP) return;
+    const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return;
+    e.preventDefault(); const i = +h.dataset.i, s = (e.shiftKey ? 0.05 : 0.01) * Math.max(CROP.src.width, CROP.src.height);
+    cropMove(i, CROP.q[i][0] + d[0] * s, CROP.q[i][1] + d[1] * s); svg.querySelectorAll('.hit')[i].focus();
+  });
+  window.addEventListener('resize', () => { if (CROP) cropLayout(); });
+}
+function cropRotate() {
+  const s = CROP.src, c = document.createElement('canvas'); c.width = s.height; c.height = s.width;
+  const g = c.getContext('2d'); g.translate(c.width, 0); g.rotate(Math.PI / 2); g.drawImage(s, 0, 0);
+  CROP.src = c; CROP.rot = true; cropGuess(); $('#crop-svg').innerHTML = ''; cropLayout();
+}
+// the projective map that takes the corners of the output rectangle to the four chosen corners of the photo
+function homography(from, to) {
+  const A = [], bv = [];
+  from.forEach(([x, y], i) => { const [u, v] = to[i]; A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); bv.push(u); A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); bv.push(v); });
+  for (let c = 0; c < 8; c++) {
+    let p = c; for (let r = c + 1; r < 8; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    [A[c], A[p]] = [A[p], A[c]]; [bv[c], bv[p]] = [bv[p], bv[c]];
+    for (let r = 0; r < 8; r++) if (r !== c) { const f = A[r][c] / A[c][c]; for (let k = c; k < 8; k++) A[r][k] -= f * A[c][k]; bv[r] -= f * bv[c]; }
+  }
+  return bv.map((v, i) => v / A[i][i]);
+}
+function cropApply() {
+  const { src, q } = CROP, w0 = src.width, h0 = src.height;
+  const full = q.every(([x, y], i) => Math.abs(x - [0, w0, w0, 0][i]) < 1 && Math.abs(y - [0, 0, h0, h0][i]) < 1);
+  if (full && !CROP.rot) { closeCrop(); return; }
+  const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  let W = Math.max(d(q[0], q[1]), d(q[3], q[2])), H = Math.max(d(q[0], q[3]), d(q[1], q[2]));
+  if (W < 20 || H < 20) { toast(T('That area is too small. Drag the corners further apart.')); return; }
+  const s = Math.min(1, 2000 / Math.max(W, H)); W = Math.round(W * s); H = Math.round(H * s);
+  const m = homography([[0, 0], [W, 0], [W, H], [0, H]], q);
+  const sd = src.getContext('2d').getImageData(0, 0, w0, h0).data, out = document.createElement('canvas'); out.width = W; out.height = H;
+  const og = out.getContext('2d'), od = og.createImageData(W, H), o = od.data;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const z = m[6] * x + m[7] * y + 1, u = (m[0] * x + m[1] * y + m[2]) / z, v = (m[3] * x + m[4] * y + m[5]) / z;
+    const x0 = Math.max(0, Math.min(w0 - 2, Math.floor(u))), y0 = Math.max(0, Math.min(h0 - 2, Math.floor(v))), fx = Math.max(0, Math.min(1, u - x0)), fy = Math.max(0, Math.min(1, v - y0));
+    const i00 = (y0 * w0 + x0) * 4, i10 = i00 + 4, i01 = i00 + w0 * 4, i11 = i01 + 4, j = (y * W + x) * 4;
+    for (let c = 0; c < 3; c++) o[j + c] = (sd[i00 + c] * (1 - fx) + sd[i10 + c] * fx) * (1 - fy) + (sd[i01 + c] * (1 - fx) + sd[i11 + c] * fx) * fy;
+    o[j + 3] = 255;
+  }
+  og.putImageData(od, 0, 0);
+  const done = CROP.done; closeCrop(); done({ dataUrl: out.toDataURL('image/jpeg', 0.85), w: W, h: H });
+}
+function cropReceipt(rid) {
+  const r = R[rid]; if (!r || r.kind !== 'img') return;
+  try { $('#lb').close(); } catch (_) {}
+  openCrop(r, res => {
+    const was = { dataUrl: r.dataUrl, w: r.w, h: r.h };
+    const set = v => { Object.assign(r, v); DEV.savedRc.delete(rid); LIST_SECS.forEach(sec => { if (getArr(sec).some(row => row.rc.includes(rid))) renderList(sec); }); refresh(); persist(); };
+    set(res); toast(T('Receipt cropped.'), { label: T('Undo'), fn: () => set(was) });
+  });
 }
 function closeSnap() { const d = $('#snap'); try { d.close(); } catch (_) { d.removeAttribute('open'); } snapRc = null; }
 function saveSnap() {
@@ -4435,7 +5388,7 @@ function syncSwitch() {
   let seen = false; try { if (IS_BETA) localStorage.setItem(BETA_SEEN, '1'); seen = !!localStorage.getItem(BETA_SEEN); } catch (e) {}
   b.hidden = !(/^https?:$/.test(location.protocol) && !inViewer && (IS_BETA || seen));
   $('#switch-t').textContent = IS_BETA ? T('Switch to production') : T('Switch to beta');
-  $('#switch-sub').textContent = IS_BETA ? T('The released version. Each version keeps its own claims.') : T('The test version. Each version keeps its own claims.');
+  $('#switch-sub').textContent = IS_BETA ? T('Each version keeps its own claims.') : T('Each version keeps its own claims.');
 }
 async function switchChannel() {
   await flushSave(); // the claim stays where it is, in this version
@@ -4557,7 +5510,7 @@ async function saveNow() {
     catch (e) { try { sessionStorage.setItem(STORE, JSON.stringify({ S, R: {}, noR: true })); tab = 'noR'; } catch (_) {} }
     if (tab !== 'none') { try { const back = JSON.parse(sessionStorage.getItem(STORE)); if (!back || JSON.stringify(back.S) !== json) tab = 'none'; } catch (e) { tab = 'none'; } }
     if (DEV.db && DEV.settings.remember && !DEV.locked && !S.example) { try { await idbPut('profile', await seal(profileOf())); } catch (e) {} }
-    const exportBtn = { label: T('Export claim file'), fn: () => saveDraft() };
+    const exportBtn = { label: T('Save claim file'), fn: () => saveDraft() };
     if (DEV.db && DEV.settings.keep && !DEV.locked) {
       await devSave();
       let ok = !DEV.failed;
@@ -4581,14 +5534,17 @@ function saveChip() {
   } else { txt = T('Tab only'); cls = ''; tip = T('Your work lasts until you close this tab. Turn on "Keep my work on this device" in the menu.'); }
   c.textContent = txt; c.className = 'savechip ' + cls; c.title = tip;
 }
+// file number and marking are part of the remembered details, so they become the defaults for new claims
+function syncFnDefault() { const el = $('#fn-default'); if (el) el.hidden = !(DEV.db && DEV.settings.remember && !DEV.locked && !S.example && !S.test); }
 function syncMenu() {
+  syncFnDefault(); syncPretty(); syncImport();
   const ok = !!DEV.db;
   [['#opt-keep', 'keep'], ['#opt-remember', 'remember'], ['#opt-pin', 'pin']].forEach(([id, k]) => { const el = $(id); el.checked = !!DEV.settings[k]; el.disabled = !ok || DEV.locked; });
   $('#opt-pin').disabled = !ok || DEV.locked || !(DEV.settings.keep || DEV.settings.remember);
   $('#forget-btn').disabled = !ok;
   $('#dl-offline').hidden = inViewer; // the claude.ai view wraps the page in its own frame
   syncSwitch();
-  $('#menu-note').textContent = ok ? T('Saved work stays in this browser only and is never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Export claim file instead.');
+  $('#menu-note').textContent = ok ? T('Never uploaded. A saved claim deletes itself 30 days after you build its PDF.') : T('This browser view does not allow saving on the device. Use Save claim file instead.');
   saveChip();
 }
 function setMenu(open) { const m = $('#menu'), b = $('#menu-btn'); m.hidden = !open; b.setAttribute('aria-expanded', String(open)); }
@@ -4616,7 +5572,7 @@ async function startBlank(msg) {
 /* ---------- boot ---------- */
 async function boot() {
   captureStatic(); if (fr()) applyStatic();
-  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice(); initPullRefresh(); initModalLock();
+  renderRail(); renderSnapTypes(); syncInstall(); registerOffline(); initExtras(); initRailFollow(); initNotice(); initPullRefresh(); initModalLock(); initCrop();
   let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
   DEV.db = await idbOpen();
   if (DEV.db) { try { Object.assign(DEV.settings, (await idbGet('settings')) || {}); } catch (e) {} }

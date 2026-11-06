@@ -111,8 +111,8 @@ fieldset.tg.off .dshow{display:none}
 .bar-acts .sm{display:none}
 .totalbar .btn.bar-snap{background:transparent;color:var(--bar-ink);border-color:var(--bar-ink)}
 /* snap dialog */
-dialog#snap,dialog#imp,dialog#crop{border:0;border-radius:6px;padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.35)}
-dialog#snap::backdrop,dialog#imp::backdrop,dialog#crop::backdrop{background:rgba(5,8,7,.6)}
+dialog#snap,dialog#imp,dialog#crop,dialog#dst{border:0;border-radius:6px;padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+dialog#snap::backdrop,dialog#imp::backdrop,dialog#crop::backdrop,dialog#dst::backdrop{background:rgba(5,8,7,.6)}
 .snap-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bar);color:var(--bar-ink)}
 .snap-head h3{margin:0;color:inherit}
 .snap-head .icon-btn{color:var(--bar-ink)}
@@ -418,22 +418,35 @@ fieldset.tg.off input{opacity:.3}
 .stop.is-leave .stop-card{border-style:dashed;border-color:var(--warn);background:color-mix(in srgb,var(--warn-soft) 45%,var(--card))}
 .stop.is-leave .node{border-color:var(--warn)}
 .leave-tag{color:var(--ink);background:var(--off)}
-.meals tr.lv td{background:color-mix(in srgb,var(--off) 60%,transparent)}
 .stay-opts{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:8px 10px;margin-bottom:10px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
 .stay-kind.qtr{background:var(--warn-soft);color:var(--warn)}
 .rations-tag{font:600 .62rem/1 var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:3px 5px;border-radius:2px;margin-left:6px;white-space:nowrap}
 .meals tr.rat td{background:color-mix(in srgb,var(--warn-soft) 55%,transparent)}
 .meals tr.fd td{background:color-mix(in srgb,var(--fld-soft) 60%,transparent)}
 .stay-kind.fld{background:var(--fld-soft);color:var(--fld)}
-.meals th.st,.meals td.st{white-space:nowrap;width:1%}
-.dst-w{display:inline-flex;gap:4px;align-items:center}
-.dst{font:600 .64rem/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
-.dst:hover{border-color:var(--line-strong);color:var(--ink)}
-.dst.leave.on{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
-.dst.field.on{background:var(--fld-soft);color:var(--fld);border-color:var(--fld)}
-.dst-auto{border:0;background:none;color:var(--accent);cursor:pointer;font-size:1rem;line-height:1;padding:3px 4px}
+/* the date opens the day's status (duty, leave or field); the second line is always there, so rows never change height */
+.meals td.d{padding-block:4px}
+.dday{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:2.6rem;justify-content:center;width:100%;border:0;background:none;padding:4px 6px 4px 8px;margin-left:-8px;border-left:4px solid transparent;font:inherit;color:inherit;text-align:left;cursor:pointer;border-radius:0 3px 3px 0}
+.dday:hover{background:var(--accent-soft)}
+.dday:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.dd-d{font-family:var(--f-mono);font-size:.84rem;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.dd-d::after{content:"";width:6px;height:6px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(45deg) translateY(-2px);flex:none}
+.dd-s{font:600 .62rem/1 var(--f-mono);text-transform:uppercase;letter-spacing:.08em;min-height:.62rem;color:var(--muted)}
+.dd-s.leave{color:var(--ok)} .dd-s.field{color:var(--fld)} .dd-s.rat{color:var(--warn)}
+.meals tr.lv .dday{border-left-color:var(--ok)} .meals tr.fd .dday{border-left-color:var(--fld)}
+.meals tr.lv td{background:color-mix(in srgb,var(--ok-soft) 55%,transparent)}
+.dst-opts{border:0;margin:0 0 14px;padding:0;display:grid;gap:8px}
+.dst-opts legend{font-weight:600;margin-bottom:8px;padding:0}
+.dst-opt{position:relative;display:block;cursor:pointer}
+.dst-opt input{position:absolute;opacity:0;inset:0;margin:0;width:100%;height:100%;cursor:pointer}
+.dst-opt span{display:flex;flex-direction:column;gap:3px;padding:12px 14px;border:1px solid var(--line-strong);border-left:5px solid var(--line-strong);border-radius:4px;background:var(--field)}
+.dst-opt small{color:var(--muted);font-size:.82rem}
+.dst-opt.leave span{border-left-color:var(--ok)} .dst-opt.field span{border-left-color:var(--fld)}
+.dst-opt input:checked+span{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.dst-opt.leave input:checked+span{border-left-color:var(--ok)} .dst-opt.field input:checked+span{border-left-color:var(--fld)}
+.dst-opt input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.dst-to-f select{width:100%}
 .meals-help{margin:0 0 10px}
-.dst-m{display:none}
 
 /* statutory declaration */
 .sd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:12px;align-items:end}
@@ -600,9 +613,7 @@ dialog,dialog .snap-body{overscroll-behavior:contain}
   .meals .short{display:inline}
   .meals .rem{min-width:7rem}
   .meals td,.meals th{padding-inline:5px}
-  .meals th.st,.meals td.st{display:none}
-  .dst-m{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:6px}
-  .dst{padding:6px 7px}
+  .dday{padding-right:2px}
 }
 /* iPhone and iPad Safari draw date fields with their own size and ignore width and height,
    so they spill into the time box beside them. Draw them as plain boxes there; tapping still opens the date wheel. */
@@ -791,7 +802,7 @@ html{touch-action:manipulation}
     </section>
 
     <section class="sec" id="sec-EM">
-      <header class="sec-h"><span class="L">G</span><h2>Meals</h2><p class="hint">Tick only the meals you are claiming. Tap Leave or Field to change a day.</p></header>
+      <header class="sec-h"><span class="L">G</span><h2>Meals</h2><p class="hint">Tick only the meals you are claiming. Tap a date for leave or field days.</p></header>
       <div class="sec-b"><div id="meals"></div></div>
     </section>
 
@@ -925,6 +936,18 @@ html{touch-action:manipulation}
   <div class="snap-foot"><button type="button" class="btn" data-act="snap-cancel">Cancel</button><button type="button" class="btn" data-act="snap-save-more">Save and add another</button><button type="button" class="btn primary" data-act="snap-save">Save</button></div>
 </dialog>
 
+<dialog id="dst" aria-labelledby="dst-h">
+  <div class="snap-head"><h3 id="dst-h" data-noi18n></h3><button type="button" class="icon-btn" data-act="dst-cancel" aria-label="Close">×</button></div>
+  <div class="snap-body">
+    <fieldset class="dst-opts"><legend>This day was</legend>
+      <label class="dst-opt duty"><input type="radio" name="dst" value=""><span><b>A duty day</b><small>Meals as usual. Untick any you did not pay for.</small></span></label>
+      <label class="dst-opt leave"><input type="radio" name="dst" value="leave"><span><b>Leave</b><small>No meals or lodging to claim for this day.</small></span></label>
+      <label class="dst-opt field"><input type="radio" name="dst" value="field"><span><b>In the field</b><small>You slept in the field. A field stay is added to section D and meals are left unticked.</small></span></label>
+    </fieldset>
+    <div class="field dst-to-f"><label for="dst-to">Apply to</label><select id="dst-to" data-noi18n></select></div>
+  </div>
+  <div class="snap-foot"><button type="button" class="btn" data-act="dst-cancel">Cancel</button><button type="button" class="btn primary" data-act="dst-apply">Apply</button></div>
+</dialog>
 <dialog id="crop" aria-labelledby="crop-h">
   <div class="snap-head"><h3 id="crop-h">Crop the receipt</h3><button type="button" class="icon-btn" data-act="crop-cancel" aria-label="Close">×</button></div>
   <div class="crop-body">
@@ -1171,9 +1194,7 @@ const leaveNights = () => { const set = new Set(); S.stops.slice(1, -1).forEach(
 // marked as set by the member in the package.
 const fieldStay = d => S.lodging.stays.findIndex(r => r.field && isoOk(r.checkin) && isoOk(r.checkout) && r.checkin <= d && d < r.checkout);
 const autoStatus = d => LEAVE.has(d) ? 'leave' : fieldStay(d) >= 0 ? 'field' : '';
-const dayManual = d => !!(S.dayStatus && S.dayStatus[d]);
 const dayStatus = d => { const o = S.dayStatus && S.dayStatus[d]; return o ? (o === 'normal' ? '' : o) : autoStatus(d); };
-const STATUS = [['leave', 'Leave'], ['field', 'Field']];
 const statusLabel = st => st === 'leave' ? T('Leave') : st === 'field' ? T('Field') : '';
 function pruneStatus() { const ds = S.dayStatus || (S.dayStatus = {}); Object.keys(ds).forEach(d => { if ((ds[d] === 'normal' ? '' : ds[d]) === autoStatus(d)) delete ds[d]; }); }
 function mealVal(d, k) { const m = S.meals[d]; return (m && typeof m[k] === 'boolean') ? m[k] : (rationsStay(d) < 0 && !dayStatus(d)); }
@@ -1424,18 +1445,38 @@ function renderMeals() {
   updateLeave(); pruneStatus();
   const dates = tripDates(), box = $('#meals');
   if (!dates) { box.innerHTML = `<p class="empty">${T('Add the date you leave at the Start and the date you arrive at the Finish in section B. A row for each travel day appears here.')}</p>`; return; }
-  const chips = d => { const cur = dayStatus(d), man = dayManual(d);
-    return `${STATUS.map(([k, nm]) => `<button type="button" class="dst ${k}${cur === k ? ' on' : ''}" data-act="day-st" data-date="${d}" data-st="${k}" aria-pressed="${cur === k}" aria-label="${esc(T('{0}, {1}', T(nm), fmtLong(d)))}">${T(nm)}</button>`).join('')}${man ? `<button type="button" class="dst-auto" data-act="day-auto" data-date="${d}" title="${esc(T('Changed by you. Tap to go back to the automatic setting.'))}" aria-label="${esc(T('Changed by you. Go back to the automatic setting for {0}', fmtLong(d)))}">↺</button>` : ''}`; };
-  // the chips sit in their own column, or under the date on a phone (so the remarks stay on screen)
-  const stCell = d => `<td class="st"><span class="dst-w">${chips(d)}</span></td>`;
-  box.innerHTML = `<p class="drophint meals-help">${T('Leave days come from section B and field days from Field stays in section D. Tap Leave or Field to change a day; the package shows days you changed with an asterisk (*).')}</p><div class="tablewrap"><table class="meals">
-    <thead><tr><th>${T('Date')}</th><th class="st">${T('Status')}</th><th class="loc">${T('Location')}</th>${MEALS.map(([k, nm]) => `<th class="c"><label><span class="full">${T(nm)}</span><span class="short" aria-hidden="true">${fr() ? T(nm + ' (short)') : nm[0]}</span><input type="checkbox" id="meal-all-${k}" data-act="meal-all" data-meal="${k}" aria-label="${esc(T('Claim {0} every day', T(nm).toLowerCase()))}"></label></th>`).join('')}<th>${T('Remarks')}</th></tr></thead>
-    <tbody>${dates.map(d => { const m = S.meals[d] || {}, ri = rationsStay(d), st = dayStatus(d); return `<tr${st === 'leave' ? ' class="lv"' : st === 'field' ? ' class="fd"' : ri >= 0 ? ' class="rat"' : ''}>
-      <td class="d"><span class="wd">${dow(d)} </span>${fmtDate(d)}${ri >= 0 && !st ? `<span class="rations-tag" title="${esc(T('Rations booked at stay {0}', 'D-' + (ri + 1)))}">${T('Rations')}</span>` : ''}<span class="dst-m">${chips(d)}</span></td>${stCell(d)}<td class="loc">${esc(locFor(d))}</td>
+  box.innerHTML = `<p class="drophint meals-help">${T('Leave comes from your itinerary (section B) and field nights from your lodging (section D). Tap a date to change it.')}</p><div class="tablewrap"><table class="meals">
+    <thead><tr><th>${T('Date')}</th><th class="loc">${T('Location')}</th>${MEALS.map(([k, nm]) => `<th class="c"><label><span class="full">${T(nm)}</span><span class="short" aria-hidden="true">${fr() ? T(nm + ' (short)') : nm[0]}</span><input type="checkbox" id="meal-all-${k}" data-act="meal-all" data-meal="${k}" aria-label="${esc(T('Claim {0} every day', T(nm).toLowerCase()))}"></label></th>`).join('')}<th>${T('Remarks')}</th></tr></thead>
+    <tbody>${dates.map(d => { const m = S.meals[d] || {}, ri = rationsStay(d), st = dayStatus(d), tag = st ? statusLabel(st) : ri >= 0 ? T('Rations') : ''; return `<tr${st === 'leave' ? ' class="lv"' : st === 'field' ? ' class="fd"' : ri >= 0 ? ' class="rat"' : ''}>
+      <td class="d"><button type="button" class="dday" data-act="dst-open" data-date="${d}" aria-haspopup="dialog" aria-label="${esc(T('{0}: {1}. Change leave or field', fmtLong(d), st ? statusLabel(st) : T('duty day')))}"><span class="dd-d"><span class="wd">${dow(d)} </span>${fmtDate(d)}</span><span class="dd-s${st ? ' ' + st : ri >= 0 ? ' rat' : ''}">${esc(tag)}</span></button></td><td class="loc">${esc(locFor(d))}</td>
       ${MEALS.map(([k, nm]) => `<td class="c"><input type="checkbox" id="meal-${d}-${k}" data-meal-date="${d}" data-meal="${k}" ${mealVal(d, k) ? 'checked' : ''} aria-label="${esc(T(nm))}, ${fmtLong(d)}"></td>`).join('')}
       <td class="rem"><input id="meal-${d}-note" data-meal-date="${d}" data-meal="note" value="${esc(m.note)}" placeholder="${esc(st === 'leave' ? T('On leave') : st === 'field' ? T('In the field') : ri >= 0 ? T('Rations booked ({0})', 'D-' + (ri + 1)) : T('Optional'))}" aria-label="${esc(T('Remarks'))}, ${fmtLong(d)}" autocomplete="off"></td></tr>`; }).join('')}</tbody>
-    <tfoot><tr><td>${T('Meals claimed')}</td><td class="st"></td><td class="loc"></td>${MEALS.map(([k]) => `<td class="c" id="mc-${k}">0</td>`).join('')}<td></td></tr></tfoot>
+    <tfoot><tr><td>${T('Meals claimed')}</td><td class="loc"></td>${MEALS.map(([k]) => `<td class="c" id="mc-${k}">0</td>`).join('')}<td></td></tr></tfoot>
   </table></div>`;
+}
+// the day dialog: duty, leave or field for one day, or for that day through a later one
+let dstDay = null;
+function dstOpen(d) {
+  const td = tripDates() || []; if (!td.includes(d)) return; dstDay = d;
+  $('#dst-h').textContent = dShow(d);
+  const cur = dayStatus(d); $$('#dst input[name=dst]').forEach(r => { r.checked = r.value === cur; });
+  const later = td.filter(x => x > d);
+  $('#dst-to').innerHTML = `<option value="${d}">${esc(T('This day only'))}</option>` + later.map(x => `<option value="${x}">${esc(T('This day through {0}', dShow(x)))}</option>`).join('');
+  $('.dst-to-f').hidden = !later.length;
+  const dl = $('#dst'); try { dl.showModal(); } catch (_) { dl.setAttribute('open', ''); }
+  const f = $('#dst input[name=dst]:checked'); if (f) f.focus();
+}
+function dstClose() { const dl = $('#dst'); try { dl.close(); } catch (_) { dl.removeAttribute('open'); } }
+async function dstApply() {
+  const d = dstDay, r = $('#dst input[name=dst]:checked'); if (!d || !r) { dstClose(); return; }
+  const to = $('#dst-to').value || d, want = r.value, days = datesBetween(d, to < d ? d : to);
+  dstClose(); dstDay = null;
+  // wait for the page to be put back where it was, then keep the meals table still while lodging above it grows or shrinks
+  await new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
+  const a = $('#sec-EM'), t0 = a.getBoundingClientRect().top;
+  setStatus(days, want);
+  const t1 = a.getBoundingClientRect().top; if (Math.abs(t1 - t0) > 1) window.scrollBy({ top: t1 - t0, left: 0, behavior: 'instant' });
+  const b = $(`.dday[data-date="${d}"]`); if (b) b.focus({ preventScroll: true });
 }
 function mealCounts() { const dates = tripDates() || [], c = { b: 0, l: 0, d: 0 }; dates.forEach(d => { MEALS.forEach(([k]) => { if (mealVal(d, k)) c[k]++; }); }); return { c, n: dates.length }; }
 function syncOut() {
@@ -2085,8 +2126,9 @@ document.addEventListener('click', e => {
     case 'crop-rotate': if (CROP) cropRotate(); break;
     case 'crop-reset': if (CROP) { cropFull(); $('#crop-hint').textContent = T('Drag the corners to the edges of the receipt.'); cropDraw(); } break;
     case 'crop-apply': if (CROP) cropApply(); break;
-    case 'day-st': { const d = b.dataset.date, k = b.dataset.st; if (!isoOk(d)) break; setStatus([d], dayStatus(d) === k ? '' : k); const f = $$(`[data-act="day-st"][data-date="${d}"][data-st="${k}"]`).find(e => e.offsetParent); if (f) f.focus(); break; }
-    case 'day-auto': { const d = b.dataset.date; if (!isoOk(d)) break; updateLeave(); setStatus([d], autoStatus(d), { fill: true }); const f = $$(`[data-act="day-st"][data-date="${d}"]`).find(e => e.offsetParent); if (f) f.focus(); break; }
+    case 'dst-open': dstOpen(b.dataset.date); break;
+    case 'dst-cancel': dstClose(); dstDay = null; break;
+    case 'dst-apply': dstApply(); break;
     case 'meal-all': { const k = b.dataset.meal, on = b.checked; (tripDates() || []).forEach(d => { const m = S.meals[d] = S.meals[d] || {}; m[k] = on; }); renderMeals(); refresh(); const a = $('#meal-all-' + k); if (a) a.focus(); break; }
     case 'add-stop': {
       const i = +b.dataset.i, ns = newStop(); ns.mode = S.stops[i].mode; ns.modeOther = S.stops[i].modeOther;
@@ -2212,8 +2254,7 @@ function dropFieldNights(days) {
     if (r.checkout <= r.checkin) S.lodging.stays.splice(S.lodging.stays.indexOf(r), 1);
   });
 }
-let lastStatus = null; // the last day set, to offer the days in between
-function setStatus(days, want, opt = {}) {
+function setStatus(days, want) {
   if (!days.length) return;
   const snap = JSON.stringify({ stays: S.lodging.stays, ds: S.dayStatus, meals: S.meals });
   updateLeave();
@@ -2226,16 +2267,9 @@ function setStatus(days, want, opt = {}) {
   });
   pruneStatus();
   renderList('stays'); renderMeals(); refresh();
-  const undoIt = { label: T('Undo'), fn: () => { const o = JSON.parse(snap); S.lodging.stays = o.stays; S.dayStatus = o.ds; S.meals = o.meals; lastStatus = null; renderList('stays'); renderMeals(); refresh(); } };
-  const what = want ? T('{0} set to {1}.', rangeText(days), statusLabel(want)) : T('{0} set back to a duty day.', rangeText(days));
+  const what = want ? T('{0} set to {1}.', rangeText(days), statusLabel(want)) : T('{0} set to a duty day.', rangeText(days));
   const lodg = want === 'field' ? ' ' + T('Field nights are in section D.') : hadField ? ' ' + T('Taken out of the field stay in section D.') : '';
-  // a second day set the same way, with days in between: offer those too (one tap, no extra controls)
-  const prev = lastStatus; lastStatus = { d: days[days.length - 1], st: want };
-  if (!opt.fill && prev && prev.st === want && days.length === 1 && prev.d !== days[0]) {
-    const [a, b] = [prev.d, days[0]].sort(), mid = datesBetween(addDays(a, 1), addDays(b, -1)).filter(d => dayStatus(d) !== want);
-    if (mid.length && mid.length <= 60) { toast(what + lodg, { label: T('Also {0}', rangeText(mid)), fn: () => setStatus(mid, want, { fill: true }) }); return; }
-  }
-  toast(what + lodg, undoIt);
+  toast(what + lodg, { label: T('Undo'), fn: () => { const o = JSON.parse(snap); S.lodging.stays = o.stays; S.dayStatus = o.ds; S.meals = o.meals; renderList('stays'); renderMeals(); refresh(); } });
 }
 
 function overnightStays() {
@@ -3041,10 +3075,8 @@ function drawWorksheet(P, items, wsPages, inFile) {
   // G
   P.bar('G', 'Meals', 'Please indicate only meals that you are claiming');
   const dates = tripDates() || [], mc = mealCounts().c, x = v => v ? 'X' : '';
-  const anyMan = dates.some(d => dayManual(d));
   P.table([{ l: 'Date', w: 1 }, { l: 'Location', w: 1.45 }, { l: 'Leave / field', w: .75, a: 'c' }, { l: fr() ? 'Déj.' : 'B', w: .4, a: 'c' }, { l: fr() ? 'Dîn.' : 'L', w: .4, a: 'c' }, { l: fr() ? 'Soup.' : 'D', w: .4, a: 'c' }, { l: 'Remarks', w: 2.05 }],
-    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d), st = dayStatus(d), fi = fieldStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), st ? statusLabel(st) + (dayManual(d) ? '*' : '') : '', x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [st === 'field' && fi >= 0 ? T('Field ({0})', 'D-' + (fi + 1)) : !st && ri >= 0 ? T('Rations booked ({0})', 'D-' + (ri + 1)) : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: [T('Meals claimed'), '', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
-  if (anyMan) { P.ensure(14); P.y += 4; P.text(T('* Changed by the member from the automatic setting.'), P.M + 1, P.y - 6, { size: 6.8, font: P.I, color: P.C.mid }); P.y -= 16; }
+    dates.length ? [...dates.map(d => { const mm = S.meals[d] || {}, ri = rationsStay(d), st = dayStatus(d), fi = fieldStay(d); return [`${dow(d)} ${fmtDate(d)}`, locFor(d), st ? statusLabel(st) : '', x(mealVal(d, 'b')), x(mealVal(d, 'l')), x(mealVal(d, 'd')), [st === 'field' && fi >= 0 ? T('Field ({0})', 'D-' + (fi + 1)) : !st && ri >= 0 ? T('Rations booked ({0})', 'D-' + (ri + 1)) : '', mm.note || ''].filter(Boolean).join('. ')]; }), { cells: [T('Meals claimed'), '', '', String(mc.b), String(mc.l), String(mc.d), ''], bold: true, fill: true }] : []);
   // Summary
   P.bar('', 'Summary of amounts entered');
   const srows = [];
@@ -3271,7 +3303,7 @@ const modeIcon = m => ({ CAL: 'plane', Train: 'train', PMV: 'car', 'PMV Pax': 'c
 const dDow = d => `${dow(d)} ${dShort(d)}`;
 function prettify(P) {
   const { rgb } = PDFLib, hx = s => rgb(parseInt(s.slice(1, 3), 16) / 255, parseInt(s.slice(3, 5), 16) / 255, parseInt(s.slice(5, 7), 16) / 255);
-  const K = { navy: hx('#052748'), blue: hx('#0b4f8c'), ink: hx('#17202a'), mid: hx('#4a5563'), soft: hx('#2d3744'), panel: hx('#f1f4f8'), rule: hx('#c3ccd8'), hair: hx('#e1e6ec'), chip: hx('#e6eef7'), sdBg: hx('#fbefd5'), sdInk: hx('#7a4b00'), sdLine: hx('#d9a441'), nilBg: hx('#e7ebf0'), white: rgb(1, 1, 1), pale: hx('#c9d8ea'), faint: hx('#9aa4b1'), wsTick: hx('#b9cde4'), rcLine: hx('#8f9bab'), amber: hx('#f3c76b'), sig: hx('#f3f7fc'), leaveBg: hx('#e2f0e6'), leaveLine: hx('#8cc29d'), leaveInk: hx('#1f5c33'), fldBg: hx('#ece8cc'), fldLine: hx('#b3a85a'), fldInk: hx('#4d4816'), bar: ['#ffffff', '#b7d2ef', '#7fb2e8', '#4f86c0', '#2c5f94', '#1d4a7a'].map(hx) };
+  const K = { navy: hx('#052748'), blue: hx('#0b4f8c'), ink: hx('#17202a'), mid: hx('#4a5563'), soft: hx('#2d3744'), panel: hx('#f1f4f8'), rule: hx('#c3ccd8'), hair: hx('#e1e6ec'), chip: hx('#e6eef7'), sdBg: hx('#fbefd5'), sdInk: hx('#7a4b00'), sdLine: hx('#d9a441'), nilBg: hx('#e7ebf0'), white: rgb(1, 1, 1), pale: hx('#c9d8ea'), faint: hx('#9aa4b1'), wsTick: hx('#b9cde4'), rcLine: hx('#8f9bab'), amber: hx('#f3c76b'), sig: hx('#f3f7fc'), leaveBg: hx('#e2f0e6'), leaveLine: hx('#8cc29d'), leaveInk: hx('#1f5c33'), fldBg: hx('#ece8cc'), fldLine: hx('#b3a85a'), fldInk: hx('#4d4816'), bar: ['#ffffff', '#b7d2ef', '#7fb2e8', '#4f86c0', '#2c5f94', '#1d4a7a'].map(hx), barL: ['#052748', '#0b4f8c', '#4f86c0', '#7fb2e8', '#b7d2ef', '#dbe7f4'].map(hx) };
   const { M, W, H, F, B } = P, CW = W - 2 * M;
   Object.assign(P, { pretty: true, K, CW, TOP: H - 33, BOT: 58 });
   P.rr = (x, y, w, h, r, o = {}) => { r = Math.max(0, Math.min(r, w / 2, h / 2)); P.page.drawSvgPath(`M ${r} 0 H ${w - r} Q ${w} 0 ${w} ${r} V ${h - r} Q ${w} ${h} ${w - r} ${h} H ${r} Q 0 ${h} 0 ${h - r} V ${r} Q 0 0 ${r} 0 Z`, Object.assign({ x, y: y + h }, o)); };
@@ -3374,9 +3406,6 @@ const primaryCur = gt => { const cs = Object.keys(gt); if (!cs.length) return 'C
 // what the claimant should look over before sending: days changed by hand, field and leave days, open checks
 function summaryChecks() {
   const out = [], td = tripDates() || [], runs = statusRuns(td);
-  const man = runs.map(([a, b, st]) => [datesBetween(a, b).filter(d => dayManual(d)), st]).filter(([ds]) => ds.length);
-  const normalMan = td.filter(d => dayManual(d) && !dayStatus(d));
-  if (man.length || normalMan.length) out.push({ k: 'man', t: T('Days you changed by hand (marked * in section G)'), s: [...man.map(([ds, st]) => `${rangeText([ds[0], ds[ds.length - 1]])}: ${statusLabel(st)}`), ...(normalMan.length ? [T('{0}: duty day', rangeText([normalMan[0], normalMan[normalMan.length - 1]]))] : [])].join('; ') });
   const fld = runs.filter(r => r[2] === 'field');
   if (fld.length) { const nn = td.filter(d => fieldStay(d) >= 0).length; out.push({ k: 'fd', t: nPl(nn, '{0} night in the field', '{0} nights in the field'), s: fld.map(([a, b]) => { const fi = fieldStay(a), loc = fi >= 0 ? S.lodging.stays[fi].location.trim() : ''; return rangeText([a, b]) + (fi >= 0 ? ` (D-${fi + 1}${loc ? ', ' + loc : ''})` : ''); }).join('; ') + '. ' + T('Field days leave meals unticked unless you tick them.') }); }
   const lv = runs.filter(r => r[2] === 'leave');
@@ -3392,26 +3421,30 @@ function prettyCover(P, items, ctx) {
   const { M, CW, K, F, B } = P; P.newPage(true);
   const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), facts = prettyFacts(), pg = L => ctx.secPage && ctx.secPage[L] ? T('p. {0}', ctx.secPage[L]) : '';
   const blocks = [];
-  // header row
-  blocks.push({ h: 27, gap: 0, draw: y => {
-    if (ctx.logo || P.logo) P.page.drawImage(ctx.logo || P.logo, { x: M, y: y - 21, width: 21, height: 21 });
-    else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.navy }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
-    P.text(P.fit([T('CAF Digital Travel Itinerary'), T('Claimant summary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
-    P.line(M, y - 27, M + CW, y - 27, 1.5, K.navy);
-  } });
-  // title, with a note that this page is for the claimant
-  const title = S.tripRef.trim() || T('Temporary duty claim');
-  let ts = 26, tl = P.wrap(title, B, ts, CW - 190); while (tl.length > 2 && ts > 18) { ts -= 2; tl = P.wrap(title, B, ts, CW - 190); }
-  if (tl.length > 2) { tl = tl.slice(0, 2); tl[1] = P.fit(tl[1] + '...', B, ts, CW - 190); }
+  // the page opens with a navy band across the top: the same type and colours as the rest of the package, set apart
+  // so the reader sees at once that this page is for the claimant and the claim itself starts on the next page
+  const title = S.tripRef.trim() || T('Temporary duty claim'), noteW = 168, tW = CW - noteW - 24;
+  let ts = 26, tl = P.wrap(title, B, ts, tW); while (tl.length > 2 && ts > 18) { ts -= 2; tl = P.wrap(title, B, ts, tW); }
+  if (tl.length > 2) { tl = tl.slice(0, 2); tl[1] = P.fit(tl[1] + '...', B, ts, tW); }
   const nd = td ? td.length : 0;
   const subl = [td ? rangeText([td[0], td[td.length - 1]]) : '', nd ? (nd === 1 ? T('Day trip') : T('{0} days, {1} nights', nd, nd - 1)) : '', fullName()].filter(Boolean).join('  ·  ');
-  blocks.push({ h: 15 + tl.length * ts * 1.08 + 18, gap: 16, draw: y => {
-    P.text(T('CLAIMANT SUMMARY'), M, y - 9, { size: 9, font: B, color: K.blue });
-    tl.forEach((l, i) => P.text(l, M, y - 15 - ts * .82 - i * ts * 1.08, { size: ts, font: B, color: K.navy }));
-    P.text(P.fit(subl, F, 12, CW), M, y - 15 - tl.length * ts * 1.08 - 13, { size: 12, color: K.soft });
-    const nw = 170, nh = 40, nx = M + CW - nw; P.rr(nx, y - 6 - nh, nw, nh, 4.5, { color: K.chip });
-    P.text(T('For you, the claimant'), nx + 10, y - 20, { size: 9.75, font: B, color: K.blue });
-    P.text(P.fit(T('The claim starts on page {0}.', ctx.wsStart || 2), F, 9, nw - 20), nx + 10, y - 33, { size: 9, color: K.soft });
+  const bandH = 58 + tl.length * ts * 1.08 + 22;
+  blocks.push({ h: bandH, gap: 0, draw: y => {
+    const { W, H } = P, yb = y - bandH;
+    P.page.drawRectangle({ x: 0, y: yb, width: W, height: H - yb, color: K.navy });
+    if (ctx.logo || P.logo) P.page.drawImage(ctx.logo || P.logo, { x: M, y: y - 21, width: 21, height: 21 });
+    else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.blue }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
+    P.text(P.fit([T('CAF Digital Travel Itinerary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.pale });
+    P.line(M, y - 27, M + CW, y - 27, .75, K.blue);
+    P.text(T('CLAIMANT SUMMARY'), M, y - 45, { size: 9, font: B, color: K.pale });
+    tl.forEach((l, i) => P.text(l, M, y - 52 - ts * .82 - i * ts * 1.08, { size: ts, font: B, color: K.white }));
+    P.text(P.fit(subl, F, 11.25, CW), M, y - 52 - tl.length * ts * 1.08 - 12, { size: 11.25, color: K.pale });
+    // the note sits in the band as type, set off by a rule: it reads as part of the page, not stuck on it
+    const nx = M + CW - noteW, ny = y - 45;
+    const nl = P.wrap(T('This page is not part of the claim. The claim starts on page {0}.', ctx.wsStart || 2), F, 9, noteW).slice(0, 3);
+    P.line(nx - 12, ny + 10, nx - 12, ny - 17 - (nl.length - 1) * 11.5, 1.5, K.amber);
+    P.text(T('For you, the claimant'), nx, ny, { size: 10.5, font: B, color: K.white });
+    nl.forEach((l, i) => P.text(l, nx, ny - 14 - i * 11.5, { size: 9, color: K.pale }));
   } });
   // two cards: what is left to do, and the total entered in the main currency (others listed, never added together)
   const sds = items.filter(i => i.decl), todo = [];
@@ -3422,24 +3455,24 @@ function prettyCover(P, items, ctx) {
   const segs = GROUPS().map(([L, , arr, k, ck]) => ({ L, v: sumBy(arr, k, ck)[pc] || 0 })).filter(s => s.v > 0).sort((a, b) => b.v - a.v);
   const legendRows = segs.length > 3 ? Math.ceil(segs.length / 2) : segs.length;
   const cardH = Math.max(36 + todo.length * 30, 13.5 + 9 + 33 + 12 + (segs.length ? 7.5 + 10 : 0) + legendRows * 12.5 + others.slice(0, 2).length * 16 + 14);
-  blocks.push({ h: cardH, gap: 14, draw: y => {
+  blocks.push({ h: cardH, gap: 22, draw: y => {
     const cw = (CW - 12) / 2, x2 = M + cw + 12, yb = y - cardH;
     P.rr(M, yb, cw, cardH, 4.5, { color: K.panel });
     P.text(T('BEFORE YOU SEND'), M + 15, y - 22, { size: 9, font: B, color: K.mid });
     todo.forEach((t, i) => { const cy = y - 44 - i * 30; P.page.drawCircle({ x: M + 24, y: cy + 3, size: 8.25, color: t.bg }); P.tc(String(i + 1), M + 24, cy, 9, B, t.ink); P.text(P.fit(t.t, B, 10.5, cw - 54), M + 39, cy + 3, { size: 10.5, font: B }); P.text(P.fit(t.s, F, 9, cw - 54), M + 39, cy - 9, { size: 9, color: K.mid }); });
-    P.rr(x2, yb, cw, cardH, 4.5, { color: K.navy });
-    P.text(T('TOTAL ENTERED'), x2 + 15, y - 22, { size: 9, font: B, color: K.pale });
-    const big = fmtN(gt[pc] || 0); P.text(big, x2 + 15, y - 52, { size: 30, font: B, color: K.white }); P.text(pc, x2 + 15 + P.tw(big, 30, B) + 6, y - 52, { size: 12, font: B, color: K.pale });
+    P.rr(x2, yb, cw, cardH, 4.5, { color: K.white, borderColor: K.rule, borderWidth: 1.1 });
+    P.text(T('TOTAL ENTERED'), x2 + 15, y - 22, { size: 9, font: B, color: K.mid });
+    const big = fmtN(gt[pc] || 0); P.text(big, x2 + 15, y - 52, { size: 30, font: B, color: K.navy }); P.text(pc, x2 + 15 + P.tw(big, 30, B) + 6, y - 52, { size: 12, font: B, color: K.mid });
     let yy = y - 66;
     if (segs.length) {
       const bw = cw - 30, sum = segs.reduce((a, s) => a + s.v, 0); let bx = x2 + 15;
-      segs.forEach((s, i) => { const w = Math.max(3.75, (s.v / sum) * (bw - 1.5 * (segs.length - 1))); P.page.drawRectangle({ x: bx, y: yy - 7.5, width: Math.min(w, x2 + 15 + bw - bx), height: 7.5, color: K.bar[i] }); bx += w + 1.5; });
+      segs.forEach((s, i) => { const w = Math.max(3.75, (s.v / sum) * (bw - 1.5 * (segs.length - 1))); P.page.drawRectangle({ x: bx, y: yy - 7.5, width: Math.min(w, x2 + 15 + bw - bx), height: 7.5, color: K.barL[i] }); bx += w + 1.5; });
       yy -= 22;
       const cols2 = segs.length > 3, colW = cols2 ? (bw - 12) / 2 : bw;
-      segs.forEach((s, i) => { const cx = x2 + 15 + (cols2 ? (i % 2) * (colW + 12) : 0), cy = yy - (cols2 ? Math.floor(i / 2) : i) * 12.5; P.page.drawRectangle({ x: cx, y: cy - 1, width: 7.5, height: 7.5, color: K.bar[i], borderColor: K.pale, borderWidth: .5 }); const av = fmtN(s.v), ls = cols2 ? 8.25 : 9; P.text(P.fit(`${s.L}  ${T(PSHORT[s.L])}`, F, ls, colW - 12 - P.tw(av, ls, B) - 5), cx + 12, cy, { size: ls, color: K.white }); P.tr(av, cx + colW, cy, ls, B, K.white); });
+      segs.forEach((s, i) => { const cx = x2 + 15 + (cols2 ? (i % 2) * (colW + 12) : 0), cy = yy - (cols2 ? Math.floor(i / 2) : i) * 12.5; P.page.drawRectangle({ x: cx, y: cy - 1, width: 7.5, height: 7.5, color: K.barL[i] }); const av = fmtN(s.v), ls = cols2 ? 8.25 : 9; P.text(P.fit(`${s.L}  ${T(PSHORT[s.L])}`, F, ls, colW - 12 - P.tw(av, ls, B) - 5), cx + 12, cy, { size: ls, color: K.soft }); P.tr(av, cx + colW, cy, ls, B, K.ink); });
       yy -= legendRows * 12.5;
     }
-    others.slice(0, 2).forEach((c, i) => { const cy = yy - 6 - i * 16; if (i === 0) P.line(x2 + 15, cy + 11, x2 + cw - 15, cy + 11, .75, K.blue); P.text(T('Also claimed, not converted'), x2 + 15, cy, { size: 9, color: K.pale }); P.tr(c, x2 + cw - 15, cy, 9, B, K.pale); P.tr(fmtN(gt[c]), x2 + cw - 15 - P.tw(c, 9, B) - 5, cy, 11.25, B, K.white); });
+    others.slice(0, 2).forEach((c, i) => { const cy = yy - 6 - i * 16; if (i === 0) P.line(x2 + 15, cy + 11, x2 + cw - 15, cy + 11, .75, K.hair); P.text(T('Also claimed, not converted'), x2 + 15, cy, { size: 9, color: K.mid }); P.tr(c, x2 + cw - 15, cy, 9, B, K.mid); P.tr(fmtN(gt[c]), x2 + cw - 15 - P.tw(c, 9, B) - 5, cy, 11.25, B, K.ink); });
   } });
   // things to look over: days changed by hand, field and leave days, other currencies, open checks
   const all = summaryChecks(), MAXC = 7, shown = all.slice(0, MAXC), more = all.length - shown.length;
@@ -3603,57 +3636,69 @@ function prettyWorksheet(P, items, ctx, rec) {
 // contiguous runs of days with the same status: [[first, last, status], ...]
 function statusRuns(days) { const out = []; days.forEach(d => { const st = dayStatus(d), r = out[out.length - 1]; if (!st) return; if (r && r[2] === st && addDays(r[1], 1) === d) r[1] = d; else out.push([d, d, st]); }); return out; }
 function prettyMeals(P, days) {
-  const { M, CW, K, F, B } = P, kind = (d, k) => mealVal(d, k) ? 'y' : dayStatus(d) === 'leave' ? 'lv' : dayStatus(d) === 'field' ? 'fd' : rationsStay(d) >= 0 ? 'r' : 'n';
-  const MK = [['b', T('Breakfast')], ['l', T('Lunch')], ['d', T('Dinner')]], seen = new Set();
-  const anySt = days.some(d => dayStatus(d)), anyMan = days.some(d => dayManual(d));
-  const cell = (x, y, w, h, kd, big, label) => {
-    seen.add(kd);
-    if (kd === 'y') { P.rr(x, y, w, h, 3, { color: K.navy }); P.check(x + w / 2, y + h / 2, Math.min(9, h * .5), K.white); }
-    else if (kd === 'r') { P.rr(x, y, w, h, 3, { color: K.panel, borderColor: K.rule, borderWidth: 1 }); P.tc(big ? T('Rations') : T('R'), x + w / 2, y + h / 2 - 3, 9, B, K.mid); }
-    else if (kd === 'lv' || kd === 'fd') { const lv = kd === 'lv'; P.rr(x, y, w, h, 3, { color: lv ? K.leaveBg : K.fldBg, borderColor: lv ? K.leaveLine : K.fldLine, borderWidth: 1 }); const t = label != null ? label : (lv ? T('Leave') : T('Field')); if (h >= 12 && t) P.tc(P.fit(t, B, big ? 9 : 8.25, w - 2), x + w / 2, y + h / 2 - 3, big ? 9 : 8.25, B, lv ? K.leaveInk : K.fldInk); }
-    else P.rr(x, y, w, h, 3, { color: K.white, borderColor: K.rule, borderWidth: 1 });
+  const { M, CW, K, F, B } = P, MK = [['b', T('Breakfast')], ['l', T('Lunch')], ['d', T('Dinner')]], seen = new Set();
+  const anySt = days.some(d => dayStatus(d));
+  // a leave or field day is a borderless band of colour behind its whole column; the meal tiles sit on it
+  const band = st => st === 'leave' ? [K.leaveBg, K.leaveInk] : [K.fldBg, K.fldInk];
+  const claimed = [T('Meal claimed'), T('Claimed')];
+  const tile = (x, y, w, h, d, k) => {
+    if (mealVal(d, k)) {
+      seen.add('y'); P.rr(x, y, w, h, 3, { color: K.navy });
+      // "Meal claimed" on one line, or on two in a tall tile, or "Claimed" when the tile is narrow
+      const one = [8.25, 7.5, 7].find(z => z <= h * .45 && P.tw(claimed[0], z, B) <= w - 6), [w1, w2] = claimed[0].split(' ');
+      if (one) P.tc(claimed[0], x + w / 2, y + h / 2 - one * .36, one, B, K.white);
+      else if (h >= 22 && w2 && P.tw(w1, 8.25, B) <= w - 6 && P.tw(w2, 8.25, B) <= w - 6) { P.tc(w1, x + w / 2, y + h / 2 + 1.5, 8.25, B, K.white); P.tc(w2, x + w / 2, y + h / 2 - 8.5, 8.25, B, K.white); }
+      else { const z = Math.min(8.25, h * .45); if (P.tw(claimed[1], z, B) <= w - 4) P.tc(claimed[1], x + w / 2, y + h / 2 - z * .36, z, B, K.white); else P.check(x + w / 2, y + h / 2, Math.min(9, h * .5), K.white); }
+    } else if (!dayStatus(d) && rationsStay(d) >= 0) { seen.add('r'); P.rr(x, y, w, h, 3, { color: K.panel, borderColor: K.rule, borderWidth: 1 }); P.tc(h >= 20 ? T('Rations') : T('R'), x + w / 2, y + h / 2 - 3, h >= 20 ? 9 : 8.25, B, K.mid); }
+    else { seen.add('n'); P.rr(x, y, w, h, 3, { color: K.white, borderColor: K.rule, borderWidth: 1 }); }
   };
-  // the status of a day as a labelled tile: Leave or Field, with an asterisk when the member changed it
-  const stTile = (d, x, y, w, h, big) => { const st = dayStatus(d); if (!st) return; cell(x, y, w, h, st === 'leave' ? 'lv' : 'fd', big, statusLabel(st) + (dayManual(d) ? '*' : '')); };
-  const nd = days.length;
+  const columnBand = (d, x, w, top, bottom) => { const st = dayStatus(d); if (!st) return; seen.add(st); P.rr(x, bottom, w, top - bottom, 4.5, { color: band(st)[0] }); };
+  const stLabel = (d, xc, y, sz) => { const st = dayStatus(d); if (st) P.tc(statusLabel(st), xc, y, sz, B, band(st)[1]); };
+  const nd = days.length, ins = 3;
   if (nd <= 7) {
-    const lw = 72, cnt = 42, g = 4.5, dw = (CW - lw - cnt - g * (nd + 1)) / nd;
-    P.ensure(30 + (anySt ? 4 : 3) * 31);
+    const lw = 72, cnt = 42, g = 4.5, dw = (CW - lw - cnt - g * (nd + 1)) / nd, xOf = i => M + lw + g + i * (dw + g);
+    const sh = anySt ? 20 : 0, rowH = 31, cellH = 26;
+    P.ensure(30 + sh + 3 * rowH + 6);
     let y = P.y; P.line(M + lw + g, y - 24, M + CW, y - 24, 1.1, K.ink);
-    days.forEach((d, i) => { const x = M + lw + g + i * (dw + g); P.text(P.fit(dDow(d), B, 9.75, dw), x, y - 9, { size: 9.75, font: B }); P.text(P.fit(locFor(d), F, 9, dw), x, y - 20, { size: 9, color: K.mid }); });
-    P.tr(T('Claimed'), M + CW, y - 20, 9, B, K.mid); y -= 29;
-    if (anySt) { P.text(T('Leave / field'), M, y - 13, { size: 9, color: K.soft }); days.forEach((d, i) => stTile(d, M + lw + g + i * (dw + g), y - 19.5, dw, 19.5, true)); y -= 24; }
-    MK.forEach(([k, nm]) => { P.text(nm, M, y - 16, { size: 9.75, font: B }); days.forEach((d, i) => cell(M + lw + g + i * (dw + g), y - 27, dw, 27, kind(d, k), true)); P.tr(String(days.filter(d => mealVal(d, k)).length), M + CW, y - 17, 12, B); y -= 31; });
-    P.y = y;
+    days.forEach((d, i) => { P.text(P.fit(dDow(d), B, 9.75, dw), xOf(i), y - 9, { size: 9.75, font: B }); P.text(P.fit(locFor(d), F, 9, dw), xOf(i), y - 20, { size: 9, color: K.mid }); });
+    P.tr(T('Claimed'), M + CW, y - 20, 9, B, K.mid); y -= 28;
+    const top = y, bottom = y - sh - 3 * rowH - 2;
+    days.forEach((d, i) => columnBand(d, xOf(i), dw, top, bottom));
+    if (anySt) { P.text(T('Leave / field'), M, y - 13, { size: 9, color: K.soft }); days.forEach((d, i) => stLabel(d, xOf(i) + dw / 2, y - 13.5, 9)); y -= sh; }
+    MK.forEach(([k, nm]) => { P.text(nm, M, y - 17, { size: 9.75, font: B }); days.forEach((d, i) => tile(xOf(i) + ins, y - 2 - cellH, dw - 2 * ins, cellH, d, k)); P.tr(String(days.filter(d => mealVal(d, k)).length), M + CW, y - 18, 12, B); y -= rowH; });
+    P.y = y - 4;
   } else if (nd <= 35) {
     // calendar weeks, Monday to Sunday
-    const lw = 63, cnt = 30, g = 3.75, dw = (CW - lw - cnt - g * 8) / 7;
+    const lw = 63, cnt = 30, g = 3.75, dw = (CW - lw - cnt - g * 8) / 7, xOf = k => M + lw + g + k * (dw + g);
     const mon = d => { const w = new Date(d + 'T12:00:00Z').getUTCDay(); return addDays(d, -((w + 6) % 7)); };
     let wk = mon(days[0]), i = 1; const last = days[nd - 1];
     while (wk <= last) {
       const wd = Array.from({ length: 7 }, (_, k) => addDays(wk, k)), inT = d => d >= days[0] && d <= last, real = wd.filter(inT), wkSt = real.some(d => dayStatus(d));
-      P.ensure(wkSt ? 110 : 90); let y = P.y;
+      const sh = wkSt ? 16 : 0, rowH = 19.5, cellH = 16.5;
+      P.ensure(36 + sh + 3 * rowH + 10); let y = P.y;
       P.text(T('Week {0}', i), M, y - 18, { size: 9.75, font: B });
-      wd.forEach((d, k) => { if (!inT(d)) return; const x = M + lw + g + k * (dw + g), we = k >= 5; P.text(P.fit(`${dow(d)} ${dShort(d)}`, B, 9, dw), x, y - 18, { size: 9, font: B, color: we ? K.blue : K.ink }); });
-      P.line(M, y - 23, M + CW, y - 23, 1.1, K.ink); P.tr(T('Week'), M + CW, y - 18, 9, F, K.mid); y -= 27;
-      if (wkSt) { P.text(T('Leave / field'), M, y - 12, { size: 9, color: K.soft }); wd.forEach((d, j) => { if (inT(d)) stTile(d, M + lw + g + j * (dw + g), y - 16.5, dw, 16.5, false); }); y -= 19.5; }
-      MK.forEach(([k, nm]) => { P.text(nm, M, y - 12, { size: 9, color: K.soft }); wd.forEach((d, j) => { if (inT(d)) cell(M + lw + g + j * (dw + g), y - 16.5, dw, 16.5, kind(d, k), false); }); P.tr(String(real.filter(d => mealVal(d, k)).length), M + CW, y - 12.5, 9.75, B); y -= 19.5; });
-      P.y = y - 9; wk = addDays(wk, 7); i++;
+      wd.forEach((d, k) => { if (!inT(d)) return; const we = k >= 5; P.text(P.fit(`${dow(d)} ${dShort(d)}`, B, 9, dw), xOf(k), y - 18, { size: 9, font: B, color: we ? K.blue : K.ink }); });
+      P.line(M, y - 23, M + CW, y - 23, 1.1, K.ink); P.tr(T('Week'), M + CW, y - 18, 9, F, K.mid); y -= 26;
+      const top = y, bottom = y - sh - 3 * rowH - 1;
+      wd.forEach((d, k) => { if (inT(d)) columnBand(d, xOf(k), dw, top, bottom); });
+      if (wkSt) { P.text(T('Leave / field'), M, y - 11.5, { size: 9, color: K.soft }); wd.forEach((d, k) => { if (inT(d)) stLabel(d, xOf(k) + dw / 2, y - 11.5, 8.25); }); y -= sh; }
+      MK.forEach(([k, nm]) => { P.text(nm, M, y - 13, { size: 9, color: K.soft }); wd.forEach((d, j) => { if (inT(d)) tile(xOf(j) + 2, y - 1.5 - cellH, dw - 4, cellH, d, k); }); P.tr(String(real.filter(d => mealVal(d, k)).length), M + CW, y - 13.5, 9.75, B); y -= rowH; });
+      P.y = y - 10; wk = addDays(wk, 7); i++;
     }
   } else {
     // long stays: one row per day, as on the form
     P.pt([{ l: 'Date', w: 72 }, { l: 'Location', f: 1 }, { l: 'Leave / field', w: 60 }, { l: fr() ? 'Déj.' : 'B', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Dîn.' : 'L', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Soup.' : 'D', raw: true, w: 33, a: 'c' }, { l: 'Remarks', f: 1.1 }],
-      days.map(d => [dDow(d), locFor(d), dayStatus(d) ? { t: statusLabel(dayStatus(d)) + (dayManual(d) ? '*' : ''), b: true, c: dayStatus(d) === 'leave' ? K.leaveInk : K.fldInk } : '', ...MK.map(([k]) => mealVal(d, k) ? { check: true } : kind(d, k) === 'r' ? { t: T('R'), c: K.mid } : ''), (S.meals[d] || {}).note || '']), { minH: 20 });
-    seen.add('y'); if (days.some(d => rationsStay(d) >= 0)) seen.add('r'); if (days.some(d => dayStatus(d) === 'leave')) seen.add('lv'); if (days.some(d => dayStatus(d) === 'field')) seen.add('fd');
+      days.map(d => [dDow(d), locFor(d), dayStatus(d) ? { t: statusLabel(dayStatus(d)), b: true, c: band(dayStatus(d))[1] } : '', ...MK.map(([k]) => mealVal(d, k) ? { check: true } : !dayStatus(d) && rationsStay(d) >= 0 ? { t: T('R'), c: K.mid } : ''), (S.meals[d] || {}).note || '']), { minH: 20 });
+    seen.add('y'); if (days.some(d => !dayStatus(d) && rationsStay(d) >= 0)) seen.add('r');
   }
   // legend, then remarks
-  const leg = [['y', T('Claimed')], ['r', T('Rations booked')], ['lv', T('Leave')], ['fd', T('Field (night in the field)')], ['n', T('Not claimed')]].filter(([k]) => seen.has(k));
-  P.ensure(16); let x = M; leg.forEach(([k, t]) => { cell(x, P.y - 12, 10.5, 10.5, k, false, ''); seen.add(k); P.text(t, x + 15, P.y - 9.5, { size: 9, color: K.mid }); x += 15 + P.tw(t, 9) + 15; });
-  if (anyMan) { const t = T('* Changed by the member'); P.text(t, Math.min(x, M + CW - P.tw(t, 9)), P.y - 9.5, { size: 9, font: B, color: K.mid }); }
+  const sw = (x, y, k) => { if (k === 'leave' || k === 'field') P.rr(x, y, 10.5, 10.5, 2.25, { color: band(k)[0] }); else if (k === 'y') P.rr(x, y, 10.5, 10.5, 2.25, { color: K.navy }); else if (k === 'r') P.rr(x, y, 10.5, 10.5, 2.25, { color: K.panel, borderColor: K.rule, borderWidth: 1 }); else P.rr(x, y, 10.5, 10.5, 2.25, { color: K.white, borderColor: K.rule, borderWidth: 1 }); };
+  const leg = [['y', T('Meal claimed')], ['n', T('Not claimed')], ['r', T('Rations booked')], ['leave', T('Leave')], ['field', T('Field (night in the field)')]].filter(([k]) => seen.has(k));
+  P.ensure(16); let x = M; leg.forEach(([k, t]) => { sw(x, P.y - 12, k); P.text(t, x + 15, P.y - 9.5, { size: 9, color: K.mid }); x += 15 + P.tw(t, 9) + 15; });
   P.y -= 20;
   const rem = []; const byStay = {}; days.forEach(d => { const r = rationsStay(d); if (r >= 0 && !dayStatus(d)) (byStay[r] = byStay[r] || []).push(d); });
   Object.keys(byStay).forEach(r => rem.push([rangeText([byStay[r][0], byStay[r][byStay[r].length - 1]]), T('Rations booked ({0})', 'D-' + (+r + 1))]));
-  statusRuns(days).forEach(([a, b, st]) => { const fi = st === 'field' ? fieldStay(a) : -1, man = datesBetween(a, b).some(d => dayManual(d)); rem.push([rangeText([a, b]), (st === 'leave' ? T('Leave') : fi >= 0 ? T('Field ({0})', 'D-' + (fi + 1)) + (S.lodging.stays[fi].location.trim() ? ', ' + S.lodging.stays[fi].location.trim() : '') : T('Field')) + (man ? ' ' + T('(changed by the member)') : '')]); });
+  statusRuns(days).forEach(([a, b, st]) => { const fi = st === 'field' ? fieldStay(a) : -1; rem.push([rangeText([a, b]), st === 'leave' ? T('Leave') : fi >= 0 ? T('Field ({0})', 'D-' + (fi + 1)) + (S.lodging.stays[fi].location.trim() ? ', ' + S.lodging.stays[fi].location.trim() : '') : T('Field')]); });
   if (nd <= 35) days.forEach(d => { const nt = (S.meals[d] || {}).note; if (nt) rem.push([dDow(d), nt]); });
   if (rem.length) { P.ensure(14 + rem.length * 12); P.text(T('Remarks'), M, P.y - 9, { size: 9, font: B, color: K.mid }); P.y -= 13; rem.forEach(([a, b]) => { P.ensure(12); P.text(P.fit(a, B, 9.75, 120), M, P.y - 9.5, { size: 9.75, font: B }); P.para(b, M + 126, P.y - 9.5, CW - 126, { size: 9.75, lh: 12 }); P.y -= 12 * Math.max(1, P.wrap(b, F, 9.75, CW - 126).length); }); P.y -= 6; }
   const mc = mealCounts().c; P.band(T('Meals claimed'), String(mc.b + mc.l + mc.d), '', { left: T('Breakfasts {0}  ·  lunches {1}  ·  dinners {2}', mc.b, mc.l, mc.d) });

@@ -737,7 +737,7 @@ html{touch-action:manipulation}
           <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span></button><!--/BETA-ONLY-->
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 8, built 06 Nov 2026 03:45 (production is 1.9)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 9, built 06 Nov 2026 08:55 (production is 1.9)</p>
         </div>
       </div>
     </div>
@@ -951,7 +951,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 8, built 06 Nov 2026 03:45 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 9, built 06 Nov 2026 08:55 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -4119,9 +4119,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.10-beta.8';
+const APP_VERSION = '1.10-beta.9';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.10 beta 8, built 06 Nov 2026 03:45 (production is 1.9)';
+const APP_LABEL = 'Version 1.10 beta 9, built 06 Nov 2026 08:55 (production is 1.9)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -5392,11 +5392,11 @@ function tiify(P) {
     P.tc(l3, M + ds / 2, dt - ds / 2 - ls * .36 - 4, ls, B, K.cream);
     const rx = M + ds - 3, ry = dt - ds + 3;
     P.page.drawCircle({ x: rx, y: ry, size: 15, color: K.buff }); P.page.drawCircle({ x: rx, y: ry, size: 12, color: K.disc2 }); P.leaf(rx - 7.5, ry - 7.5, 15, K.cream);
-    // the part, stamped small at the right
-    const stW = P.stamp(word, M + CW - 48, dt - 17, 15, K.stamp, -5);
+    // the part, stamped small beside the security marking, as the part block sits beside it on later pages
+    const stz = 15, stw = P.spacedW(P.clean(word), stz, B, stz * .15) + stz * 1.25; P.stamp(word, M + CW - mkW() - 8 - stw / 2, H - 43, stz, K.stamp, -4);
     // a typed line, the surname as large as the line allows, the disc's stamped line, then the trip
     const sx = M + ds + 20, sw = M + CW - sx, sn = (m.surname.trim() || T('SURNAME')).toUpperCase();
-    P.spaced(P.fitSp([T('TRAVEL ITINERARY'), sub].filter(Boolean).join('  ·  '), CB, 9, 1.2, sw - stW - 24), sx, dt - 7, 9, CB, K.buffInk, 1.2);
+    P.spaced(P.fitSp([T('TRAVEL ITINERARY'), sub].filter(Boolean).join('  ·  '), CB, 9, 1.2, sw), sx, dt - 7, 9, CB, K.buffInk, 1.2);
     const ss = Math.max(26, Math.min(64, sw / Math.max(1, P.tw(sn, 1, B) + .015 * (sn.length - 1)))), base = dt - 16 - ss * .72;
     P.spaced(P.fit(sn, B, ss, sw), sx - ss * .04, base, ss, B, K.ink, ss * .015);
     const disc = [m.pri.trim(), rankAbbr(m.rank).toUpperCase(), [m.surname.trim().toUpperCase(), tiInits(m.given)].filter(Boolean).join(' '), 'CDN'].filter(Boolean).join('   ');

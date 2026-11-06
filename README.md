@@ -27,7 +27,7 @@ Only use an offline copy that you downloaded yourself from the published site or
 | Channel | Version | File | SHA-256 |
 | --- | --- | --- | --- |
 | Production | 1.9 | `CAF_Digital_Travel_Itinerary.html` | `3dbc034ea8af90fbc138028b3f204cc50b1841cbe35e94f44526185d8962c5d5` |
-| Beta | 1.10 beta 3 | `beta/CAF_Digital_Travel_Itinerary.html` | `aa3940865c9e65b88a198fe3159404e6a5e4aa055aa3772bd741e396ecdf6a43` |
+| Beta | 1.10 beta 4 | `beta/CAF_Digital_Travel_Itinerary.html` | `6b2176a7a5fa9843feb92de3d65ca99adb0588f03f4e387b8056c3b057e0a29a` |
 <!--/CHECKSUMS-->
 
 To get a file's checksum:

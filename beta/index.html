@@ -744,7 +744,7 @@ html{touch-action:manipulation}
           <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span></button><!--/BETA-ONLY-->
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 3, built 06 Nov 2026 00:04 (production is 1.9)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 4, built 06 Nov 2026 00:12 (production is 1.9)</p>
         </div>
       </div>
     </div>
@@ -958,7 +958,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 3, built 06 Nov 2026 00:04 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 4, built 06 Nov 2026 00:12 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -1214,7 +1214,6 @@ const FR = {
 "Airfare": "Billet d'avion",
 "All {0} stops on page {1}": "Les {0} arrêts à la page {1}",
 "Already up to date: version {0}.": "Déjà à jour : version {0}.",
-"Also claimed, not converted": "Aussi réclamé, sans conversion",
 "Amount": "Montant",
 "Anything that is not transportation, lodging or meals": "Tout ce qui n'est pas du transport, de l'hébergement ou des repas",
 "App": "Application",
@@ -1291,8 +1290,6 @@ const FR = {
 "Civilian": "Civil",
 "Claim file": "Fichier de réclamation",
 "Claim {0} every day": "Réclamer le {0} chaque jour",
-"Claimant and point of contact": "Réclamant et point de contact",
-"Claimant, no point of contact": "Réclamant, sans point de contact",
 "Claimed": "Réclamé",
 "Claude artifact": "artefact Claude",
 "Clear form": "Effacer le formulaire",
@@ -1563,9 +1560,9 @@ const FR = {
 "Open claim file…": "Ouvrir un fichier de réclamation…",
 "Open draft file": "Ouvrir un fichier brouillon",
 "Open in new tab": "Ouvrir dans un nouvel onglet",
-"Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.": "Ouvrez-le dans Adobe et signez le champ du réclamant à la page {0} avec votre certificat ICP.",
-"Open it in Adobe and sign the claimant field on page {1} and the {0} declaration with your PKI certificate.": "Ouvrez-le dans Adobe et signez avec votre certificat ICP le champ du réclamant à la page {1} et la déclaration.",
-"Open it in Adobe and sign the claimant field on page {1} and the {0} declarations with your PKI certificate.": "Ouvrez-le dans Adobe et signez avec votre certificat ICP le champ du réclamant à la page {1} et les {0} déclarations.",
+"Open it in Adobe and sign the traveller field on page {0} with your PKI certificate.": "Ouvrez-le dans Adobe et signez le champ du voyageur à la page {0} avec votre certificat ICP.",
+"Open it in Adobe and sign the traveller field on page {1} and the {0} declaration with your PKI certificate.": "Ouvrez-le dans Adobe et signez avec votre certificat ICP le champ du voyageur à la page {1} et la déclaration.",
+"Open it in Adobe and sign the traveller field on page {1} and the {0} declarations with your PKI certificate.": "Ouvrez-le dans Adobe et signez avec votre certificat ICP le champ du voyageur à la page {1} et les {0} déclarations.",
 "Opened draft saved {0}.": "Brouillon ouvert, enregistré le {0}.",
 "Opened draft.": "Brouillon ouvert.",
 "Optional": "Facultatif",
@@ -1758,8 +1755,6 @@ const FR = {
 "Shuttle": "Navette",
 "Sign the worksheet": "Signer la feuille de travail",
 "Signature fields for your PKI certificate in Adobe.": "Champs de signature pour votre certificat ICP dans Adobe.",
-"Signature of Claimant": "Signature du réclamant",
-"Signature of Claimant (PKI digital signature)": "Signature du réclamant (signature numérique ICP)",
 "Signed by you and the officer, in person.": "Signée par vous et l'officier, en personne.",
 "Signing": "Signature",
 "Sold": "Vendu",
@@ -1799,8 +1794,6 @@ const FR = {
 "TAN filled in.": "TAN rempli.",
 "TAN {0}.": "TAN {0}.",
 "TAN: {0}": "TAN : {0}",
-"TD claim package": "Trousse de réclamation de ST",
-"TEMPORARY DUTY CLAIM": "RÉCLAMATION DE SERVICE TEMPORAIRE",
 "TO WIT:": "À SAVOIR :",
 "TOTAL CLAIMED": "TOTAL RÉCLAMÉ",
 "Tab only": "Onglet seulement",
@@ -1811,7 +1804,6 @@ const FR = {
 "Telephone": "Téléphone",
 "Telephone \"{0}\" must be ###-###-#### or ###-####.": "Le téléphone « {0} » doit être au format ###-###-#### ou ###-####.",
 "Telephone and ext.": "Téléphone et poste",
-"Temporary duty claim": "Réclamation de service temporaire",
 "Temporary duty itinerary worksheet and receipts, compiled into one PDF for the Orderly Room.": "Feuille de travail de l'itinéraire de service temporaire et reçus, réunis en un seul PDF pour la salle des rapports.",
 "Test data loaded: every section is filled in, with four missing receipts and one edited declaration.": "Données d'essai chargées : chaque section est remplie, avec quatre reçus manquants et une déclaration modifiée.",
 "That PIN is not right. Try again, or forget this device to start over.": "Ce NIP n'est pas le bon. Essayez de nouveau, ou oubliez cet appareil pour recommencer.",
@@ -1833,7 +1825,7 @@ const FR = {
 "The test version. Each version keeps its own claims.": "La version d'essai. Chaque version conserve ses propres réclamations.",
 "The trip name is shown at the top of the PDF and used in the file name. The TAN and trip locator are printed under it.": "Le nom du voyage figure en haut du PDF et dans le nom du fichier. Le TAN et le code de réservation du voyage sont imprimés en dessous.",
 "The two PINs do not match.": "Les deux NIP ne correspondent pas.",
-"This PDF could not be added to the package. It may be password-protected or damaged. Submit \"{0}\" separately with this claim.": "Ce PDF n'a pas pu être ajouté à la trousse. Il est peut-être protégé par un mot de passe ou endommagé. Soumettez « {0} » séparément avec cette réclamation.",
+"This PDF could not be added to the package. It may be password-protected or damaged. Submit \"{0}\" separately with this itinerary.": "Ce PDF n'a pas pu être ajouté à la trousse. Il est peut-être protégé par un mot de passe ou endommagé. Soumettez « {0} » séparément avec cet itinéraire.",
 "This browser cannot read iPhone HEIC photos. Set the camera to \"Most Compatible\".": "Ce navigateur ne peut pas lire les photos HEIC de l'iPhone. Réglez l'appareil photo sur « Le plus compatible ».",
 "This browser did not save your claim. Export a claim file now to keep your work.": "Ce navigateur n'a pas enregistré votre réclamation. Exportez maintenant un fichier de réclamation pour conserver votre travail.",
 "This browser refused to save. Export a claim file to be safe.": "Ce navigateur a refusé d'enregistrer. Par prudence, exportez un fichier de réclamation.",
@@ -2044,14 +2036,11 @@ const FR = {
 "© 2026 Thomas Huet.": "© 2026 Thomas Huet.",
 "Amounts in other currencies": "Montants en d'autres devises",
 "BEFORE YOU SEND": "AVANT L'ENVOI",
-"CLAIMANT SUMMARY": "SOMMAIRE POUR LE RÉCLAMANT",
-"Claimant summary": "Sommaire pour le réclamant",
 "Field": "Campagne",
 "Field (night in the field)": "Campagne (nuit en campagne)",
 "Field ({0})": "Campagne ({0})",
 "Field days leave meals unticked unless you tick them.": "Les jours en campagne laissent les repas décochés, sauf si vous les cochez.",
 "Field nights are in section D.": "Les nuits en campagne sont à la section D.",
-"For you, the claimant": "Pour vous, le réclamant",
 "In ClaimsX order": "Dans l'ordre de ClaimsX",
 "In the field": "En campagne",
 "Leave / field": "Congé / campagne",
@@ -2060,10 +2049,8 @@ const FR = {
 "No meals or lodging are claimed for leave days.": "Aucun repas ni hébergement n'est réclamé pour les jours de congé.",
 "Nothing to look over. Every expense has a receipt or a missing-receipt declaration.": "Rien à vérifier. Chaque dépense a un reçu ou une déclaration de reçu manquant.",
 "Sections A to G, totals and receipt index. You sign it.": "Sections A à G, totaux et index des reçus. Vous la signez.",
-"TD claim worksheet": "Feuille de travail de la réclamation de ST",
 "TOTAL ENTERED": "TOTAL SAISI",
 "Taken out of the field stay in section D.": "Retiré du séjour en campagne à la section D.",
-"Temporary duty claim worksheet": "Feuille de travail de la réclamation de service temporaire",
 "They are listed apart and not converted.": "Ils sont indiqués à part et ne sont pas convertis.",
 "What you entered": "Ce que vous avez saisi",
 "and {0} more under Before you build, in the app": "et {0} de plus sous Avant de produire, dans l'application",
@@ -2093,7 +2080,6 @@ const FR = {
 "Meal claimed": "Repas réclamé",
 "This day only": "Cette journée seulement",
 "This day through {0}": "De cette journée au {0}",
-"This page is not part of the claim. The claim starts on page {0}.": "Cette page ne fait pas partie de la réclamation. La réclamation commence à la page {0}.",
 "duty day": "jour de service",
 "{0} set to a duty day.": "{0} : jour de service.",
 "{0}: {1}. Change leave or field": "{0} : {1}. Modifier le congé ou la campagne",
@@ -2103,6 +2089,16 @@ const FR = {
 "No meals or lodging to claim for this day.": "Aucun repas ni hébergement à réclamer pour cette journée.",
 "You slept in the field. A field stay is added to section D and meals are left unticked.": "Vous avez dormi en campagne. Un séjour en campagne est ajouté à la section D et les repas sont décochés.",
 "Apply to": "Appliquer à",
+"Also entered, not converted": "Aussi saisi, non converti",
+"Traveller and point of contact": "Voyageur et point de contact",
+"Traveller, no point of contact": "Voyageur, sans point de contact",
+"Signature of traveller": "Signature du voyageur",
+"Signature of traveller (PKI digital signature)": "Signature du voyageur (signature numérique ICP)",
+"TEMPORARY DUTY TRAVEL ITINERARY": "ITINÉRAIRE DE VOYAGE EN SERVICE TEMPORAIRE",
+"TRAVELLER SUMMARY": "SOMMAIRE POUR LE VOYAGEUR",
+"For you, the traveller": "Pour vous, le voyageur",
+"Temporary duty travel itinerary": "Itinéraire de voyage en service temporaire",
+"This page is not part of the itinerary. The itinerary starts on page {0}.": "Cette page ne fait pas partie de l'itinéraire. L'itinéraire commence à la page {0}.",
 };
 // Itinerary reader for Amex GBT (Government of Canada Travel Services) itineraries.
 // Text lines in, travel segments out. Pure functions: no network, no storage, no page access,
@@ -3268,7 +3264,7 @@ function fileBase() {
   const part = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const start = (S.stops[0] || {}).depDate, t = new Date(), today = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`, d = isoOk(start) ? start : today;
   const who = [rankAbbr(S.member.rank), S.member.surname].map(part).filter(Boolean).join('-');
-  return [d.replace(/-/g, ''), part(S.fileNo), markCode(S.marking), fr() ? 'Reclamation-ST' : 'TD-Claim', part(S.tripRef), who].filter(Boolean).join('_');
+  return [d.replace(/-/g, ''), part(S.fileNo), markCode(S.marking), fr() ? 'Itineraire-ST' : 'TD-Itinerary', part(S.tripRef), who].filter(Boolean).join('_');
 }
 
 /* ---------- persistence (this tab only) ---------- */
@@ -3977,7 +3973,7 @@ function offlineHtml() {
 const offlineName = () => `${fr() ? 'Itineraire-voyage-numerique-FAC' : 'CAF_Digital_Travel_Itinerary'}_v${APP_VERSION}.html`;
 // SHA-256 of this version's published offline file, filled in by build.py. It is empty inside the offline file itself,
 // because a file cannot carry its own checksum. Members compare a copy they were sent against it, or against the README.
-const OFFLINE_SHA = 'aa3940865c9e65b88a198fe3159404e6a5e4aa055aa3772bd741e396ecdf6a43';
+const OFFLINE_SHA = '6b2176a7a5fa9843feb92de3d65ca99adb0588f03f4e387b8056c3b057e0a29a';
 const OFFLINE_FILE = 'CAF_Digital_Travel_Itinerary.html';
 const SUMS_URL = 'https://github.com/AlcubierreWarp/Travel-Claim-Packager#checksums';
 async function sha256hex(buf) { const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
@@ -4017,9 +4013,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.10-beta.3';
+const APP_VERSION = '1.10-beta.4';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.10 beta 3, built 06 Nov 2026 00:04 (production is 1.9)';
+const APP_LABEL = 'Version 1.10 beta 4, built 06 Nov 2026 00:12 (production is 1.9)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4460,7 +4456,7 @@ function formHead(P) {
   const refs = [['File number', S.fileNo.trim()], ['Trip dates', td ? rangeText([td[0], td[td.length - 1]]) : ''], ['TAN', S.tan.trim()], ['Trip locator', S.locator.trim()]].filter(([, v]) => v);
   const bw = 118, cols = Math.min(2, refs.length) || 1, rows = Math.ceil(refs.length / cols), bh = 24, gx = W - M - cols * bw;
   P.text(T('CAF Digital Travel Itinerary').toUpperCase(), M, top - 8, { size: 6.8, font: B, color: C.mid });
-  P.text(T('Temporary duty claim worksheet'), M, top - 25, { size: 15, font: B });
+  P.text(T('Temporary duty travel itinerary'), M, top - 25, { size: 15, font: B });
   const sub = [S.tripRef.trim(), fullName()].filter(Boolean).join('   |   ');
   if (sub) P.text(P.fit(sub, F, 9.5, gx - M - 12), M, top - 40, { size: 9.5, color: C.mid });
   refs.forEach(([l, v], i) => { const x = gx + (i % cols) * bw, y = top - (Math.floor(i / cols) + 1) * bh; P.page.drawRectangle({ x, y, width: bw, height: bh, borderColor: C.line, borderWidth: .5 }); P.text(T(l).toUpperCase(), x + 3.5, y + bh - 8, { size: 5.8, font: B, color: C.mid }); P.text(P.fit(v, F, 8.6, bw - 7), x + 3.5, y + 5, { size: 8.6 }); });
@@ -4526,9 +4522,9 @@ function drawWorksheet(P, items, wsPages, inFile) {
   P.text(T('Certification').toUpperCase(), P.M + 8, bt - 13, { size: 7.4, font: P.B, color: P.C.mid });
   P.text(T('I certify that the information on this worksheet is correct and complete.'), P.M + 8, bt - 27, { size: 8.6 });
   if (S.pki) {
-    P.sigField('Claimant_Signature', P.M + 8, by + 18, 260, 32, T('Signature of Claimant (PKI digital signature)'));
+    P.sigField('Claimant_Signature', P.M + 8, by + 18, 260, 32, T('Signature of traveller (PKI digital signature)'));
   } else {
-    P.sigLine(P.M + 8, by + 22, 260, T('Signature of Claimant'));
+    P.sigLine(P.M + 8, by + 22, 260, T('Signature of traveller'));
     P.sigLine(P.M + 300, by + 22, P.W - 2 * P.M - 308, T('Date'));
   }
   P.y = by - 10;
@@ -4822,7 +4818,7 @@ function prettyFacts() {
   const miss = (arr, sec) => { const refs = []; arr.forEach((r, i) => { if (r.lost) refs.push(`${DEFS[sec].L}-${i + 1}`); }); return refs; };
   const withMiss = (base, arr, sec) => { const m = miss(arr, sec); return m.length ? base + ', ' + nPl(m.length, '{0} missing receipt ({1})', '{0} missing receipts ({1})', m.join(', ')) : base; };
   const leaves = S.stops.slice(1, -1).filter(s => s.leave).length, td = tripDates();
-  L.A = S.poc.on ? T('Claimant and point of contact') : T('Claimant, no point of contact');
+  L.A = S.poc.on ? T('Traveller and point of contact') : T('Traveller, no point of contact');
   L.B = [n(S.stops.length, '{0} stop', '{0} stops'), td ? rangeText([td[0], td[td.length - 1]]) : '', leaves ? n(leaves, '{0} leave stop', '{0} leave stops') : ''].filter(Boolean).join(', ');
   L.C = S.transport.length ? withMiss(n(S.transport.length, '{0} line', '{0} lines'), S.transport, 'transport') : '';
   const st = S.lodging.stays, kinds = [['Commercial', st.filter(r => isStd(r)).length], ['Quarters', st.filter(r => r.quarters).length], ['Private', st.filter(r => r.priv).length], ['Field', st.filter(r => r.field).length]].filter(k => k[1]);
@@ -4854,7 +4850,7 @@ function prettyCover(P, items, ctx) {
   const blocks = [];
   // the page opens with a navy band across the top: the same type and colours as the rest of the package, set apart
   // so the reader sees at once that this page is for the claimant and the claim itself starts on the next page
-  const title = S.tripRef.trim() || T('Temporary duty claim'), noteW = 168, tW = CW - noteW - 24;
+  const title = S.tripRef.trim() || T('Temporary duty travel itinerary'), noteW = 168, tW = CW - noteW - 24;
   let ts = 26, tl = P.wrap(title, B, ts, tW); while (tl.length > 2 && ts > 18) { ts -= 2; tl = P.wrap(title, B, ts, tW); }
   if (tl.length > 2) { tl = tl.slice(0, 2); tl[1] = P.fit(tl[1] + '...', B, ts, tW); }
   const nd = td ? td.length : 0;
@@ -4867,14 +4863,14 @@ function prettyCover(P, items, ctx) {
     else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.blue }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
     P.text(P.fit([T('CAF Digital Travel Itinerary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.pale });
     P.line(M, y - 27, M + CW, y - 27, .75, K.blue);
-    P.text(T('CLAIMANT SUMMARY'), M, y - 45, { size: 9, font: B, color: K.pale });
+    P.text(T('TRAVELLER SUMMARY'), M, y - 45, { size: 9, font: B, color: K.pale });
     tl.forEach((l, i) => P.text(l, M, y - 52 - ts * .82 - i * ts * 1.08, { size: ts, font: B, color: K.white }));
     P.text(P.fit(subl, F, 11.25, CW), M, y - 52 - tl.length * ts * 1.08 - 12, { size: 11.25, color: K.pale });
     // the note sits in the band as type, set off by a rule: it reads as part of the page, not stuck on it
     const nx = M + CW - noteW, ny = y - 45;
-    const nl = P.wrap(T('This page is not part of the claim. The claim starts on page {0}.', ctx.wsStart || 2), F, 9, noteW).slice(0, 3);
+    const nl = P.wrap(T('This page is not part of the itinerary. The itinerary starts on page {0}.', ctx.wsStart || 2), F, 9, noteW).slice(0, 3);
     P.line(nx - 12, ny + 10, nx - 12, ny - 17 - (nl.length - 1) * 11.5, 1.5, K.amber);
-    P.text(T('For you, the claimant'), nx, ny, { size: 10.5, font: B, color: K.white });
+    P.text(T('For you, the traveller'), nx, ny, { size: 10.5, font: B, color: K.white });
     nl.forEach((l, i) => P.text(l, nx, ny - 14 - i * 11.5, { size: 9, color: K.pale }));
   } });
   // two cards: what is left to do, and the total entered in the main currency (others listed, never added together)
@@ -4903,7 +4899,7 @@ function prettyCover(P, items, ctx) {
       segs.forEach((s, i) => { const cx = x2 + 15 + (cols2 ? (i % 2) * (colW + 12) : 0), cy = yy - (cols2 ? Math.floor(i / 2) : i) * 12.5; P.page.drawRectangle({ x: cx, y: cy - 1, width: 7.5, height: 7.5, color: K.barL[i] }); const av = fmtN(s.v), ls = cols2 ? 8.25 : 9; P.text(P.fit(`${s.L}  ${T(PSHORT[s.L])}`, F, ls, colW - 12 - P.tw(av, ls, B) - 5), cx + 12, cy, { size: ls, color: K.soft }); P.tr(av, cx + colW, cy, ls, B, K.ink); });
       yy -= legendRows * 12.5;
     }
-    others.slice(0, 2).forEach((c, i) => { const cy = yy - 6 - i * 16; if (i === 0) P.line(x2 + 15, cy + 11, x2 + cw - 15, cy + 11, .75, K.hair); P.text(T('Also claimed, not converted'), x2 + 15, cy, { size: 9, color: K.mid }); P.tr(c, x2 + cw - 15, cy, 9, B, K.mid); P.tr(fmtN(gt[c]), x2 + cw - 15 - P.tw(c, 9, B) - 5, cy, 11.25, B, K.ink); });
+    others.slice(0, 2).forEach((c, i) => { const cy = yy - 6 - i * 16; if (i === 0) P.line(x2 + 15, cy + 11, x2 + cw - 15, cy + 11, .75, K.hair); P.text(T('Also entered, not converted'), x2 + 15, cy, { size: 9, color: K.mid }); P.tr(c, x2 + cw - 15, cy, 9, B, K.mid); P.tr(fmtN(gt[c]), x2 + cw - 15 - P.tw(c, 9, B) - 5, cy, 11.25, B, K.ink); });
   } });
   // things to look over: days changed by hand, field and leave days, other currencies, open checks
   const all = summaryChecks(), MAXC = 7, shown = all.slice(0, MAXC), more = all.length - shown.length;
@@ -4985,12 +4981,12 @@ function prettyTitle(P) {
   const { M, CW, K, F, B } = P, td = tripDates(), y = P.y;
   if (P.logo) P.page.drawImage(P.logo, { x: M, y: y - 21, width: 21, height: 21 });
   else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.navy }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
-  P.text(P.fit([T('CAF Digital Travel Itinerary'), T('TD claim worksheet'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
+  P.text(P.fit([T('CAF Digital Travel Itinerary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
   P.line(M, y - 27, M + CW, y - 27, 1.5, K.navy);
-  const title = S.tripRef.trim() || T('Temporary duty claim');
+  const title = S.tripRef.trim() || T('Temporary duty travel itinerary');
   let ts = 22, tl = P.wrap(title, B, ts, CW); while (tl.length > 1 && ts > 15) { ts -= 1.5; tl = P.wrap(title, B, ts, CW); }
   tl = [P.fit(tl[0] + (tl.length > 1 ? '...' : ''), B, ts, CW)];
-  P.text(T('TEMPORARY DUTY CLAIM'), M, y - 45, { size: 9, font: B, color: K.blue });
+  P.text(T('TEMPORARY DUTY TRAVEL ITINERARY'), M, y - 45, { size: 9, font: B, color: K.blue });
   P.text(tl[0], M, y - 51 - ts * .82, { size: ts, font: B, color: K.navy });
   const nd = td ? td.length : 0;
   const sub = [td ? rangeText([td[0], td[td.length - 1]]) : '', nd ? (nd === 1 ? T('Day trip') : T('{0} days, {1} nights', nd, nd - 1)) : '', fullName(), S.tan.trim() ? T('TAN: {0}', S.tan.trim()) : '', S.locator.trim() ? T('Trip locator: {0}', S.locator.trim()) : ''].filter(Boolean).join('  ·  ');
@@ -5164,8 +5160,8 @@ function prettyIndex(P, items, ctx, rec) {
   P.text(T('Certification'), M + 15, top - 22, { size: 13.5, font: B, color: K.navy });
   P.text(T('I certify that the information on this worksheet is correct and complete.'), M + 15, top - 39, { size: 10.5 });
   const sw = (CW - 30) * .6, sx = M + 15, sy = y + 22;
-  if (S.pki) P.sigField('Claimant_Signature', sx, sy, sw, 38, T('Signature of Claimant (PKI digital signature)'));
-  else { P.sigLine(sx, sy + 6, sw, T('Signature of Claimant')); P.sigLine(sx + sw + 18, sy + 6, CW - 30 - sw - 18, T('Date')); }
+  if (S.pki) P.sigField('Claimant_Signature', sx, sy, sw, 38, T('Signature of traveller (PKI digital signature)'));
+  else { P.sigLine(sx, sy + 6, sw, T('Signature of traveller')); P.sigLine(sx + sw + 18, sy + 6, CW - 30 - sw - 18, T('Date')); }
   if (S.pki) { P.text(T('Date: recorded by the signature'), sx + sw + 18, sy + 18, { size: 9, color: K.mid }); }
   P.y = y - 10;
 }
@@ -5269,7 +5265,7 @@ async function build() {
       if (!ok) {
         for (let k = 0; k < it.pages; k++) {
           P.newPage(); const top = rcHead(P, it, title, meta);
-          if (k === 0) P.wrap(T('This PDF could not be added to the package. It may be password-protected or damaged. Submit "{0}" separately with this claim.', it.r.name), P.F, 10, P.W - 2 * P.M).forEach((l, j) => P.text(l, P.M, top - 20 - j * 14, { size: 10 }));
+          if (k === 0) P.wrap(T('This PDF could not be added to the package. It may be password-protected or damaged. Submit "{0}" separately with this itinerary.', it.r.name), P.F, 10, P.W - 2 * P.M).forEach((l, j) => P.text(l, P.M, top - 20 - j * 14, { size: 10 }));
         }
       }
     };
@@ -5348,7 +5344,7 @@ async function build() {
     const res = $('#result');
     const iosHint = IOS_PWA ? ' ' + T('Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.') : '';
     const howTo = S.pki
-      ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the claimant field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the claimant field on page {1} and the {0} declarations with your PKI certificate.', signPage) : T('Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.', signPage))
+      ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the traveller field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the traveller field on page {1} and the {0} declarations with your PKI certificate.', signPage) : T('Open it in Adobe and sign the traveller field on page {0} with your PKI certificate.', signPage))
       : (nDecl ? nPl(nDecl, 'Print it, then sign and date page {1} and sign the {0} declaration in front of the officer.', 'Print it, then sign and date page {1} and sign the {0} declarations in front of the officer.', signPage) : T('Print it, then sign and date page {0}.', signPage));
     if (split) {
       const one = (x, i) => `<li><div><strong>${esc(x.label)}</strong><span class="pf-name">${esc(x.name)}</span><span>${esc(x.what)} ${esc(nPl(x.pages, '{0} page', '{0} pages'))}, ${esc(sizeOf(x.bytes.length))}.</span></div><div class="acts"><button class="btn" data-act="save-part" data-i="${i}">${esc(IOS_PWA && SEND.pdf ? T('Save or send') : T('Save'))}</button>${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-part" data-i="${i}">${esc(T('Open'))}</button>`}</div></li>`;

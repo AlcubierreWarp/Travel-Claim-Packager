@@ -26,8 +26,8 @@ async def main():
         await q.click("#menu-btn"); await q.click("#beta-testdata"); await q.wait_for_timeout(1500)
         f = await build(q, "ti-test.pdf"); t = texts(f); allt = " ".join(t)
         print("  test claim:", len(t), "pages")
-        check("cover: the brand, the trip, the ticket and the journey", all(w in t[0] for w in ("TRAVEL ITINERARY", "Beta test, Exercise SAMPLE TIDE", "FROM", "RETURN", "NIGHTS", "Journey", "In this package", "Before you send", "What comes next")), t[0][:500])
-        check("cover: points at the contact sheet, the clerk sheet and the receipts", re.search(r"Receipts at a glance, page 2", t[0]) and re.search(r"finance clerk, from page \d", t[0]) and re.search(r"declarations, from page \d", t[0]), t[0][-300:])
+        check("cover: the brand, the trip, the ticket and the journey", all(w in t[0] for w in ("TRAVEL ITINERARY", "Beta test, Exercise SAMPLE TIDE", "FROM", "RETURN", "NIGHTS", "Journey", "In this package", "Before you send")), t[0][:500])
+        check("cover: the jacket carries the disc line and the fields", all(w in t[0] for w in ("TRAVELLER", "PART 1 OF 2", "CDN", "FILE NUMBER", "PERIOD", "DESTINATION")), t[0][:300])
         check("contact sheet: every item with its reference, amount and page", "Receipts at a glance" in t[1] and all(w in t[1] + t[2] for w in ("C-1", "612.40 CAD", "C-4 SD", "STATUTORY DECLARATION", "E-4 SD")) and re.search(r"C-1\s+p\. \d+", t[1]), (t[1] + t[2])[:400])
         ci = next(i for i, x in enumerate(t) if "DATA ENTRY SHEET" in x and "FINANCE" in x and "PART 2 OF 2" in x)
         check("clerk sheet: ClaimsX steps in order", all(re.search(r"\b%s\s+%s" % (n, w), allt) for n, w in ((1, "Itinerary"), (2, "Transportation"), (3, "Lodging"), (4, "Other expenses"), (5, "Gain or loss on exchange"), (6, "Meals"))) and allt.index("Other expenses") < allt.index("Gain or loss") < allt.index("Meals to enter"), allt[:200])
@@ -37,7 +37,7 @@ async def main():
         fields = PdfReader(str(f)).get_fields() or {}
         check("PKI signature field on the clerk sheet", "Claimant_Signature" in fields and "Sign the data entry sheet" in t[0] and f"page {ci + 3}" in t[0] or "Claimant_Signature" in fields, list(fields))
         check("every page carries its part, TRAVELLER before FINANCE", all(("TRAVELLER" in x) != ("FINANCE" in x) for x in t) and "TRAVELLER" in t[0] and "FINANCE" in t[ci] and all("FINANCE" in x for x in t[ci:]), [i + 1 for i, x in enumerate(t) if ("TRAVELLER" in x) == ("FINANCE" in x)])
-        check("finance opener stands alone: part, surname, file number, dates", all(w in t[ci] for w in ("FINANCE", "TESTER", "FILE NUMBER", "7209-1", "DATES", "TOTAL")), t[ci][:300])
+        check("finance opener stands alone: part, surname, file number, dates", all(w in t[ci] for w in ("FINANCE", "TESTER", "001", "FILE NUMBER", "7209-1", "PERIOD", "09-15 NOV 26", "TOTAL ENTERED", "CDN")), t[ci][:300])
         check("no hint text on the data entry sheet", not any(w in allt for w in ("Enter in ClaimsX", "Every stop, with", "Three screens", "Commercial stays have", "phone plan charges and calls", "One line per day", "nothing to enter")))
         ri = next(i for i, x in enumerate(t) if "listed on page" in x); check("receipt pages: the slim header with the reference", "RECEIPT" in t[ri] and "C-1" in t[ri], t[ri][:200])
         check("no page has text in the footer zone or off the page", all(not re.search(r"undefined|NaN|\[object", x) for x in t))
@@ -45,7 +45,7 @@ async def main():
         await q.check("#pk-split"); await q.evaluate("document.getElementById('sec-P').scrollIntoView()"); await q.click("#build-btn"); await q.wait_for_selector(".part-list li")
         async with q.expect_download() as dl: await q.click("[data-act=save-part][data-i='0']")
         f3 = fx / "ti-split-ws.pdf"; await (await dl.value).save_as(str(f3)); t3 = texts(f3)
-        check("separate files: cover, contact sheet and clerk sheet in the first file, receipts say which file", "TRAVEL ITINERARY" in t3[0] and "Data entry sheet" in " ".join(t3) and "Receipts p. 1" in " ".join(t3) and "Own file" in " ".join(t3), [x for x in " ".join(t3).split("\n") if "p. 1" in x or "file" in x][:6])
+        check("separate files: cover, contact sheet and clerk sheet in the first file, receipts say which file", "TRAVEL ITINERARY" in t3[0] and "DATA ENTRY SHEET" in " ".join(t3) and "Receipts p. 1" in " ".join(t3) and "Own file" in " ".join(t3), [x for x in " ".join(t3).split("\n") if "p. 1" in x or "file" in x][:6])
         await q.check("#pk-one")
         # the example claim, with the option on, in both languages
         await c.close()

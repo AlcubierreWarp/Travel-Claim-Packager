@@ -1033,4 +1033,8 @@ const FR = {
 "{0} item": "{0} élément",
 "{0} items": "{0} éléments",
 "Tel. {0}": "Tél. {0}",
+"Period": "Période",
+"Destination": "Destination",
+"SURNAME": "NOM DE FAMILLE",
+"CANADIAN ARMED FORCES": "FORCES ARMÉES CANADIENNES",
 };

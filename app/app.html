@@ -3802,10 +3802,11 @@ const TI_LEAF = 'M50 2 L58 18 L66 14 L62 38 L76 26 L78 34 L92 30 L86 46 L94 50 L
 // the trip's dates, short enough for a typed field: 02-06 NOV 26, 28 OCT - 03 NOV 26, or both dates in full
 const tiPeriod = td => { if (!td) return '-'; const a = fmtDate(td[0]), b = fmtDate(td[td.length - 1]); if (td.length < 2) return a.toUpperCase(); const x = a.split(' '), y = b.split(' ');
   return (x.length === 3 && y.length === 3 && x[2] === y[2] ? (x[1] === y[1] ? `${x[0]}-${y[0]} ${y[1]} ${y[2]}` : `${x[0]} ${x[1]} - ${b}`) : `${a} - ${b}`).toUpperCase(); };
+const tiShort = c => { c = String(c || '').trim(); const k = c.match(/\(([A-Z0-9]{3,4})\)\s*$/); return k ? k[1] : c; };
 const tiInits = g => String(g || '').replace(/\(.*?\)/g, ' ').split(/[\s-]+/).filter(Boolean).map(w => w[0].toUpperCase() + '.').join('');
 function tiify(P) {
   const { rgb, degrees } = PDFLib, hx = s => rgb(parseInt(s.slice(1, 3), 16) / 255, parseInt(s.slice(3, 5), 16) / 255, parseInt(s.slice(5, 7), 16) / 255);
-  const K = P.K; Object.assign(K, { ink: hx('#1b2433'), navy: hx('#1b2433'), teal: hx('#2c4a6e'), tealSoft: hx('#e6ecf3'), sand: hx('#f4efe2'), sandLine: hx('#ddd3bb'), slate: hx('#6b6f73'), part: { trav: hx('#2c4a6e'), clerk: hx('#4b5a2c'), rc: hx('#4b5a2c') }, tint: { trav: hx('#c9d4e2'), clerk: hx('#d5dbc2'), rc: hx('#d5dbc2') }, buff: hx('#f1e8d0'), buffLine: hx('#d3c49f'), buffInk: hx('#6e5f3e'), disc1: hx('#566b3c'), disc2: hx('#a8322a'), cream: hx('#f6efdc'), stamp: hx('#b3261e'), red: hx('#c8281e'), hair: hx('#e3e2dc'), rule: hx('#c9c6bc') });
+  const K = P.K; Object.assign(K, { ink: hx('#1b2433'), navy: hx('#1b2433'), teal: hx('#2c4a6e'), tealSoft: hx('#e6ecf3'), sand: hx('#f4efe2'), sandLine: hx('#ddd3bb'), slate: hx('#6b6f73'), part: { trav: hx('#2c4a6e'), clerk: hx('#4b5a2c'), rc: hx('#4b5a2c') }, tint: { trav: hx('#c9d4e2'), clerk: hx('#d5dbc2'), rc: hx('#d5dbc2') }, buff: hx('#f1e8d0'), buffLine: hx('#d3c49f'), buffInk: hx('#6e5f3e'), disc1: hx('#566b3c'), disc2: hx('#a8322a'), cream: hx('#f6efdc'), tape: hx('#f8f3e6'), tapeLine: hx('#d9cfb6'), stamp: hx('#b3261e'), red: hx('#c8281e'), hair: hx('#e3e2dc'), rule: hx('#c9c6bc') });
   const { M, W, H, F, B, CW } = P;
   Object.assign(P, { ti: true, part: 'trav' });
   const rawNew = () => { P.page = P.doc.addPage([W, H]); P.y = H - M; };
@@ -3832,56 +3833,55 @@ function tiify(P) {
   P.turn = (cx, cy, deg, fn) => { const r = deg * Math.PI / 180, c = Math.cos(r), n = Math.sin(r); P.page.pushOperators(pushG(), cm(c, n, -n, c, cx, cy)); try { fn(); } finally { P.page.pushOperators(popG()); } };
   P.leaf = (x, y, s, color) => P.page.drawSvgPath(TI_LEAF, { x, y: y + s, scale: s / 100, color });
   P.octagon = (x, y, s, o) => { const k = s * .2929, d = `M${k} 0 L${s - k} 0 L${s} ${k} L${s} ${s - k} L${s - k} ${s} L${k} ${s} L0 ${s - k} L0 ${k} Z`; P.page.drawSvgPath(d, Object.assign({ x, y: y + s }, o)); };
+  // letterspaced text cut to a width
+  P.fitSp = (t, font, size, track, maxW) => { t = P.clean(t); if (P.spacedW(t, size, font, track) <= maxW) return t; while (t.length > 1 && P.spacedW(t + '...', size, font, track) > maxW) t = t.slice(0, -1); return t + '...'; };
   // a rubber stamp: the word in capitals in a double-ruled box, inked at a slight angle
   P.stamp = (word, cx, cy, size, color, deg) => {
-    const t = P.clean(word), tr = size * .14, tw = P.spacedW(t, size, B, tr), w = tw + size * 1.1, h = size * 1.62, o = { borderColor: color, borderOpacity: .9 };
+    const t = P.clean(word), tr = size * .15, tw = P.spacedW(t, size, B, tr), w = tw + size * 1.25, h = size * 1.75, o = { borderColor: color, borderOpacity: .9 }, sp = PDFLib.setCharacterSpacing;
     P.turn(cx, cy, deg, () => {
-      P.page.drawRectangle(Object.assign({ x: -w / 2, y: -h / 2, width: w, height: h, borderWidth: size * .085 }, o));
-      P.page.drawRectangle(Object.assign({ x: -w / 2 + size * .2, y: -h / 2 + size * .2, width: w - size * .4, height: h - size * .4, borderWidth: size * .03 }, o));
-      const sp = PDFLib.setCharacterSpacing; P.page.pushOperators(sp(tr)); P.page.drawText(t, { x: -tw / 2, y: -size * .36, size, font: B, color, opacity: .9 }); P.page.pushOperators(sp(0));
+      P.page.drawRectangle(Object.assign({ x: -w / 2, y: -h / 2, width: w, height: h, borderWidth: size * .1 }, o));
+      P.page.drawRectangle(Object.assign({ x: -w / 2 + size * .22, y: -h / 2 + size * .22, width: w - size * .44, height: h - size * .44, borderWidth: size * .05 }, o));
+      P.page.pushOperators(sp(tr)); P.page.drawText(t, { x: -tw / 2, y: -size * .36, size, font: B, color, opacity: .9 }); P.page.pushOperators(sp(0));
     });
+    return w;
   };
-  // a part opens like a file jacket: a buff cover with a folder tab, typed labels, the part stamped across it,
-  // and the traveller's identity disc: the last three of the service number and the surname, big enough to read across a table
-  // (the top left of the page stays clear for the official signature block)
+  // a part opens with one buff dossier band from the top of the page: the security marking and the space for the
+  // official signature block on its top line, then the identity disc (in the part's colour) with the surname, then the
+  // typed fields. The part is stamped small beside the surname.
   P.opener = (pk, sub, fields) => {
-    const CR = P.CR || F, CB = P.CB || B, m = S.member, top = H - 74, word = T(TI_PARTS[pk][1]);
-    const rows = 4, bot = top - 270;
-    // the jacket and its tab, under the security marking
-    P.page.drawRectangle({ x: 0, y: bot, width: W, height: top - bot, color: K.buff });
-    const tabW = 190, tabX = M + CW - tabW; P.rr(tabX, top - 6, tabW, 20, 5, { color: K.buff });
-    P.spaced(P.fit(T('PART {0} OF {1}', TI_PARTS[pk][2], 2) + '  ·  ' + word, CB, 7.5, tabW - 20), tabX + 10, top + 3, 7.5, CB, K.buffInk, .8);
-    P.line(0, bot, W, bot, 2, K.red);
-    // the heading, typed
-    P.leaf(M, top - 27, 13, K.red);
-    P.spaced(T('CANADIAN ARMED FORCES'), M + 19, top - 24, 9, CB, K.ink, 1.2);
-    { const tt = T('TRAVEL ITINERARY'), n = P.clean(tt).length, z = Math.min(25, (CW - 222) / (P.tw(tt, 1, B) + .104 * (n - 1))); P.spaced(tt, M, top - 60, z, B, K.ink, z * .104); }
-    P.spaced(P.fit([T('TEMPORARY DUTY'), sub].filter(Boolean).join('  ·  '), CR, 10, 330), M, top - 78, 10, CR, K.buffInk, .6);
-    // the part, stamped
-    P.stamp(word, M + CW - 100, top - 50, P.clean(word).length > 7 ? 21 : 25, K.stamp, -6);
-    P.line(M, top - 94, M + CW, top - 94, .75, K.buffLine);
-    // the identity disc: the green octagonal No. 1 with the last three of the service number, the red round No. 2 hung from it
-    const dy = top - 104, ds = 96, l3 = (m.pri.replace(/[^0-9A-Za-z]/g, '').slice(-3) || '---').toUpperCase();
-    P.octagon(M, dy - ds, ds, { color: K.disc1 });
-    P.page.drawCircle({ x: M + ds / 2, y: dy - 9, size: 3.2, color: K.buff });
-    P.tc('No. 1', M + ds / 2, dy - 24, 6.8, CB, K.cream);
-    const ls = Math.min(40, (ds - 16) / Math.max(1, P.tw(l3, 1, B)));
-    P.tc(l3, M + ds / 2, dy - ds / 2 - ls * .36 - 4, ls, B, K.cream);
-    const rc = 15, rx = M + ds - 4, ry = dy - ds + 4;
-    P.page.drawCircle({ x: rx, y: ry, size: rc + 2.5, color: K.buff }); P.page.drawCircle({ x: rx, y: ry, size: rc, color: K.disc2 }); P.leaf(rx - 9, ry - 9, 18, K.cream);
-    // the surname, as large as the line allows, then the disc's stamped line
-    const sx = M + ds + 26, sw = M + CW - sx, sn = (m.surname.trim() || T('SURNAME')).toUpperCase();
-    const ss = Math.max(26, Math.min(66, sw / Math.max(1, P.tw(sn, 1, B) + .02 * (sn.length - 1))));
-    P.spaced(P.fit(sn, B, ss, sw), sx - ss * .04, dy - 12 - ss * .72, ss, B, K.ink, ss * .02);
+    const CR = P.CR || F, CB = P.CB || B, m = S.member, bot = H - 222, col = K.part[pk], word = T(TI_PARTS[pk][1]);
+    P.page.drawRectangle({ x: 0, y: bot, width: W, height: H - bot, color: K.buff });
+    P.page.drawRectangle({ x: 0, y: bot - 3, width: W, height: 3, color: K.red });
+    // the disc: No. 1 in the part's colour with the last three of the service number, No. 2 red with a maple leaf
+    const ds = 93, dt = H - 74, l3 = (m.pri.replace(/[^0-9A-Za-z]/g, '').slice(-3) || '---').toUpperCase();
+    P.octagon(M, dt - ds, ds, { color: col });
+    P.page.drawCircle({ x: M + ds / 2, y: dt - 9, size: 3.5, color: K.buff });
+    P.tc('No. 1', M + ds / 2, dt - 23, 8.5, CB, K.cream);
+    const ls = Math.min(41, (ds - 16) / Math.max(1, P.tw(l3, 1, B)));
+    P.tc(l3, M + ds / 2, dt - ds / 2 - ls * .36 - 4, ls, B, K.cream);
+    const rx = M + ds - 3, ry = dt - ds + 3;
+    P.page.drawCircle({ x: rx, y: ry, size: 15, color: K.buff }); P.page.drawCircle({ x: rx, y: ry, size: 12, color: K.disc2 }); P.leaf(rx - 7.5, ry - 7.5, 15, K.cream);
+    // the part, stamped small at the right
+    const stW = P.stamp(word, M + CW - 48, dt - 17, 15, K.stamp, -5);
+    // a typed line, the surname as large as the line allows, the disc's stamped line, then the trip
+    const sx = M + ds + 20, sw = M + CW - sx, sn = (m.surname.trim() || T('SURNAME')).toUpperCase();
+    P.spaced(P.fitSp([T('TRAVEL ITINERARY'), sub].filter(Boolean).join('  ·  '), CB, 9, 1.2, sw - stW - 24), sx, dt - 7, 9, CB, K.buffInk, 1.2);
+    const ss = Math.max(26, Math.min(64, sw / Math.max(1, P.tw(sn, 1, B) + .015 * (sn.length - 1)))), base = dt - 16 - ss * .72;
+    P.spaced(P.fit(sn, B, ss, sw), sx - ss * .04, base, ss, B, K.ink, ss * .015);
     const disc = [m.pri.trim(), rankAbbr(m.rank).toUpperCase(), [m.surname.trim().toUpperCase(), tiInits(m.given)].filter(Boolean).join(' '), 'CDN'].filter(Boolean).join('   ');
-    P.spaced(P.fit(disc, CB, 12, sw), sx, dy - 12 - ss * .72 - 22, 12, CB, K.ink, .8);
+    P.spaced(P.fitSp(disc, CB, 12.75, .9, sw), sx, base - 20, 12.75, CB, K.ink, .9);
     const tl = [S.tripRef.trim(), m.section.trim()].filter(Boolean).join('  ·  ');
-    if (tl) P.text(P.fit(tl, B, 11, sw), sx, dy - ds + 2, { size: 11, font: B, color: K.teal });
-    // typed fields along the foot of the jacket
-    const fy = bot + 12, fh = 40, fw = CW / fields.length;
-    fields.forEach(([l, v], i) => { const x = M + i * fw; P.page.drawRectangle({ x, y: fy, width: fw, height: fh, borderColor: K.buffLine, borderWidth: .75 });
-      P.spaced(l.toUpperCase(), x + 7, fy + fh - 11, 6.6, CB, K.buffInk, .5); const vs = Math.max(8.5, Math.min(11.5, (fw - 14) / Math.max(1, P.tw(v || '-', 1, CB)))); P.text(P.fit(v || '-', CB, vs, fw - 14), x + 7, fy + 9, { size: vs, font: CB, color: K.ink }); });
-    return bot - 2;
+    if (tl) P.text(P.fit(tl, B, 11, sw), sx, base - 35, { size: 11, font: B, color: col });
+    // the typed fields, label and value on one line
+    const fy = bot + 39, fw = CW / fields.length;
+    P.line(M, fy, M + CW, fy, .75, K.buffLine);
+    fields.forEach(([l, v], i) => {
+      const x = M + i * fw + (i ? 8 : 0), lab = P.clean(l.toUpperCase()), lw = P.spacedW(lab, 9, CR, .4) + 6, room = fw - lw - (i ? 14 : 6), val = v || '-';
+      if (i) P.line(M + i * fw, fy, M + i * fw, bot + 8, .75, K.buffLine);
+      P.spaced(lab, x, fy - 18, 9, CR, K.buffInk, .4);
+      const vs = Math.max(8.5, Math.min(11.25, room / Math.max(1, P.tw(val, 1, CB)))); P.text(P.fit(val, CB, vs, room), x + lw, fy - 18, { size: vs, font: CB, color: K.ink });
+    });
+    return bot - 3;
   };
 
 }
@@ -3906,79 +3906,139 @@ function tiRcCell(P, items, ctx, sec, i, row) {
   const pg = ctx.pageOf ? [...new Set(its.map(x => ctx.pageOf(x)).filter(Boolean))] : [];
   return { chip: refs + (pg.length ? '  ' + T('p. {0}', pg.length > 1 ? `${pg[0]}-${pg[pg.length - 1]}` : pg[0]) : '') };
 }
-// Part 1, page 1: the traveller's cover. Blocks of known height, spread down the page.
+// Part 1, page 1: the traveller's copy. The dossier band, the trip day by day (travel, nights, meals and expenses on
+// each day, so a gap shows), then what to do before sending, the enclosures, and a receipt tape of every line sent.
 function tiCover(P, items, ctx) {
-  const { M, CW, K, F, B } = P; P.part = 'trav'; P.newPage(true);
-  const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), st = S.stops, n = st.length, blocks = [];
-  // the jacket (it names the trip), then the trip at a glance
-  const per = tiPeriod(td);
-  const top0 = P.opener('trav', '', [[T('File number'), S.fileNo.trim()], [T('Period'), per], [T('Destination'), (tripDest() || '').toUpperCase()], [T('TAN'), S.tan.trim()]]) - 20;
-  // the ticket: where and when, in a sand panel with a perforated stub for the counts
-  const first = st[0], last = st[n - 1], dest = tripDest(), nd = td ? td.length : 0;
-  const dl = (d, t) => [isoOk(d) ? `${dow(d)} ${dShort(d)}` : '-', t ? hm(t) : ''];
-  const cells = [[T('From'), first.city.trim() || '-', ''], [T('To'), dest || '-', ''], [T('Depart'), ...dl(first.depDate, first.depTime)], [T('Return'), ...dl(last.arrDate, last.arrTime)]];
-  const stub = [[T('Days'), String(nd || '-')], [T('Nights'), String(nd ? nd - 1 : '-')], [T('Stops'), String(Math.max(0, n - 2))]];
-  const th = 66, stubW = 150, mainW = CW - stubW, cw = mainW / cells.length;
-  blocks.push({ h: th, gap: 22, draw: y => {
-    P.rr(M, y - th, CW, th, 6, { color: K.sand });
-    cells.forEach(([l, v, v2], i) => { const x = M + i * cw + 14; if (i) P.line(M + i * cw, y - 10, M + i * cw, y - th + 10, .75, K.sandLine); P.spaced(l.toUpperCase(), x, y - 17, 6.6, B, K.slate, 1.2); const vs = [12.75, 11.25, 9.75].find(z => P.tw(v, z, B) <= cw - 26) || 9.75; P.text(P.fit(v, B, vs, cw - 26), x, y - 38, { size: vs, font: B }); if (v2) P.text(v2, x, y - 52, { size: 9, color: K.mid }); });
-    P.line(M + mainW, y - 6, M + mainW, y - th + 6, 1, K.slate, [2, 2.5]);
-    stub.forEach(([l, v], i) => { const x = M + mainW + 14 + i * (stubW - 14) / 3; P.spaced(l.toUpperCase(), x, y - 17, 6.6, B, K.slate, 1.2); P.text(v, x, y - 38, { size: 12.75, font: B, color: K.teal }); });
-  } });
-  // journey: one dot per place stayed overnight (or each stop on a short trip), how each leg was travelled
-  const stays = st.slice(1, -1).filter(s => isoOk(s.arrDate) && isoOk(s.depDate) && s.depDate > s.arrDate);
-  let nodes = stays.length ? [0, ...stays.map(s => st.indexOf(s)), n - 1] : st.map((s, i) => i);
-  let more = 0; if (nodes.length > 6) { more = nodes.length - 5; nodes = [...nodes.slice(0, 4), -1, n - 1]; }
-  const legIcons = (a, b) => [...new Set(st.slice(a, b).map(s => modeIcon(s.mode)).filter(Boolean))].slice(0, 3);
-  blocks.push({ h: 72, gap: 22, draw: y => {
-    P.text(T('Journey'), M, y - 11, { size: 11.25, font: B, color: K.ink }); if (n > nodes.length) P.tr(T('All {0} stops on page {1}', n, ctx.secPage && ctx.secPage.B || ''), M + CW, y - 11, 9, F, K.mid);
-    const cnt = nodes.length, slot = CW / cnt, ly = y - 36;
-    nodes.forEach((ix, k) => {
-      const x = M + slot * (k + .5), nx = x + slot, s0 = ix >= 0 ? st[ix] : null;
-      if (k < cnt - 1) { P.line(x + 5, ly, nx - 5, ly, 1.5, K.teal); const ic = ix >= 0 && nodes[k + 1] >= 0 ? legIcons(ix, nodes[k + 1]) : []; if (ic.length) { const w = ic.length * 13 + 6, cx = (x + nx) / 2; P.rr(cx - w / 2, ly - 8, w, 16, 8, { color: K.white, borderColor: K.teal, borderWidth: 1 }); ic.forEach((name, j) => P.icon(name, cx - w / 2 + 4.5 + j * 13, ly, 10, K.teal)); } }
-      const stay = s0 && stays.includes(s0), leave = s0 && s0.leave;
-      P.page.drawCircle({ x, y: ly, size: 4.5, color: stay && !leave ? K.teal : K.white, borderColor: K.teal, borderWidth: 1.5, borderDashArray: leave ? [1.5, 1.5] : undefined });
-      const tw = slot - 8, city = s0 ? s0.city.trim() : T('+{0} more', more);
-      const when = !s0 ? '' : leave ? T('Leave') : k === 0 ? [dShort(s0.depDate), s0.depTime ? hm(s0.depTime) : ''].filter(Boolean).join(' ') : k === cnt - 1 ? [dShort(s0.arrDate), s0.arrTime ? hm(s0.arrTime) : ''].filter(Boolean).join(' ') : stay ? dRange(s0.arrDate, s0.depDate) : dShort(s0.arrDate);
-      P.tc(P.fit(city, B, 9.75, tw), x, ly - 18, 9.75, B); if (when) P.tc(P.fit(when, F, 9, tw), x, ly - 30, 9, F, K.mid);
-    });
-  } });
-  // two columns: what is in the package, and what to do next
-  const colW = (CW - 24) / 2, x2 = M + colW + 24, facts = prettyFacts(), gs = {}; GROUPS().forEach(([L, , arr, k, ck]) => { gs[L] = sumBy(arr, k, ck); });
-  const rows = ['C', 'D', 'E', 'F', 'G'].map(L => [L, fr() ? PSEC[L][1] : PSEC[L][0], facts[L] || T('Nil'), gs[L] && gs[L][pc] !== undefined ? fmtN(gs[L][pc]) : '']);
-  const ev = evidenceCount(); rows.push(['', T('Receipts attached'), ev.n ? nPl(ev.n, '{0} receipt, each labelled', '{0} receipts, each labelled') : T('None'), '']);
-  if (ev.lost) rows.push(['', T('Missing receipts'), nPl(ev.lost, '{0} statutory declaration to sign', '{0} statutory declarations to sign'), '']);
-  const others = Object.keys(gt).filter(c => c !== pc).sort().slice(0, 2);
-  const leftH = 22 + rows.length * 19 + 4 + 22 + others.length * 15;
+  const { M, CW, K, F, B } = P, CR = P.CR || F, CB = P.CB || B, col = K.part.trav, soft = K.tealSoft; P.part = 'trav'; P.newPage(true);
+  const tdr = tripDates(), td = tdr || [], nd = td.length, gt = grandTotals(), pc = primaryCur(gt), st = S.stops, m = S.member;
+  let y = P.opener('trav', T('TEMPORARY DUTY'), [[T('File'), S.fileNo.trim()], [T('Period'), tiPeriod(tdr)], [T('To'), (tripDest() || '').toUpperCase()], [T('TAN'), S.tan.trim()]]) - 22;
+  // a section heading: letterspaced capitals, a typed note on the right, a heavy rule
+  const head = (t, right, yy, x0 = M, w = CW) => { P.spaced(P.clean(t.toUpperCase()), x0, yy - 11, 10.5, B, K.ink, 1.6); if (right) { const r = P.clean(right), rw = P.spacedW(r, 8.5, CB, .5); P.spaced(r, x0 + w - rw, yy - 11, 8.5, CB, K.mid, .5); } P.line(x0, yy - 17, x0 + w, yy - 17, 1.5, K.ink); return yy - 17; };
+  const nN = Math.max(0, nd - 1), plN = (n, a, b) => `${n} ${T(n === 1 ? a : b)}`;
+  y = head(T('Your trip, day by day'), [plN(nd, 'DAY', 'DAYS'), plN(nN, 'NIGHT', 'NIGHTS'), plN(Math.max(0, st.length - 2), 'STOP', 'STOPS')].join('  ·  '), y);
+  // the route on one line: each place, and how each leg was travelled
+  { const gap = 24, wOf = (ns, fs) => ns.reduce((t, nm) => t + P.tw(nm, fs, CB), 0) + gap * (ns.length - 1);
+    const up = f => st.map(s => P.clean(f(s.city.trim() || '-').toUpperCase()));
+    let ix = st.map((s, i) => i), names = up(c => c), fs = 8.5;
+    if (wOf(names, fs) > CW) names = up(tiShort);
+    if (wOf(names, fs) > CW) fs = 7.5;
+    if (wOf(names, fs) > CW) { const sy = st.slice(1, -1).filter(s => isoOk(s.arrDate) && isoOk(s.depDate) && s.depDate > s.arrDate).map(s => st.indexOf(s)); ix = [0, ...sy, st.length - 1]; names = ix.map(i => names[i]); }
+    const each = (CW - gap * (names.length - 1)) / Math.max(1, names.length);
+    let x = M; const ry = y - 15;
+    names.forEach((nm, k) => { const t = P.tw(nm, fs, CB) > each ? P.fit(nm, CB, fs, each) : nm; P.text(t, x, ry, { size: fs, font: CB, color: K.ink }); x += P.tw(t, fs, CB);
+      if (k < names.length - 1) { const ic = ix[k + 1] - ix[k] === 1 ? modeIcon(st[ix[k]].mode) : ''; P.line(x + 3, ry + 3, x + gap - 3, ry + 3, .75, col); if (ic) { P.page.drawCircle({ x: x + gap / 2, y: ry + 3, size: 6, color: K.white, borderColor: col, borderWidth: .75 }); P.icon(ic, x + gap / 2 - 4, ry + 3, 8, col); } else P.page.drawCircle({ x: x + gap / 2, y: ry + 3, size: 1.5, color: col }); x += gap; } });
+    y -= 24; }
+  // the day grid, in strips of up to ten days (seven when the trip is longer)
+  const per = nd <= 10 ? Math.max(1, nd) : 7, LW = 58, di = d => td.indexOf(d), CB_ = CB;
+  const mealL = fr() ? ['PD', 'D', 'S'] : ['B', 'L', 'D'];
+  const stays = S.lodging.stays.map((r, i) => ({ r, i })).filter(o => isoOk(o.r.checkin) && isoOk(o.r.checkout) && o.r.checkout > o.r.checkin);
+  const exp = td.map(() => []);
+  ['transport', 'general', 'exchange'].forEach(sec => getArr(sec).forEach((r, i) => { const k = di(rowDate(sec, r)); if (k < 0) return; const a = sec === 'exchange' ? money(r.charge) : money(r.cost); exp[k].push({ t: `${DEFS[sec].L}-${i + 1}${a ? ' ' + a : ''}`, sd: !!r.lost }); }));
+  const legs = td.map(d => st.slice(0, -1).map((s, i) => ({ s, nx: st[i + 1] })).filter(o => o.s.depDate === d).map(o => [o.s.depTime || '', `› ${tiShort(o.nx.city)}`, modeIcon(o.s.mode)]));
+  const strip = (c0, c1, yt, draw) => {
+    const n = c1 - c0, cw = (CW - LW) / Math.max(1, n), X = k => M + LW + (k - c0) * cw;
+    // lanes for the stays that show in this strip
+    const bars = []; stays.forEach(o => { let a = di(o.r.checkin), b = di(o.r.checkout); if (a < 0) a = o.r.checkin < td[0] ? -1 : nd; if (b < 0) b = o.r.checkout > td[nd - 1] ? nd : -1; if (b < c0 || a > c1 - 1 || b < 0 || a >= nd) return;
+      const x1 = a < c0 ? M + LW : X(a) + cw / 2, x2 = b > c1 - 1 ? M + CW : X(b) + cw / 2; let lane = 0; while (bars.some(z => z.lane === lane && z.x1 < x2 - 1 && x1 < z.x2 - 1)) lane++; bars.push({ o, x1, x2, lane }); });
+    const lanes = Math.max(1, ...bars.map(z => z.lane + 1));
+    const tl = Math.min(3, Math.max(1, ...td.slice(c0, c1).map((d, k) => legs[c0 + k].length)));
+    const ec = Math.min(3, Math.max(1, ...exp.slice(c0, c1).map(e => e.length))), more = exp.slice(c0, c1).some(e => e.length > 3);
+    const rh = [26, tl * 11 + 9, lanes * 17 + 7, 26, ec * 16 + 6 + (more ? 9 : 0)], H0 = rh.reduce((a, b) => a + b, 0);
+    if (!draw) return H0;
+    const ys = [yt]; rh.forEach(h => ys.push(ys[ys.length - 1] - h));
+    // rules and labels
+    ys.slice(1).forEach((yy, k) => P.line(M, yy, M + CW, yy, .6, k === rh.length - 1 ? K.rule : K.hair));
+    for (let k = c0; k < c1; k++) P.line(X(k), ys[0] - 2, X(k), ys[ys.length - 1], .6, K.hair);
+    [T('TRAVEL'), T('NIGHTS'), T('MEALS'), T('EXPENSES')].forEach((t, k) => P.spaced(t, M, ys[k + 1] - 13, 7.5, CB, K.mid, .5));
+    for (let k = c0; k < c1; k++) {
+      const d = td[k], x = X(k) + 5, w = cw - 10, sts = dayStatus(d);
+      // day
+      P.text(P.fit(`${dow(d).toUpperCase()} ${+d.slice(8)}`, B, 10, w), x, ys[0] - 11.5, { size: 10, font: B });
+      P.text(P.fit(locFor(d), F, 8, w), x, ys[0] - 21.5, { size: 8, color: K.mid });
+      // travel
+      legs[k].slice(0, 3).forEach(([t, what, ic], j) => { const ty = ys[1] - 11 - j * 11; let xx = x; if (ic) { P.icon(ic, xx, ty + 2.8, 7.5, col); xx += 10; } if (t) { P.text(t, xx, ty, { size: 8, font: B }); xx += P.tw(t, 8, B) + 3; } P.text(P.fit(what, F, 8, x + w - xx), xx, ty, { size: 8 }); });
+      // meals: a filled pip is a meal claimed, R is rations, an empty ring is not claimed; leave and field days say so
+      const my = ys[3] - 13;
+      if (sts) P.text(P.fit(statusLabel(sts), B, 8.5, w), x, my - 3, { size: 8.5, font: B, color: sts === 'leave' ? K.leaveInk : K.fldInk });
+      else { const r = cw >= 58 ? 7.5 : 5.5, ri = rationsStay(d);
+        MEALS.forEach(([mk], j) => { const cx = x + r + j * (r * 2 + 3.5), on = mealVal(d, mk);
+          if (on) { P.page.drawCircle({ x: cx, y: my, size: r, color: col }); if (r > 6) P.tc(mealL[j], cx, my - 2.6, mealL[j].length > 1 ? 5.6 : 7.5, B, K.white); }
+          else if (ri >= 0) { P.page.drawCircle({ x: cx, y: my, size: r - .5, borderColor: K.mid, borderWidth: .75, borderDashArray: [1.5, 1.2] }); if (r > 6) P.tc('R', cx, my - 2.6, 7.5, F, K.mid); }
+          else P.page.drawCircle({ x: cx, y: my, size: r - .5, borderColor: K.rule, borderWidth: .75 }); }); }
+      // expenses on the day, as reference chips
+      exp[k].slice(0, 3).forEach((e, j) => P.chip(P.fit(e.t + (e.sd ? ' ' + T('SD') : ''), B, 9, w - 9), x - 1, ys[4] - 10 - j * 16, e.sd ? 'sd' : ''));
+      if (exp[k].length > 3) P.text(T('+{0} more', exp[k].length - 3), x, ys[4] - 10 - 3 * 16 + 1, { size: 7.5, color: K.mid });
+    }
+    // nights: a bar for each stay; a dashed gap where a night has no lodging and is not leave
+    bars.forEach(({ o, x1, x2, lane }) => { const r = o.r, by = ys[2] - 6 - lane * 17 - 13, std = isStd(r), w = x2 - x1 - 3;
+      const lab = `D-${o.i + 1} ${std ? r.hotel : T(stayKind(r)) + (r.location ? ' ' + r.location : '')}${r.rations ? T(' + rations') : ''}`, a = std ? money(r.cost) : '', aw = a ? P.tw(a, 8, B) + 8 : 0;
+      if (std) P.rr(x1 + 1.5, by, w, 13, 2.5, { color: col }); else P.rr(x1 + 1.5, by, w, 13, 2.5, { color: soft, borderColor: col, borderWidth: .75, borderDashArray: [2, 1.5] });
+      P.text(P.fit(lab, B, 8, w - 10 - aw), x1 + 6, by + 3.8, { size: 8, font: B, color: std ? K.white : col }); if (a) P.tr(a, x1 + w - 3, by + 3.8, 8, B, std ? K.white : col); });
+    for (let k = Math.max(c0, 0); k < Math.min(c1, nd - 1); k++) {
+      const covered = stays.some(o => o.r.checkin <= td[k] && o.r.checkout >= td[k + 1]) || dayStatus(td[k]) === 'leave'; if (covered) continue;
+      const x1 = X(k) + cw / 2 + 2, x2 = Math.min(X(k + 1) + cw / 2 - 2, M + CW - 2), by = ys[2] - 6 - 13;
+      P.page.drawRectangle({ x: x1, y: by, width: x2 - x1, height: 13, borderColor: K.sdLine, borderWidth: .75, borderDashArray: [2, 1.5] }); P.tc(P.fit(T('No lodging'), F, 7.5, x2 - x1 - 4), (x1 + x2) / 2, by + 4, 7.5, F, K.sdInk);
+    }
+    return H0;
+  };
+  if (!nd) { P.text(T('Trip dates not entered.'), M, y - 14, { size: 9.5, color: K.mid }); y -= 24; }
+  for (let c0 = 0; c0 < nd; c0 += per) { const c1 = Math.min(nd, c0 + per); y -= strip(c0, c1, y, true) + 10; }
+  y -= 10;
+
+  // lower half: what to do, enclosures and what to look over on the left; the receipt tape on the right
+  const TW = 204, LCW = CW - TW - 22, tx = M + CW - TW;
   const sds = items.filter(i => i.decl), todo = [];
   todo.push([T('Sign the data entry sheet'), S.pki ? T('PKI signature, page {0}', ctx.certPage || '') : T('Ink signature, page {0}', ctx.certPage || '')]);
-  if (sds.length) todo.push([sds.length === 1 ? T('Declare {0}', sds[0].ref) : nPl(sds.length, 'Declare {0} missing receipt', 'Declare {0} missing receipts'), sds.length === 1 ? (ctx.split ? T('Before an officer, in its own file') : T('Before an officer, page {0}', ctx.pageOf ? ctx.pageOf(sds[0]) : '')) : sds.map(i => i.ref).join(', ') + ', ' + T('before an officer')]);
+  if (sds.length) todo.push([sds.length === 1 ? T('Declare {0} before an officer', sds[0].ref) : nPl(sds.length, 'Declare {0} missing receipt', 'Declare {0} missing receipts'), sds.length === 1 ? (ctx.split ? T('Statutory declaration, in its own file') : T('Statutory declaration, page {0}', ctx.pageOf ? ctx.pageOf(sds[0]) : '')) : sds.map(i => i.ref).join(', ') + ', ' + T('before an officer')]);
   todo.push([T('Send the package to the Orderly Room'), ctx.split ? nPl(ctx.files || 1, '{0} separate file', '{0} separate files') : nPl(ctx.total || 0, 'One PDF, {0} page', 'One PDF, {0} pages')]);
-  const look = summaryChecks().slice(0, 3);
-  const rightH = 26 + todo.length * 32 + 2 + 22 + (look.length ? look.reduce((a, it) => a + 12 + (it.s ? 11 : 0) + 3, 0) : 16);
-  blocks.push({ h: Math.max(leftH, rightH), gap: 22, draw: y0 => {
-    let y = y0;
-    P.text(T('In this package'), M, y - 11, { size: 11.25, font: B, color: K.ink }); P.line(M, y - 18, M + colW, y - 18, 1.1, K.ink); y -= 22;
-    rows.forEach(([L, nm, det, a]) => {
-      const cy = y - 9.5; if (L) { P.rr(M, cy - 5, 14, 13, 2.5, { color: K.tealSoft }); P.tc(L, M + 7, cy - 2.4, 8.25, B, K.teal); }
-      P.text(P.fit(nm, B, 9, 92), M + 20, cy - 2.6, { size: 9, font: B });
-      const aw = a ? P.tw(a, 9, B) + 6 : 0; P.text(P.fit(det, F, 8.25, colW - 118 - aw), M + 116, cy - 2.6, { size: 8.25, color: K.mid }); if (a) P.tr(a, M + colW, cy - 2.6, 9, B);
-      y -= 19; P.line(M, y, M + colW, y, .6, K.hair);
-    });
-    y -= 4; P.page.drawRectangle({ x: M, y: y - 22, width: colW, height: 22, color: K.sand });
-    P.text(T('Total entered'), M + 8, y - 15, { size: 9.75, font: B }); P.tr(`${fmtN(gt[pc] || 0)} ${pc}`, M + colW - 8, y - 15, 11.25, B, K.teal); y -= 22;
-    others.forEach(c => { P.text(T('Also entered, not converted'), M + 8, y - 12, { size: 8.25, color: K.mid }); P.tr(`${fmtN(gt[c])} ${c}`, M + colW - 8, y - 12, 9, B); y -= 15; });
-    y = y0;
-    P.text(T('Before you send'), x2, y - 11, { size: 11.25, font: B, color: K.ink }); P.line(x2, y - 18, x2 + colW, y - 18, 1.1, K.ink); y -= 26;
-    todo.forEach(([t, sub], i) => { P.page.drawCircle({ x: x2 + 9, y: y - 6, size: 8.25, color: K.teal }); P.tc(String(i + 1), x2 + 9, y - 9.2, 9, B, K.white); P.text(P.fit(t, B, 10.5, colW - 26), x2 + 24, y - 9, { size: 10.5, font: B }); P.text(P.fit(sub, F, 9, colW - 26), x2 + 24, y - 21, { size: 9, color: K.mid }); y -= 32; });
-    y -= 2; P.text(T('Look over'), x2, y - 11, { size: 11.25, font: B, color: K.ink }); P.line(x2, y - 18, x2 + colW, y - 18, 1.1, K.ink); y -= 22;
-    if (!look.length) { P.text(P.fit(T('Nothing to look over. Every expense has a receipt or a declaration.'), F, 9, colW), x2, y - 10, { size: 9, color: K.mid }); }
-    look.forEach(it => { const lab = it.L ? `${it.L}  ` : ''; P.page.drawCircle({ x: x2 + 3, y: y - 7, size: 2.5, color: it.k === 'warn' ? K.sdLine : K.teal }); P.text(P.fit(lab + it.t, it.k === 'warn' ? F : B, 9, colW - 12), x2 + 11, y - 9.5, { size: 9, font: it.k === 'warn' ? F : B }); y -= 12; if (it.s) { P.text(P.fit(it.s, F, 8.25, colW - 12), x2 + 11, y - 8, { size: 8.25, color: K.mid }); y -= 11; } y -= 3; });
-  } });
-  // spread the blocks over the page, never past the footer
-  const room = top0 - P.BOT - 6, sum = blocks.reduce((a, b) => a + b.h, 0), gaps = blocks.reduce((a, b) => a + b.gap, 0);
-  const k = Math.max(.5, Math.min(1.7, (room - sum) / Math.max(1, gaps)));
-  let y = top0; blocks.forEach(b => { y -= b.gap * k; b.draw(y); y -= b.h; });
+  let look = summaryChecks().slice(0, 3);
+  const rng = (a, b) => a && b && b > a ? `${a}-${b}` : String(a || '');
+  const encl = [[T("Traveller's copy (this page)"), '1'], [T('Receipts at a glance'), rng(ctx.indexPage, (ctx.clerkStart || 0) - 1)], [T('Finance: data entry sheet'), rng(ctx.clerkStart, ctx.wsPages)]];
+  if (items.length) encl.push([T('Receipts and declarations'), ctx.split ? T('own files') : rng((ctx.wsPages || 0) + 1, ctx.total)]);
+  const lookH = lk => lk.length ? 14 + 17 + 4 + lk.reduce((a, it) => a + 12 + (it.s ? 10.5 : 0) + 3, 0) : 0, baseH = 17 + 4 + todo.length * 25 + 14 + 17 + 6 + encl.length * 12.5;
+  // the tape: every line going to Finance, or one line per section when that does not fit
+  const now = new Date(), pad = n => String(n).padStart(2, '0'), today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const secs = [['C', T('TRANSPORTATION'), 'transport'], ['D', T('LODGING'), 'stays'], ['E', T('GENERAL'), 'general'], ['F', T('EXCHANGE'), 'exchange']];
+  const lineOf = (sec, r, i) => { const ref = `${DEFS[sec].L}-${i + 1}`; if (sec === 'stays') { const n = nights(r); return [`${ref} ${isStd(r) ? r.hotel : T(stayKind(r))}${n > 0 ? ' ' + n + T('n') : ''}`, isStd(r) ? (money(r.cost) || '-') : '-']; }
+    if (sec === 'exchange') return [`${ref} ${fmtDate(r.date)}`, money(r.charge) || '-']; return [`${ref} ${r.desc || ''}${r.lost ? ' ' + T('SD') : ''}`, money(r.cost) || '-']; };
+  const mc = mealCounts().c, ev = evidenceCount();
+  const tape = full => { const L = [{ t: T("TRAVELLER'S COPY"), c: 1, b: 1 }, { t: T('KEEP THIS RECORD'), c: 1 }, { gap: 4 },
+      { t: [m.surname.trim().toUpperCase(), tiInits(m.given)].filter(Boolean).join(' ') || '-', r: m.pri.trim() }, { t: `${T('FILE')} ${S.fileNo.trim() || '-'}`, r: tiPeriod(tdr) }, { sep: 1 }];
+    secs.forEach(([Lt, nm, sec]) => { const arr = getArr(sec); if (!arr.length) { L.push({ t: `${Lt}  ${nm}`, r: T('NIL'), b: 1 }); return; }
+      const sum = sec === 'exchange' ? sumBy(arr, 'charge', 'chargeCur') : sumBy(sec === 'stays' ? arr.filter(isStd) : arr, 'cost', 'cur'), sv = sum[pc] !== undefined ? fmtN(sum[pc]) : '-';
+      if (!full) { L.push({ t: `${Lt}  ${nm}  ${arr.length}`, r: sv, b: 1 }); return; }
+      L.push({ t: `${Lt}  ${nm}`, b: 1, top: 1 }); arr.forEach((r, i) => { const [a, b] = lineOf(sec, r, i); L.push({ t: a, r: b }); }); });
+    L.push({ t: `G  ${T('MEALS')}  ${mealL[0]}${mc.b} ${mealL[1]}${mc.l} ${mealL[2]}${mc.d}`, r: String(mc.b + mc.l + mc.d), b: 1, top: 1 }, { sep: 1 }, { t: T('TOTAL'), r: `${fmtN(gt[pc] || 0)} ${pc}`, b: 1, big: 1 });
+    Object.keys(gt).filter(c => c !== pc).sort().forEach(c => L.push({ t: T('ALSO, NOT CONVERTED'), r: `${fmtN(gt[c])} ${c}` }));
+    L.push({ t: `${T('RECEIPTS')} ${ev.n}   ${T('DECLARATIONS')} ${ev.lost}` }, { t: `${T('BUILT')} ${fmtDate(today).toUpperCase()} ${pad(now.getHours())}${pad(now.getMinutes())}`, r: APP_VERSION.replace('-beta.', 'b').toUpperCase(), dim: 1 });
+    return L; };
+  const LH = 10.6, tH = L => L.reduce((a, l) => a + (l.gap ? l.gap : l.sep ? 8 : LH + (l.top ? 3 : 0) + (l.big ? 2 : 0)), 0) + 30;
+  let T1 = tape(true); const room = y - P.BOT - 6;
+  if (tH(T1) > room) T1 = tape(false);
+  while (look.length && baseH + lookH(look) > room) look = look.slice(0, -1);
+  const need = Math.max(baseH + lookH(look), tH(T1));
+  if (need > room) { P.newPage(); y = P.y; }
+  // left: before you send, look over, enclosures
+  let ly = head(T('Before you send'), '', y, M, LCW) - 4;
+  todo.forEach(([t, sub]) => { P.page.drawRectangle({ x: M, y: ly - 12, width: 9.5, height: 9.5, borderColor: K.ink, borderWidth: 1.1 }); P.text(P.fit(t, B, 10, LCW - 18), M + 17, ly - 11, { size: 10, font: B }); P.text(P.fit(sub, F, 8.5, LCW - 18), M + 17, ly - 21, { size: 8.5, color: K.mid }); ly -= 25; P.line(M, ly + 2, M + LCW, ly + 2, .6, K.hair); });
+  if (look.length) { ly = head(T('Look over'), '', ly - 14, M, LCW) - 4;
+    look.forEach(it => { const lab = it.L ? `${it.L}  ` : ''; P.page.drawCircle({ x: M + 3, y: ly - 7, size: 2.5, color: it.k === 'warn' ? K.sdLine : col }); P.text(P.fit(lab + it.t, it.k === 'warn' ? F : B, 9, LCW - 12), M + 11, ly - 9.5, { size: 9, font: it.k === 'warn' ? F : B }); ly -= 12; if (it.s) { P.text(P.fit(it.s, F, 8, LCW - 12), M + 11, ly - 8, { size: 8, color: K.mid }); ly -= 10.5; } ly -= 3; }); }
+  ly = head(T('Enclosures'), '', ly - 14, M, LCW) - 6;
+  encl.forEach(([t, pg], i) => { P.text(P.fit(`${i + 1}  ${t}`, CR, 9, LCW - 60), M, ly - 9, { size: 9, font: CR }); P.tr(pg ? `${T('p.')} ${pg}` : '', M + LCW, ly - 9, 9, CR, K.ink); ly -= 12.5; });
+  // right: the tape, with torn edges top and bottom
+  const L = T1, th = tH(L), zz = n => { let d = ''; for (let k = 0; k <= n; k++) d += ` L${(k * TW / n).toFixed(2)} ${k % 2 ? 0 : 4}`; return d; };
+  { const n = 28; let d = `M0 4${zz(n).replace(/^ L0 4/, '')} L${TW} ${th - 4}`; for (let k = n; k >= 0; k--) d += ` L${(k * TW / n).toFixed(2)} ${th - (k % 2 ? 0 : 4)}`; d += ' Z';
+    P.page.drawSvgPath(d, { x: tx, y, color: K.tape, borderColor: K.tapeLine, borderWidth: .6 }); }
+  let ty = y - 16; const iw = TW - 20, ix = tx + 10;
+  L.forEach(l => {
+    if (l.gap) { ty -= l.gap; return; }
+    if (l.sep) { P.line(ix, ty - 3, ix + iw, ty - 3, .75, K.tapeLine, [2.5, 2]); ty -= 8; return; }
+    if (l.top) ty -= 3;
+    const f = l.b ? CB : CR, sz = l.big ? 10 : 8.5, c = l.dim ? K.mid : K.ink;
+    if (l.c) { P.tc(P.fit(l.t, f, sz, iw), tx + TW / 2, ty - 8, sz, f, c); }
+    else { const rw = l.r ? P.tw(l.r, sz, f) : 0; P.text(P.fit(l.t, f, sz, iw - rw - (rw ? 6 : 0)), ix, ty - 8, { size: sz, font: f, color: c }); if (l.r) P.tr(l.r, ix + iw, ty - 8, sz, f, c); }
+    ty -= LH + (l.big ? 2 : 0);
+  });
 }
 // Part 1, next pages: every receipt as a thumbnail, with its reference, amount and page
 async function tiContact(P, items, ctx, embedRc) {
@@ -4025,7 +4085,7 @@ async function tiClerk(P, items, ctx, rec) {
   const { M, CW, K, F, B } = P, m = S.member; P.part = 'clerk'; P.newPage(true); rec.clerkStart = rec.wsStart = P.doc.getPageCount();
   const mark = L => { rec.secPage[L] = P.doc.getPageCount(); };
   const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), per = tiPeriod(td);
-  let y = P.opener('clerk', T('DATA ENTRY SHEET'), [[T('File number'), S.fileNo.trim()], [T('Period'), per], [T('Total entered'), `${fmtN(gt[pc] || 0)} ${pc}`], [T('Telephone'), telStr(m)]]) - 14;
+  let y = P.opener('clerk', T('DATA ENTRY SHEET'), [[T('File'), S.fileNo.trim()], [T('Period'), per], [T('Total'), `${fmtN(gt[pc] || 0)} ${pc}`], [T('Tel.'), telStr(m)]]) - 18;
   // identity strip
   const id = [[T('TAN'), S.tan.trim()], [T('Trip locator'), S.locator.trim()]].filter(([, v]) => v); // the rest is on the jacket
   const cols = 4, cw = CW / cols, rh = 30;

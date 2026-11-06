@@ -48,7 +48,7 @@ Tom (LCol, CAF) builds small tools that save CAF members admin time. These princ
 ## CAF conventions
 - **Ranks:** dropdowns with Civilian first, then Army/RCAF, then Navy, using current RCN ranks (S3, S2, S1; the canada.ca list is out of date). No abbreviations in legal text.
 - **Dates:** show "Mon 02 Nov 26" in the UI and PDF. Use YYYYMMDD in file names. Use "N/A", not "n/a".
-- **File names:** `Date_FileNo_Marking_Details`, e.g. `20261102_7209-1_PA_TD-Claim_Trip-Name_Capt-Sample.pdf`. The file number is optional (DSCDS, e.g. 7209-1 Transportation and Travelling Expenses). Marking options are UNCLAS, PA (default), PB or none. Apply the pattern to every output.
+- **File names:** `Date_FileNo_Marking_Details`, e.g. `20261102_7209-1_PA_TD-Itinerary_Trip-Name_Capt-Sample.pdf`. The file number is optional (DSCDS, e.g. 7209-1 Transportation and Travelling Expenses). Marking options are UNCLAS, PA (default), PB or none. Apply the pattern to every output.
 - **Marking on PDFs:** print the security marking top right on every page of generated PDFs, receipts included.
 - **Statutory declarations:** follow DAOD 7000-1 structure (venue heading, declarant, DO SOLEMNLY DECLARE, numbered paragraphs, Canada Evidence Act closing) with per-province jurats.
 - **Signatures:** offer PKI signature fields (default) or hand signature and date lines. Browser PKI signing is not realistic; signing stays in Adobe.

@@ -1837,7 +1837,7 @@ function fileBase() {
   const part = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const start = (S.stops[0] || {}).depDate, t = new Date(), today = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`, d = isoOk(start) ? start : today;
   const who = [rankAbbr(S.member.rank), S.member.surname].map(part).filter(Boolean).join('-');
-  return [d.replace(/-/g, ''), part(S.fileNo), markCode(S.marking), fr() ? 'Reclamation-ST' : 'TD-Claim', part(S.tripRef), who].filter(Boolean).join('_');
+  return [d.replace(/-/g, ''), part(S.fileNo), markCode(S.marking), fr() ? 'Itineraire-ST' : 'TD-Itinerary', part(S.tripRef), who].filter(Boolean).join('_');
 }
 
 /* ---------- persistence (this tab only) ---------- */
@@ -3029,7 +3029,7 @@ function formHead(P) {
   const refs = [['File number', S.fileNo.trim()], ['Trip dates', td ? rangeText([td[0], td[td.length - 1]]) : ''], ['TAN', S.tan.trim()], ['Trip locator', S.locator.trim()]].filter(([, v]) => v);
   const bw = 118, cols = Math.min(2, refs.length) || 1, rows = Math.ceil(refs.length / cols), bh = 24, gx = W - M - cols * bw;
   P.text(T('CAF Digital Travel Itinerary').toUpperCase(), M, top - 8, { size: 6.8, font: B, color: C.mid });
-  P.text(T('Temporary duty claim worksheet'), M, top - 25, { size: 15, font: B });
+  P.text(T('Temporary duty travel itinerary'), M, top - 25, { size: 15, font: B });
   const sub = [S.tripRef.trim(), fullName()].filter(Boolean).join('   |   ');
   if (sub) P.text(P.fit(sub, F, 9.5, gx - M - 12), M, top - 40, { size: 9.5, color: C.mid });
   refs.forEach(([l, v], i) => { const x = gx + (i % cols) * bw, y = top - (Math.floor(i / cols) + 1) * bh; P.page.drawRectangle({ x, y, width: bw, height: bh, borderColor: C.line, borderWidth: .5 }); P.text(T(l).toUpperCase(), x + 3.5, y + bh - 8, { size: 5.8, font: B, color: C.mid }); P.text(P.fit(v, F, 8.6, bw - 7), x + 3.5, y + 5, { size: 8.6 }); });
@@ -3095,9 +3095,9 @@ function drawWorksheet(P, items, wsPages, inFile) {
   P.text(T('Certification').toUpperCase(), P.M + 8, bt - 13, { size: 7.4, font: P.B, color: P.C.mid });
   P.text(T('I certify that the information on this worksheet is correct and complete.'), P.M + 8, bt - 27, { size: 8.6 });
   if (S.pki) {
-    P.sigField('Claimant_Signature', P.M + 8, by + 18, 260, 32, T('Signature of Claimant (PKI digital signature)'));
+    P.sigField('Claimant_Signature', P.M + 8, by + 18, 260, 32, T('Signature of traveller (PKI digital signature)'));
   } else {
-    P.sigLine(P.M + 8, by + 22, 260, T('Signature of Claimant'));
+    P.sigLine(P.M + 8, by + 22, 260, T('Signature of traveller'));
     P.sigLine(P.M + 300, by + 22, P.W - 2 * P.M - 308, T('Date'));
   }
   P.y = by - 10;
@@ -3391,7 +3391,7 @@ function prettyFacts() {
   const miss = (arr, sec) => { const refs = []; arr.forEach((r, i) => { if (r.lost) refs.push(`${DEFS[sec].L}-${i + 1}`); }); return refs; };
   const withMiss = (base, arr, sec) => { const m = miss(arr, sec); return m.length ? base + ', ' + nPl(m.length, '{0} missing receipt ({1})', '{0} missing receipts ({1})', m.join(', ')) : base; };
   const leaves = S.stops.slice(1, -1).filter(s => s.leave).length, td = tripDates();
-  L.A = S.poc.on ? T('Claimant and point of contact') : T('Claimant, no point of contact');
+  L.A = S.poc.on ? T('Traveller and point of contact') : T('Traveller, no point of contact');
   L.B = [n(S.stops.length, '{0} stop', '{0} stops'), td ? rangeText([td[0], td[td.length - 1]]) : '', leaves ? n(leaves, '{0} leave stop', '{0} leave stops') : ''].filter(Boolean).join(', ');
   L.C = S.transport.length ? withMiss(n(S.transport.length, '{0} line', '{0} lines'), S.transport, 'transport') : '';
   const st = S.lodging.stays, kinds = [['Commercial', st.filter(r => isStd(r)).length], ['Quarters', st.filter(r => r.quarters).length], ['Private', st.filter(r => r.priv).length], ['Field', st.filter(r => r.field).length]].filter(k => k[1]);
@@ -3423,7 +3423,7 @@ function prettyCover(P, items, ctx) {
   const blocks = [];
   // the page opens with a navy band across the top: the same type and colours as the rest of the package, set apart
   // so the reader sees at once that this page is for the claimant and the claim itself starts on the next page
-  const title = S.tripRef.trim() || T('Temporary duty claim'), noteW = 168, tW = CW - noteW - 24;
+  const title = S.tripRef.trim() || T('Temporary duty travel itinerary'), noteW = 168, tW = CW - noteW - 24;
   let ts = 26, tl = P.wrap(title, B, ts, tW); while (tl.length > 2 && ts > 18) { ts -= 2; tl = P.wrap(title, B, ts, tW); }
   if (tl.length > 2) { tl = tl.slice(0, 2); tl[1] = P.fit(tl[1] + '...', B, ts, tW); }
   const nd = td ? td.length : 0;
@@ -3436,14 +3436,14 @@ function prettyCover(P, items, ctx) {
     else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.blue }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
     P.text(P.fit([T('CAF Digital Travel Itinerary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.pale });
     P.line(M, y - 27, M + CW, y - 27, .75, K.blue);
-    P.text(T('CLAIMANT SUMMARY'), M, y - 45, { size: 9, font: B, color: K.pale });
+    P.text(T('TRAVELLER SUMMARY'), M, y - 45, { size: 9, font: B, color: K.pale });
     tl.forEach((l, i) => P.text(l, M, y - 52 - ts * .82 - i * ts * 1.08, { size: ts, font: B, color: K.white }));
     P.text(P.fit(subl, F, 11.25, CW), M, y - 52 - tl.length * ts * 1.08 - 12, { size: 11.25, color: K.pale });
     // the note sits in the band as type, set off by a rule: it reads as part of the page, not stuck on it
     const nx = M + CW - noteW, ny = y - 45;
-    const nl = P.wrap(T('This page is not part of the claim. The claim starts on page {0}.', ctx.wsStart || 2), F, 9, noteW).slice(0, 3);
+    const nl = P.wrap(T('This page is not part of the itinerary. The itinerary starts on page {0}.', ctx.wsStart || 2), F, 9, noteW).slice(0, 3);
     P.line(nx - 12, ny + 10, nx - 12, ny - 17 - (nl.length - 1) * 11.5, 1.5, K.amber);
-    P.text(T('For you, the claimant'), nx, ny, { size: 10.5, font: B, color: K.white });
+    P.text(T('For you, the traveller'), nx, ny, { size: 10.5, font: B, color: K.white });
     nl.forEach((l, i) => P.text(l, nx, ny - 14 - i * 11.5, { size: 9, color: K.pale }));
   } });
   // two cards: what is left to do, and the total entered in the main currency (others listed, never added together)
@@ -3472,7 +3472,7 @@ function prettyCover(P, items, ctx) {
       segs.forEach((s, i) => { const cx = x2 + 15 + (cols2 ? (i % 2) * (colW + 12) : 0), cy = yy - (cols2 ? Math.floor(i / 2) : i) * 12.5; P.page.drawRectangle({ x: cx, y: cy - 1, width: 7.5, height: 7.5, color: K.barL[i] }); const av = fmtN(s.v), ls = cols2 ? 8.25 : 9; P.text(P.fit(`${s.L}  ${T(PSHORT[s.L])}`, F, ls, colW - 12 - P.tw(av, ls, B) - 5), cx + 12, cy, { size: ls, color: K.soft }); P.tr(av, cx + colW, cy, ls, B, K.ink); });
       yy -= legendRows * 12.5;
     }
-    others.slice(0, 2).forEach((c, i) => { const cy = yy - 6 - i * 16; if (i === 0) P.line(x2 + 15, cy + 11, x2 + cw - 15, cy + 11, .75, K.hair); P.text(T('Also claimed, not converted'), x2 + 15, cy, { size: 9, color: K.mid }); P.tr(c, x2 + cw - 15, cy, 9, B, K.mid); P.tr(fmtN(gt[c]), x2 + cw - 15 - P.tw(c, 9, B) - 5, cy, 11.25, B, K.ink); });
+    others.slice(0, 2).forEach((c, i) => { const cy = yy - 6 - i * 16; if (i === 0) P.line(x2 + 15, cy + 11, x2 + cw - 15, cy + 11, .75, K.hair); P.text(T('Also entered, not converted'), x2 + 15, cy, { size: 9, color: K.mid }); P.tr(c, x2 + cw - 15, cy, 9, B, K.mid); P.tr(fmtN(gt[c]), x2 + cw - 15 - P.tw(c, 9, B) - 5, cy, 11.25, B, K.ink); });
   } });
   // things to look over: days changed by hand, field and leave days, other currencies, open checks
   const all = summaryChecks(), MAXC = 7, shown = all.slice(0, MAXC), more = all.length - shown.length;
@@ -3554,12 +3554,12 @@ function prettyTitle(P) {
   const { M, CW, K, F, B } = P, td = tripDates(), y = P.y;
   if (P.logo) P.page.drawImage(P.logo, { x: M, y: y - 21, width: 21, height: 21 });
   else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.navy }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
-  P.text(P.fit([T('CAF Digital Travel Itinerary'), T('TD claim worksheet'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
+  P.text(P.fit([T('CAF Digital Travel Itinerary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
   P.line(M, y - 27, M + CW, y - 27, 1.5, K.navy);
-  const title = S.tripRef.trim() || T('Temporary duty claim');
+  const title = S.tripRef.trim() || T('Temporary duty travel itinerary');
   let ts = 22, tl = P.wrap(title, B, ts, CW); while (tl.length > 1 && ts > 15) { ts -= 1.5; tl = P.wrap(title, B, ts, CW); }
   tl = [P.fit(tl[0] + (tl.length > 1 ? '...' : ''), B, ts, CW)];
-  P.text(T('TEMPORARY DUTY CLAIM'), M, y - 45, { size: 9, font: B, color: K.blue });
+  P.text(T('TEMPORARY DUTY TRAVEL ITINERARY'), M, y - 45, { size: 9, font: B, color: K.blue });
   P.text(tl[0], M, y - 51 - ts * .82, { size: ts, font: B, color: K.navy });
   const nd = td ? td.length : 0;
   const sub = [td ? rangeText([td[0], td[td.length - 1]]) : '', nd ? (nd === 1 ? T('Day trip') : T('{0} days, {1} nights', nd, nd - 1)) : '', fullName(), S.tan.trim() ? T('TAN: {0}', S.tan.trim()) : '', S.locator.trim() ? T('Trip locator: {0}', S.locator.trim()) : ''].filter(Boolean).join('  ·  ');
@@ -3733,8 +3733,8 @@ function prettyIndex(P, items, ctx, rec) {
   P.text(T('Certification'), M + 15, top - 22, { size: 13.5, font: B, color: K.navy });
   P.text(T('I certify that the information on this worksheet is correct and complete.'), M + 15, top - 39, { size: 10.5 });
   const sw = (CW - 30) * .6, sx = M + 15, sy = y + 22;
-  if (S.pki) P.sigField('Claimant_Signature', sx, sy, sw, 38, T('Signature of Claimant (PKI digital signature)'));
-  else { P.sigLine(sx, sy + 6, sw, T('Signature of Claimant')); P.sigLine(sx + sw + 18, sy + 6, CW - 30 - sw - 18, T('Date')); }
+  if (S.pki) P.sigField('Claimant_Signature', sx, sy, sw, 38, T('Signature of traveller (PKI digital signature)'));
+  else { P.sigLine(sx, sy + 6, sw, T('Signature of traveller')); P.sigLine(sx + sw + 18, sy + 6, CW - 30 - sw - 18, T('Date')); }
   if (S.pki) { P.text(T('Date: recorded by the signature'), sx + sw + 18, sy + 18, { size: 9, color: K.mid }); }
   P.y = y - 10;
 }
@@ -3838,7 +3838,7 @@ async function build() {
       if (!ok) {
         for (let k = 0; k < it.pages; k++) {
           P.newPage(); const top = rcHead(P, it, title, meta);
-          if (k === 0) P.wrap(T('This PDF could not be added to the package. It may be password-protected or damaged. Submit "{0}" separately with this claim.', it.r.name), P.F, 10, P.W - 2 * P.M).forEach((l, j) => P.text(l, P.M, top - 20 - j * 14, { size: 10 }));
+          if (k === 0) P.wrap(T('This PDF could not be added to the package. It may be password-protected or damaged. Submit "{0}" separately with this itinerary.', it.r.name), P.F, 10, P.W - 2 * P.M).forEach((l, j) => P.text(l, P.M, top - 20 - j * 14, { size: 10 }));
         }
       }
     };
@@ -3917,7 +3917,7 @@ async function build() {
     const res = $('#result');
     const iosHint = IOS_PWA ? ' ' + T('Tap Save or send PDF, then choose Save to Files, OneDrive, Teams or Mail.') : '';
     const howTo = S.pki
-      ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the claimant field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the claimant field on page {1} and the {0} declarations with your PKI certificate.', signPage) : T('Open it in Adobe and sign the claimant field on page {0} with your PKI certificate.', signPage))
+      ? (nDecl ? nPl(nDecl, 'Open it in Adobe and sign the traveller field on page {1} and the {0} declaration with your PKI certificate.', 'Open it in Adobe and sign the traveller field on page {1} and the {0} declarations with your PKI certificate.', signPage) : T('Open it in Adobe and sign the traveller field on page {0} with your PKI certificate.', signPage))
       : (nDecl ? nPl(nDecl, 'Print it, then sign and date page {1} and sign the {0} declaration in front of the officer.', 'Print it, then sign and date page {1} and sign the {0} declarations in front of the officer.', signPage) : T('Print it, then sign and date page {0}.', signPage));
     if (split) {
       const one = (x, i) => `<li><div><strong>${esc(x.label)}</strong><span class="pf-name">${esc(x.name)}</span><span>${esc(x.what)} ${esc(nPl(x.pages, '{0} page', '{0} pages'))}, ${esc(sizeOf(x.bytes.length))}.</span></div><div class="acts"><button class="btn" data-act="save-part" data-i="${i}">${esc(IOS_PWA && SEND.pdf ? T('Save or send') : T('Save'))}</button>${inViewer || IOS_PWA ? '' : `<button class="btn" data-act="open-part" data-i="${i}">${esc(T('Open'))}</button>`}</div></li>`;

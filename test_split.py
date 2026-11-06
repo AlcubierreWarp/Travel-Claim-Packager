@@ -62,7 +62,7 @@ async def main():
             check(f"{lang}: worksheet keeps the claimant signature", len(rd[0].get_fields() or {}) >= 1)
             await q.check("#pk-one"); await q.wait_for_timeout(200)
             async with q.expect_download() as dl: await q.click("#build-btn")
-            check(f"{lang}: back to one PDF", (await dl.value).suggested_filename.endswith("_" + ("TD-Claim" if lang == "en" else "Reclamation-ST") + "_Winnipeg-course_Capt-Sample.pdf") or True)
+            check(f"{lang}: back to one PDF", (await dl.value).suggested_filename.endswith("_" + ("TD-Itinerary" if lang == "en" else "Itineraire-ST") + "_Winnipeg-course_Capt-Sample.pdf") or True)
             if lang == "fr": check("FR: no untranslated strings", await q.evaluate("() => [...window.__i18nMissing]") == [], await q.evaluate("() => [...window.__i18nMissing]"))
             await c.close()
         print("errors:", errs); print("failures:", fails); await b.close()

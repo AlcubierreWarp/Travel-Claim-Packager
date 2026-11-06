@@ -4,6 +4,16 @@ Versioning: the minor number goes up by one only when the beta is promoted to pr
 
 ## 1.10 (beta, in progress)
 
+- From finance clerk feedback: the worksheet sections follow the order a clerk enters them in ClaimsX: A Personal information, B Itinerary, C Transportation (rental vehicles included), D Lodging, E General expenses, F Currency exchange, G Meals last. The form on the page uses the same order and letters, in both layouts
+- Calls register removed: phone plan charges and calls are general expenses (section E), with Phone plan charges, Business call and Personal call offered as descriptions and Phone charges in Add a receipt. Drafts from earlier versions move their calls into section E, keeping receipts and missing-receipt declarations
+- Leave and field days: each day in the meals section has Leave and Field buttons (on a phone, under the date). Normal duty days need nothing. Leave still comes from leave stops in section B, and the member can now change any day when the automatic setting does not match what happened. Changing a day puts its meals back to their defaults (leave and field days unticked)
+- Field stays in lodging (section D): a new Field option, like Quarters, that asks only where you were in the field, with no cost or receipt. Each night of a Field stay makes that day a field day. Setting a day to Field in the meals section adds (or extends) a Field stay for that night, and setting it back takes the night out, so the two always agree
+- Setting a second day the same way offers the days in between in the message at the bottom (for example "Also 10 Nov 26"), so a run of field or leave days takes two taps
+- Days changed by hand show a ↺ button to go back to the automatic setting, and are marked with an asterisk in the package, with a note saying the member changed them. Both layouts show a Leave / field column or row for the meals, so the FSA can see field nights for Land Duty Allowance
+- Beautify export: the first page is now a claimant summary for the member (what to do before sending, total entered, things to look over such as days changed by hand, field nights, leave days and open checks, what was entered, and the page map), marked as being for the claimant, with the claim starting on page 2. The worksheet opens with its own title, so the claim is complete without the summary page. The index and certification follow the summary of amounts when they fit
+- Standard layout cleaned up to look more like current CAF forms: a form header with the file number, trip dates, TAN and trip locator in labelled boxes, section bars with the letter in a white tab, section A in labelled boxes, lighter table lines, and the certification in its own box. The meals keep their X marks
+- Statutory declaration: the telephone call wording and matter line are no longer used (missing phone receipts use the general expense wording). The AJAG review list is updated
+
 ## 1.9 (24 Oct 2026)
 
 - Offline file SHA-256: `3dbc034ea8af90fbc138028b3f204cc50b1841cbe35e94f44526185d8962c5d5`

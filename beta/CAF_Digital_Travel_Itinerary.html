@@ -737,7 +737,7 @@ html{touch-action:manipulation}
           <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span></button><!--/BETA-ONLY-->
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 5, built 06 Nov 2026 02:28 (production is 1.9)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 6, built 06 Nov 2026 02:59 (production is 1.9)</p>
         </div>
       </div>
     </div>
@@ -951,7 +951,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 5, built 06 Nov 2026 02:28 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 6, built 06 Nov 2026 02:59 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -2152,6 +2152,20 @@ const FR = {
 "Taxi, parking, gas, tolls, transit, PMV": "Taxi, stationnement, essence, péages, transport en commun, VPA",
 "Travel Itinerary layout": "Mise en page Itinéraire de voyage",
 "Still in testing, so results may vary. The two layouts are one or the other.": "Encore à l'essai; les résultats peuvent varier. Les deux mises en page s'excluent l'une l'autre.",
+"TRAVELLER": "VOYAGEUR",
+"FINANCE": "FINANCES",
+"CAF DIGITAL TRAVEL ITINERARY": "ITINÉRAIRE DE VOYAGE NUMÉRIQUE DES FAC",
+"FILE {0}": "DOSSIER {0}",
+"PART {0} OF {1}": "PARTIE {0} DE {1}",
+"DATA ENTRY SHEET": "FEUILLE DE SAISIE",
+"NAME NOT ENTERED": "NOM NON SAISI",
+"FILE NUMBER": "NUMÉRO DE DOSSIER",
+"DATES": "DATES",
+"TOTAL": "TOTAL",
+"Not entered": "Non saisi",
+"{0} item": "{0} élément",
+"{0} items": "{0} éléments",
+"Tel. {0}": "Tél. {0}",
 };
 // Itinerary reader for Amex GBT (Government of Canada Travel Services) itineraries.
 // Text lines in, travel segments out. Pure functions: no network, no storage, no page access,
@@ -4067,9 +4081,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.10-beta.5';
+const APP_VERSION = '1.10-beta.6';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.10 beta 5, built 06 Nov 2026 02:28 (production is 1.9)';
+const APP_LABEL = 'Version 1.10 beta 6, built 06 Nov 2026 02:59 (production is 1.9)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -5271,19 +5285,29 @@ function prettyFinish(P, doc, ver, part) {
 // package, what to do next), then every receipt at a glance on a contact sheet. Part 2 is for the finance clerk: a
 // data entry sheet in ClaimsX order, one tick box per line, then the receipts and declarations. A coloured spine
 // on the left of every page says which part it belongs to. Built on the Beautify helpers (prettify), Helvetica only.
-const TI_PARTS = { trav: ['#0f6e74', 'FOR THE TRAVELLER'], clerk: ['#13203a', 'FOR THE FINANCE CLERK'], rc: ['#6b7684', 'RECEIPTS AND DECLARATIONS'] };
+// two parts: the traveller's (cover and contact sheet) and finance (data entry sheet, receipts and declarations)
+const TI_PARTS = { trav: ['#0f6e74', 'TRAVELLER', 1], clerk: ['#13203a', 'FINANCE', 2], rc: ['#13203a', 'FINANCE', 2] };
+// colour-coded filing, as on records-office folder labels: a colour per letter, so a stack sorts by surname at a glance
+const TI_ALPHA = ['#c8282c', '#1f3f8f', '#1e7b3c', '#3d97d3', '#6b3fa0', '#e8731c', '#6f7378', '#7b4a26', '#d6649f', '#e9b824', '#b48a5c', '#9a8ccc', '#7fb13a'];
+const tiAlpha = ch => { const i = ch.charCodeAt(0) - 65; return i >= 0 && i < 26 ? TI_ALPHA[i % 13] : '#6f7378'; };
+// where each part's thumb tab sits on the right edge (from the top, height), so a part can be found by its tab in a binder
+const TI_TAB = { trav: [112, 150], clerk: [290, 150], rc: [290, 150] };
+// stencil bridges, as fractions of each capital's width (letters not listed are drawn whole)
+const TI_CUTS = { A: [.5], B: [.33], D: [.33], E: [.33], F: [.33], P: [.33], R: [.33], K: [.33], H: [.33, .67], N: [.3, .7], M: [.5], O: [.5], Q: [.5], C: [.53], G: [.5], S: [.5], U: [.5], '0': [.5], '6': [.5], '8': [.5], '9': [.5] };
 function tiify(P) {
   const { rgb, degrees } = PDFLib, hx = s => rgb(parseInt(s.slice(1, 3), 16) / 255, parseInt(s.slice(3, 5), 16) / 255, parseInt(s.slice(5, 7), 16) / 255);
-  const K = P.K; Object.assign(K, { ink: hx('#13203a'), navy: hx('#13203a'), teal: hx('#0f6e74'), tealSoft: hx('#e2f0ef'), sand: hx('#f5f2ea'), sandLine: hx('#e3dccb'), slate: hx('#6b7684'), part: { trav: hx('#0f6e74'), clerk: hx('#13203a'), rc: hx('#6b7684') }, hair: hx('#e3e7ec'), rule: hx('#c6cdd6') });
+  const K = P.K; Object.assign(K, { ink: hx('#13203a'), navy: hx('#13203a'), teal: hx('#0f6e74'), tealSoft: hx('#e2f0ef'), sand: hx('#f5f2ea'), sandLine: hx('#e3dccb'), slate: hx('#6b7684'), part: { trav: hx('#0f6e74'), clerk: hx('#13203a'), rc: hx('#13203a') }, tint: { trav: hx('#bfe0dc'), clerk: hx('#aab6c8'), rc: hx('#aab6c8') }, red: hx('#d52b1e'), hair: hx('#e3e7ec'), rule: hx('#c6cdd6') });
   const { M, W, H, F, B, CW } = P;
-  Object.assign(P, { ti: true, part: 'trav', SPINE: 14 });
+  Object.assign(P, { ti: true, part: 'trav' });
   const rawNew = () => { P.page = P.doc.addPage([W, H]); P.y = H - M; };
-  // running header: the trip on the left, the part this page belongs to on the right
+  const mkW = () => { const mk = markText(S.marking); return mk ? B.widthOfTextAtSize(mk, 9.75) + 15 + 6 : 0; };
+  // running header: the trip on the left; on the right, the part as a solid block beside the security marking
   P.runHead = () => {
     const td = tripDates(), t = [S.tripRef.trim(), td ? rangeText([td[0], td[td.length - 1]]) : '', fullName()].filter(Boolean).join('  ·  ');
-    const lab = T(TI_PARTS[P.part][1]), lw = P.tw(lab, 7.5, B), mk = markText(S.marking), right = M + CW - (mk ? B.widthOfTextAtSize(mk, 9.75) + 27 : 0);
-    P.text(P.fit(t, F, 9, right - lw - 24 - M), M, P.TOP - 12, { size: 9, color: K.mid });
-    P.text(lab, right - lw, P.TOP - 11.5, { size: 7.5, font: B, color: K.part[P.part] });
+    const lab = T(TI_PARTS[P.part][1]), bw = P.spacedW(lab, 8.25, B, 1.8) + 18, right = M + CW - mkW();
+    P.page.drawRectangle({ x: right - bw, y: H - 51, width: bw, height: 18, color: K.part[P.part] });
+    P.spaced(lab, right - bw + 9, H - 45.4, 8.25, B, K.white, 1.8);
+    P.text(P.fit(t, F, 9, right - bw - 18 - M), M, P.TOP - 12, { size: 9, color: K.mid });
     P.line(M, P.TOP - 22, M + CW, P.TOP - 22, 1.1, K.ink); P.y = P.TOP - 38;
   };
   P.newPage = cover => { rawNew(); if (cover) P.y = P.TOP; else P.runHead(); };
@@ -5294,6 +5318,34 @@ function tiify(P) {
   // a small square to tick, for the clerk
   P.box = (x, cy, s) => P.page.drawRectangle({ x, y: cy - s / 2, width: s, height: s, borderColor: K.slate, borderWidth: .8 });
   P.vtext = (t, x, y, size, color) => P.page.drawText(P.clean(t), { x, y, size, font: B, color, rotate: degrees(90) });
+  // display capitals with stencil bridges cut in the background colour
+  P.stencil = (t, x, y, size, color, bg, track) => {
+    t = P.clean(t); P.spaced(t, x, y, size, B, color, track);
+    const bw = Math.max(1, size * .045); let cx = x;
+    for (const ch of t) { const gw = B.widthOfTextAtSize(ch, size); (TI_CUTS[ch] || []).forEach(f => P.page.drawRectangle({ x: cx + gw * f - bw / 2, y: y - size * .04, width: bw, height: size * .8, color: bg })); cx += gw + track; }
+  };
+  // the first two letters of the surname as colour-coded filing blocks on the right edge, under the part's tab
+  P.alpha = pk => {
+    const L = String(S.member.surname || '').normalize('NFD').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 2); if (!L) return;
+    const [top, th] = TI_TAB[pk], s = 30;
+    [...L].forEach((ch, i) => { const y = H - top - th - 6 - (i + 1) * s - i * 3, col = hx(tiAlpha(ch)), dark = 'JKLMWXYZ'.includes(ch);
+      P.page.drawRectangle({ x: W - s, y, width: s, height: s, color: col }); P.tc(ch, W - s / 2 - 2, y + 9.5, 14, B, dark ? K.ink : K.white); });
+  };
+  // a part opens with a full-bleed band: the tool, the part number, and the part's name in stencil capitals
+  P.opener = (pk, sub) => {
+    const col = K.part[pk], tint = K.tint[pk], bh = 160, y0 = H - bh, word = T(TI_PARTS[pk][1]);
+    P.page.drawRectangle({ x: 0, y: y0, width: W, height: bh, color: col });
+    P.page.drawRectangle({ x: 0, y: y0 - 4, width: W, height: 4, color: K.red });
+    let x = M; if (P.logo) { P.rr(M, H - 52.5, 21, 21, 3, { color: K.white }); P.page.drawImage(P.logo, { x: M + 2, y: H - 50.5, width: 17, height: 17 }); x += 29; }
+    const top = [T('CAF DIGITAL TRAVEL ITINERARY'), S.fileNo.trim() ? T('FILE {0}', S.fileNo.trim()) : '', S.tan.trim() ? T('TAN {0}', S.tan.trim()) : ''].filter(Boolean).join('   ·   ');
+    P.spaced(P.fit(top, B, 7.5, M + CW - mkW() - x - 40), x, H - 45.4, 7.5, B, tint, 1.2);
+    const eb = [T('TRAVEL ITINERARY'), T('PART {0} OF {1}', TI_PARTS[pk][2], 2), sub].filter(Boolean).join('   ·   ');
+    P.spaced(eb, M, y0 + 92, 9, B, tint, 2.4);
+    const track = 5, w1 = P.spacedW(word, 1, B, 0), n = P.clean(word).length, size = Math.min(72, (CW - 30 - track * (n - 1)) / w1);
+    P.stencil(word, M - size * .03, y0 + 18, size, K.white, col, track);
+    P.alpha(pk);
+    return y0 - 4;
+  };
 }
 // which ClaimsX transportation screen a line belongs to, from its description: car rental, local (taxi, parking,
 // gas, tolls, transit, PMV) or transportation (air, rail, ferry, baggage and the rest)
@@ -5320,17 +5372,13 @@ function tiRcCell(P, items, ctx, sec, i, row) {
 function tiCover(P, items, ctx) {
   const { M, CW, K, F, B } = P; P.part = 'trav'; P.newPage(true);
   const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), st = S.stops, n = st.length, blocks = [];
-  // header row, wordmark, trip
+  // the opener band, then the trip and the traveller
+  const top0 = P.opener('trav') - 22;
   const title = S.tripRef.trim() || T('Trip name not entered');
-  let ts = 16.5, tl = P.wrap(title, B, ts, CW); while (tl.length > 2 && ts > 12) { ts -= 1.5; tl = P.wrap(title, B, ts, CW); } tl = tl.slice(0, 2);
-  blocks.push({ h: 44 + 34 + 24 + tl.length * ts * 1.15 + 20, gap: 0, draw: y => {
-    if (P.logo) P.page.drawImage(P.logo, { x: M, y: y - 21, width: 21, height: 21 }); else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.teal }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
-    P.text(P.fit([T('CAF Digital Travel Itinerary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : '', S.tan.trim() ? T('TAN {0}', S.tan.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
-    P.line(M, y - 27, M + CW, y - 27, 1.1, K.ink); y -= 44;
-    P.spaced(T('TEMPORARY DUTY'), M, y, 8.25, B, K.teal, 2.2); y -= 34;
-    P.spaced(T('TRAVEL ITINERARY'), M, y, 30, B, K.ink, 1.8); y -= 24;
-    tl.forEach((l, i) => P.text(P.fit(l, B, ts, CW), M, y - i * ts * 1.15, { size: ts, font: B, color: K.teal })); y -= tl.length * ts * 1.15 - 2;
-    P.text(P.fit([fullName() || T('Name not entered'), S.member.section.trim(), S.member.pri.trim() ? T('PRI {0}', S.member.pri.trim()) : ''].filter(Boolean).join('  ·  '), F, 10.5, CW), M, y - 2, { size: 10.5, color: K.soft });
+  let ts = 21, tl = P.wrap(title, B, ts, CW); while (tl.length > 2 && ts > 13.5) { ts -= 1.5; tl = P.wrap(title, B, ts, CW); } tl = tl.slice(0, 2);
+  blocks.push({ h: tl.length * ts * 1.15 + 18, gap: 0, draw: y => {
+    tl.forEach((l, i) => P.text(P.fit(l, B, ts, CW), M, y - ts * .85 - i * ts * 1.15, { size: ts, font: B, color: K.teal })); y -= ts * .85 + (tl.length - 1) * ts * 1.15;
+    P.text(P.fit([fullName() || T('Name not entered'), S.member.section.trim(), S.member.pri.trim() ? T('PRI {0}', S.member.pri.trim()) : ''].filter(Boolean).join('  ·  '), F, 10.5, CW), M, y - 16, { size: 10.5, color: K.soft });
   } });
   // the ticket: where and when, in a sand panel with a perforated stub for the counts
   const first = st[0], last = st[n - 1], dest = tripDest(), nd = td ? td.length : 0;
@@ -5403,16 +5451,16 @@ function tiCover(P, items, ctx) {
     next.forEach((l, i) => P.text(l, M + 12, y - 26 - i * 11.5, { size: 9, color: K.ink }));
   } });
   // spread the blocks over the page, never past the footer
-  const room = P.TOP - P.BOT - 6, sum = blocks.reduce((a, b) => a + b.h, 0), gaps = blocks.reduce((a, b) => a + b.gap, 0);
+  const room = top0 - P.BOT - 6, sum = blocks.reduce((a, b) => a + b.h, 0), gaps = blocks.reduce((a, b) => a + b.gap, 0);
   const k = Math.max(.5, Math.min(1.7, (room - sum) / Math.max(1, gaps)));
-  let y = P.TOP; blocks.slice(0, -1).forEach(b => { y -= b.gap * k; b.draw(y); y -= b.h; });
+  let y = top0; blocks.slice(0, -1).forEach(b => { y -= b.gap * k; b.draw(y); y -= b.h; });
   const foot = blocks[blocks.length - 1]; foot.draw(Math.max(y - foot.gap, P.BOT + 6 + foot.h)); // the pointer to the rest sits at the foot of the page
 }
 // Part 1, next pages: every receipt as a thumbnail, with its reference, amount and page
 async function tiContact(P, items, ctx, embedRc) {
   const { M, CW, K, F, B } = P; P.part = 'trav'; P.newPage();
   const cols = 3, gap = 12, tw = (CW - gap * (cols - 1)) / cols, ih = 138, ch = 34, th = ih + ch + 8;
-  const head = first => { P.text(first ? T('Receipts at a glance') : T('Receipts at a glance (continued)'), M, P.y - 11, { size: 13.5, font: B, color: K.ink }); if (first) P.tr(items.length ? nPl(items.length, '{0} item, in the order they appear', '{0} items, in the order they appear') : '', M + CW, P.y - 11, 9, F, K.mid); P.y -= 26; };
+  const head = first => { P.text(first ? T('Receipts at a glance') : T('Receipts at a glance (continued)'), M, P.y - 11, { size: 13.5, font: B, color: K.ink }); if (first) P.tr(items.length ? nPl(items.length, '{0} item', '{0} items') : '', M + CW, P.y - 11, 9, F, K.mid); P.y -= 26; };
   head(true);
   if (!items.length) { P.text(T('No receipts attached.'), M, P.y - 12, { size: 9.75, color: K.mid }); P.y -= 20; return; }
   let k = 0;
@@ -5452,45 +5500,57 @@ async function tiContact(P, items, ctx, embedRc) {
 async function tiClerk(P, items, ctx, rec) {
   const { M, CW, K, F, B } = P, m = S.member; P.part = 'clerk'; P.newPage(true); rec.clerkStart = rec.wsStart = P.doc.getPageCount();
   const mark = L => { rec.secPage[L] = P.doc.getPageCount(); };
-  let y = P.TOP;
-  // title block
-  P.spaced(T('TRAVEL ITINERARY'), M, y - 8, 8.25, B, K.slate, 2.2);
-  P.text(T('Data entry sheet'), M, y - 34, { size: 24, font: B, color: K.ink });
-  { const mk = markText(S.marking); P.tr(T('FOR THE FINANCE CLERK'), M + CW - (mk ? B.widthOfTextAtSize(mk, 9.75) + 27 : 0), y - 11.5, 7.5, B, K.part.clerk); }
-  P.tr(T('Enter in ClaimsX in the order below'), M + CW, y - 34, 9.75, F, K.mid);
-  P.text(P.fit([S.tripRef.trim(), fullName()].filter(Boolean).join('  ·  '), F, 10.5, CW), M, y - 50, { size: 10.5, color: K.soft });
-  P.line(M, y - 58, M + CW, y - 58, 1.5, K.ink); y -= 66;
+  let y = P.opener('clerk', T('DATA ENTRY SHEET')) - 22;
+  // identity plate: who and which trip, big enough to find this sheet in a stack of them
+  { const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), lw = CW - 214, px = M + CW - 196, pw = 196, ph = 100;
+    const who = [rankAbbr(m.rank), m.given].filter(Boolean).join('  ').toUpperCase() || T('NAME NOT ENTERED');
+    P.spaced(P.fit(who, B, 10.5, lw), M, y - 10, 10.5, B, K.slate, 1.4);
+    const sn = (m.surname.trim() || '-').toUpperCase(), ss = Math.max(24, Math.min(50, lw / Math.max(1, P.spacedW(sn, 1, B, 0) + .04 * (sn.length - 1))));
+    P.spaced(P.fit(sn, B, ss, lw), M - ss * .03, y - 14 - ss * .78, ss, B, K.ink, ss * .04);
+    const ty = y - 14 - ss * .78 - 24; P.text(P.fit([S.tripRef.trim(), m.section.trim()].filter(Boolean).join('  ·  '), B, 12, lw), M, ty, { size: 12, font: B, color: K.teal });
+    const pl = [m.pri.trim() ? T('PRI {0}', m.pri.trim()) : '', telStr(m) ? T('Tel. {0}', telStr(m)) : ''].filter(Boolean).join('  ·  ');
+    if (pl) P.text(P.fit(pl, F, 9.75, lw), M, ty - 15, { size: 9.75, color: K.mid });
+    // the data plate, with corner ticks
+    const pt = y + 2, pb = pt - ph, tk = 9, tc = K.ink;
+    [[px, pt, 1, -1], [px + pw, pt, -1, -1], [px, pb, 1, 1], [px + pw, pb, -1, 1]].forEach(([x0, y1, dx, dy]) => { P.line(x0, y1, x0 + dx * tk, y1, 1.5, tc); P.line(x0, y1, x0, y1 + dy * tk, 1.5, tc); });
+    const fno = S.fileNo.trim(), dates = td ? (td.length > 1 ? `${fmtDate(td[0])} - ${fmtDate(td[td.length - 1])}` : fmtDate(td[0])).toUpperCase() : '-';
+    P.spaced(T('FILE NUMBER'), px + 14, pt - 17, 6.6, B, K.slate, 1.2);
+    P.text(P.fit(fno || T('Not entered'), B, fno ? 22 : 12, pw - 28), px + 14, pt - 40, { size: fno ? 22 : 12, font: B, color: fno ? K.ink : K.mid });
+    P.spaced(T('DATES'), px + 14, pt - 57, 6.6, B, K.slate, 1.2); P.text(P.fit(dates, B, 10.5, pw - 28), px + 14, pt - 69, { size: 10.5, font: B });
+    P.spaced(T('TOTAL'), px + 14, pt - 81, 6.6, B, K.slate, 1.2); P.text(P.fit(`${fmtN(gt[pc] || 0)} ${pc}`, B, 10.5, pw - 28), px + 14, pt - 93, { size: 10.5, font: B, color: K.teal });
+    y = Math.min(pb, ty - (pl ? 15 : 0)) - 14; P.line(M, y, M + CW, y, 1.5, K.ink); y -= 10;
+  }
   // identity strip
-  const id = [[T('PRI / SN'), m.pri], [T('Rank'), rankAbbr(m.rank)], [T('Surname'), m.surname], [T('Given name and initials'), m.given], [T('Section'), m.section], [T('Telephone'), telStr(m)], [T('File number'), S.fileNo.trim()], [T('TAN'), S.tan.trim()], [T('Trip locator'), S.locator.trim()]].filter(([, v]) => v);
+  const id = [[T('TAN'), S.tan.trim()], [T('Trip locator'), S.locator.trim()]].filter(([, v]) => v); // the rest is on the identity plate
   const cols = 4, cw = CW / cols, rh = 30;
   for (let i = 0; i < id.length; i += cols) { id.slice(i, i + cols).forEach(([l, v], j) => { const x = M + j * cw; P.text(l.toUpperCase(), x, y - 9, { size: 6.4, font: B, color: K.slate }); P.text(P.fit(v, B, 10.5, cw - 10), x, y - 22, { size: 10.5, font: B }); }); y -= rh; P.line(M, y + 4, M + CW, y + 4, .6, K.hair); }
   if (S.poc.on) { P.text(P.fit(T('Point of contact: {0}', [rankAbbr(S.poc.rank), S.poc.given, S.poc.surname, S.poc.email, telStr(S.poc)].filter(Boolean).join(', ')), F, 9, CW), M, y - 9, { size: 9, color: K.mid }); y -= 16; }
   P.y = y - 8;
   // a numbered step, as in ClaimsX
-  const step = (num, title, hint, L, nil) => {
-    P.ensure(nil ? 30 : 70); const y0 = P.y - 22;
+  const step = (num, title, L, nil) => {
+    P.ensure(nil ? 30 : 108); const y0 = P.y - 22; // room for the heading, a sub-heading, the column heads and a line
     P.rr(M, y0, 22, 22, 3, { color: nil ? K.nilBg : K.ink }); P.tc(String(num), M + 11, y0 + 6.5, 12, B, nil ? K.mid : K.white);
     P.text(title, M + 30, y0 + 7, { size: 12, font: B, color: nil ? K.mid : K.ink });
-    if (nil) P.tr(T('Nil, nothing to enter'), M + CW, y0 + 7, 9, F, K.mid); else if (hint) P.tr(P.fit(hint, F, 8.25, CW - 40 - P.tw(title, 12, B)), M + CW, y0 + 7.5, 8.25, F, K.mid);
+    if (nil) P.spaced(T('NIL'), M + CW - P.spacedW(T('NIL'), 8.25, B, 1.6), y0 + 7.5, 8.25, B, K.mid, 1.6);
     if (L) mark(L);
     P.y = y0 - (nil ? 6 : 8); P.line(M, P.y, M + CW, P.y, nil ? .6 : 1.1, nil ? K.hair : K.ink); P.y -= nil ? 10 : 2;
   };
-  const sub = (t, hint) => { P.ensure(72); P.text(t, M, P.y - 11, { size: 9.75, font: B, color: K.ink }); if (hint) P.text(P.fit(hint, F, 8.25, CW - P.tw(t, 9.75, B) - 14), M + P.tw(t, 9.75, B) + 8, P.y - 11, { size: 8.25, color: K.mid }); P.y -= 16; };
+  const sub = t => { P.ensure(72); P.text(t, M, P.y - 11, { size: 9.75, font: B, color: K.ink }); P.y -= 16; };
   const BOX = { l: '', w: 12, box: true }, rcC = (sec, i, r) => tiRcCell(P, items, ctx, sec, i, r);
   const money2 = (label, sums) => { if (Object.keys(sums).length) P.money(label, sums); };
   const TR = [{ l: 'Amount', w: 63, a: 'r' }, { l: 'Cur', w: 30 }, { l: 'Receipt', w: 88 }];
   // 1 itinerary
   const n = S.stops.length;
-  step(1, T('Itinerary'), T('Every stop, with the date and time of arrival and departure'), 'B');
+  step(1, T('Itinerary'), 'B');
   P.pt([BOX, { l: 'Arrival', w: 60 }, { l: 'Time', w: 33 }, { l: 'City', f: 1 }, { l: 'Departure', w: 60 }, { l: 'Time', w: 33 }, { l: 'Mode', w: 84 }],
     S.stops.map((s, i) => { const f = i === 0, l = i === n - 1; return [{ box: true }, f ? '' : fmtDate(s.arrDate), f ? '' : s.arrTime, { t: s.city + (s.leave && !f && !l ? T(' (leave)') : ''), b: true }, l ? '' : fmtDate(s.depDate), l ? '' : s.depTime, l ? '' : modeText(s)]; }), { minH: 18, after: 14 });
   // 2 transportation, in the order of the ClaimsX screens
   const tr = S.transport.map((r, i) => ({ r, i, k: tiTransKind(r.desc) }));
-  step(2, T('Transportation'), T('Three screens: transportation, car rental, local transportation'), 'C', !tr.length);
+  step(2, T('Transportation'), 'C', !tr.length);
   if (tr.length) {
-    TI_TRANS.forEach(([k, nm, hint], j) => {
+    TI_TRANS.forEach(([k, nm], j) => {
       const rows = tr.filter(x => x.k === k); if (!rows.length) return;
-      sub(`2${String.fromCharCode(97 + j)}  ${T(nm)}`, T(hint));
+      sub(`2${String.fromCharCode(97 + j)}  ${T(nm)}`);
       P.pt([BOX, { l: 'Date', w: 54 }, { l: 'Location', f: 1 }, { l: 'Description', f: 1.4 }, ...TR], rows.map(({ r, i }) => [{ box: true }, fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcC('transport', i, r)]), { minH: 18, after: 2 });
       money2(T('Subtotal'), sumBy(rows.map(x => x.r), 'cost', 'cur')); P.y -= 8;
     });
@@ -5498,20 +5558,20 @@ async function tiClerk(P, items, ctx, rec) {
   }
   // 3 lodging
   const stays = S.lodging.stays;
-  step(3, T('Lodging'), T('Commercial stays have a cost and receipt; quarters, private and field do not'), 'D', !stays.length);
+  step(3, T('Lodging'), 'D', !stays.length);
   if (stays.length) {
     P.pt([BOX, { l: 'Type', w: 54 }, { l: 'Where', f: 1.6 }, { l: 'City or base', f: 1 }, { l: 'In', w: 51 }, { l: 'Out', w: 51 }, { l: 'Nights', w: 30, a: 'c' }, { l: 'Amount', w: 57, a: 'r' }, { l: 'Cur', w: 27 }, { l: 'Receipt', w: 78 }],
       stays.map((r, i) => [{ box: true }, T(stayKind(r)) + (r.rations ? T(' + rations') : ''), { t: r.priv ? privAddr(r) : isStd(r) ? r.hotel : r.location, b: true }, r.priv ? r.city : isStd(r) ? r.location : '', fmtDate(r.checkin), fmtDate(r.checkout), nights(r) > 0 ? String(nights(r)) : '', isStd(r) ? (money(r.cost) || r.cost) : '', isStd(r) && r.cost !== '' ? curOf(r.cur) : '', isStd(r) ? rcC('stays', i, r) : { chip: T('N/A'), kind: 'na' }]), { minH: 18, after: 2 });
     money2(T('Subtotal'), sumBy(stays.filter(isStd), 'cost', 'cur')); P.y -= 14;
   }
   // 4 other expenses
-  step(4, T('Other expenses'), T('General expenses, phone plan charges and calls'), 'E', !S.general.length);
+  step(4, T('Other expenses'), 'E', !S.general.length);
   if (S.general.length) {
     P.pt([BOX, { l: 'Date', w: 54 }, { l: 'Location', f: 1 }, { l: 'Description', f: 1.4 }, ...TR], S.general.map((r, i) => [{ box: true }, fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcC('general', i, r)]), { minH: 18, after: 2 });
     money2(T('Subtotal'), sumBy(S.general, 'cost', 'cur')); P.y -= 14;
   }
   // 5 gain or loss on exchange
-  step(5, T('Gain or loss on exchange'), T('Each exchange receipt; the service charge is the amount entered'), 'F', !S.exchange.length);
+  step(5, T('Gain or loss on exchange'), 'F', !S.exchange.length);
   if (S.exchange.length) {
     P.pt([BOX, { l: 'Date', w: 54 }, { l: 'Where exchanged', f: 1 }, { l: 'Sold', w: 63, a: 'r' }, { l: 'Bought', w: 63, a: 'r' }, { l: 'Rate', w: 39, a: 'r' }, { l: 'Fee', w: 48, a: 'r' }, { l: 'Cur', w: 27 }, { l: 'Receipt', w: 78 }],
       S.exchange.map((r, i) => [{ box: true }, fmtDate(r.date), r.location, amt(r.soldAmt, r.soldCur), amt(r.boughtAmt, r.boughtCur), r.rate || autoRate(r), money(r.charge), money(r.charge) ? curOf(r.chargeCur) : '', rcC('exchange', i, r)]), { minH: 18, after: 2 });
@@ -5519,15 +5579,15 @@ async function tiClerk(P, items, ctx, rec) {
   }
   // 6 meals, one line per day
   const days = tripDates() || [], mc = mealCounts().c;
-  step(6, T('Meals'), T('One line per day; a tick is a meal to enter. Leave and field days are marked'), 'G', !days.length);
+  step(6, T('Meals'), 'G', !days.length);
   if (days.length) {
     P.pt([BOX, { l: 'Date', w: 72 }, { l: 'Location', f: 1 }, { l: 'Leave / field', w: 66 }, { l: fr() ? 'Déj.' : 'B', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Dîn.' : 'L', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Soup.' : 'D', raw: true, w: 33, a: 'c' }, { l: 'Remarks', f: 1.1 }],
       days.map(d => { const st = dayStatus(d), ri = rationsStay(d); return [{ box: true }, dDow(d), locFor(d), st ? { t: statusLabel(st), b: true, c: st === 'leave' ? K.leaveInk : K.fldInk } : '', ...MEALS.map(([k]) => mealVal(d, k) ? { check: true } : !st && ri >= 0 ? { t: T('R'), c: K.mid } : ''), [!st && ri >= 0 ? T('Rations booked ({0})', 'D-' + (ri + 1)) : '', (S.meals[d] || {}).note || ''].filter(Boolean).join('. ')]; }), { minH: 18, after: 2 });
     P.band(T('Meals to enter'), String(mc.b + mc.l + mc.d), '', { left: T('Breakfasts {0}  ·  lunches {1}  ·  dinners {2}', mc.b, mc.l, mc.d) }); P.y -= 14;
   }
   // totals and certification
-  P.ensure(40); P.text(T('Total entered'), M, P.y - 11, { size: 11.25, font: B, color: K.ink }); P.y -= 16; P.money(T('Total'), grandTotals(), { grand: true });
-  P.y -= 16; P.ensure(104); rec.certPage = P.doc.getPageCount();
+  P.ensure(24); P.money(T('Total'), grandTotals(), { grand: true });
+  P.y -= 10; P.ensure(104); rec.certPage = P.doc.getPageCount();
   const top = P.y, h = 92, yb = top - h;
   P.rr(M, yb, CW, h, 4.5, { borderColor: K.ink, borderWidth: 1.1 });
   P.text(T('Certification by the traveller'), M + 15, top - 20, { size: 11.25, font: B, color: K.ink });
@@ -5565,12 +5625,16 @@ function tiRcHeader(P, it, opts = {}) {
 function tiFinish(P, doc, ver, part) {
   const { K, F, B, M, W, H } = P, mark = markText(S.marking), pages = doc.getPages(), total = pages.length, ctx = P.tiCtx || {};
   const left = P.clean([ver, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef, part].filter(Boolean).join('  ·  '));
-  const partOf = n => P.partOf ? P.partOf(n) : 'rc';
+  const partOf = n => P.partOf ? P.partOf(n) : 'rc', grp = pk => pk === 'trav' ? 'trav' : 'fin';
+  const kinds = pages.map((p, i) => grp(partOf(i + 1))), cnt = { trav: 0, fin: 0 }, seen = { trav: 0, fin: 0 }; kinds.forEach(g => cnt[g]++);
+  // the part's thumb tab on the right edge (the left edge goes into the binding), with the page within the part
   pages.forEach((p, i) => {
-    const pk = partOf(i + 1), col = K.part[pk] || K.part.rc;
-    p.drawRectangle({ x: 0, y: 0, width: P.SPINE, height: H, color: col });
-    const lab = P.clean(`${T('TRAVEL ITINERARY')}   ·   ${T(TI_PARTS[pk][1])}`);
-    p.drawText(lab, { x: 10, y: 60, size: 6.5, font: B, color: K.white, rotate: PDFLib.degrees(90) });
+    const pk = partOf(i + 1), col = K.part[pk] || K.part.rc, g = kinds[i]; seen[g]++;
+    const [tt, th] = TI_TAB[pk], tw = 30, word = P.clean(T(TI_PARTS[pk][1])), num = `${seen[g]}/${cnt[g]}`, sz = 8.25, tr = 1.8;
+    p.drawRectangle({ x: W - tw, y: H - tt - th, width: tw, height: th, color: col });
+    const ww = B.widthOfTextAtSize(word, sz) + tr * (word.length - 1), nw = F.widthOfTextAtSize(num, sz), len = ww + 10 + nw, y1 = H - tt - (th - len) / 2, x1 = W - 17 - sz * .36;
+    const sp = PDFLib.setCharacterSpacing; if (sp) p.pushOperators(sp(tr)); p.drawText(word, { x: x1, y: y1, size: sz, font: B, color: K.white, rotate: PDFLib.degrees(-90) }); if (sp) p.pushOperators(sp(0));
+    p.drawText(num, { x: x1, y: y1 - ww - 10, size: sz, font: F, color: K.tint[pk] || K.white, rotate: PDFLib.degrees(-90) });
     const r = T('Page {0} of {1}', i + 1, total), rw = F.widthOfTextAtSize(r, 8.25);
     p.drawLine({ start: { x: M, y: 42 }, end: { x: W - M, y: 42 }, thickness: .75, color: K.rule });
     p.drawText(P.fit(left, F, 8.25, W / 2 - M - rw / 2 - 12), { x: M, y: 30, size: 8.25, font: F, color: K.mid });

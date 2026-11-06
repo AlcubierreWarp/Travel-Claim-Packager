@@ -669,7 +669,8 @@ html{touch-action:manipulation}
           <p class="menu-h">Experimental</p>
           <label class="menu-check"><input type="checkbox" class="sw" id="opt-imp"><span class="mi-t">Itinerary import</span></label>
           <label class="menu-check"><input type="checkbox" class="sw" id="opt-pretty"><span class="mi-t">Beautify export</span></label>
-          <p class="menu-note">Still in testing, so results may vary.</p>
+          <label class="menu-check"><input type="checkbox" class="sw" id="opt-ti"><span class="mi-t">Travel Itinerary layout</span></label>
+          <p class="menu-note">Still in testing, so results may vary. The two layouts are one or the other.</p>
           <p class="menu-h">App</p>
           <button data-act="dl-offline" id="dl-offline"><span class="mi-t">Download offline copy</span></button>
           <p class="menu-note menu-sha" id="offline-sha"></p>
@@ -888,7 +889,7 @@ html{touch-action:manipulation}
           <span class="pk-out-hint" id="pk-sign-hint"></span>
         </div>
         </div>
-        <p class="sd-help pretty-note" id="pretty-note" hidden><span class="pill-exp">Experimental</span> Beautify export is on: the PDF uses the new layout. Turn it off in the menu.</p>
+        <p class="sd-help pretty-note" id="pretty-note" hidden><span class="pill-exp">Experimental</span> <span>Beautify export is on: the PDF uses the new layout. Turn it off in the menu.</span></p>
         <div class="build-row">
           <button class="btn primary big" data-act="build" id="build-btn">Build PDF package</button>
           <span id="build-status" role="status" aria-live="polite"></span>
@@ -2058,7 +2059,8 @@ document.addEventListener('change', e => {
   if (el.dataset && (el.dataset.bind || el.dataset.sec || el.dataset.mealDate)) touch(el);
   if (el.id === 'opt-keep') { setKeep(el.checked); return; }
   if (el.id === 'opt-remember') { setRemember(el.checked); return; }
-  if (el.id === 'opt-pretty') { setPretty(el.checked); return; }
+  if (el.id === 'opt-pretty') { setLayout(el.checked ? 'pretty' : 'std'); return; }
+  if (el.id === 'opt-ti') { setLayout(el.checked ? 'ti' : 'std'); return; }
   if (el.id === 'opt-imp') { setImport(el.checked); return; }
   if (el.id === 'opt-pin') { if (el.checked) { el.checked = false; setMenu(false); $('#pin-banner').hidden = false; $('#pin-1').focus(); } else clearPin().then(() => { syncMenu(); toast(T('PIN removed. Your saved work is no longer encrypted.')); }); return; }
   if (el.name === 'snap-type') { snapLabels(); $('#snap-err').hidden = true; return; }
@@ -2848,7 +2850,7 @@ let lastPdf = null, lastParts = null; // the last build: one PDF, or the separat
 // What the last build was made from. Anything that changes the output (the claim, a receipt, the layout, the
 // language) withdraws the built result, so Save or Open can never hand over an out-of-date PDF.
 let lastSig = '';
-const outSig = () => [JSON.stringify(S), PRETTY ? 1 : 0, LANG, Object.keys(R).map(k => k + ':' + String((R[k] && R[k].dataUrl) || '').length).join(',')].join('|');
+const outSig = () => [JSON.stringify(S), LAYOUT, LANG, Object.keys(R).map(k => k + ':' + String((R[k] && R[k].dataUrl) || '').length).join(',')].join('|');
 function checkStale() {
   if (building || (!lastPdf && !lastParts) || outSig() === lastSig) return;
   lastPdf = null; lastParts = null; lastSig = ''; const r = $('#result'); if (r) r.hidden = true;
@@ -3278,13 +3280,19 @@ function drawDeclaration(P, it) {
 // Same content and order as the standard layout, laid out to be read at a glance and entered in claim-form order:
 // a summary first page, sections with lettered tiles, every amount in one column down the page, a page map,
 // and fallbacks for long trips, many stops, several currencies and big packages. Helvetica only (no added size).
-const PRETTY_KEY = 'caf-dti-pretty' + CH;
-let PRETTY = (() => { try { return localStorage.getItem(PRETTY_KEY) === '1'; } catch (e) { return false; } })();
-function setPretty(on) {
-  PRETTY = !!on; try { on ? localStorage.setItem(PRETTY_KEY, '1') : localStorage.removeItem(PRETTY_KEY); } catch (e) {}
-  syncPretty(); checkStale(); toast(on ? T('Beautify export is on. Build the PDF to see the new layout.') : T('Beautify export is off. PDFs use the standard layout.'));
+// The PDF layout: 'std' (the form), 'pretty' (Beautify export) or 'ti' (Travel Itinerary layout). One at a time.
+const PRETTY_KEY = 'caf-dti-pretty' + CH, LAYOUT_KEY = 'caf-dti-layout' + CH;
+let LAYOUT = (() => { try { const v = localStorage.getItem(LAYOUT_KEY); if (v === 'pretty' || v === 'ti') return v; return localStorage.getItem(PRETTY_KEY) === '1' ? 'pretty' : 'std'; } catch (e) { return 'std'; } })();
+const isPretty = () => LAYOUT === 'pretty', isTI = () => LAYOUT === 'ti';
+function setLayout(v) {
+  LAYOUT = v; try { localStorage.removeItem(PRETTY_KEY); v === 'std' ? localStorage.removeItem(LAYOUT_KEY) : localStorage.setItem(LAYOUT_KEY, v); } catch (e) {}
+  syncPretty(); checkStale();
+  toast(v === 'pretty' ? T('Beautify export is on. Build the PDF to see the new layout.') : v === 'ti' ? T('Travel Itinerary layout is on. Build the PDF to see it.') : T('Experimental layouts are off. PDFs use the standard layout.'));
 }
-function syncPretty() { const c = $('#opt-pretty'); if (c) c.checked = PRETTY; const n = $('#pretty-note'); if (n) n.hidden = !PRETTY; }
+function syncPretty() {
+  const c = $('#opt-pretty'); if (c) c.checked = isPretty(); const t = $('#opt-ti'); if (t) t.checked = isTI();
+  const n = $('#pretty-note'); if (n) { n.hidden = LAYOUT === 'std'; const sp = n.querySelector('span:last-child'); if (sp) sp.textContent = isTI() ? T('Travel Itinerary layout is on: a traveller cover and receipt contact sheet, then a data entry sheet for the finance clerk. Turn it off in the menu.') : T('Beautify export is on: the PDF uses the new layout. Turn it off in the menu.'); }
+}
 // Itinerary import (experimental): on unless the member turns it off in the menu. Off hides the import card.
 const IMPORT_KEY = 'caf-dti-import-off' + CH;
 let IMPORT_ON = (() => { try { return localStorage.getItem(IMPORT_KEY) !== '1'; } catch (e) { return true; } })();
@@ -3350,7 +3358,7 @@ function prettify(P) {
     const hl = cols.map((c, i) => P.wrap(!c.l ? '' : c.raw ? c.l : T(c.l), B, 9, ws[i]));
     const hh = Math.max(1, ...hl.map(l => l.length)) * 11 + 5;
     const header = () => { const y0 = P.y; hl.forEach((ls, i) => ls.forEach((ln, k) => { const y = y0 - 9 - k * 11, a = cols[i].a; if (a === 'r') P.tr(ln, xs[i] + ws[i], y, 9, B, K.mid); else if (a === 'c') P.tc(ln, xs[i] + ws[i] / 2, y, 9, B, K.mid); else P.text(ln, xs[i], y, { size: 9, font: B, color: K.mid }); })); P.y = y0 - hh; P.line(M, P.y, M + CW, P.y, 1.1, K.ink); };
-    const lay = r => { const cells = r.cells || r; const lines = cells.map((c, i) => (c && typeof c === 'object' && (c.chip || c.check || c.rail || c.tile)) ? [''] : P.wrap((c && typeof c === 'object') ? (c.t ?? '') : (c ?? ''), (c && c.b) || r.bold ? B : F, fs, ws[i] - (cols[i].tile ? 0 : 0))); return { cells, lines, h: Math.max(o.minH || 24, Math.max(1, ...lines.map(l => l.length)) * lh + 2 * pad) }; };
+    const lay = r => { const cells = r.cells || r; const lines = cells.map((c, i) => (c && typeof c === 'object' && (c.chip || c.check || c.rail || c.tile || c.box)) ? [''] : P.wrap((c && typeof c === 'object') ? (c.t ?? '') : (c ?? ''), (c && c.b) || r.bold ? B : F, fs, ws[i] - (cols[i].tile ? 0 : 0))); return { cells, lines, h: Math.max(o.minH || 24, Math.max(1, ...lines.map(l => l.length)) * lh + 2 * pad) }; };
     const list = rows.map(lay);
     P.ensure(hh + (list[0] ? list[0].h : 24) + 6); header();
     list.forEach((L, ri) => {
@@ -3361,6 +3369,7 @@ function prettify(P) {
         if (c && typeof c === 'object' && c.rail) { const lx = x + 8; if (!c.rail.first) P.line(lx, top, lx, cy, 1.5, K.navy); if (!c.rail.last) P.line(lx, cy, lx, y, 1.5, K.navy); P.page.drawCircle({ x: lx, y: cy, size: 4.5, color: c.rail.stay ? K.navy : K.white, borderColor: K.navy, borderWidth: 1.5, borderDashArray: c.rail.leave ? [1.5, 1.5] : undefined }); return; }
         if (c && typeof c === 'object' && c.chip) { if (a === 'r') P.chip(c.chip, x + w - P.tw(c.chip, 9, B) - 9, cy, c.kind); else P.chip(c.chip, x, cy, c.kind); return; }
         if (c && typeof c === 'object' && c.check) { P.check(x + w / 2, cy, 8, K.navy); return; }
+        if (c && typeof c === 'object' && c.box) { if (P.box) P.box(x + 1, cy, 9); return; }
         if (c && typeof c === 'object' && c.tile) { P.rr(x, cy - 7.5, 16.5, 15, 3, { color: K.chip }); P.tc(c.tile, x + 8.25, cy - 3.2, 9, B, K.blue); P.text(P.fit(c.t, F, fs, w - 24), x + 24, cy - 3.4, { size: fs }); return; }
         const obj = c && typeof c === 'object', font = (obj && c.b) || r_b(rows[ri]) ? B : F, color = (obj && c.c) || K.ink;
         if (c && typeof c === 'object' && c.sub && L.lines[i].length === 1) { const ty = top - pad - fs * .8 - ((L.h - 2 * pad - lh) / 2); P.text(L.lines[i][0], x, ty, { size: fs, font, color }); const sx = x + P.tw(L.lines[i][0], fs, font) + 6; P.text(P.fit(c.sub, F, 9, x + w - sx), sx, ty, { size: 9, color: K.mid }); return; }
@@ -3778,6 +3787,324 @@ function prettyFinish(P, doc, ver, part) {
   });
 }
 
+/* ---------- Travel Itinerary layout (experimental): one package, two readers ---------- */
+// Part 1 is for the traveller: a cover that reads like a travel itinerary (the trip, the journey, what is in the
+// package, what to do next), then every receipt at a glance on a contact sheet. Part 2 is for the finance clerk: a
+// data entry sheet in ClaimsX order, one tick box per line, then the receipts and declarations. A coloured spine
+// on the left of every page says which part it belongs to. Built on the Beautify helpers (prettify), Helvetica only.
+const TI_PARTS = { trav: ['#0f6e74', 'FOR THE TRAVELLER'], clerk: ['#13203a', 'FOR THE FINANCE CLERK'], rc: ['#6b7684', 'RECEIPTS AND DECLARATIONS'] };
+function tiify(P) {
+  const { rgb, degrees } = PDFLib, hx = s => rgb(parseInt(s.slice(1, 3), 16) / 255, parseInt(s.slice(3, 5), 16) / 255, parseInt(s.slice(5, 7), 16) / 255);
+  const K = P.K; Object.assign(K, { ink: hx('#13203a'), navy: hx('#13203a'), teal: hx('#0f6e74'), tealSoft: hx('#e2f0ef'), sand: hx('#f5f2ea'), sandLine: hx('#e3dccb'), slate: hx('#6b7684'), part: { trav: hx('#0f6e74'), clerk: hx('#13203a'), rc: hx('#6b7684') }, hair: hx('#e3e7ec'), rule: hx('#c6cdd6') });
+  const { M, W, H, F, B, CW } = P;
+  Object.assign(P, { ti: true, part: 'trav', SPINE: 14 });
+  const rawNew = () => { P.page = P.doc.addPage([W, H]); P.y = H - M; };
+  // running header: the trip on the left, the part this page belongs to on the right
+  P.runHead = () => {
+    const td = tripDates(), t = [S.tripRef.trim(), td ? rangeText([td[0], td[td.length - 1]]) : '', fullName()].filter(Boolean).join('  ·  ');
+    const lab = T(TI_PARTS[P.part][1]), lw = P.tw(lab, 7.5, B), mk = markText(S.marking), right = M + CW - (mk ? B.widthOfTextAtSize(mk, 9.75) + 27 : 0);
+    P.text(P.fit(t, F, 9, right - lw - 24 - M), M, P.TOP - 12, { size: 9, color: K.mid });
+    P.text(lab, right - lw, P.TOP - 11.5, { size: 7.5, font: B, color: K.part[P.part] });
+    P.line(M, P.TOP - 22, M + CW, P.TOP - 22, 1.1, K.ink); P.y = P.TOP - 38;
+  };
+  P.newPage = cover => { rawNew(); if (cover) P.y = P.TOP; else P.runHead(); };
+  // letterspaced capitals, for the wordmark and small labels
+  // letterspaced, as one run of text (so it reads, copies and searches as words, not letters)
+  P.spaced = (t, x, y, size, font, color, track) => { const sp = PDFLib.setCharacterSpacing; if (sp) P.page.pushOperators(sp(track)); P.text(t, x, y, { size, font, color }); if (sp) P.page.pushOperators(sp(0)); return P.spacedW(t, size, font, track); };
+  P.spacedW = (t, size, font, track) => font.widthOfTextAtSize(P.clean(t), size) + track * Math.max(0, P.clean(t).length - 1);
+  // a small square to tick, for the clerk
+  P.box = (x, cy, s) => P.page.drawRectangle({ x, y: cy - s / 2, width: s, height: s, borderColor: K.slate, borderWidth: .8 });
+  P.vtext = (t, x, y, size, color) => P.page.drawText(P.clean(t), { x, y, size, font: B, color, rotate: degrees(90) });
+}
+// which ClaimsX transportation screen a line belongs to, from its description: car rental, local (taxi, parking,
+// gas, tolls, transit, PMV) or transportation (air, rail, ferry, baggage and the rest)
+function tiTransKind(desc) {
+  const d = String(desc || '').toLowerCase();
+  if (/rental|rented|location de|lou[ée]|voiture de location|hertz|avis|enterprise|budget|national car/.test(d)) return 'rental';
+  if (/taxi|uber|lyft|rideshare|covoiturage|parking|stationnement|\bgas\b|fuel|essence|carburant|toll|p[ée]age|pmv|kilom|\bkm\b|bus|autobus|shuttle|navette|transit|metro|m[ée]tro|tramway|\bcab\b/.test(d)) return 'local';
+  return 'other';
+}
+const TI_TRANS = [['other', 'Transportation', 'Air, rail, ferry, baggage and other fares'], ['rental', 'Car rental', 'Rental vehicle charges'], ['local', 'Local transportation', 'Taxi, parking, gas, tolls, transit, PMV']];
+// receipt reference as a chip, with the page it is on
+// where an item is: a page of this PDF, or (separate files) the receipts file or its own file
+const tiWhere = (ctx, it) => ctx.split ? (ctx.where ? ctx.where.get(it) || '' : '') : (ctx.pageOf ? (p => p ? T('p. {0}', p) : '')(ctx.pageOf(it)) : '');
+function tiRcCell(P, items, ctx, sec, i, row) {
+  const ref = `${DEFS[sec].L}-${i + 1}`;
+  if (row.lost) { const it = items.find(x => x.decl && x.row === row); const w = it ? tiWhere(ctx, it) : ''; return { chip: `${ref} ${T('SD')}${w ? '  ' + w : ''}`, kind: 'sd' }; }
+  const its = items.filter(x => !x.decl && x.row === row); if (!its.length) return '';
+  const refs = its.map(x => x.ref).join(', ');
+  if (ctx.split) { const w = tiWhere(ctx, its[0]); return { chip: refs + (w ? '  ' + w : '') }; }
+  const pg = ctx.pageOf ? [...new Set(its.map(x => ctx.pageOf(x)).filter(Boolean))] : [];
+  return { chip: refs + (pg.length ? '  ' + T('p. {0}', pg.length > 1 ? `${pg[0]}-${pg[pg.length - 1]}` : pg[0]) : '') };
+}
+// Part 1, page 1: the traveller's cover. Blocks of known height, spread down the page.
+function tiCover(P, items, ctx) {
+  const { M, CW, K, F, B } = P; P.part = 'trav'; P.newPage(true);
+  const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), st = S.stops, n = st.length, blocks = [];
+  // header row, wordmark, trip
+  const title = S.tripRef.trim() || T('Trip name not entered');
+  let ts = 16.5, tl = P.wrap(title, B, ts, CW); while (tl.length > 2 && ts > 12) { ts -= 1.5; tl = P.wrap(title, B, ts, CW); } tl = tl.slice(0, 2);
+  blocks.push({ h: 44 + 34 + 24 + tl.length * ts * 1.15 + 20, gap: 0, draw: y => {
+    if (P.logo) P.page.drawImage(P.logo, { x: M, y: y - 21, width: 21, height: 21 }); else { P.rr(M, y - 19.5, 19.5, 19.5, 3.75, { color: K.teal }); P.tc('TD', M + 9.75, y - 12.75, 9, B, K.white); }
+    P.text(P.fit([T('CAF Digital Travel Itinerary'), S.fileNo.trim() ? T('File {0}', S.fileNo.trim()) : '', S.tan.trim() ? T('TAN {0}', S.tan.trim()) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 170), M + 28, y - 13.5, { size: 9, color: K.mid });
+    P.line(M, y - 27, M + CW, y - 27, 1.1, K.ink); y -= 44;
+    P.spaced(T('TEMPORARY DUTY'), M, y, 8.25, B, K.teal, 2.2); y -= 34;
+    P.spaced(T('TRAVEL ITINERARY'), M, y, 30, B, K.ink, 1.8); y -= 24;
+    tl.forEach((l, i) => P.text(P.fit(l, B, ts, CW), M, y - i * ts * 1.15, { size: ts, font: B, color: K.teal })); y -= tl.length * ts * 1.15 - 2;
+    P.text(P.fit([fullName() || T('Name not entered'), S.member.section.trim(), S.member.pri.trim() ? T('PRI {0}', S.member.pri.trim()) : ''].filter(Boolean).join('  ·  '), F, 10.5, CW), M, y - 2, { size: 10.5, color: K.soft });
+  } });
+  // the ticket: where and when, in a sand panel with a perforated stub for the counts
+  const first = st[0], last = st[n - 1], dest = tripDest(), nd = td ? td.length : 0;
+  const dl = (d, t) => [isoOk(d) ? `${dow(d)} ${dShort(d)}` : '-', t ? hm(t) : ''];
+  const cells = [[T('From'), first.city.trim() || '-', ''], [T('To'), dest || '-', ''], [T('Depart'), ...dl(first.depDate, first.depTime)], [T('Return'), ...dl(last.arrDate, last.arrTime)]];
+  const stub = [[T('Days'), String(nd || '-')], [T('Nights'), String(nd ? nd - 1 : '-')], [T('Stops'), String(Math.max(0, n - 2))]];
+  const th = 66, stubW = 150, mainW = CW - stubW, cw = mainW / cells.length;
+  blocks.push({ h: th, gap: 22, draw: y => {
+    P.rr(M, y - th, CW, th, 6, { color: K.sand });
+    cells.forEach(([l, v, v2], i) => { const x = M + i * cw + 14; if (i) P.line(M + i * cw, y - 10, M + i * cw, y - th + 10, .75, K.sandLine); P.spaced(l.toUpperCase(), x, y - 17, 6.6, B, K.slate, 1.2); const vs = [12.75, 11.25, 9.75].find(z => P.tw(v, z, B) <= cw - 26) || 9.75; P.text(P.fit(v, B, vs, cw - 26), x, y - 38, { size: vs, font: B }); if (v2) P.text(v2, x, y - 52, { size: 9, color: K.mid }); });
+    P.line(M + mainW, y - 6, M + mainW, y - th + 6, 1, K.slate, [2, 2.5]);
+    stub.forEach(([l, v], i) => { const x = M + mainW + 14 + i * (stubW - 14) / 3; P.spaced(l.toUpperCase(), x, y - 17, 6.6, B, K.slate, 1.2); P.text(v, x, y - 38, { size: 12.75, font: B, color: K.teal }); });
+  } });
+  // journey: one dot per place stayed overnight (or each stop on a short trip), how each leg was travelled
+  const stays = st.slice(1, -1).filter(s => isoOk(s.arrDate) && isoOk(s.depDate) && s.depDate > s.arrDate);
+  let nodes = stays.length ? [0, ...stays.map(s => st.indexOf(s)), n - 1] : st.map((s, i) => i);
+  let more = 0; if (nodes.length > 6) { more = nodes.length - 5; nodes = [...nodes.slice(0, 4), -1, n - 1]; }
+  const legIcons = (a, b) => [...new Set(st.slice(a, b).map(s => modeIcon(s.mode)).filter(Boolean))].slice(0, 3);
+  blocks.push({ h: 72, gap: 22, draw: y => {
+    P.text(T('Journey'), M, y - 11, { size: 11.25, font: B, color: K.ink }); if (n > nodes.length) P.tr(T('All {0} stops on page {1}', n, ctx.secPage && ctx.secPage.B || ''), M + CW, y - 11, 9, F, K.mid);
+    const cnt = nodes.length, slot = CW / cnt, ly = y - 36;
+    nodes.forEach((ix, k) => {
+      const x = M + slot * (k + .5), nx = x + slot, s0 = ix >= 0 ? st[ix] : null;
+      if (k < cnt - 1) { P.line(x + 5, ly, nx - 5, ly, 1.5, K.teal); const ic = ix >= 0 && nodes[k + 1] >= 0 ? legIcons(ix, nodes[k + 1]) : []; if (ic.length) { const w = ic.length * 13 + 6, cx = (x + nx) / 2; P.rr(cx - w / 2, ly - 8, w, 16, 8, { color: K.white, borderColor: K.teal, borderWidth: 1 }); ic.forEach((name, j) => P.icon(name, cx - w / 2 + 4.5 + j * 13, ly, 10, K.teal)); } }
+      const stay = s0 && stays.includes(s0), leave = s0 && s0.leave;
+      P.page.drawCircle({ x, y: ly, size: 4.5, color: stay && !leave ? K.teal : K.white, borderColor: K.teal, borderWidth: 1.5, borderDashArray: leave ? [1.5, 1.5] : undefined });
+      const tw = slot - 8, city = s0 ? s0.city.trim() : T('+{0} more', more);
+      const when = !s0 ? '' : leave ? T('Leave') : k === 0 ? [dShort(s0.depDate), s0.depTime ? hm(s0.depTime) : ''].filter(Boolean).join(' ') : k === cnt - 1 ? [dShort(s0.arrDate), s0.arrTime ? hm(s0.arrTime) : ''].filter(Boolean).join(' ') : stay ? dRange(s0.arrDate, s0.depDate) : dShort(s0.arrDate);
+      P.tc(P.fit(city, B, 9.75, tw), x, ly - 18, 9.75, B); if (when) P.tc(P.fit(when, F, 9, tw), x, ly - 30, 9, F, K.mid);
+    });
+  } });
+  // two columns: what is in the package, and what to do next
+  const colW = (CW - 24) / 2, x2 = M + colW + 24, facts = prettyFacts(), gs = {}; GROUPS().forEach(([L, , arr, k, ck]) => { gs[L] = sumBy(arr, k, ck); });
+  const rows = ['C', 'D', 'E', 'F', 'G'].map(L => [L, fr() ? PSEC[L][1] : PSEC[L][0], facts[L] || T('Nil'), gs[L] && gs[L][pc] !== undefined ? fmtN(gs[L][pc]) : '']);
+  const ev = evidenceCount(); rows.push(['', T('Receipts attached'), ev.n ? nPl(ev.n, '{0} receipt, each labelled', '{0} receipts, each labelled') : T('None'), '']);
+  if (ev.lost) rows.push(['', T('Missing receipts'), nPl(ev.lost, '{0} statutory declaration to sign', '{0} statutory declarations to sign'), '']);
+  const others = Object.keys(gt).filter(c => c !== pc).sort().slice(0, 2);
+  const leftH = 22 + rows.length * 19 + 4 + 22 + others.length * 15;
+  const sds = items.filter(i => i.decl), todo = [];
+  todo.push([T('Sign the data entry sheet'), S.pki ? T('PKI signature, page {0}', ctx.certPage || '') : T('Ink signature, page {0}', ctx.certPage || '')]);
+  if (sds.length) todo.push([sds.length === 1 ? T('Declare {0}', sds[0].ref) : nPl(sds.length, 'Declare {0} missing receipt', 'Declare {0} missing receipts'), sds.length === 1 ? (ctx.split ? T('Before an officer, in its own file') : T('Before an officer, page {0}', ctx.pageOf ? ctx.pageOf(sds[0]) : '')) : sds.map(i => i.ref).join(', ') + ', ' + T('before an officer')]);
+  todo.push([T('Send the package to the Orderly Room'), ctx.split ? nPl(ctx.files || 1, '{0} separate file', '{0} separate files') : nPl(ctx.total || 0, 'One PDF, {0} page', 'One PDF, {0} pages')]);
+  const look = summaryChecks().slice(0, 4);
+  const rightH = 26 + todo.length * 32 + 2 + 22 + (look.length ? look.reduce((a, it) => a + 12 + (it.s ? 11 : 0) + 3, 0) : 16);
+  blocks.push({ h: Math.max(leftH, rightH), gap: 22, draw: y0 => {
+    let y = y0;
+    P.text(T('In this package'), M, y - 11, { size: 11.25, font: B, color: K.ink }); P.line(M, y - 18, M + colW, y - 18, 1.1, K.ink); y -= 22;
+    rows.forEach(([L, nm, det, a]) => {
+      const cy = y - 9.5; if (L) { P.rr(M, cy - 5, 14, 13, 2.5, { color: K.tealSoft }); P.tc(L, M + 7, cy - 2.4, 8.25, B, K.teal); }
+      P.text(P.fit(nm, B, 9, 92), M + 20, cy - 2.6, { size: 9, font: B });
+      const aw = a ? P.tw(a, 9, B) + 6 : 0; P.text(P.fit(det, F, 8.25, colW - 118 - aw), M + 116, cy - 2.6, { size: 8.25, color: K.mid }); if (a) P.tr(a, M + colW, cy - 2.6, 9, B);
+      y -= 19; P.line(M, y, M + colW, y, .6, K.hair);
+    });
+    y -= 4; P.page.drawRectangle({ x: M, y: y - 22, width: colW, height: 22, color: K.sand });
+    P.text(T('Total entered'), M + 8, y - 15, { size: 9.75, font: B }); P.tr(`${fmtN(gt[pc] || 0)} ${pc}`, M + colW - 8, y - 15, 11.25, B, K.teal); y -= 22;
+    others.forEach(c => { P.text(T('Also entered, not converted'), M + 8, y - 12, { size: 8.25, color: K.mid }); P.tr(`${fmtN(gt[c])} ${c}`, M + colW - 8, y - 12, 9, B); y -= 15; });
+    y = y0;
+    P.text(T('Before you send'), x2, y - 11, { size: 11.25, font: B, color: K.ink }); P.line(x2, y - 18, x2 + colW, y - 18, 1.1, K.ink); y -= 26;
+    todo.forEach(([t, sub], i) => { P.page.drawCircle({ x: x2 + 9, y: y - 6, size: 8.25, color: K.teal }); P.tc(String(i + 1), x2 + 9, y - 9.2, 9, B, K.white); P.text(P.fit(t, B, 10.5, colW - 26), x2 + 24, y - 9, { size: 10.5, font: B }); P.text(P.fit(sub, F, 9, colW - 26), x2 + 24, y - 21, { size: 9, color: K.mid }); y -= 32; });
+    y -= 2; P.text(T('Look over'), x2, y - 11, { size: 11.25, font: B, color: K.ink }); P.line(x2, y - 18, x2 + colW, y - 18, 1.1, K.ink); y -= 22;
+    if (!look.length) { P.text(P.fit(T('Nothing to look over. Every expense has a receipt or a declaration.'), F, 9, colW), x2, y - 10, { size: 9, color: K.mid }); }
+    look.forEach(it => { const lab = it.L ? `${it.L}  ` : ''; P.page.drawCircle({ x: x2 + 3, y: y - 7, size: 2.5, color: it.k === 'warn' ? K.sdLine : K.teal }); P.text(P.fit(lab + it.t, it.k === 'warn' ? F : B, 9, colW - 12), x2 + 11, y - 9.5, { size: 9, font: it.k === 'warn' ? F : B }); y -= 12; if (it.s) { P.text(P.fit(it.s, F, 8.25, colW - 12), x2 + 11, y - 8, { size: 8.25, color: K.mid }); y -= 11; } y -= 3; });
+  } });
+  // where the rest is
+  const rcFrom = (ctx.wsPages || 0) + 1;
+  const next = P.wrap([T('Receipts at a glance, page {0}', ctx.indexPage || 2), T('Data entry sheet for the finance clerk, from page {0}', ctx.clerkStart || ''), items.length ? T('Receipts and declarations, from page {0}', rcFrom) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 24).slice(0, 2), nh = 24 + next.length * 11.5;
+  blocks.push({ h: nh, gap: 22, draw: y => {
+    P.rr(M, y - nh, CW, nh, 4.5, { color: K.tealSoft });
+    P.text(T('What comes next'), M + 12, y - 13.5, { size: 9, font: B, color: K.teal });
+    next.forEach((l, i) => P.text(l, M + 12, y - 26 - i * 11.5, { size: 9, color: K.ink }));
+  } });
+  // spread the blocks over the page, never past the footer
+  const room = P.TOP - P.BOT - 6, sum = blocks.reduce((a, b) => a + b.h, 0), gaps = blocks.reduce((a, b) => a + b.gap, 0);
+  const k = Math.max(.5, Math.min(1.7, (room - sum) / Math.max(1, gaps)));
+  let y = P.TOP; blocks.slice(0, -1).forEach(b => { y -= b.gap * k; b.draw(y); y -= b.h; });
+  const foot = blocks[blocks.length - 1]; foot.draw(Math.max(y - foot.gap, P.BOT + 6 + foot.h)); // the pointer to the rest sits at the foot of the page
+}
+// Part 1, next pages: every receipt as a thumbnail, with its reference, amount and page
+async function tiContact(P, items, ctx, embedRc) {
+  const { M, CW, K, F, B } = P; P.part = 'trav'; P.newPage();
+  const cols = 3, gap = 12, tw = (CW - gap * (cols - 1)) / cols, ih = 138, ch = 34, th = ih + ch + 8;
+  const head = first => { P.text(first ? T('Receipts at a glance') : T('Receipts at a glance (continued)'), M, P.y - 11, { size: 13.5, font: B, color: K.ink }); if (first) P.tr(items.length ? nPl(items.length, '{0} item, in the order they appear', '{0} items, in the order they appear') : '', M + CW, P.y - 11, 9, F, K.mid); P.y -= 26; };
+  head(true);
+  if (!items.length) { P.text(T('No receipts attached.'), M, P.y - 12, { size: 9.75, color: K.mid }); P.y -= 20; return; }
+  let k = 0;
+  for (const it of items) {
+    if (k % cols === 0) { if (P.y - th < P.BOT) { P.newPage(); head(false); } }
+    const x = M + (k % cols) * (tw + gap), top = P.y, y = top - ih;
+    const pgT = tiWhere(ctx, it);
+    if (it.decl) {
+      P.rr(x, y, tw, ih, 4.5, { color: K.sdBg });
+      P.tc(T('STATUTORY DECLARATION'), x + tw / 2, y + ih / 2 + 8, 8.25, B, K.sdInk);
+      P.tc(P.fit(T('Missing receipt, signed before an officer'), F, 8.25, tw - 16), x + tw / 2, y + ih / 2 - 6, 8.25, F, K.sdInk);
+    } else {
+      P.rr(x, y, tw, ih, 4.5, { color: K.panel, borderColor: K.hair, borderWidth: .75 });
+      if (!ctx.probe) {
+        try {
+          const emb = await embedRc(P.doc, P, it);
+          const src = it.r.kind === 'img' ? emb : emb[0]; const w0 = src.width, h0 = src.height, sc = Math.min((tw - 12) / w0, (ih - 12) / h0), dw = w0 * sc, dh = h0 * sc;
+          const box = { x: x + (tw - dw) / 2, y: y + (ih - dh) / 2, width: dw, height: dh };
+          P.page.drawRectangle(Object.assign({}, box, { color: K.white }));
+          if (it.r.kind === 'img') P.page.drawImage(src, box); else P.page.drawPage(src, box);
+          P.page.drawRectangle(Object.assign({}, box, { borderColor: K.rule, borderWidth: .5 }));
+          if (it.pages > 1) { const t = T('{0} pp', it.pages), w = P.tw(t, 7.5, B) + 8; P.rr(x + tw - w - 6, y + 6, w, 12, 2, { color: K.ink }); P.text(t, x + tw - w - 2, y + 9.2, { size: 7.5, font: B, color: K.white }); }
+        } catch (e) { P.tc(T('Preview not available'), x + tw / 2, y + ih / 2 - 3, 8.25, F, K.mid); }
+      }
+    }
+    // caption: reference chip, amount, page, then what it is
+    const cy = y - 11, cw = P.chip(it.decl ? it.ref + ' ' + T('SD') : it.ref, x, cy, it.decl ? 'sd' : '');
+    const amt = rowAmt(it.sec, it.row);
+    if (pgT) P.tr(pgT, x + tw, cy - 3.1, 9, B, K.ink);
+    P.text(P.fit(amt, B, 9, tw - cw - (pgT ? P.tw(pgT, 9, B) : 0) - 14), x + cw + 6, cy - 3.1, { size: 9, font: B });
+    P.text(P.fit([T(SECNAME[it.sec]).replace(/^[A-H] - /, ''), fmtDate(rowDate(it.sec, it.row)), rowDesc(it.sec, it.row)].filter(Boolean).join(' · '), F, 8.25, tw), x, cy - 17, { size: 8.25, color: K.mid });
+    k++; if (k % cols === 0) P.y = top - th;
+  }
+  if (k % cols) P.y -= th;
+}
+// Part 2: the data entry sheet for the finance clerk, in ClaimsX order, one tick box per line
+async function tiClerk(P, items, ctx, rec) {
+  const { M, CW, K, F, B } = P, m = S.member; P.part = 'clerk'; P.newPage(true); rec.clerkStart = rec.wsStart = P.doc.getPageCount();
+  const mark = L => { rec.secPage[L] = P.doc.getPageCount(); };
+  let y = P.TOP;
+  // title block
+  P.spaced(T('TRAVEL ITINERARY'), M, y - 8, 8.25, B, K.slate, 2.2);
+  P.text(T('Data entry sheet'), M, y - 34, { size: 24, font: B, color: K.ink });
+  { const mk = markText(S.marking); P.tr(T('FOR THE FINANCE CLERK'), M + CW - (mk ? B.widthOfTextAtSize(mk, 9.75) + 27 : 0), y - 11.5, 7.5, B, K.part.clerk); }
+  P.tr(T('Enter in ClaimsX in the order below'), M + CW, y - 34, 9.75, F, K.mid);
+  P.text(P.fit([S.tripRef.trim(), fullName()].filter(Boolean).join('  ·  '), F, 10.5, CW), M, y - 50, { size: 10.5, color: K.soft });
+  P.line(M, y - 58, M + CW, y - 58, 1.5, K.ink); y -= 66;
+  // identity strip
+  const id = [[T('PRI / SN'), m.pri], [T('Rank'), rankAbbr(m.rank)], [T('Surname'), m.surname], [T('Given name and initials'), m.given], [T('Section'), m.section], [T('Telephone'), telStr(m)], [T('File number'), S.fileNo.trim()], [T('TAN'), S.tan.trim()], [T('Trip locator'), S.locator.trim()]].filter(([, v]) => v);
+  const cols = 4, cw = CW / cols, rh = 30;
+  for (let i = 0; i < id.length; i += cols) { id.slice(i, i + cols).forEach(([l, v], j) => { const x = M + j * cw; P.text(l.toUpperCase(), x, y - 9, { size: 6.4, font: B, color: K.slate }); P.text(P.fit(v, B, 10.5, cw - 10), x, y - 22, { size: 10.5, font: B }); }); y -= rh; P.line(M, y + 4, M + CW, y + 4, .6, K.hair); }
+  if (S.poc.on) { P.text(P.fit(T('Point of contact: {0}', [rankAbbr(S.poc.rank), S.poc.given, S.poc.surname, S.poc.email, telStr(S.poc)].filter(Boolean).join(', ')), F, 9, CW), M, y - 9, { size: 9, color: K.mid }); y -= 16; }
+  P.y = y - 8;
+  // a numbered step, as in ClaimsX
+  const step = (num, title, hint, L, nil) => {
+    P.ensure(nil ? 30 : 70); const y0 = P.y - 22;
+    P.rr(M, y0, 22, 22, 3, { color: nil ? K.nilBg : K.ink }); P.tc(String(num), M + 11, y0 + 6.5, 12, B, nil ? K.mid : K.white);
+    P.text(title, M + 30, y0 + 7, { size: 12, font: B, color: nil ? K.mid : K.ink });
+    if (nil) P.tr(T('Nil, nothing to enter'), M + CW, y0 + 7, 9, F, K.mid); else if (hint) P.tr(P.fit(hint, F, 8.25, CW - 40 - P.tw(title, 12, B)), M + CW, y0 + 7.5, 8.25, F, K.mid);
+    if (L) mark(L);
+    P.y = y0 - (nil ? 6 : 8); P.line(M, P.y, M + CW, P.y, nil ? .6 : 1.1, nil ? K.hair : K.ink); P.y -= nil ? 10 : 2;
+  };
+  const sub = (t, hint) => { P.ensure(72); P.text(t, M, P.y - 11, { size: 9.75, font: B, color: K.ink }); if (hint) P.text(P.fit(hint, F, 8.25, CW - P.tw(t, 9.75, B) - 14), M + P.tw(t, 9.75, B) + 8, P.y - 11, { size: 8.25, color: K.mid }); P.y -= 16; };
+  const BOX = { l: '', w: 12, box: true }, rcC = (sec, i, r) => tiRcCell(P, items, ctx, sec, i, r);
+  const money2 = (label, sums) => { if (Object.keys(sums).length) P.money(label, sums); };
+  const TR = [{ l: 'Amount', w: 63, a: 'r' }, { l: 'Cur', w: 30 }, { l: 'Receipt', w: 88 }];
+  // 1 itinerary
+  const n = S.stops.length;
+  step(1, T('Itinerary'), T('Every stop, with the date and time of arrival and departure'), 'B');
+  P.pt([BOX, { l: 'Arrival', w: 60 }, { l: 'Time', w: 33 }, { l: 'City', f: 1 }, { l: 'Departure', w: 60 }, { l: 'Time', w: 33 }, { l: 'Mode', w: 84 }],
+    S.stops.map((s, i) => { const f = i === 0, l = i === n - 1; return [{ box: true }, f ? '' : fmtDate(s.arrDate), f ? '' : s.arrTime, { t: s.city + (s.leave && !f && !l ? T(' (leave)') : ''), b: true }, l ? '' : fmtDate(s.depDate), l ? '' : s.depTime, l ? '' : modeText(s)]; }), { minH: 18, after: 14 });
+  // 2 transportation, in the order of the ClaimsX screens
+  const tr = S.transport.map((r, i) => ({ r, i, k: tiTransKind(r.desc) }));
+  step(2, T('Transportation'), T('Three screens: transportation, car rental, local transportation'), 'C', !tr.length);
+  if (tr.length) {
+    TI_TRANS.forEach(([k, nm, hint], j) => {
+      const rows = tr.filter(x => x.k === k); if (!rows.length) return;
+      sub(`2${String.fromCharCode(97 + j)}  ${T(nm)}`, T(hint));
+      P.pt([BOX, { l: 'Date', w: 54 }, { l: 'Location', f: 1 }, { l: 'Description', f: 1.4 }, ...TR], rows.map(({ r, i }) => [{ box: true }, fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcC('transport', i, r)]), { minH: 18, after: 2 });
+      money2(T('Subtotal'), sumBy(rows.map(x => x.r), 'cost', 'cur')); P.y -= 8;
+    });
+    P.y -= 6;
+  }
+  // 3 lodging
+  const stays = S.lodging.stays;
+  step(3, T('Lodging'), T('Commercial stays have a cost and receipt; quarters, private and field do not'), 'D', !stays.length);
+  if (stays.length) {
+    P.pt([BOX, { l: 'Type', w: 54 }, { l: 'Where', f: 1.6 }, { l: 'City or base', f: 1 }, { l: 'In', w: 51 }, { l: 'Out', w: 51 }, { l: 'Nights', w: 30, a: 'c' }, { l: 'Amount', w: 57, a: 'r' }, { l: 'Cur', w: 27 }, { l: 'Receipt', w: 78 }],
+      stays.map((r, i) => [{ box: true }, T(stayKind(r)) + (r.rations ? T(' + rations') : ''), { t: r.priv ? privAddr(r) : isStd(r) ? r.hotel : r.location, b: true }, r.priv ? r.city : isStd(r) ? r.location : '', fmtDate(r.checkin), fmtDate(r.checkout), nights(r) > 0 ? String(nights(r)) : '', isStd(r) ? (money(r.cost) || r.cost) : '', isStd(r) && r.cost !== '' ? curOf(r.cur) : '', isStd(r) ? rcC('stays', i, r) : { chip: T('N/A'), kind: 'na' }]), { minH: 18, after: 2 });
+    money2(T('Subtotal'), sumBy(stays.filter(isStd), 'cost', 'cur')); P.y -= 14;
+  }
+  // 4 other expenses
+  step(4, T('Other expenses'), T('General expenses, phone plan charges and calls'), 'E', !S.general.length);
+  if (S.general.length) {
+    P.pt([BOX, { l: 'Date', w: 54 }, { l: 'Location', f: 1 }, { l: 'Description', f: 1.4 }, ...TR], S.general.map((r, i) => [{ box: true }, fmtDate(r.date), r.location, r.desc, money(r.cost) || r.cost, curOf(r.cur), rcC('general', i, r)]), { minH: 18, after: 2 });
+    money2(T('Subtotal'), sumBy(S.general, 'cost', 'cur')); P.y -= 14;
+  }
+  // 5 gain or loss on exchange
+  step(5, T('Gain or loss on exchange'), T('Each exchange receipt; the service charge is the amount entered'), 'F', !S.exchange.length);
+  if (S.exchange.length) {
+    P.pt([BOX, { l: 'Date', w: 54 }, { l: 'Where exchanged', f: 1 }, { l: 'Sold', w: 63, a: 'r' }, { l: 'Bought', w: 63, a: 'r' }, { l: 'Rate', w: 39, a: 'r' }, { l: 'Fee', w: 48, a: 'r' }, { l: 'Cur', w: 27 }, { l: 'Receipt', w: 78 }],
+      S.exchange.map((r, i) => [{ box: true }, fmtDate(r.date), r.location, amt(r.soldAmt, r.soldCur), amt(r.boughtAmt, r.boughtCur), r.rate || autoRate(r), money(r.charge), money(r.charge) ? curOf(r.chargeCur) : '', rcC('exchange', i, r)]), { minH: 18, after: 2 });
+    money2(T('Subtotal'), sumBy(S.exchange, 'charge', 'chargeCur')); P.y -= 14;
+  }
+  // 6 meals, one line per day
+  const days = tripDates() || [], mc = mealCounts().c;
+  step(6, T('Meals'), T('One line per day; a tick is a meal to enter. Leave and field days are marked'), 'G', !days.length);
+  if (days.length) {
+    P.pt([BOX, { l: 'Date', w: 72 }, { l: 'Location', f: 1 }, { l: 'Leave / field', w: 66 }, { l: fr() ? 'Déj.' : 'B', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Dîn.' : 'L', raw: true, w: 33, a: 'c' }, { l: fr() ? 'Soup.' : 'D', raw: true, w: 33, a: 'c' }, { l: 'Remarks', f: 1.1 }],
+      days.map(d => { const st = dayStatus(d), ri = rationsStay(d); return [{ box: true }, dDow(d), locFor(d), st ? { t: statusLabel(st), b: true, c: st === 'leave' ? K.leaveInk : K.fldInk } : '', ...MEALS.map(([k]) => mealVal(d, k) ? { check: true } : !st && ri >= 0 ? { t: T('R'), c: K.mid } : ''), [!st && ri >= 0 ? T('Rations booked ({0})', 'D-' + (ri + 1)) : '', (S.meals[d] || {}).note || ''].filter(Boolean).join('. ')]; }), { minH: 18, after: 2 });
+    P.band(T('Meals to enter'), String(mc.b + mc.l + mc.d), '', { left: T('Breakfasts {0}  ·  lunches {1}  ·  dinners {2}', mc.b, mc.l, mc.d) }); P.y -= 14;
+  }
+  // totals and certification
+  P.ensure(40); P.text(T('Total entered'), M, P.y - 11, { size: 11.25, font: B, color: K.ink }); P.y -= 16; P.money(T('Total'), grandTotals(), { grand: true });
+  P.y -= 16; P.ensure(104); rec.certPage = P.doc.getPageCount();
+  const top = P.y, h = 92, yb = top - h;
+  P.rr(M, yb, CW, h, 4.5, { borderColor: K.ink, borderWidth: 1.1 });
+  P.text(T('Certification by the traveller'), M + 15, top - 20, { size: 11.25, font: B, color: K.ink });
+  P.text(T('I certify that the information on this worksheet is correct and complete.'), M + 15, top - 36, { size: 9.75 });
+  const sw = (CW - 30) * .6, sx = M + 15, sy = yb + 16;
+  if (S.pki) { P.sigField('Claimant_Signature', sx, sy, sw, 34, T('Signature of traveller (PKI digital signature)')); P.text(T('Date: recorded by the signature'), sx + sw + 18, sy + 14, { size: 9, color: K.mid }); }
+  else { P.sigLine(sx, sy + 6, sw, T('Signature of traveller')); P.sigLine(sx + sw + 18, sy + 6, CW - 30 - sw - 18, T('Date')); }
+  P.y = yb - 10;
+}
+async function tiDraw(P, items, ctx, embedRc) {
+  const rec = { secPage: {} };
+  tiCover(P, items, ctx);
+  rec.indexPage = P.doc.getPageCount() + 1; await tiContact(P, items, ctx, embedRc);
+  await tiClerk(P, items, ctx, rec);
+  P.part = 'rc';
+  return rec;
+}
+// receipt and declaration pages: a slim header strip in the clerk's monochrome
+function tiRcHeader(P, it, opts = {}) {
+  const { M, CW, K, F, B } = P, y = P.y, decl = !!it.decl;
+  const lab = decl ? T('DECLARATION') : T('RECEIPT'), big = it.ref, lw = P.tw(lab, 7.5, B);
+  P.spaced(lab, M, y - 9, 7.5, B, decl ? K.sdInk : K.slate, 1.8);
+  P.text(big, M, y - 32, { size: 21, font: B, color: decl ? K.sdInk : K.ink });
+  const right = opts.idx ? T('Receipt {0} of {1}', opts.idx, opts.of) + (opts.listed ? '  ·  ' + T('listed on page {0}', opts.listed) : '') : ''; if (right) P.tr(right, M + CW, y - 9, 9, F, K.mid);
+  const title = (decl ? T('Missing receipt: {0}', rowDesc(it.sec, it.row) || T(SECNAME[it.sec])) : (rowDesc(it.sec, it.row) || T(SECNAME[it.sec]))) + (opts.k ? '  ' + T('(page {0} of {1})', opts.k, opts.n) : '');
+  const bx = M + P.tw(big, 21, B) + 16;
+  P.text(P.fit(title, B, 12, CW - (bx - M)), bx, y - 30, { size: 12, font: B, color: K.ink });
+  const meta = [[T('Section'), T(SECNAME[it.sec]).replace(/^[A-H] - /, '')], [T('Date'), fmtDate(rowDate(it.sec, it.row))], [T('Location'), rowLoc(it.sec, it.row)], [T('Amount'), rowAmt(it.sec, it.row)]].concat(it.r ? [[T('File'), it.r.name]] : []).filter(([, v]) => v);
+  const line = meta.map(([l, v]) => `${l}: ${v}`).join('   ·   ');
+  P.text(P.fit(line, F, 8.25, CW - (bx - M)), bx, y - 42, { size: 8.25, color: K.mid });
+  P.line(M, y - 50, M + CW, y - 50, 1.1, K.ink);
+  return y - 60;
+}
+// footer, security marking and the part spine on every page
+function tiFinish(P, doc, ver, part) {
+  const { K, F, B, M, W, H } = P, mark = markText(S.marking), pages = doc.getPages(), total = pages.length, ctx = P.tiCtx || {};
+  const left = P.clean([ver, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef, part].filter(Boolean).join('  ·  '));
+  const partOf = n => P.partOf ? P.partOf(n) : 'rc';
+  pages.forEach((p, i) => {
+    const pk = partOf(i + 1), col = K.part[pk] || K.part.rc;
+    p.drawRectangle({ x: 0, y: 0, width: P.SPINE, height: H, color: col });
+    const lab = P.clean(`${T('TRAVEL ITINERARY')}   ·   ${T(TI_PARTS[pk][1])}`);
+    p.drawText(lab, { x: 10, y: 60, size: 6.5, font: B, color: K.white, rotate: PDFLib.degrees(90) });
+    const r = T('Page {0} of {1}', i + 1, total), rw = F.widthOfTextAtSize(r, 8.25);
+    p.drawLine({ start: { x: M, y: 42 }, end: { x: W - M, y: 42 }, thickness: .75, color: K.rule });
+    p.drawText(P.fit(left, F, 8.25, W / 2 - M - rw / 2 - 12), { x: M, y: 30, size: 8.25, font: F, color: K.mid });
+    p.drawText(r, { x: (W - rw) / 2, y: 30, size: 8.25, font: F, color: K.mid });
+    if (mark) {
+      const mw = B.widthOfTextAtSize(mark, 8.25); p.drawText(mark, { x: W - M - mw, y: 30, size: 8.25, font: B, color: K.ink });
+      const bw = B.widthOfTextAtSize(mark, 9.75) + 15, by = H - 33 - 18;
+      p.drawRectangle({ x: W - M - bw, y: by, width: bw, height: 18, color: K.white, borderColor: K.ink, borderWidth: 1.5 });
+      p.drawText(mark, { x: W - M - bw + 7.5, y: by + 5.5, size: 9.75, font: B, color: K.ink });
+    }
+  });
+}
+
 function fitBox(P, w, h, top) {
   const bw = P.W - 2 * P.M, bh = top - P.BOT - 4, s = Math.min(bw / w, bh / h);
   const dw = w * s, dh = h * s; return { x: P.M + (bw - dw) / 2, y: top - dh, width: dw, height: dh };
@@ -3801,16 +4128,18 @@ async function build() {
       it.pages = 1;
       if (it.r && it.r.kind === 'pdf') { try { it.src = await PDFDocument.load(dataUrlToBytes(it.r.dataUrl), { ignoreEncryption: true }); it.pages = it.src.getPageCount() || 1; } catch (e) { it.err = true; } }
     }
-    const pretty = PRETTY; items.forEach((it, i) => { it.idx = i + 1; });
+    const pretty = isPretty() || isTI(), ti = isTI(); items.forEach((it, i) => { it.idx = i + 1; });
     const logoSrc = (($('img.mark') || {}).src || '');
     const mk = async () => {
       const doc = await PDFDocument.create(); const P = painter(doc, await doc.embedFont(StandardFonts.Helvetica), await doc.embedFont(StandardFonts.HelveticaBold), await doc.embedFont(StandardFonts.HelveticaOblique));
-      if (pretty) { prettify(P); if (/^data:image\/png;base64,/.test(logoSrc)) { try { P.logo = await doc.embedPng(dataUrlToBytes(logoSrc)); } catch (e) {} } }
+      if (pretty) { prettify(P); if (ti) tiify(P); if (/^data:image\/png;base64,/.test(logoSrc)) { try { P.logo = await doc.embedPng(dataUrlToBytes(logoSrc)); } catch (e) {} } }
       return { doc, P };
     };
     // receipt page header, and the box the receipt image or page goes in
-    const rcHead = (P, it, title, meta, k, n) => P.pretty ? prettyRcHeader(P, it, meta, { k: n > 1 ? k : 0, n, idx: it.idx, of: items.length, listed: P.listed }) : receiptHeader(P, title, meta);
+    const rcHead = (P, it, title, meta, k, n) => P.ti ? tiRcHeader(P, it, { k: n > 1 ? k : 0, n, idx: it.idx, of: items.length, listed: P.listed }) : P.pretty ? prettyRcHeader(P, it, meta, { k: n > 1 ? k : 0, n, idx: it.idx, of: items.length, listed: P.listed }) : receiptHeader(P, title, meta);
     const place = (P, w, h, top) => { if (!P.pretty) return fitBox(P, w, h, top); P.rr(P.M, P.BOT, P.CW, top - P.BOT, 4.5, { color: P.K.panel }); const bw = P.CW - 27, bh = top - P.BOT - 27, s = Math.min(bw / w, bh / h), dw = w * s, dh = h * s; const box = { x: P.M + 13.5 + (bw - dw) / 2, y: P.BOT + 13.5 + (bh - dh) / 2, width: dw, height: dh }; P.page.drawRectangle(Object.assign({}, box, { color: P.K.white })); return box; };
+    // each receipt is embedded once per document (the contact sheet and the receipt page share it)
+    const embedRc = async (doc, P, it) => { P.emb = P.emb || new Map(); if (!P.emb.has(it)) P.emb.set(it, it.r.kind === 'img' ? await doc.embedJpg(dataUrlToBytes(it.r.dataUrl)) : await doc.embedPdf(it.src, it.src.getPageIndices())); return P.emb.get(it); };
     // one receipt or declaration onto the document being built
     const drawItem = async (doc, P, it) => {
       status.textContent = it.decl ? T('Adding declaration {0}...', it.ref) : T('Adding receipt {0}...', it.ref);
@@ -3818,7 +4147,7 @@ async function build() {
       const title = T('RECEIPT {0}', it.ref), meta = itemMeta(it);
       if (it.r.kind === 'img') {
         P.newPage(); const top = rcHead(P, it, title, meta);
-        const img = await doc.embedJpg(dataUrlToBytes(it.r.dataUrl));
+        const img = await embedRc(doc, P, it);
         const box = place(P, img.width, img.height, top); P.page.drawImage(img, box);
         P.page.drawRectangle(Object.assign({}, box, { borderColor: P.C.line, borderWidth: .5 }));
         return;
@@ -3826,7 +4155,7 @@ async function build() {
       let ok = false;
       if (!it.err) {
         try {
-          const emb = await doc.embedPdf(it.src, it.src.getPageIndices());
+          const emb = await embedRc(doc, P, it);
           emb.forEach((ep, k) => {
             P.newPage(); const top = rcHead(P, it, title + (emb.length > 1 ? '  ' + T('(page {0} of {1})', k + 1, emb.length) : ''), meta, k + 1, emb.length);
             const box = place(P, ep.width, ep.height, top); P.page.drawPage(ep, box);
@@ -3852,7 +4181,7 @@ async function build() {
       const left = P.clean([`${T('CAF Digital Travel Itinerary')} ${ver}`, part, [rankAbbr(S.member.rank), S.member.surname].filter(Boolean).join(' '), S.tripRef].filter(Boolean).join('   |   '));
       const mark = markText(S.marking), MS = 12;
       const stamp = (p, x, y) => { const w = P.B.widthOfTextAtSize(mark, MS); p.drawRectangle({ x: x - 3, y: y - 3, width: w + 6, height: MS + 4, color: P.C.white }); p.drawText(mark, { x, y, size: MS, font: P.B, color: P.C.ink }); };
-      if (P.pretty) prettyFinish(P, doc, ver, part); else pages.forEach((p, i) => {
+      if (P.ti) tiFinish(P, doc, ver, part); else if (P.pretty) prettyFinish(P, doc, ver, part); else pages.forEach((p, i) => {
         const { width: pw, height: ph } = p.getSize();
         const r = T('Page {0} of {1}', i + 1, total), rw = Ff.widthOfTextAtSize(r, 7);
         if (mark) {
@@ -3884,25 +4213,25 @@ async function build() {
       const itemPages = items.reduce((a, it) => a + it.pages, 0), files = 1 + (rcItems.length ? 1 : 0) + sdItems.length;
       pctx = { split, where, files };
       for (let pass = 0; pass < 4; pass++) {
-        const pr = await mk(); const rec = prettyDraw(pr.P, items, pctx), n = pr.doc.getPageCount();
-        const next = Object.assign({}, pctx, { wsPages: n, wsStart: rec.wsStart, indexPage: rec.indexPage, certPage: rec.certPage, secPage: rec.secPage, total: n + itemPages });
+        const pr = await mk(); const rec = ti ? await tiDraw(pr.P, items, Object.assign({ probe: true }, pctx), embedRc) : prettyDraw(pr.P, items, pctx), n = pr.doc.getPageCount();
+        const next = Object.assign({}, pctx, { wsPages: n, wsStart: rec.wsStart, clerkStart: rec.clerkStart, indexPage: rec.indexPage, certPage: rec.certPage, secPage: rec.secPage, total: n + itemPages });
         const same = pctx.wsPages === n && pctx.certPage === rec.certPage && pctx.indexPage === rec.indexPage; pctx = next; if (same) break;
       }
       wsPages = pctx.wsPages;
       pctx.pageOf = it => { let p = wsPages + 1; for (const x of items) { if (x === it) return p; p += x.pages; } return ''; };
     } else { const probe = await mk(); drawWorksheet(probe.P, items, null, where); wsPages = probe.doc.getPageCount(); }
-    const drawWS = (P, w) => { if (!pretty) return drawWorksheet(P, items, wsPages, w); prettyDraw(P, items, pctx); P.listed = split ? 0 : pctx.indexPage; };
+    const drawWS = async (P, w) => { if (!pretty) return drawWorksheet(P, items, wsPages, w); if (ti) { await tiDraw(P, items, pctx, embedRc); P.partOf = n => n < (pctx.clerkStart || 2) ? 'trav' : n <= (pctx.wsPages || 0) ? 'clerk' : 'rc'; } else prettyDraw(P, items, pctx); P.listed = split ? 0 : pctx.indexPage; };
     const signPage = pretty ? pctx.certPage : wsPages;
     const base = fileBase(), part = k => base + '_' + k, parts = [];
     let total;
     if (!split) {
-      const { doc, P } = await mk(); drawWS(P);
+      const { doc, P } = await mk(); await drawWS(P);
       for (const it of items) await drawItem(doc, P, it);
       const out = await finish(doc, P, '');
       total = out.pages; lastPdf = { name: base + '.pdf', bytes: out.bytes, pages: total }; lastParts = null;
     } else {
       const fn = k => String(k).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      { const { doc, P } = await mk(); drawWS(P, where); const o = await finish(doc, P, T('Worksheet')); parts.push({ name: part('1-' + fn(T('Worksheet'))) + '.pdf', label: T('Worksheet'), what: T('Sections A to G, totals and receipt index. You sign it.'), ...o }); }
+      { const { doc, P } = await mk(); await drawWS(P, where); const o = await finish(doc, P, T('Worksheet')); parts.push({ name: part('1-' + fn(T('Worksheet'))) + '.pdf', label: T('Worksheet'), what: T('Sections A to G, totals and receipt index. You sign it.'), ...o }); }
       if (rcItems.length) { const { doc, P } = await mk(); for (const it of rcItems) await drawItem(doc, P, it); const o = await finish(doc, P, T('Receipts')); parts.push({ name: part('2-' + fn(T('Receipts'))) + '.pdf', label: T('Receipts'), what: nPl(rcItems.length, '{0} receipt, labelled with its reference.', '{0} receipts, each labelled with its reference.'), ...o }); }
       for (const it of sdItems) { const { doc, P } = await mk(); await drawItem(doc, P, it); const lbl = `${T('SD')} ${it.ref}`; const o = await finish(doc, P, lbl); parts.push({ name: part('3-' + fn(T('SD')) + '-' + fn(it.ref)) + '.pdf', label: T('Statutory declaration {0}', it.ref), what: T('Signed by you and the officer, in person.'), ...o }); }
       total = parts.reduce((t, x) => t + x.pages, 0); lastParts = parts;
@@ -4061,7 +4390,7 @@ async function betaReset(b) {
   try { if (DEV.db) DEV.db.close(); } catch (e) {} DEV.db = null;
   await new Promise(res => { try { const r = indexedDB.deleteDatabase(IS_BETA ? 'caf-dti' : 'caf-dti-main'); r.onsuccess = r.onerror = r.onblocked = () => res(); setTimeout(res, 3000); } catch (e) { res(); } });
   try { sessionStorage.removeItem(STORE); sessionStorage.removeItem(PTR_KEY); } catch (e) {}
-  try { [SEEN, LO_KEY, LANG_KEY + CH, PRETTY_KEY, IMPORT_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  try { [SEEN, LO_KEY, LANG_KEY + CH, PRETTY_KEY, LAYOUT_KEY, IMPORT_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
   try { if (window.caches) { const scope = new URL('./', location.href).pathname; for (const k of await caches.keys()) if (k.includes(scope)) await caches.delete(k); } } catch (e) {}
   try { if (navigator.serviceWorker) for (const r of await navigator.serviceWorker.getRegistrations()) if (new URL(r.scope).pathname === new URL('./', location.href).pathname) await r.unregister(); } catch (e) {}
   try { sessionStorage.setItem('caf-dti-beta-reset', '1'); } catch (e) {}

@@ -9,6 +9,7 @@ This branch holds the source, build tools and tests. GitHub Pages publishes `mai
 - Beta-only rule: only changes the owner asks for as "beta-specific" (tools or visuals that make testing and telling the beta apart easier) go in the beta-only layer. Everything else goes in `app/app.html` and reaches production when the beta is promoted. If unclear, confirm with the owner.
 - `build.py`: builds `out/web` (production), `out/web-beta` (beta), the single-file copy and the claude.ai copy. Production shows `VERSION`; the beta shows the next minor plus `BETA_BUILD`.
 - `release.py beta "message"`: next beta build to `/beta/`. `release.py promote`: beta becomes production. Both check that nothing beta-only reaches production, then save this branch.
+- PDF layouts: the standard form (`drawWorksheet`), Beautify export (`prettify`, `prettyDraw`) and the Travel Itinerary layout (`tiify`, `tiDraw`: traveller cover, receipt contact sheet, data entry sheet for the clerk in ClaimsX order, part spines). The menu offers one experimental layout at a time (`LAYOUT`).
 - `test*.py`: Playwright tests (`python3 test_beta.py .` etc.). `python3 test_live.py .` runs the service worker tests with local servers (`serve_cached.py`).
 - pdf-lib 1.17.1 (MIT) is in `npm/node_modules/pdf-lib/dist/`.
 - `app/itin.js`: itinerary reader (Amex GBT layout). Pure functions, text lines in, segments and stops out; `test_itin.py` checks it with fictional itineraries built on the fly. Never commit a real itinerary.

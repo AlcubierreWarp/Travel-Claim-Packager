@@ -12,7 +12,7 @@ async def main():
         await pg.click("#lang-btn"); await pg.wait_for_timeout(500)
         print("after toggle:", await pg.evaluate("document.documentElement.lang"), "| h1:", await pg.inner_text("h1"), "| trip:", await pg.input_value("#trip-ref"))
         await pg.screenshot(path=str(shots / "fr-desktop-top.png"))
-        # exercise: menu, snap, calls and exchange rows, private stay, install text
+        # exercise: menu, snap, general and exchange rows, private stay, a field stay, install text
         await pg.click("#menu-btn"); await pg.keyboard.press("Escape")
         async with pg.expect_download() as dl: await pg.click("#build-btn")
         d = await dl.value; await d.save_as(str(shots / "fr.pdf")); print("PDF:", d.suggested_filename)
@@ -22,7 +22,7 @@ async def main():
         print("draft:", (await dl2.value).suggested_filename)
         h = await pg.get_attribute("#help-foot", "href"); from urllib.parse import unquote; print("help:", unquote(h).split("&body=")[0][:120])
         print("footer:", await pg.inner_text(".sitefoot p"))
-        await pg.click("[data-act=add][data-sec=calls]"); await pg.click("[data-act=add][data-sec=exchange]")
+        await pg.click("[data-act=add][data-sec=general]"); await pg.click("[data-act=add][data-sec=exchange]")
         sid = await pg.eval_on_selector_all("#rows-stays .stay", "els => els[0].dataset.row")
         await pg.check(f"#stays-{sid}-priv"); await pg.wait_for_timeout(200)
         await pg.click("[data-act=review]"); await pg.wait_for_timeout(300)

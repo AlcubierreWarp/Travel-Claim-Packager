@@ -1,6 +1,6 @@
 # Itinerary import: fictional Amex GBT style itineraries (no real traveller data).
 # Builds a PDF, two .eml files and pasted text, imports each, and checks section B.
-import sys, pathlib, asyncio, base64, quopri, json
+import sys, pathlib, asyncio, base64, quopri, json, re
 sys.path.insert(0, str(pathlib.Path(__file__).parent)); import msgfile  # writes test .msg files
 from playwright.async_api import async_playwright
 base = pathlib.Path(sys.argv[1]); url = (base / "out/CAF_Digital_Travel_Itinerary.html").resolve().as_uri()
@@ -115,7 +115,7 @@ async def main():
         async with q.expect_download() as dl: await q.click("#build-btn")
         d = await dl.value; await d.save_as(str(fx / "pkg.pdf"))
         from pypdf import PdfReader
-        t1 = PdfReader(str(fx / "pkg.pdf")).pages[0].extract_text(); check("A2: TAN and trip locator on the PDF", "TAN: TST12345" in t1 and "Trip locator: QA7TST" in t1, True)
+        t1 = PdfReader(str(fx / "pkg.pdf")).pages[0].extract_text(); check("A2: TAN and trip locator on the PDF", re.search(r"TAN\s+(TRIP LOCATOR\s+)?TST12345", t1) is not None and "QA7TST" in t1 and "TRIP LOCATOR" in t1, True)
 
         check("A2: name replaced when ticked", [await q.input_value(x) for x in ("#m-sur", "#m-given", "#sd-name")], ["Van Der Berg", "John Alex", "John Alex Van Der Berg"])
         await imp(["trip_a.pdf"]); check("A2: same name not offered again", await q.locator("#imp-name").count(), 0); await q.click("#imp .snap-foot [data-act=imp-cancel]")

@@ -22,7 +22,7 @@ async def main():
             meta = r.metadata
             check(f"{ch}/{lang}: version in file properties", want.search(meta.get("/Keywords", "")) is not None and "Itinerary" in meta.get("/Creator", ""), (meta.get("/Keywords"), meta.get("/Creator")))
             print("  footer:", [l for l in texts[0].splitlines() if want.search(l)][:1])
-            head = texts[0].splitlines()[:4]; print("  header:", head)
+            head = texts[0].splitlines()[:10]  # the title, then the labelled boxes with the trip references; print("  header:", head)
             xs = []
             for pg in r.pages[:3]:
                 pg.extract_text(visitor_text=lambda s, cm, tm, fd, fs: xs.append((s.strip(), round(tm[4] * cm[0] + cm[4], 1))) if s.strip() in ("Subtotal", "Sous-total", "Total") else None)

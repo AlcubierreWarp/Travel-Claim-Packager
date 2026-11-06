@@ -18,7 +18,7 @@ async def main():
         sid = await pg.eval_on_selector_all("#rows-stays .stay", "els => els[1].dataset.row")
         await pg.uncheck(f"#stays-{sid}-quarters"); await pg.wait_for_timeout(100); await pg.check(f"#stays-{sid}-quarters")
         await pg.set_input_files("#file-snap", str(base / "fixtures/r.png")); await pg.wait_for_timeout(600)
-        for v in ["taxi", "fx", "hotel", "call", "other", "rental"]:
+        for v in ["taxi", "fx", "hotel", "phone", "other", "rental"]:
             await pg.click(f"input[name=snap-type][value={v}]", force=True); await pg.wait_for_timeout(50)
         await pg.screenshot(path=str(shots / "fr-snap.png"))
         await pg.click("[data-act=snap-save]"); await pg.wait_for_timeout(300); print("toast:", await pg.inner_text("#toast"))

@@ -745,7 +745,7 @@ html{touch-action:manipulation}
           <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span></button><!--/BETA-ONLY-->
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 6, built 06 Nov 2026 02:59 (production is 1.9)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 7, built 06 Nov 2026 03:18 (production is 1.9)</p>
         </div>
       </div>
     </div>
@@ -959,7 +959,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 6, built 06 Nov 2026 02:59 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 7, built 06 Nov 2026 03:18 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -2174,6 +2174,10 @@ const FR = {
 "{0} item": "{0} élément",
 "{0} items": "{0} éléments",
 "Tel. {0}": "Tél. {0}",
+"Period": "Période",
+"Destination": "Destination",
+"SURNAME": "NOM DE FAMILLE",
+"CANADIAN ARMED FORCES": "FORCES ARMÉES CANADIENNES",
 };
 // Itinerary reader for Amex GBT (Government of Canada Travel Services) itineraries.
 // Text lines in, travel segments out. Pure functions: no network, no storage, no page access,
@@ -4049,7 +4053,7 @@ function offlineHtml() {
 const offlineName = () => `${fr() ? 'Itineraire-voyage-numerique-FAC' : 'CAF_Digital_Travel_Itinerary'}_v${APP_VERSION}.html`;
 // SHA-256 of this version's published offline file, filled in by build.py. It is empty inside the offline file itself,
 // because a file cannot carry its own checksum. Members compare a copy they were sent against it, or against the README.
-const OFFLINE_SHA = '99c3a5bcdea0a39db5df1ced6e65c664cb5e8d3063c1e73a2886a370e3c9f715';
+const OFFLINE_SHA = 'c4fd6398338910c4d73d122b8d9ab2cdb6245f23b6aa5a3d25119faa866c0a0c';
 const OFFLINE_FILE = 'CAF_Digital_Travel_Itinerary.html';
 const SUMS_URL = 'https://github.com/AlcubierreWarp/Travel-Claim-Packager#checksums';
 async function sha256hex(buf) { const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
@@ -4089,9 +4093,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.10-beta.6';
+const APP_VERSION = '1.10-beta.7';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.10 beta 6, built 06 Nov 2026 02:59 (production is 1.9)';
+const APP_LABEL = 'Version 1.10 beta 7, built 06 Nov 2026 03:18 (production is 1.9)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -5294,17 +5298,19 @@ function prettyFinish(P, doc, ver, part) {
 // data entry sheet in ClaimsX order, one tick box per line, then the receipts and declarations. A coloured spine
 // on the left of every page says which part it belongs to. Built on the Beautify helpers (prettify), Helvetica only.
 // two parts: the traveller's (cover and contact sheet) and finance (data entry sheet, receipts and declarations)
-const TI_PARTS = { trav: ['#0f6e74', 'TRAVELLER', 1], clerk: ['#13203a', 'FINANCE', 2], rc: ['#13203a', 'FINANCE', 2] };
-// colour-coded filing, as on records-office folder labels: a colour per letter, so a stack sorts by surname at a glance
-const TI_ALPHA = ['#c8282c', '#1f3f8f', '#1e7b3c', '#3d97d3', '#6b3fa0', '#e8731c', '#6f7378', '#7b4a26', '#d6649f', '#e9b824', '#b48a5c', '#9a8ccc', '#7fb13a'];
-const tiAlpha = ch => { const i = ch.charCodeAt(0) - 65; return i >= 0 && i < 26 ? TI_ALPHA[i % 13] : '#6f7378'; };
+const TI_PARTS = { trav: ['#2c4a6e', 'TRAVELLER', 1], clerk: ['#4b5a2c', 'FINANCE', 2], rc: ['#4b5a2c', 'FINANCE', 2] };
 // where each part's thumb tab sits on the right edge (from the top, height), so a part can be found by its tab in a binder
 const TI_TAB = { trav: [112, 150], clerk: [290, 150], rc: [290, 150] };
-// stencil bridges, as fractions of each capital's width (letters not listed are drawn whole)
-const TI_CUTS = { A: [.5], B: [.33], D: [.33], E: [.33], F: [.33], P: [.33], R: [.33], K: [.33], H: [.33, .67], N: [.3, .7], M: [.5], O: [.5], Q: [.5], C: [.53], G: [.5], S: [.5], U: [.5], '0': [.5], '6': [.5], '8': [.5], '9': [.5] };
+// a maple leaf, drawn in a 100 by 100 box
+const TI_LEAF = 'M50 2 L58 18 L66 14 L62 38 L76 26 L78 34 L92 30 L86 46 L94 50 L72 68 L75 76 L53.5 73 L53.5 96 L46.5 96 L46.5 73 L25 76 L28 68 L6 50 L14 46 L8 30 L22 34 L24 26 L38 38 L34 14 L42 18 Z';
+// initials from the given names, as stamped on an identity disc ("Jordan Lee (JL)" gives J.L.)
+// the trip's dates, short enough for a typed field: 02-06 NOV 26, 28 OCT - 03 NOV 26, or both dates in full
+const tiPeriod = td => { if (!td) return '-'; const a = fmtDate(td[0]), b = fmtDate(td[td.length - 1]); if (td.length < 2) return a.toUpperCase(); const x = a.split(' '), y = b.split(' ');
+  return (x.length === 3 && y.length === 3 && x[2] === y[2] ? (x[1] === y[1] ? `${x[0]}-${y[0]} ${y[1]} ${y[2]}` : `${x[0]} ${x[1]} - ${b}`) : `${a} - ${b}`).toUpperCase(); };
+const tiInits = g => String(g || '').replace(/\(.*?\)/g, ' ').split(/[\s-]+/).filter(Boolean).map(w => w[0].toUpperCase() + '.').join('');
 function tiify(P) {
   const { rgb, degrees } = PDFLib, hx = s => rgb(parseInt(s.slice(1, 3), 16) / 255, parseInt(s.slice(3, 5), 16) / 255, parseInt(s.slice(5, 7), 16) / 255);
-  const K = P.K; Object.assign(K, { ink: hx('#13203a'), navy: hx('#13203a'), teal: hx('#0f6e74'), tealSoft: hx('#e2f0ef'), sand: hx('#f5f2ea'), sandLine: hx('#e3dccb'), slate: hx('#6b7684'), part: { trav: hx('#0f6e74'), clerk: hx('#13203a'), rc: hx('#13203a') }, tint: { trav: hx('#bfe0dc'), clerk: hx('#aab6c8'), rc: hx('#aab6c8') }, red: hx('#d52b1e'), hair: hx('#e3e7ec'), rule: hx('#c6cdd6') });
+  const K = P.K; Object.assign(K, { ink: hx('#1b2433'), navy: hx('#1b2433'), teal: hx('#2c4a6e'), tealSoft: hx('#e6ecf3'), sand: hx('#f4efe2'), sandLine: hx('#ddd3bb'), slate: hx('#6b6f73'), part: { trav: hx('#2c4a6e'), clerk: hx('#4b5a2c'), rc: hx('#4b5a2c') }, tint: { trav: hx('#c9d4e2'), clerk: hx('#d5dbc2'), rc: hx('#d5dbc2') }, buff: hx('#f1e8d0'), buffLine: hx('#d3c49f'), buffInk: hx('#6e5f3e'), disc1: hx('#566b3c'), disc2: hx('#a8322a'), cream: hx('#f6efdc'), stamp: hx('#b3261e'), red: hx('#c8281e'), hair: hx('#e3e2dc'), rule: hx('#c9c6bc') });
   const { M, W, H, F, B, CW } = P;
   Object.assign(P, { ti: true, part: 'trav' });
   const rawNew = () => { P.page = P.doc.addPage([W, H]); P.y = H - M; };
@@ -5326,34 +5332,63 @@ function tiify(P) {
   // a small square to tick, for the clerk
   P.box = (x, cy, s) => P.page.drawRectangle({ x, y: cy - s / 2, width: s, height: s, borderColor: K.slate, borderWidth: .8 });
   P.vtext = (t, x, y, size, color) => P.page.drawText(P.clean(t), { x, y, size, font: B, color, rotate: degrees(90) });
-  // display capitals with stencil bridges cut in the background colour
-  P.stencil = (t, x, y, size, color, bg, track) => {
-    t = P.clean(t); P.spaced(t, x, y, size, B, color, track);
-    const bw = Math.max(1, size * .045); let cx = x;
-    for (const ch of t) { const gw = B.widthOfTextAtSize(ch, size); (TI_CUTS[ch] || []).forEach(f => P.page.drawRectangle({ x: cx + gw * f - bw / 2, y: y - size * .04, width: bw, height: size * .8, color: bg })); cx += gw + track; }
+  const { pushGraphicsState: pushG, popGraphicsState: popG, concatTransformationMatrix: cm } = PDFLib;
+  // draw in a frame turned about (cx, cy); fn draws with (0, 0) at that point
+  P.turn = (cx, cy, deg, fn) => { const r = deg * Math.PI / 180, c = Math.cos(r), n = Math.sin(r); P.page.pushOperators(pushG(), cm(c, n, -n, c, cx, cy)); try { fn(); } finally { P.page.pushOperators(popG()); } };
+  P.leaf = (x, y, s, color) => P.page.drawSvgPath(TI_LEAF, { x, y: y + s, scale: s / 100, color });
+  P.octagon = (x, y, s, o) => { const k = s * .2929, d = `M${k} 0 L${s - k} 0 L${s} ${k} L${s} ${s - k} L${s - k} ${s} L${k} ${s} L0 ${s - k} L0 ${k} Z`; P.page.drawSvgPath(d, Object.assign({ x, y: y + s }, o)); };
+  // a rubber stamp: the word in capitals in a double-ruled box, inked at a slight angle
+  P.stamp = (word, cx, cy, size, color, deg) => {
+    const t = P.clean(word), tr = size * .14, tw = P.spacedW(t, size, B, tr), w = tw + size * 1.1, h = size * 1.62, o = { borderColor: color, borderOpacity: .9 };
+    P.turn(cx, cy, deg, () => {
+      P.page.drawRectangle(Object.assign({ x: -w / 2, y: -h / 2, width: w, height: h, borderWidth: size * .085 }, o));
+      P.page.drawRectangle(Object.assign({ x: -w / 2 + size * .2, y: -h / 2 + size * .2, width: w - size * .4, height: h - size * .4, borderWidth: size * .03 }, o));
+      const sp = PDFLib.setCharacterSpacing; P.page.pushOperators(sp(tr)); P.page.drawText(t, { x: -tw / 2, y: -size * .36, size, font: B, color, opacity: .9 }); P.page.pushOperators(sp(0));
+    });
   };
-  // the first two letters of the surname as colour-coded filing blocks on the right edge, under the part's tab
-  P.alpha = pk => {
-    const L = String(S.member.surname || '').normalize('NFD').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 2); if (!L) return;
-    const [top, th] = TI_TAB[pk], s = 30;
-    [...L].forEach((ch, i) => { const y = H - top - th - 6 - (i + 1) * s - i * 3, col = hx(tiAlpha(ch)), dark = 'JKLMWXYZ'.includes(ch);
-      P.page.drawRectangle({ x: W - s, y, width: s, height: s, color: col }); P.tc(ch, W - s / 2 - 2, y + 9.5, 14, B, dark ? K.ink : K.white); });
+  // a part opens like a file jacket: a buff cover with a folder tab, typed labels, the part stamped across it,
+  // and the traveller's identity disc: the last three of the service number and the surname, big enough to read across a table
+  // (the top left of the page stays clear for the official signature block)
+  P.opener = (pk, sub, fields) => {
+    const CR = P.CR || F, CB = P.CB || B, m = S.member, top = H - 74, word = T(TI_PARTS[pk][1]);
+    const rows = 4, bot = top - 270;
+    // the jacket and its tab, under the security marking
+    P.page.drawRectangle({ x: 0, y: bot, width: W, height: top - bot, color: K.buff });
+    const tabW = 190, tabX = M + CW - tabW; P.rr(tabX, top - 6, tabW, 20, 5, { color: K.buff });
+    P.spaced(P.fit(T('PART {0} OF {1}', TI_PARTS[pk][2], 2) + '  ·  ' + word, CB, 7.5, tabW - 20), tabX + 10, top + 3, 7.5, CB, K.buffInk, .8);
+    P.line(0, bot, W, bot, 2, K.red);
+    // the heading, typed
+    P.leaf(M, top - 27, 13, K.red);
+    P.spaced(T('CANADIAN ARMED FORCES'), M + 19, top - 24, 9, CB, K.ink, 1.2);
+    { const tt = T('TRAVEL ITINERARY'), n = P.clean(tt).length, z = Math.min(25, (CW - 222) / (P.tw(tt, 1, B) + .104 * (n - 1))); P.spaced(tt, M, top - 60, z, B, K.ink, z * .104); }
+    P.spaced(P.fit([T('TEMPORARY DUTY'), sub].filter(Boolean).join('  ·  '), CR, 10, 330), M, top - 78, 10, CR, K.buffInk, .6);
+    // the part, stamped
+    P.stamp(word, M + CW - 100, top - 50, P.clean(word).length > 7 ? 21 : 25, K.stamp, -6);
+    P.line(M, top - 94, M + CW, top - 94, .75, K.buffLine);
+    // the identity disc: the green octagonal No. 1 with the last three of the service number, the red round No. 2 hung from it
+    const dy = top - 104, ds = 96, l3 = (m.pri.replace(/[^0-9A-Za-z]/g, '').slice(-3) || '---').toUpperCase();
+    P.octagon(M, dy - ds, ds, { color: K.disc1 });
+    P.page.drawCircle({ x: M + ds / 2, y: dy - 9, size: 3.2, color: K.buff });
+    P.tc('No. 1', M + ds / 2, dy - 24, 6.8, CB, K.cream);
+    const ls = Math.min(40, (ds - 16) / Math.max(1, P.tw(l3, 1, B)));
+    P.tc(l3, M + ds / 2, dy - ds / 2 - ls * .36 - 4, ls, B, K.cream);
+    const rc = 15, rx = M + ds - 4, ry = dy - ds + 4;
+    P.page.drawCircle({ x: rx, y: ry, size: rc + 2.5, color: K.buff }); P.page.drawCircle({ x: rx, y: ry, size: rc, color: K.disc2 }); P.leaf(rx - 9, ry - 9, 18, K.cream);
+    // the surname, as large as the line allows, then the disc's stamped line
+    const sx = M + ds + 26, sw = M + CW - sx, sn = (m.surname.trim() || T('SURNAME')).toUpperCase();
+    const ss = Math.max(26, Math.min(66, sw / Math.max(1, P.tw(sn, 1, B) + .02 * (sn.length - 1))));
+    P.spaced(P.fit(sn, B, ss, sw), sx - ss * .04, dy - 12 - ss * .72, ss, B, K.ink, ss * .02);
+    const disc = [m.pri.trim(), rankAbbr(m.rank).toUpperCase(), [m.surname.trim().toUpperCase(), tiInits(m.given)].filter(Boolean).join(' '), 'CDN'].filter(Boolean).join('   ');
+    P.spaced(P.fit(disc, CB, 12, sw), sx, dy - 12 - ss * .72 - 22, 12, CB, K.ink, .8);
+    const tl = [S.tripRef.trim(), m.section.trim()].filter(Boolean).join('  ·  ');
+    if (tl) P.text(P.fit(tl, B, 11, sw), sx, dy - ds + 2, { size: 11, font: B, color: K.teal });
+    // typed fields along the foot of the jacket
+    const fy = bot + 12, fh = 40, fw = CW / fields.length;
+    fields.forEach(([l, v], i) => { const x = M + i * fw; P.page.drawRectangle({ x, y: fy, width: fw, height: fh, borderColor: K.buffLine, borderWidth: .75 });
+      P.spaced(l.toUpperCase(), x + 7, fy + fh - 11, 6.6, CB, K.buffInk, .5); const vs = Math.max(8.5, Math.min(11.5, (fw - 14) / Math.max(1, P.tw(v || '-', 1, CB)))); P.text(P.fit(v || '-', CB, vs, fw - 14), x + 7, fy + 9, { size: vs, font: CB, color: K.ink }); });
+    return bot - 2;
   };
-  // a part opens with a full-bleed band: the tool, the part number, and the part's name in stencil capitals
-  P.opener = (pk, sub) => {
-    const col = K.part[pk], tint = K.tint[pk], bh = 160, y0 = H - bh, word = T(TI_PARTS[pk][1]);
-    P.page.drawRectangle({ x: 0, y: y0, width: W, height: bh, color: col });
-    P.page.drawRectangle({ x: 0, y: y0 - 4, width: W, height: 4, color: K.red });
-    let x = M; if (P.logo) { P.rr(M, H - 52.5, 21, 21, 3, { color: K.white }); P.page.drawImage(P.logo, { x: M + 2, y: H - 50.5, width: 17, height: 17 }); x += 29; }
-    const top = [T('CAF DIGITAL TRAVEL ITINERARY'), S.fileNo.trim() ? T('FILE {0}', S.fileNo.trim()) : '', S.tan.trim() ? T('TAN {0}', S.tan.trim()) : ''].filter(Boolean).join('   ·   ');
-    P.spaced(P.fit(top, B, 7.5, M + CW - mkW() - x - 40), x, H - 45.4, 7.5, B, tint, 1.2);
-    const eb = [T('TRAVEL ITINERARY'), T('PART {0} OF {1}', TI_PARTS[pk][2], 2), sub].filter(Boolean).join('   ·   ');
-    P.spaced(eb, M, y0 + 92, 9, B, tint, 2.4);
-    const track = 5, w1 = P.spacedW(word, 1, B, 0), n = P.clean(word).length, size = Math.min(72, (CW - 30 - track * (n - 1)) / w1);
-    P.stencil(word, M - size * .03, y0 + 18, size, K.white, col, track);
-    P.alpha(pk);
-    return y0 - 4;
-  };
+
 }
 // which ClaimsX transportation screen a line belongs to, from its description: car rental, local (taxi, parking,
 // gas, tolls, transit, PMV) or transportation (air, rail, ferry, baggage and the rest)
@@ -5380,14 +5415,9 @@ function tiRcCell(P, items, ctx, sec, i, row) {
 function tiCover(P, items, ctx) {
   const { M, CW, K, F, B } = P; P.part = 'trav'; P.newPage(true);
   const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), st = S.stops, n = st.length, blocks = [];
-  // the opener band, then the trip and the traveller
-  const top0 = P.opener('trav') - 22;
-  const title = S.tripRef.trim() || T('Trip name not entered');
-  let ts = 21, tl = P.wrap(title, B, ts, CW); while (tl.length > 2 && ts > 13.5) { ts -= 1.5; tl = P.wrap(title, B, ts, CW); } tl = tl.slice(0, 2);
-  blocks.push({ h: tl.length * ts * 1.15 + 18, gap: 0, draw: y => {
-    tl.forEach((l, i) => P.text(P.fit(l, B, ts, CW), M, y - ts * .85 - i * ts * 1.15, { size: ts, font: B, color: K.teal })); y -= ts * .85 + (tl.length - 1) * ts * 1.15;
-    P.text(P.fit([fullName() || T('Name not entered'), S.member.section.trim(), S.member.pri.trim() ? T('PRI {0}', S.member.pri.trim()) : ''].filter(Boolean).join('  ·  '), F, 10.5, CW), M, y - 16, { size: 10.5, color: K.soft });
-  } });
+  // the jacket (it names the trip), then the trip at a glance
+  const per = tiPeriod(td);
+  const top0 = P.opener('trav', '', [[T('File number'), S.fileNo.trim()], [T('Period'), per], [T('Destination'), (tripDest() || '').toUpperCase()], [T('TAN'), S.tan.trim()]]) - 20;
   // the ticket: where and when, in a sand panel with a perforated stub for the counts
   const first = st[0], last = st[n - 1], dest = tripDest(), nd = td ? td.length : 0;
   const dl = (d, t) => [isoOk(d) ? `${dow(d)} ${dShort(d)}` : '-', t ? hm(t) : ''];
@@ -5429,7 +5459,7 @@ function tiCover(P, items, ctx) {
   todo.push([T('Sign the data entry sheet'), S.pki ? T('PKI signature, page {0}', ctx.certPage || '') : T('Ink signature, page {0}', ctx.certPage || '')]);
   if (sds.length) todo.push([sds.length === 1 ? T('Declare {0}', sds[0].ref) : nPl(sds.length, 'Declare {0} missing receipt', 'Declare {0} missing receipts'), sds.length === 1 ? (ctx.split ? T('Before an officer, in its own file') : T('Before an officer, page {0}', ctx.pageOf ? ctx.pageOf(sds[0]) : '')) : sds.map(i => i.ref).join(', ') + ', ' + T('before an officer')]);
   todo.push([T('Send the package to the Orderly Room'), ctx.split ? nPl(ctx.files || 1, '{0} separate file', '{0} separate files') : nPl(ctx.total || 0, 'One PDF, {0} page', 'One PDF, {0} pages')]);
-  const look = summaryChecks().slice(0, 4);
+  const look = summaryChecks().slice(0, 3);
   const rightH = 26 + todo.length * 32 + 2 + 22 + (look.length ? look.reduce((a, it) => a + 12 + (it.s ? 11 : 0) + 3, 0) : 16);
   blocks.push({ h: Math.max(leftH, rightH), gap: 22, draw: y0 => {
     let y = y0;
@@ -5450,19 +5480,10 @@ function tiCover(P, items, ctx) {
     if (!look.length) { P.text(P.fit(T('Nothing to look over. Every expense has a receipt or a declaration.'), F, 9, colW), x2, y - 10, { size: 9, color: K.mid }); }
     look.forEach(it => { const lab = it.L ? `${it.L}  ` : ''; P.page.drawCircle({ x: x2 + 3, y: y - 7, size: 2.5, color: it.k === 'warn' ? K.sdLine : K.teal }); P.text(P.fit(lab + it.t, it.k === 'warn' ? F : B, 9, colW - 12), x2 + 11, y - 9.5, { size: 9, font: it.k === 'warn' ? F : B }); y -= 12; if (it.s) { P.text(P.fit(it.s, F, 8.25, colW - 12), x2 + 11, y - 8, { size: 8.25, color: K.mid }); y -= 11; } y -= 3; });
   } });
-  // where the rest is
-  const rcFrom = (ctx.wsPages || 0) + 1;
-  const next = P.wrap([T('Receipts at a glance, page {0}', ctx.indexPage || 2), T('Data entry sheet for the finance clerk, from page {0}', ctx.clerkStart || ''), items.length ? T('Receipts and declarations, from page {0}', rcFrom) : ''].filter(Boolean).join('  ·  '), F, 9, CW - 24).slice(0, 2), nh = 24 + next.length * 11.5;
-  blocks.push({ h: nh, gap: 22, draw: y => {
-    P.rr(M, y - nh, CW, nh, 4.5, { color: K.tealSoft });
-    P.text(T('What comes next'), M + 12, y - 13.5, { size: 9, font: B, color: K.teal });
-    next.forEach((l, i) => P.text(l, M + 12, y - 26 - i * 11.5, { size: 9, color: K.ink }));
-  } });
   // spread the blocks over the page, never past the footer
   const room = top0 - P.BOT - 6, sum = blocks.reduce((a, b) => a + b.h, 0), gaps = blocks.reduce((a, b) => a + b.gap, 0);
   const k = Math.max(.5, Math.min(1.7, (room - sum) / Math.max(1, gaps)));
-  let y = top0; blocks.slice(0, -1).forEach(b => { y -= b.gap * k; b.draw(y); y -= b.h; });
-  const foot = blocks[blocks.length - 1]; foot.draw(Math.max(y - foot.gap, P.BOT + 6 + foot.h)); // the pointer to the rest sits at the foot of the page
+  let y = top0; blocks.forEach(b => { y -= b.gap * k; b.draw(y); y -= b.h; });
 }
 // Part 1, next pages: every receipt as a thumbnail, with its reference, amount and page
 async function tiContact(P, items, ctx, embedRc) {
@@ -5508,28 +5529,10 @@ async function tiContact(P, items, ctx, embedRc) {
 async function tiClerk(P, items, ctx, rec) {
   const { M, CW, K, F, B } = P, m = S.member; P.part = 'clerk'; P.newPage(true); rec.clerkStart = rec.wsStart = P.doc.getPageCount();
   const mark = L => { rec.secPage[L] = P.doc.getPageCount(); };
-  let y = P.opener('clerk', T('DATA ENTRY SHEET')) - 22;
-  // identity plate: who and which trip, big enough to find this sheet in a stack of them
-  { const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), lw = CW - 214, px = M + CW - 196, pw = 196, ph = 100;
-    const who = [rankAbbr(m.rank), m.given].filter(Boolean).join('  ').toUpperCase() || T('NAME NOT ENTERED');
-    P.spaced(P.fit(who, B, 10.5, lw), M, y - 10, 10.5, B, K.slate, 1.4);
-    const sn = (m.surname.trim() || '-').toUpperCase(), ss = Math.max(24, Math.min(50, lw / Math.max(1, P.spacedW(sn, 1, B, 0) + .04 * (sn.length - 1))));
-    P.spaced(P.fit(sn, B, ss, lw), M - ss * .03, y - 14 - ss * .78, ss, B, K.ink, ss * .04);
-    const ty = y - 14 - ss * .78 - 24; P.text(P.fit([S.tripRef.trim(), m.section.trim()].filter(Boolean).join('  ·  '), B, 12, lw), M, ty, { size: 12, font: B, color: K.teal });
-    const pl = [m.pri.trim() ? T('PRI {0}', m.pri.trim()) : '', telStr(m) ? T('Tel. {0}', telStr(m)) : ''].filter(Boolean).join('  ·  ');
-    if (pl) P.text(P.fit(pl, F, 9.75, lw), M, ty - 15, { size: 9.75, color: K.mid });
-    // the data plate, with corner ticks
-    const pt = y + 2, pb = pt - ph, tk = 9, tc = K.ink;
-    [[px, pt, 1, -1], [px + pw, pt, -1, -1], [px, pb, 1, 1], [px + pw, pb, -1, 1]].forEach(([x0, y1, dx, dy]) => { P.line(x0, y1, x0 + dx * tk, y1, 1.5, tc); P.line(x0, y1, x0, y1 + dy * tk, 1.5, tc); });
-    const fno = S.fileNo.trim(), dates = td ? (td.length > 1 ? `${fmtDate(td[0])} - ${fmtDate(td[td.length - 1])}` : fmtDate(td[0])).toUpperCase() : '-';
-    P.spaced(T('FILE NUMBER'), px + 14, pt - 17, 6.6, B, K.slate, 1.2);
-    P.text(P.fit(fno || T('Not entered'), B, fno ? 22 : 12, pw - 28), px + 14, pt - 40, { size: fno ? 22 : 12, font: B, color: fno ? K.ink : K.mid });
-    P.spaced(T('DATES'), px + 14, pt - 57, 6.6, B, K.slate, 1.2); P.text(P.fit(dates, B, 10.5, pw - 28), px + 14, pt - 69, { size: 10.5, font: B });
-    P.spaced(T('TOTAL'), px + 14, pt - 81, 6.6, B, K.slate, 1.2); P.text(P.fit(`${fmtN(gt[pc] || 0)} ${pc}`, B, 10.5, pw - 28), px + 14, pt - 93, { size: 10.5, font: B, color: K.teal });
-    y = Math.min(pb, ty - (pl ? 15 : 0)) - 14; P.line(M, y, M + CW, y, 1.5, K.ink); y -= 10;
-  }
+  const td = tripDates(), gt = grandTotals(), pc = primaryCur(gt), per = tiPeriod(td);
+  let y = P.opener('clerk', T('DATA ENTRY SHEET'), [[T('File number'), S.fileNo.trim()], [T('Period'), per], [T('Total entered'), `${fmtN(gt[pc] || 0)} ${pc}`], [T('Telephone'), telStr(m)]]) - 14;
   // identity strip
-  const id = [[T('TAN'), S.tan.trim()], [T('Trip locator'), S.locator.trim()]].filter(([, v]) => v); // the rest is on the identity plate
+  const id = [[T('TAN'), S.tan.trim()], [T('Trip locator'), S.locator.trim()]].filter(([, v]) => v); // the rest is on the jacket
   const cols = 4, cw = CW / cols, rh = 30;
   for (let i = 0; i < id.length; i += cols) { id.slice(i, i + cols).forEach(([l, v], j) => { const x = M + j * cw; P.text(l.toUpperCase(), x, y - 9, { size: 6.4, font: B, color: K.slate }); P.text(P.fit(v, B, 10.5, cw - 10), x, y - 22, { size: 10.5, font: B }); }); y -= rh; P.line(M, y + 4, M + CW, y + 4, .6, K.hair); }
   if (S.poc.on) { P.text(P.fit(T('Point of contact: {0}', [rankAbbr(S.poc.rank), S.poc.given, S.poc.surname, S.poc.email, telStr(S.poc)].filter(Boolean).join(', ')), F, 9, CW), M, y - 9, { size: 9, color: K.mid }); y -= 16; }
@@ -5683,7 +5686,7 @@ async function build() {
     const logoSrc = (($('img.mark') || {}).src || '');
     const mk = async () => {
       const doc = await PDFDocument.create(); const P = painter(doc, await doc.embedFont(StandardFonts.Helvetica), await doc.embedFont(StandardFonts.HelveticaBold), await doc.embedFont(StandardFonts.HelveticaOblique));
-      if (pretty) { prettify(P); if (ti) tiify(P); if (/^data:image\/png;base64,/.test(logoSrc)) { try { P.logo = await doc.embedPng(dataUrlToBytes(logoSrc)); } catch (e) {} } }
+      if (pretty) { prettify(P); if (ti) { tiify(P); P.CR = await doc.embedFont(StandardFonts.Courier); P.CB = await doc.embedFont(StandardFonts.CourierBold); } if (/^data:image\/png;base64,/.test(logoSrc)) { try { P.logo = await doc.embedPng(dataUrlToBytes(logoSrc)); } catch (e) {} } }
       return { doc, P };
     };
     // receipt page header, and the box the receipt image or page goes in

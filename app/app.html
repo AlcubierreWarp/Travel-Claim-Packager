@@ -3861,11 +3861,11 @@ function tiify(P) {
     P.tc(l3, M + ds / 2, dt - ds / 2 - ls * .36 - 4, ls, B, K.cream);
     const rx = M + ds - 3, ry = dt - ds + 3;
     P.page.drawCircle({ x: rx, y: ry, size: 15, color: K.buff }); P.page.drawCircle({ x: rx, y: ry, size: 12, color: K.disc2 }); P.leaf(rx - 7.5, ry - 7.5, 15, K.cream);
-    // the part, stamped small at the right
-    const stW = P.stamp(word, M + CW - 48, dt - 17, 15, K.stamp, -5);
+    // the part, stamped small beside the security marking, as the part block sits beside it on later pages
+    const stz = 15, stw = P.spacedW(P.clean(word), stz, B, stz * .15) + stz * 1.25; P.stamp(word, M + CW - mkW() - 8 - stw / 2, H - 43, stz, K.stamp, -4);
     // a typed line, the surname as large as the line allows, the disc's stamped line, then the trip
     const sx = M + ds + 20, sw = M + CW - sx, sn = (m.surname.trim() || T('SURNAME')).toUpperCase();
-    P.spaced(P.fitSp([T('TRAVEL ITINERARY'), sub].filter(Boolean).join('  ·  '), CB, 9, 1.2, sw - stW - 24), sx, dt - 7, 9, CB, K.buffInk, 1.2);
+    P.spaced(P.fitSp([T('TRAVEL ITINERARY'), sub].filter(Boolean).join('  ·  '), CB, 9, 1.2, sw), sx, dt - 7, 9, CB, K.buffInk, 1.2);
     const ss = Math.max(26, Math.min(64, sw / Math.max(1, P.tw(sn, 1, B) + .015 * (sn.length - 1)))), base = dt - 16 - ss * .72;
     P.spaced(P.fit(sn, B, ss, sw), sx - ss * .04, base, ss, B, K.ink, ss * .015);
     const disc = [m.pri.trim(), rankAbbr(m.rank).toUpperCase(), [m.surname.trim().toUpperCase(), tiInits(m.given)].filter(Boolean).join(' '), 'CDN'].filter(Boolean).join('   ');

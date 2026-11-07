@@ -5,7 +5,7 @@
 // Production and beta live on the same site, so each keeps its own cache, named after its folder.
 const SCOPE = new URL(self.registration.scope).pathname;
 const PREFIX = 'caf-dti-' + SCOPE + '-';
-const CACHE = PREFIX + '57133b8649';
+const CACHE = PREFIX + '9502560d13';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico', './favicon-32x32.png'];
 // The published offline file, kept so Download offline copy works offline too. Optional: the app still installs without it.
 const OFFLINE_FILE = './CAF_Digital_Travel_Itinerary.html';

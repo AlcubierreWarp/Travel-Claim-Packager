@@ -737,7 +737,7 @@ html{touch-action:manipulation}
           <!--BETA-ONLY--><p class="menu-h">Beta testing</p>
           <button data-act="beta-testdata" id="beta-testdata"><span class="mi-t">Load test data</span></button>
           <button data-act="beta-reset" id="beta-reset" class="danger"><span class="mi-t" id="beta-reset-t">Reset the beta</span></button><!--/BETA-ONLY-->
-          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 9, built 06 Nov 2026 08:55 (production is 1.9)</p>
+          <p class="menu-note menu-ver" data-ver data-noi18n>Version 1.10 beta 10, built 07 Nov 2026 03:10 (production is 1.9)</p>
         </div>
       </div>
     </div>
@@ -951,7 +951,7 @@ html{touch-action:manipulation}
       </div>
     </section>
     <footer class="sitefoot">
-      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 9, built 06 Nov 2026 08:55 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
+      <p>&copy; 2026 Thomas Huet. <span id="app-ver" data-ver data-noi18n>Version 1.10 beta 10, built 07 Nov 2026 03:10 (production is 1.9)</span>. Unofficial tool, not endorsed by DND or the CAF.</p>
       <div class="foot-acts"><a class="btn" id="fb-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Send feedback</a><a class="btn" id="help-foot" href="mailto:Thomas.Huet@forces.gc.ca" target="_blank" rel="noopener">Help</a></div>
     </footer>
   </main>
@@ -2570,7 +2570,15 @@ const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MON_FR = ['janv.','févr.','mars','avr.','mai','juin','juill.','août','sept.','oct.','nov.','déc.'];
 const MONTHS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const DOW_FR = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
-const isoOk = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
+// A real calendar date in YYYY-MM-DD. 2026-02-30 or 2026-13-01 (from an old draft or an odd itinerary) counts as no date,
+// so date arithmetic never meets an invalid date.
+const ISO_OK = new Map();
+const isoOk = d => {
+  if (typeof d !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+  let ok = ISO_OK.get(d);
+  if (ok === undefined) { const t = Date.parse(d + 'T00:00:00Z'); ok = !isNaN(t) && new Date(t).toISOString().slice(0, 10) === d; ISO_OK.set(d, ok); }
+  return ok;
+};
 const fmtDate = d => { if (!isoOk(d)) return d || ''; const [y, m, dd] = d.split('-'); return `${dd} ${(fr() ? MON_FR : MON)[+m - 1]} ${y.slice(2)}`; };
 const fmtLong = d => { if (!isoOk(d)) return d || ''; const [y, m, dd] = d.split('-'); return fr() ? `${+dd === 1 ? '1er' : +dd} ${MONTHS_FR[+m - 1]} ${y}` : `${+dd} ${MONTHS[+m - 1]} ${y}`; };
 const dow = d => isoOk(d) ? (fr() ? DOW_FR : DOW)[new Date(d + 'T12:00:00Z').getUTCDay()] : '';
@@ -2579,7 +2587,16 @@ const MON_FR_BOX = ['janv','févr','mars','avr','mai','juin','juil','août','sep
 const dShow = v => { if (!isoOk(v)) return T('Pick a date'); if (!fr()) return `${dow(v)} ${fmtDate(v)}`; const [y, m, dd] = v.split('-'); return `${dow(v).replace('.', '')} ${dd} ${MON_FR_BOX[+m - 1]} ${y.slice(2)}`; };
 const dateWrap = (html, v) => `<span class="dwrap">${html}<span class="dshow${isoOk(v) ? '' : ' empty'}" aria-hidden="true">${dShow(v)}</span></span>`;
 function syncDate(el) { const sh = el && el.nextElementSibling; if (!sh || !sh.classList.contains('dshow')) return; sh.textContent = dShow(el.value); sh.classList.toggle('empty', !isoOk(el.value)); }
-const num = v => { if (v === '' || v == null) return NaN; return parseFloat(String(v).replace(/[$\s]/g, '').replace(',', '.')); };
+// An amount as typed: 12, 12.50, 12,50, 1,234.56, 1 234,56 or 1.234,56. Anything else (12abc, 1.2.3) is not a number,
+// so it is flagged instead of being read as part of what was typed.
+const num = v => {
+  if (v === '' || v == null) return NaN;
+  let s = String(v).replace(/[$€£\s  ]/g, '');
+  if (/^[-+]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, ''); // 1,234 or 1,234.56
+  else if (/^[-+]?\d{1,3}(\.\d{3})+,\d+$/.test(s)) s = s.replace(/\./g, '').replace(',', '.'); // 1.234,56 (12.500 stays 12.5)
+  else s = s.replace(',', '.');
+  return /^[-+]?(\d+\.?\d*|\.\d+)$/.test(s) ? parseFloat(s) : NaN;
+};
 const fmtN = n => fr() ? n.toFixed(2).replace('.', ',') : n.toFixed(2);
 const money = v => { const n = num(v); return isNaN(n) ? '' : fmtN(n); };
 const curOf = c => String(c || '').trim().toUpperCase();
@@ -2747,26 +2764,59 @@ function normMode(s) {
   const m = map[s.mode.trim().toLowerCase()];
   if (m) s.mode = m; else { s.modeOther = s.mode; s.mode = 'Other'; }
 }
+// Claims come back from claim files, which anyone can send or edit. Before they reach the page, every record
+// is fitted to the shape the app writes: ids are plain letters and digits, text fields are text, ticks are
+// true or false, and receipts are image or PDF data and nothing else. Markup in any value is only ever text.
+const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const safeId = v => typeof v === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(v) ? v : '';
+const ownEntries = v => isObj(v) ? Object.entries(v).filter(([k]) => k !== '__proto__') : [];
+function fitTo(tpl, o) {
+  const r = Object.assign({}, tpl, Object.fromEntries(ownEntries(o)));
+  for (const k of Object.keys(tpl)) {
+    if (typeof tpl[k] === 'string' && typeof r[k] !== 'string') r[k] = r[k] == null || typeof r[k] === 'object' ? tpl[k] : String(r[k]);
+    else if (typeof tpl[k] === 'boolean' && typeof r[k] !== 'boolean') r[k] = r[k] == null ? tpl[k] : !!r[k];
+  }
+  return r;
+}
+const RC_DATA = { img: /^data:image\/(?:jpeg|png|gif|webp);base64,[A-Za-z0-9+/]*={0,2}$/, pdf: /^data:application\/pdf;base64,[A-Za-z0-9+/]*={0,2}$/ };
+function cleanReceipts(src) {
+  const out = {}, n = v => Number.isFinite(+v) && +v > 0 ? Math.round(+v) : 0;
+  for (const [id, r] of ownEntries(src)) {
+    if (!safeId(id) || !isObj(r)) continue;
+    const kind = r.kind === 'pdf' || r.kind === 'img' ? r.kind : '';
+    if (!kind || typeof r.dataUrl !== 'string' || !RC_DATA[kind].test(r.dataUrl)) continue;
+    const c = { id, kind, dataUrl: r.dataUrl, name: String(r.name ?? '').slice(0, 255) || (kind === 'pdf' ? 'receipt.pdf' : 'photo.jpg'), pages: Math.min(n(r.pages) || 1, 9999) };
+    if (n(r.w) && n(r.h)) { c.w = n(r.w); c.h = n(r.h); }
+    out[id] = c;
+  }
+  return out;
+}
 function normalize(s) {
   const b = blank();
-  const o = Object.assign(b, s || {});
-  o.member = Object.assign(blank().member, o.member);
-  o.poc = Object.assign(blank().poc, o.poc);
+  const o = Object.assign(b, Object.fromEntries(ownEntries(s)));
+  for (const k of ['tripRef', 'tan', 'locator', 'fileNo', 'marking']) if (typeof o[k] !== 'string') o[k] = o[k] == null || typeof o[k] === 'object' ? blank()[k] : String(o[k]);
+  for (const k of ['example', 'split', 'fileNoSet']) o[k] = !!o[k];
+  if (!Object.prototype.hasOwnProperty.call(MARKINGS, o.marking)) o.marking = blank().marking;
+  o.member = fitTo(blank().member, o.member);
+  o.poc = fitTo(blank().poc, o.poc);
   for (const who of [o.member, o.poc]) if (OLDRANK[who.rank]) who.rank = OLDRANK[who.rank];
-  const oldL = o.lodging || {};
-  o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays : [], leave: Array.isArray(oldL.leave) ? oldL.leave.filter(l => l && isoOk(l.checkin) && isoOk(l.checkout)) : [] };
-  o.sd = Object.assign(blankSD(), o.sd || {});
-  o.touched = (o.touched && typeof o.touched === 'object') ? o.touched : {};
+  const oldL = isObj(o.lodging) ? o.lodging : {};
+  o.lodging = { stays: Array.isArray(oldL.stays) ? oldL.stays.filter(isObj) : [],
+    leave: Array.isArray(oldL.leave) ? oldL.leave.filter(l => isObj(l) && isoOk(l.checkin) && isoOk(l.checkout)).map(l => fitTo({ city: '', checkin: '', checkout: '' }, Object.assign({}, l, { id: safeId(l.id) || uid() }))) : [] };
+  o.sd = fitTo(blankSD(), o.sd);
+  if (!Object.prototype.hasOwnProperty.call(PROVS, o.sd.juris)) o.sd.juris = ''; // the jurat wording is looked up by it
+  o.touched = isObj(o.touched) ? o.touched : {};
   o.pki = o.pki !== false;
-  o.meals = (o.meals && typeof o.meals === 'object') ? o.meals : {};
+  o.meals = Object.fromEntries(ownEntries(o.meals).filter(([d, m]) => isoOk(d) && isObj(m)).map(([d, m]) => [d, Object.assign({}, m, { note: typeof m.note === 'string' ? m.note : '' })]));
   if (Array.isArray(oldL.rows)) { // drafts from the first version: one row per day
     oldL.rows.forEach(r => {
       if (r.date && (r.b || r.l || r.d || (r.hotel && !r.cost))) o.meals[r.date] = { b: !!r.b, l: !!r.l, d: !!r.d, note: r.cost ? '' : (r.hotel || '') };
       if (r.cost) o.lodging.stays.push({ hotel: r.hotel, location: r.location, checkin: r.date, checkout: r.date ? addDays(r.date, 1) : '', cost: r.cost, cur: r.cur, rc: r.rc || [] });
     });
   }
-  if (!Array.isArray(o.stops) || o.stops.length < 2) o.stops = [newStop(), newStop()];
-  for (const k of ['transport', 'general', 'exchange']) if (!Array.isArray(o[k])) o[k] = [];
+  o.stops = Array.isArray(o.stops) ? o.stops.filter(isObj) : [];
+  if (o.stops.length < 2) o.stops = [newStop(), newStop()];
+  for (const k of ['transport', 'general', 'exchange']) o[k] = Array.isArray(o[k]) ? o[k].filter(isObj) : [];
   // version 4: phone calls moved into general expenses, and the sections were put in claim entry order
   // (E general, F currency exchange, G meals). Older drafts keep what the member had opened.
   if (Array.isArray(o.calls)) { o.calls.forEach(c => { if (!c) return; const kind = c.kind === 'Personal' ? 'Personal call' : 'Business call';
@@ -2776,8 +2826,13 @@ function normalize(s) {
   if ((+(s && s.v) || 0) < 4) { const t = o.touched, map = { E: 'G', F: 'E', G: 'F', H: 'E' }, nt = {}; Object.keys(t).forEach(k => { nt[map[k] || k] = nt[map[k] || k] || t[k]; }); o.touched = nt; }
   o.v = 4;
   o.dayStatus = (o.dayStatus && typeof o.dayStatus === 'object') ? Object.fromEntries(Object.entries(o.dayStatus).filter(([d, v]) => isoOk(d) && ['normal', 'leave', 'field'].includes(v))) : {};
-  for (const k of ['transport', 'general', 'exchange', 'stays']) getArr(k, o).forEach((r, i, a) => { a[i] = Object.assign(ROWNEW[k](), r); a[i].id = r.id || uid(); a[i].rc = Array.isArray(r.rc) ? r.rc : []; sdMigrate(a[i]); });
-  o.stops.forEach(s => { s.id = s.id || uid(); normMode(s); });
+  for (const k of ['transport', 'general', 'exchange', 'stays']) getArr(k, o).forEach((r, i, a) => { a[i] = fitTo(ROWNEW[k](), r); a[i].id = safeId(r.id) || uid(); a[i].rc = Array.isArray(r.rc) ? r.rc.filter(safeId) : []; sdMigrate(a[i]); });
+  o.stops = o.stops.map(s => { const t = fitTo(newStop(), s); t.id = safeId(s.id) || uid(); normMode(t); return t; });
+  // a date the date boxes cannot show (2026-02-30) would print in the package while the box looks empty: treat it as missing
+  const noBadDate = (r, ks) => ks.forEach(k => { if (r[k] && !isoOk(r[k])) r[k] = ''; });
+  o.stops.forEach(s => noBadDate(s, ['arrDate', 'depDate']));
+  for (const k of ['transport', 'general', 'exchange', 'stays']) getArr(k, o).forEach(r => noBadDate(r, ['date', 'checkin', 'checkout']));
+  noBadDate(o.sd, ['declDate']);
   if (!o.fileNoSet && !String(o.fileNo || '').trim()) o.fileNo = FILENO_DEFAULT; // drafts from before the default
   return o;
 }
@@ -2845,7 +2900,7 @@ function rcHTML(sec, row, i) {
   const chips = row.rc.map((rid, j) => {
     const r = R[rid]; if (!r) return '';
     const vis = r.kind === 'img'
-      ? `<span class="thumb"><img src="${r.dataUrl}" alt=""></span>`
+      ? `<span class="thumb"><img src="${esc(r.dataUrl)}" alt=""></span>`
       : `<span class="pdfbadge" aria-hidden="true">PDF</span>`;
     const lab = `${vis}<span class="ref">${refs[j]}</span><span class="fn" title="${esc(r.name)}">${esc(r.name)}${r.pages > 1 ? ` (${T('{0} pp', r.pages)})` : ''}</span>`;
     return `<span class="chip">${r.kind === 'img' ? `<button class="chip-open" data-act="edit-rc" data-rid="${rid}" aria-label="${esc(T('Edit or crop receipt {0}', refs[j]))}" title="${esc(T('Edit or crop'))}">${lab}</button>` : lab}<button class="x" data-act="rmrc" data-sec="${sec}" data-row="${row.id}" data-rid="${rid}" aria-label="${esc(T('Remove receipt {0}', refs[j]))}">×</button></span>`;
@@ -3388,7 +3443,7 @@ function restore() {
   try {
     const raw = sessionStorage.getItem(STORE); if (!raw) return false;
     const o = JSON.parse(raw); if (!o || !o.S) return false;
-    S = normalize(o.S); R = o.R || {};
+    S = normalize(o.S); R = cleanReceipts(o.R);
     let lost = 0; LIST_SECS.forEach(s => getArr(s).forEach(r => { const before = r.rc.length; r.rc = r.rc.filter(id => R[id]); lost += before - r.rc.length; }));
     if (lost) setTimeout(() => toast(nPl(lost, '{0} receipt was too large to keep after the reload. Please attach it again.', '{0} receipts were too large to keep after the reload. Please attach them again.')), 400);
     return true;
@@ -4119,9 +4174,9 @@ function saveDraft() { offerFile(fileBase() + draftSuffix() + '.json', draftPayl
 // Beta builds carry the number the next production release will have, plus the build date.
 // Stamped by build.py. Production: VERSION, e.g. 1.2. Beta: next minor plus a build number that goes up
 // with every beta publish, e.g. 1.3-beta.3, so testers can tell whether they have the latest build.
-const APP_VERSION = '1.10-beta.9';
+const APP_VERSION = '1.10-beta.10';
 const APP_CHANNEL = 'beta'; // 'beta' or 'production'
-const APP_LABEL = 'Version 1.10 beta 9, built 06 Nov 2026 08:55 (production is 1.9)';
+const APP_LABEL = 'Version 1.10 beta 10, built 07 Nov 2026 03:10 (production is 1.9)';
 const MOBILE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
 function shareable(name, type) {
   try { return !!(navigator.canShare && navigator.share) && navigator.canShare({ files: [new File(['x'], name, { type })] }); } catch (e) { return false; }
@@ -4370,7 +4425,7 @@ async function openDraft(f) {
   try {
     const o = JSON.parse(await f.text());
     if (!o || !['caf-digital-travel-itinerary', 'jmc-travel-claim-packager'].includes(o.app) || !o.state) throw new Error('shape');
-    S = normalize(o.state); R = o.receipts || {};
+    S = normalize(o.state); R = cleanReceipts(o.receipts);
     LIST_SECS.forEach(s => getArr(s).forEach(r => { r.rc = r.rc.filter(id => R[id]); }));
     markSeen(); newClaimState(); renderAll(); toast(o.saved ? T('Opened draft saved {0}.', new Date(o.saved).toLocaleString(fr() ? 'fr-CA' : 'en-CA')) : T('Opened draft.'));
   } catch (e) { toast(T('That file is not a draft from this tool.')); }
@@ -4387,7 +4442,6 @@ function checkStale() {
   lastPdf = null; lastParts = null; lastSig = ''; const r = $('#result'); if (r) r.hidden = true;
   const st = $('#build-status'); if (st) st.textContent = T('Changed since the last build. Build again for an up-to-date PDF.');
 }
-const meals = m => MEALS.filter(([k]) => m && m[k]).map(([k]) => k.toUpperCase()).join(' ');
 const amt = (v, c) => { const m = money(v); return m ? `${m} ${curOf(c)}`.trim() : ''; };
 function rowDesc(sec, r) {
   if (sec === 'stays') { const n = nights(r); return [r.priv ? T('Private accommodation') + ', ' + privAddr(r) : r.quarters ? T('Quarters') + ', ' + r.location : r.hotel, T('{0} to {1}', fmtDate(r.checkin), fmtDate(r.checkout)), n > 0 ? nPl(n, '{0} night', '{0} nights') : ''].filter(Boolean).join(', '); }
@@ -4395,14 +4449,6 @@ function rowDesc(sec, r) {
   return r.desc;
 }
 const rowAmt = (sec, r) => sec === 'exchange' ? (money(r.charge) ? T('Service charge {0}', amt(r.charge, r.chargeCur)) : '') : amt(r.cost, r.cur);
-function declExpense(sec, r) {
-  const n = nights(r);
-  switch (sec) {
-    case 'stays': return { what: `lodging at ${r.hotel.trim() || 'a hotel'}${r.location.trim() ? ', ' + r.location.trim() : ''}, ${n > 0 ? n + ' night' + (n > 1 ? 's' : '') : 'stay'} from ${fmtLong(r.checkin)} to ${fmtLong(r.checkout)}`, amount: amt(r.cost, r.cur) };
-    case 'exchange': return { what: `a currency exchange of ${amt(r.soldAmt, r.soldCur) || 'an amount'} for ${amt(r.boughtAmt, r.boughtCur) || 'foreign currency'}`, amount: money(r.charge) ? 'a service charge of ' + amt(r.charge, r.chargeCur) : '' };
-    default: return { what: (r.desc || 'an expense').trim(), amount: amt(r.cost, r.cur) };
-  }
-}
 
 function painter(doc, F, B, I) {
   const { rgb } = PDFLib;
@@ -4836,7 +4882,6 @@ syncImport();
 const PSEC = { A: ['Personal information', 'Renseignements personnels'], B: ['Travel itinerary', 'Itinéraire de voyage'], C: ['Transportation', 'Frais de transport'], D: ['Lodging', 'Hébergement'], E: ['General expenses', 'Frais généraux'], F: ['Currency exchange', 'Reçus de change'], G: ['Meals', 'Repas'] };
 const PSHORT = { C: 'Transportation', D: 'Lodging', E: 'General', F: 'Exchange fees' };
 const dShort = d => fmtDate(d).replace(/ \d\d$/, '').replace(/^0/, '');
-const dRange = (a, b) => isoOk(a) && isoOk(b) && a.slice(0, 7) === b.slice(0, 7) ? `${+a.slice(8)}-${dShort(b)}` : `${dShort(a)} - ${dShort(b)}`;
 // small travel icons (10 x 10, drawn as shapes so they need no font)
 const modeIcon = m => ({ CAL: 'plane', Train: 'train', PMV: 'car', 'PMV Pax': 'car', 'Rental Car': 'car', Shuttle: 'bus', Other: 'other' })[m] || '';
 const dDow = d => `${dow(d)} ${dShort(d)}`;
@@ -6070,7 +6115,7 @@ async function openSnap(file) {
   const dlg = $('#snap'); try { dlg.showModal(); } catch (_) { dlg.setAttribute('open', ''); }
 }
 function snapPreview() {
-  $('#snap-prev').innerHTML = snapRc.kind === 'img' ? `<img src="${snapRc.dataUrl}" alt="${T('Receipt photo')}">` : `<span class="pdfbadge">${fr() ? 'PDF :' : 'PDF:'} ${esc(snapRc.name)}</span>`;
+  $('#snap-prev').innerHTML = snapRc.kind === 'img' ? `<img src="${esc(snapRc.dataUrl)}" alt="${esc(T('Receipt photo'))}">` : `<span class="pdfbadge">${fr() ? 'PDF :' : 'PDF:'} ${esc(snapRc.name)}</span>`;
   $('#snap-crop-row').hidden = snapRc.kind !== 'img';
 }
 
@@ -6369,7 +6414,7 @@ async function restoreDevice() {
     const c = await unseal(await idbGet('claim')); if (!c || !c.S) return false;
     const rcs = {};
     for (const id of c.rcIds || []) { const r = await unseal(await idbGet('rc:' + id)); if (r) { rcs[id] = r; DEV.savedRc.add(id); } }
-    S = normalize(c.S); R = rcs;
+    S = normalize(c.S); R = cleanReceipts(rcs);
     LIST_SECS.forEach(sec => getArr(sec).forEach(r => { r.rc = r.rc.filter(id => R[id]); }));
     const meta = (await idbGet('meta')) || {}; DEV.lastSaved = meta.savedAt || 0;
     return true;
